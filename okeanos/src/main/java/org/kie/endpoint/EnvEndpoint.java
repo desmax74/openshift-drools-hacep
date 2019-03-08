@@ -1,4 +1,4 @@
-package org.kie.okeanos.endpoint;
+package org.kie.endpoint;
 
 import java.util.Map;
 import javax.ws.rs.GET;

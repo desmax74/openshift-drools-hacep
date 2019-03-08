@@ -1,4 +1,4 @@
-package org.kie.okeanos.endpoint;
+package org.kie.endpoint;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

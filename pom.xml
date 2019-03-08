@@ -8,6 +8,7 @@
   <packaging>pom</packaging>
 
   <properties>
+    <project.version>1.0-SNAPSHOT</project.version>
     <failOnMissingWebXml>false</failOnMissingWebXml>
     <surefire.version>2.22.0</surefire.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -28,7 +29,7 @@
   </properties>
 
   <modules>
-  	<module>okeanos</module>
+    <module>okeanos</module>
     <module>quarkus</module>
     <module>thorntail</module>
   </modules>
@@ -88,15 +89,25 @@
       <!-- quarkus -->
       <dependency>
         <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-bom</artifactId>
+        <version>${quarkus.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.quarkus</groupId>
         <artifactId>quarkus-resteasy</artifactId>
         <version>${quarkus.version}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-arc</artifactId>
         <version>${quarkus.version}</version>
-        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-arc-runtime</artifactId>
+        <version>${quarkus.version}</version>
       </dependency>
       <dependency>
         <groupId>io.quarkus</groupId>
