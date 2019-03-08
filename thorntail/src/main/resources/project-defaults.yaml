@@ -1,0 +1,16 @@
+thorntail:
+  logging:
+    level: INFO
+    pattern-formatters:
+      LOG_FORMATTER:
+        pattern: "CUSTOM LOG FORMAT %p [%c] %s%e%n"
+    root-logger:
+      handlers:
+        - CONSOLE
+
+
+
+
+
+
+

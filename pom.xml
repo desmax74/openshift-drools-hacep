@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.kie</groupId>
+  <artifactId>openshift-kie-parent</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <properties>
+    <failOnMissingWebXml>false</failOnMissingWebXml>
+    <surefire.version>2.22.0</surefire.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <version.thorntail>2.3.0.Final</version.thorntail>
+    <version.org.kie>8.0.0-SNAPSHOT</version.org.kie>
+    <version.kafka.client>2.1.1</version.kafka.client>
+    <version.jetcd>0.3.0</version.jetcd>
+    <generateModel>YES</generateModel>
+    <quarkus.version>0.11.0</quarkus.version>
+    <rest.assured>3.3.0</rest.assured>
+    <surefire.forkCount>1</surefire.forkCount>
+    <alphanetworkCompilerEnabled>false</alphanetworkCompilerEnabled>
+    <version.com.fasterxml.jackson>2.9.8</version.com.fasterxml.jackson>
+    <version.javax.cdi>2.0.SP1</version.javax.cdi>
+    <version.javax.ws.rs>2.1.1</version.javax.ws.rs>
+  </properties>
+
+  <modules>
+  	<module>okeanos</module>
+    <module>quarkus</module>
+    <module>thorntail</module>
+  </modules>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.thorntail</groupId>
+        <artifactId>bom-all</artifactId>
+        <version>${version.thorntail}</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
+
+      <!-- drools -->
+      <dependency>
+        <groupId>org.drools</groupId>
+        <artifactId>drools-canonical-model</artifactId>
+        <version>${version.org.kie}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jbpm</groupId>
+        <artifactId>jbpm-flow-builder</artifactId>
+        <version>${version.org.kie}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-core-dynamic</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.drools</groupId>
+        <artifactId>drools-core-static</artifactId>
+        <version>${version.org.kie}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.drools</groupId>
+        <artifactId>drools-model-compiler</artifactId>
+        <version>${version.org.kie}</version>
+      </dependency>
+
+      <!-- kafka -->
+      <dependency>
+        <groupId>org.apache.kafka</groupId>
+        <artifactId>kafka-clients</artifactId>
+        <version>${version.kafka.client}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${version.com.fasterxml.jackson}</version>
+        <scope>compile</scope>
+      </dependency>
+
+      <!-- quarkus -->
+      <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-resteasy</artifactId>
+        <version>${quarkus.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-arc</artifactId>
+        <version>${quarkus.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-junit5</artifactId>
+        <version>${quarkus.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.rest-assured</groupId>
+        <artifactId>rest-assured</artifactId>
+        <version>${rest.assured}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <!-- thorntail -->
+      <dependency>
+        <groupId>io.thorntail</groupId>
+        <artifactId>cdi</artifactId>
+        <version>${version.thorntail}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.thorntail</groupId>
+        <artifactId>jaxrs</artifactId>
+        <version>${version.thorntail}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.thorntail</groupId>
+        <artifactId>logging</artifactId>
+        <version>${version.thorntail}</version>
+      </dependency>
+
+      <!-- etcd -->
+      <dependency>
+        <groupId>io.etcd</groupId>
+        <artifactId>jetcd-core</artifactId>
+        <version>${version.jetcd}</version>
+      </dependency>
+
+      <!-- -->
+      <dependency>
+        <groupId>javax.enterprise</groupId>
+        <artifactId>cdi-api</artifactId>
+        <version>${version.javax.cdi}</version>
+        <scope>compile</scope>
+      </dependency>
+
+      <!-- https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api -->
+      <dependency>
+        <groupId>javax.ws.rs</groupId>
+        <artifactId>javax.ws.rs-api</artifactId>
+        <version>${version.javax.ws.rs}</version>
+        <scope>compile</scope>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+  <build>
+    <finalName>${project.artifactId}</finalName>
+  </build>
+
+
+</project>
