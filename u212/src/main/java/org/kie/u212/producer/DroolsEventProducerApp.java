@@ -18,9 +18,9 @@ package org.kie.u212.producer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.kie.u212.model.StockTickEvent;
-import org.kie.u212.producer.DroolsProducer;
 
 public class DroolsEventProducerApp {
 
@@ -33,8 +33,7 @@ public class DroolsEventProducerApp {
     public void businessLogic(Integer eventNumber){
         List<StockTickEvent> events = new ArrayList<>();
         for(int i=0; i < eventNumber; i++) {
-            //@TODO add some random in these numbers: price and timestamp
-            events.add(new StockTickEvent( "RHT", 100.00, 100L , UUID.randomUUID().toString()));
+            events.add(new StockTickEvent("RHT", ThreadLocalRandom.current().nextLong(80, 100), UUID.randomUUID().toString()));
         }
         droolsProducer.create(events);
     }

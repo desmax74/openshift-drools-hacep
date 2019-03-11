@@ -14,6 +14,7 @@ public class PubSubConfig {
   public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT";
   public static final String BROKER_URL = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST);
   public static final String BROKER_PORT = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT);
+  public static final String GROUP = "group-1";
   private static final Logger logger = LoggerFactory.getLogger(PubSubConfig.class);
 
   public static Properties getConfig(String groupId,

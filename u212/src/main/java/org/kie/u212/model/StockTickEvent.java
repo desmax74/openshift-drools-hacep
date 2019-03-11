@@ -25,13 +25,12 @@ public class StockTickEvent {
 
     private final String company;
     private final double price;
-    private final long timestamp;
+    private long timestamp;
     private final String id;
 
-    public StockTickEvent(String company, double price, long timestamp, String id ) {
+    public StockTickEvent(String company, double price, String id ) {
         this.company = company;
         this.price = price;
-        this.timestamp = timestamp;
         this.id = id;
     }
 
@@ -45,6 +44,12 @@ public class StockTickEvent {
 
     public long getTimestamp() {
         return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        if(this.timestamp == 0) {
+            this.timestamp = timestamp;
+        }
     }
 
     public String getId() { return id; }

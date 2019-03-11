@@ -17,7 +17,6 @@ package org.kie.u212.consumer;
 
 import org.kie.u212.PubSubConfig;
 import org.kie.u212.infra.consumer.ConsumerThread;
-import org.kie.u212.consumer.EmptyConsumerHandler;
 import org.kie.u212.model.StockTickEvent;
 
 public class DroolsConsumerController {
@@ -37,7 +36,7 @@ public class DroolsConsumerController {
                             false ,
                             true,
                             true,
-                            new EmptyConsumerHandler()));
+                            new DroolsConsumerHandler()));
             t.start();
         }
     }
@@ -54,7 +53,7 @@ public class DroolsConsumerController {
                         false ,
                         true,
                         true,
-                        new EmptyConsumerHandler()));
+                        new DroolsConsumerHandler()));
         t.start();
     }
 
