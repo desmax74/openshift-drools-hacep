@@ -29,7 +29,7 @@
   </properties>
 
   <modules>
-    <module>okeanos</module>
+    <module>u212</module>
     <module>quarkus</module>
     <module>thorntail</module>
   </modules>

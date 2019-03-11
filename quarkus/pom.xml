@@ -28,7 +28,7 @@
 
     <dependency>
       <groupId>org.kie</groupId>
-      <artifactId>openshift-kie-okeanos</artifactId>
+      <artifactId>openshift-kie-u212</artifactId>
       <version>${project.version}</version>
     </dependency>
 

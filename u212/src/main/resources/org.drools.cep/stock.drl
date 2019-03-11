@@ -1,0 +1,10 @@
+package org.drools.cep
+
+import org.drools.cep.model.StockTickEvent
+
+rule StockAverage when
+  $name : String()
+  accumulate ( StockTickEvent( company == $name, $p : price ) over window:time(30s), $avg : average( $p ) )
+then
+  System.out.println("Average price for " + $name + " is " + $avg);
+end
