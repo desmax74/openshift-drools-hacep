@@ -27,7 +27,8 @@
     <version.com.fasterxml.jackson>2.9.8</version.com.fasterxml.jackson>
     <version.javax.cdi>2.0.SP1</version.javax.cdi>
     <version.javax.ws.rs>2.1.1</version.javax.ws.rs>
-    <version.drools>8.0.0-SNAPSHOT</version.drools>
+    <version.drools>7.18.0.Final</version.drools>
+    <version.guava>27.0.1-jre</version.guava>
   </properties>
 
   <modules>
@@ -124,6 +125,16 @@
         <groupId>io.thorntail</groupId>
         <artifactId>logging</artifactId>
         <version>${version.thorntail}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.thorntail</groupId>
+        <artifactId>undertow</artifactId>
+        <version>${version.thorntail}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${version.guava}</version>
       </dependency>
 
       <!-- etcd -->
