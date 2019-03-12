@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.endpoint;
+package org.kie.u212.election;
 
-import javax.servlet.ServletContext;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Context;
+import com.ibm.etcd.client.utils.EtcdLeaderElection;
 
-@ApplicationPath("/rest")
-public class RestApplication extends Application {
+public interface EtcdElectionCLient {
 
-    @Context
-    ServletContext servletContext;
+    boolean amITheLeader();
 
+    String getID();
+
+    String getLeaderID();
+
+    EtcdLeaderElection getObserver();
+
+    void close();
 }

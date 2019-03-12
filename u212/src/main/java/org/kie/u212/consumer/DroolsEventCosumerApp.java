@@ -1,12 +1,12 @@
 package org.kie.u212.consumer;
 
-import org.kie.u212.PubSubConfig;
+import org.kie.u212.Config;
 
 public class DroolsEventCosumerApp {
 
     private DroolsConsumerController consumerController = new DroolsConsumerController();
 
     public void businessLogic(){
-        consumerController.consumeEvents(PubSubConfig.GROUP, -1, 10);
+        consumerController.consumeEvents(Config.GROUP, -1, 10);
     }
 }

@@ -7,7 +7,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.kie.u212.producer.DroolsEventProducerApp;
-import org.kie.u212.PubSubConfig;
+import org.kie.u212.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +22,7 @@ public class ProducerEndpoint {
     @Path("/brokers")
     @Produces(MediaType.TEXT_PLAIN)
     public String brokers() {
-        return PubSubConfig.getBotStrapServers();
+        return Config.getBotStrapServers();
     }
 
     @GET

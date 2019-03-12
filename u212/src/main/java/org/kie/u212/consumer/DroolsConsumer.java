@@ -37,7 +37,7 @@ import org.kie.u212.infra.consumer.BaseConsumer;
 import org.kie.u212.infra.consumer.ConsumerHandler;
 import org.kie.u212.infra.consumer.EventConsumer;
 import org.kie.u212.infra.utils.ConsumerUtils;
-import org.kie.u212.PubSubConfig;
+import org.kie.u212.Config;
 import org.kie.u212.infra.PartitionListener;
 import org.kie.u212.infra.OffsetManager;
 import org.slf4j.Logger;
@@ -70,7 +70,7 @@ public class DroolsConsumer<T> implements EventConsumer {
 
         this.autoCommit = autoCommit;
         this.groupId = groupId;
-        consumer = new KafkaConsumer<>(PubSubConfig.getDefaultConfig());
+        consumer = new KafkaConsumer<>(Config.getDefaultConfig());
         consumer.subscribe(Collections.singletonList(topic),
                            new PartitionListener(consumer,
                                                  offsets));
@@ -136,7 +136,7 @@ public class DroolsConsumer<T> implements EventConsumer {
                           List partitions,
                           boolean autoCommit) {
         boolean isAssigned = false;
-        consumer = new KafkaConsumer<>(PubSubConfig.getDefaultConfig());
+        consumer = new KafkaConsumer<>(Config.getDefaultConfig());
         List<PartitionInfo> partitionsInfo = consumer.partitionsFor(topic);
         Collection<TopicPartition> partitionCollection = new ArrayList<>();
         if (partitionsInfo != null) {

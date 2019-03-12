@@ -15,7 +15,7 @@
  */
 package org.kie.u212.consumer;
 
-import org.kie.u212.PubSubConfig;
+import org.kie.u212.Config;
 import org.kie.u212.infra.consumer.ConsumerThread;
 import org.kie.u212.model.StockTickEvent;
 
@@ -29,8 +29,8 @@ public class DroolsConsumerController {
                     new ConsumerThread<StockTickEvent>(
                             String.valueOf(i),
                             groupName,
-                            PubSubConfig.MASTER_TOPIC,
-                            "org.kie.u212.infra.pubsub.utils.EventJsonSerializer",
+                            Config.MASTER_TOPIC,
+                            "org.kie.u212.consumer.EventJsonSerializer",
                             pollSize,
                             duration,
                             false ,
@@ -46,8 +46,8 @@ public class DroolsConsumerController {
                 new ConsumerThread<StockTickEvent>(
                         "1",
                         groupName,
-                        PubSubConfig.MASTER_TOPIC,
-                        "org.kie.u212.infra.pubsub.utils.EventJsonSerializer",
+                        Config.MASTER_TOPIC,
+                        "org.kie.u212.consumer.EventJsonSerializer",
                         pollSize,
                         duration,
                         false ,

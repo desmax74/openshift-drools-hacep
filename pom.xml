@@ -18,6 +18,7 @@
     <version.org.kie>8.0.0-SNAPSHOT</version.org.kie>
     <version.kafka.client>2.1.1</version.kafka.client>
     <version.jetcd>0.3.0</version.jetcd>
+    <version.etcd-java>0.0.9</version.etcd-java>
     <generateModel>YES</generateModel>
     <quarkus.version>0.11.0</quarkus.version>
     <rest.assured>3.3.0</rest.assured>
@@ -127,10 +128,11 @@
 
       <!-- etcd -->
       <dependency>
-        <groupId>io.etcd</groupId>
-        <artifactId>jetcd-core</artifactId>
-        <version>${version.jetcd}</version>
+        <groupId>com.ibm.etcd</groupId>
+        <artifactId>etcd-java</artifactId>
+        <version>${version.etcd-java}</version>
       </dependency>
+
 
       <!-- -->
       <dependency>

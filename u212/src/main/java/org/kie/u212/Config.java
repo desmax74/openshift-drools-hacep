@@ -6,8 +6,9 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PubSubConfig {
+public class Config {
 
+  public static final String ETCD_CLIENT = "ETCD_CLIENT";
   public static final String MASTER_TOPIC = "master.events";
   public static final String USERS_INPUT_TOPIC = "users.input.events";
   public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST";
@@ -15,7 +16,7 @@ public class PubSubConfig {
   public static final String BROKER_URL = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST);
   public static final String BROKER_PORT = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT);
   public static final String GROUP = "group-1";
-  private static final Logger logger = LoggerFactory.getLogger(PubSubConfig.class);
+  private static final Logger logger = LoggerFactory.getLogger(Config.class);
 
   public static Properties getConfig(String groupId,
                                      String valueSerializerClassName,
@@ -32,7 +33,7 @@ public class PubSubConfig {
 
   public static String getBotStrapServers() {
     StringBuilder sb = new StringBuilder();
-    sb.append(PubSubConfig.BROKER_URL).append(":").append(PubSubConfig.BROKER_PORT)
+    sb.append(Config.BROKER_URL).append(":").append(Config.BROKER_PORT)
             .append(",").append("my-cluster-kafka-brokers.my-kafka-project.svc").append(":9091")
             .append(",").append("my-cluster-kafka-brokers.my-kafka-project.svc").append(":9092")
             .append(",").append("my-cluster-kafka-brokers.my-kafka-project.svc").append(":9093");

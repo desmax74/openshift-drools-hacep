@@ -31,7 +31,7 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
-import org.kie.u212.PubSubConfig;
+import org.kie.u212.Config;
 import org.kie.u212.infra.OffsetManager;
 import org.kie.u212.infra.PartitionListener;
 import org.kie.u212.infra.utils.ConsumerUtils;
@@ -69,7 +69,7 @@ public class BaseConsumer<T> implements EventConsumer {
     public void subscribe(String groupId,
                           String topic,
                           boolean autoCommit) {
-        consumer = new KafkaConsumer<>(PubSubConfig.getDefaultConfig());
+        consumer = new KafkaConsumer<>(Config.getDefaultConfig());
         consumer.subscribe(Collections.singletonList(topic),
                            new PartitionListener(consumer,
                                                  offsets));
@@ -136,7 +136,7 @@ public class BaseConsumer<T> implements EventConsumer {
                           List partitions,
                           boolean autoCommit) {
         boolean isAssigned = false;
-        consumer = new KafkaConsumer<>(PubSubConfig.getDefaultConfig());
+        consumer = new KafkaConsumer<>(Config.getDefaultConfig());
         List<PartitionInfo> partitionsInfo = consumer.partitionsFor(topic);
         Collection<TopicPartition> partitionCollection = new ArrayList<>();
         if (partitionsInfo != null) {

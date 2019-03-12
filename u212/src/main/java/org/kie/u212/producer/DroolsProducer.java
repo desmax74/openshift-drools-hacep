@@ -20,7 +20,7 @@ import java.util.List;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.kie.u212.model.StockTickEvent;
-import org.kie.u212.PubSubConfig;
+import org.kie.u212.Config;
 import org.kie.u212.infra.producer.EventProducer;
 import org.kie.u212.infra.utils.RecordMetadataUtil;
 
@@ -28,10 +28,10 @@ public class DroolsProducer {
 
     public RecordMetadata create(List<StockTickEvent> events) {
         EventProducer<StockTickEvent> eventProducer = new EventProducer<>();
-        eventProducer.start(PubSubConfig.getDefaultConfig());
+        eventProducer.start(Config.getDefaultConfig());
         RecordMetadata lastRecord = null;
         for(StockTickEvent event: events) {
-            lastRecord = eventProducer.produceSync(new ProducerRecord<>(PubSubConfig.MASTER_TOPIC,
+            lastRecord = eventProducer.produceSync(new ProducerRecord<>(Config.MASTER_TOPIC,
                                                                         event.getId(),
                                                                         event));
             RecordMetadataUtil.logRecord(lastRecord);
@@ -42,10 +42,10 @@ public class DroolsProducer {
 
     public RecordMetadata create(StockTickEvent event) {
         EventProducer<StockTickEvent> eventProducer = new EventProducer<>();
-        eventProducer.start(PubSubConfig.getDefaultConfig());
-        RecordMetadata lastRecord =  eventProducer.produceSync(new ProducerRecord<>(PubSubConfig.MASTER_TOPIC,
-                                                                        event.getId(),
-                                                                        event));
+        eventProducer.start(Config.getDefaultConfig());
+        RecordMetadata lastRecord =  eventProducer.produceSync(new ProducerRecord<>(Config.MASTER_TOPIC,
+                                                                                    event.getId(),
+                                                                                    event));
         RecordMetadataUtil.logRecord(lastRecord);
         eventProducer.stop();
         return lastRecord;
