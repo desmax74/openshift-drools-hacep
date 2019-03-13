@@ -1,3 +1,18 @@
+/*
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.kie.u212.election;
 
 import java.math.BigDecimal;
@@ -21,9 +36,9 @@ import org.slf4j.LoggerFactory;
  * Monitors current status and participate to leader election when no active leaders are present.
  * It communicates changes in leadership and cluster members to the given event handler.
  */
-public class LeadershipElectionImpl implements LeadershipElection {
+public class LeaderElectionImpl implements LeaderElection {
 
-  private static final Logger logger = LoggerFactory.getLogger(LeadershipElectionImpl.class);
+  private static final Logger logger = LoggerFactory.getLogger(LeaderElectionImpl.class);
   private KubernetesClient kubernetesClient;
   private KubernetesLockConfiguration lockConfiguration;
   private State currentState = State.NOT_LEADER;
@@ -31,13 +46,13 @@ public class LeadershipElectionImpl implements LeadershipElection {
   private volatile LeaderInfo latestLeaderInfo;
   private volatile ConfigMap latestConfigMap;
   private volatile Set<String> latestMembers;
-  public LeadershipElectionImpl(KubernetesClient kubernetesClient,
-                                KubernetesLockConfiguration lockConfiguration) {
+  public LeaderElectionImpl(KubernetesClient kubernetesClient,
+                            KubernetesLockConfiguration lockConfiguration) {
     this.kubernetesClient = kubernetesClient;
     this.lockConfiguration = lockConfiguration;
   }
 
-  public void start() throws Exception {
+  public void start(){
     if (serializedExecutor == null) {
       logger.debug("{} Starting leadership controller...",
                    logPrefix());

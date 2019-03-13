@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.consumer;
+package org.kie.u212.election;
 
-import org.kie.u212.core.Config;
+public interface LeaderElection {
 
-public class DroolsEventCosumerApp {
+  void start() throws Exception;
 
-  private DroolsConsumerController consumerController = new DroolsConsumerController();
+  void stop() throws Exception;
 
-  public void businessLogic() {
-    consumerController.consumeEvents(Config.GROUP,
-                                     -1,
-                                     10);
-  }
+  boolean amITheLeader();
 }
