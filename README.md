@@ -13,20 +13,6 @@ mvn thorntail:run
 
 Point to http://localhost:8080/rest/hello for Drools hello world
 
-### More complex example
-
-- post 
-
-```sh
-curl -d '{"name":"edo", "age":32}' -H "Content-Type: application/json" \
-    -X POST http://localhost:8080/persons                                                                                                    ~
-```
-
-- http://<address>/rest/env/all returns a list of all env vars
-
-- http://<address>//rest/pub/demo/<items> produces N items in the kafka's topic 
-
-- http://<address>//rest/sub/demo/ start a consumer of the Kafka's topic
 ### Manual Deploy on Openshift
 
 #### Build Container on docker
