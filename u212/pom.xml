@@ -25,11 +25,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.ibm.etcd</groupId>
-      <artifactId>etcd-java</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <scope>compile</scope>
@@ -43,6 +38,16 @@
       <groupId>javax.enterprise</groupId>
       <artifactId>cdi-api</artifactId>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-client</artifactId>
+      <version>${version.k8s.client}</version>
     </dependency>
 
   </dependencies>

@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 public class Config {
 
-  public static final String ETCD_CLIENT = "ETCD_CLIENT";
+  public static final String ELECTION_SERVICE = "ELECTION_SERVICE";
   public static final String MASTER_TOPIC = "master.events";
   public static final String USERS_INPUT_TOPIC = "users.input.events";
   public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST";
