@@ -21,15 +21,15 @@ import org.slf4j.LoggerFactory;
 
 public class RecordMetadataUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(RecordMetadataUtil.class);
+  private static final Logger logger = LoggerFactory.getLogger(RecordMetadataUtil.class);
 
-    public static void logRecord(RecordMetadata recordMetadata) {
-        if (recordMetadata != null && logger.isInfoEnabled()) {
-            logger.info("Topic: {} - Partition: {} - Offset: {} - TimeStamp: {}\n",
-                        recordMetadata.topic(),
-                        recordMetadata.partition(),
-                        recordMetadata.offset(),
-                        recordMetadata.timestamp());
-        }
+  public static void logRecord(RecordMetadata recordMetadata) {
+    if (recordMetadata != null && logger.isInfoEnabled()) {
+      logger.info("Topic: {} - Partition: {} - Offset: {} - TimeStamp: {}\n",
+                  recordMetadata.topic(),
+                  recordMetadata.partition(),
+                  recordMetadata.offset(),
+                  recordMetadata.timestamp());
     }
+  }
 }

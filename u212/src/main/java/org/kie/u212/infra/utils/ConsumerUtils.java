@@ -21,20 +21,20 @@ import org.slf4j.LoggerFactory;
 
 public class ConsumerUtils {
 
-    private static Logger logger = LoggerFactory.getLogger(ConsumerUtils.class);
+  private static Logger logger = LoggerFactory.getLogger(ConsumerUtils.class);
 
-    public static void prettyPrinter(String id,
-                                     String groupId,
-                                     ConsumerRecord consumerRecord) {
-        if (consumerRecord != null && logger.isInfoEnabled()) {
-            logger.info("Id: {} - Group id {} - Topic: {} - Partition: {} - Offset: {} - Key: {} - Value: {}\n",
-                        id,
-                        groupId,
-                        consumerRecord.topic(),
-                        consumerRecord.partition(),
-                        consumerRecord.offset(),
-                        consumerRecord.key(),
-                        consumerRecord.value());
-        }
+  public static void prettyPrinter(String id,
+                                   String groupId,
+                                   ConsumerRecord consumerRecord) {
+    if (consumerRecord != null && logger.isInfoEnabled()) {
+      logger.info("Id: {} - Group id {} - Topic: {} - Partition: {} - Offset: {} - Key: {} - Value: {}\n",
+                  id,
+                  groupId,
+                  consumerRecord.topic(),
+                  consumerRecord.partition(),
+                  consumerRecord.offset(),
+                  consumerRecord.key(),
+                  consumerRecord.value());
     }
+  }
 }

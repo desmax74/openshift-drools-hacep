@@ -33,53 +33,56 @@ import org.slf4j.LoggerFactory;
  */
 public class OffsetManager {
 
-    private static Logger logger = LoggerFactory.getLogger(OffsetManager.class);
+  private static Logger logger = LoggerFactory.getLogger(OffsetManager.class);
 
-    public static Properties load() {
-        Properties prop = null;
-        InputStream input = null;
+  public static Properties load() {
+    Properties prop = null;
+    InputStream input = null;
+    try {
+      //todo store on infinispan/etcd
+      input = new FileInputStream("/tmp/offsets.properties");
+      prop = new Properties();
+      prop.load(input);
+    } catch (IOException ex) {
+    } finally {
+      if (input != null) {
         try {
-            //todo store on infinispan/etcd
-            input = new FileInputStream("/tmp/offsets.properties");
-            prop = new Properties();
-            prop.load(input);
-        } catch (IOException ex) {
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    logger.error(e.getMessage(), e);
-                }
-            }
+          input.close();
+        } catch (IOException e) {
+          logger.error(e.getMessage(),
+                       e);
         }
-        return prop;
+      }
     }
+    return prop;
+  }
 
-    public static void store(Map<TopicPartition, OffsetAndMetadata> offsetAndMetadataMap) {
-        Properties prop = new Properties();
-        OutputStream output = null;
+  public static void store(Map<TopicPartition, OffsetAndMetadata> offsetAndMetadataMap) {
+    Properties prop = new Properties();
+    OutputStream output = null;
 
+    try {
+      //todo store on infinispan/etcd
+      output = new FileOutputStream("/tmp/offsets.properties");
+      for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : offsetAndMetadataMap.entrySet()) {
+        prop.setProperty(entry.getKey().topic() + "-" + entry.getKey().partition(),
+                         String.valueOf(entry.getValue().offset()));
+      }
+
+      prop.store(output,
+                 null);
+    } catch (IOException io) {
+      logger.error(io.getMessage(),
+                   io);
+    } finally {
+      if (output != null) {
         try {
-            //todo store on infinispan/etcd
-            output = new FileOutputStream("/tmp/offsets.properties");
-            for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : offsetAndMetadataMap.entrySet()) {
-                prop.setProperty(entry.getKey().topic() + "-" + entry.getKey().partition(),
-                                 String.valueOf(entry.getValue().offset()));
-            }
-
-            prop.store(output,
-                       null);
-        } catch (IOException io) {
-            logger.error(io.getMessage(), io);
-        } finally {
-            if (output != null) {
-                try {
-                    output.close();
-                } catch (IOException e) {
-                    logger.error(e.getMessage(), e);
-                }
-            }
+          output.close();
+        } catch (IOException e) {
+          logger.error(e.getMessage(),
+                       e);
         }
+      }
     }
+  }
 }

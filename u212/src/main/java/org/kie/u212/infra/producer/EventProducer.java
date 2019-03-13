@@ -28,42 +28,42 @@ import org.slf4j.LoggerFactory;
 
 public class EventProducer<T> extends AbstractProducer<String, T> implements Producer<String, T> {
 
-    private Logger logger = LoggerFactory.getLogger(EventProducer.class);
+  private Logger logger = LoggerFactory.getLogger(EventProducer.class);
 
-    public void start(Properties properties) {
-        producer = new KafkaProducer(properties);
-    }
+  public void start(Properties properties) {
+    producer = new KafkaProducer(properties);
+  }
 
-    public void start(KafkaProducer<String, T> kafkaProducer) {
-        producer = kafkaProducer;
-    }
+  public void start(KafkaProducer<String, T> kafkaProducer) {
+    producer = kafkaProducer;
+  }
 
-    public void stop() {
-        producer.close();
-    }
+  public void stop() {
+    producer.close();
+  }
 
-    public Future<RecordMetadata> produceFireAndForget(ProducerRecord<String, T> producerRecord) {
-        return producer.send(producerRecord);
-    }
+  public Future<RecordMetadata> produceFireAndForget(ProducerRecord<String, T> producerRecord) {
+    return producer.send(producerRecord);
+  }
 
-    public RecordMetadata produceSync(ProducerRecord<String, T> producerRecord) {
-        RecordMetadata recordMetadata = null;
-        try {
-            recordMetadata = producer.send(producerRecord).get();
-        } catch (InterruptedException e) {
-            logger.error("Error in produceSync!",
-                         e);
-        } catch (ExecutionException e) {
-            logger.error("Error in produceSync!",
-                         e);
-        }
-        return recordMetadata;
+  public RecordMetadata produceSync(ProducerRecord<String, T> producerRecord) {
+    RecordMetadata recordMetadata = null;
+    try {
+      recordMetadata = producer.send(producerRecord).get();
+    } catch (InterruptedException e) {
+      logger.error("Error in produceSync!",
+                   e);
+    } catch (ExecutionException e) {
+      logger.error("Error in produceSync!",
+                   e);
     }
+    return recordMetadata;
+  }
 
-    @Override
-    public void produceAsync(ProducerRecord<String, T> producerRecord,
-                             Callback callback) {
-        producer.send(producerRecord,
-                      new ProducerCallback());
-    }
+  @Override
+  public void produceAsync(ProducerRecord<String, T> producerRecord,
+                           Callback callback) {
+    producer.send(producerRecord,
+                  new ProducerCallback());
+  }
 }

@@ -22,10 +22,11 @@ import org.slf4j.LoggerFactory;
 
 public class EmptyConsumerHandler implements ConsumerHandler {
 
-    private Logger logger = LoggerFactory.getLogger(EmptyConsumerHandler.class);
+  private Logger logger = LoggerFactory.getLogger(EmptyConsumerHandler.class);
 
-    @Override
-    public void process(ConsumerRecord record) {
-        logger.info("Process event:{}",record);
-    }
+  @Override
+  public void process(ConsumerRecord record) {
+    logger.info("Process event:{}",
+                record);
+  }
 }

@@ -22,8 +22,8 @@ import javax.ws.rs.core.Response;
 @Path("/health")
 public class HealthCheckEndpoint {
 
-    @GET
-    public Response check() {
-        return Response.ok().build();
-    }
+  @GET
+  public Response check() {
+    return Response.ok().build();
+  }
 }

@@ -24,22 +24,25 @@ import org.kie.u212.model.StockTickEvent;
 
 public class DroolsEventProducerApp {
 
-    private DroolsProducer droolsProducer;
+  private DroolsProducer droolsProducer;
 
-    public DroolsEventProducerApp(){
-        droolsProducer = new DroolsProducer();
+  public DroolsEventProducerApp() {
+    droolsProducer = new DroolsProducer();
+  }
+
+  public void businessLogic(Integer eventNumber) {
+    List<StockTickEvent> events = new ArrayList<>();
+    for (int i = 0; i < eventNumber; i++) {
+      events.add(new StockTickEvent("RHT",
+                                    ThreadLocalRandom.current().nextLong(80,
+                                                                         100),
+                                    UUID.randomUUID().toString()));
     }
+    droolsProducer.create(events);
+  }
 
-    public void businessLogic(Integer eventNumber){
-        List<StockTickEvent> events = new ArrayList<>();
-        for(int i=0; i < eventNumber; i++) {
-            events.add(new StockTickEvent("RHT", ThreadLocalRandom.current().nextLong(80, 100), UUID.randomUUID().toString()));
-        }
-        droolsProducer.create(events);
-    }
+  public void businessLogic(StockTickEvent event) {
 
-    public void businessLogic(StockTickEvent event){
-
-        droolsProducer.create(event);
-    }
+    droolsProducer.create(event);
+  }
 }

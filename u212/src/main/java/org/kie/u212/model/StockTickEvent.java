@@ -20,37 +20,41 @@ import org.kie.api.definition.type.Role;
 import org.kie.api.definition.type.Timestamp;
 
 @Role(Role.Type.EVENT)
-@Timestamp( "timestamp" )
+@Timestamp("timestamp")
 public class StockTickEvent {
 
-    private final String company;
-    private final double price;
-    private long timestamp;
-    private final String id;
+  private final String company;
+  private final double price;
+  private final String id;
+  private long timestamp;
 
-    public StockTickEvent(String company, double price, String id ) {
-        this.company = company;
-        this.price = price;
-        this.id = id;
+  public StockTickEvent(String company,
+                        double price,
+                        String id) {
+    this.company = company;
+    this.price = price;
+    this.id = id;
+  }
+
+  public String getCompany() {
+    return company;
+  }
+
+  public double getPrice() {
+    return price;
+  }
+
+  public long getTimestamp() {
+    return timestamp;
+  }
+
+  public void setTimestamp(long timestamp) {
+    if (this.timestamp == 0) {
+      this.timestamp = timestamp;
     }
+  }
 
-    public String getCompany() {
-        return company;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(long timestamp) {
-        if(this.timestamp == 0) {
-            this.timestamp = timestamp;
-        }
-    }
-
-    public String getId() { return id; }
+  public String getId() {
+    return id;
+  }
 }

@@ -19,5 +19,5 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 public interface ConsumerHandler {
 
-    void process(ConsumerRecord record);
+  void process(ConsumerRecord record);
 }

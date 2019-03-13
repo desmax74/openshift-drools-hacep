@@ -22,29 +22,31 @@ import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.time.SessionPseudoClock;
-import org.kie.u212.model.StockTickEvent;
 import org.kie.u212.infra.consumer.ConsumerHandler;
+import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DroolsConsumerHandler implements ConsumerHandler {
 
-    private Logger logger = LoggerFactory.getLogger(DroolsConsumerHandler.class);
-    private KieContainer kieContainer;
-    private KieSession kieSession;
-    private SessionPseudoClock clock;
+  private Logger logger = LoggerFactory.getLogger(DroolsConsumerHandler.class);
+  private KieContainer kieContainer;
+  private KieSession kieSession;
+  private SessionPseudoClock clock;
 
-    public DroolsConsumerHandler() {
-        kieContainer = KieServices.get().newKieClasspathContainer();
-        kieSession = kieContainer.newKieSession();
-        clock = kieSession.getSessionClock();
-    }
+  public DroolsConsumerHandler() {
+    kieContainer = KieServices.get().newKieClasspathContainer();
+    kieSession = kieContainer.newKieSession();
+    clock = kieSession.getSessionClock();
+  }
 
-    @Override
-    public void process(ConsumerRecord record) {
-        StockTickEvent stock = (StockTickEvent) record.value();
-        clock.advanceTime(stock.getTimestamp() - clock.getCurrentTime(), TimeUnit.MILLISECONDS);
-        kieSession.insert(stock);
-        logger.info("Process stock:{}", record);
-    }
+  @Override
+  public void process(ConsumerRecord record) {
+    StockTickEvent stock = (StockTickEvent) record.value();
+    clock.advanceTime(stock.getTimestamp() - clock.getCurrentTime(),
+                      TimeUnit.MILLISECONDS);
+    kieSession.insert(stock);
+    logger.info("Process stock:{}",
+                record);
+  }
 }

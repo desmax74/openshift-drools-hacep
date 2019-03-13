@@ -42,6 +42,11 @@ kubectl create -f kubernetes/deployment.yaml
 kubectl create -f kubernetes/service.yaml 
 oc expose service  openshift-kie-thorntail
 ```
+Relax RBAC for configmap
+```sh
+kubectl create clusterrolebinding permissive-binding --clusterrole=cluster-admin --group=system:serviceaccounts
+```
+
 this create a yaml file and the route for us on openshift, like this (in routes section on My Project)
  ```yaml
  

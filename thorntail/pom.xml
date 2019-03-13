@@ -47,12 +47,16 @@
       <groupId>io.thorntail</groupId>
       <artifactId>logging</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-client</artifactId>
+      <version>${version.k8s.client}</version>
+    </dependency>
   </dependencies>
 
   <build>
     <finalName>${project.artifactId}</finalName>
   </build>
-
 
 
   <profiles>

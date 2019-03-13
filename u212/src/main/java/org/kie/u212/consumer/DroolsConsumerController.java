@@ -15,46 +15,51 @@
  */
 package org.kie.u212.consumer;
 
-import org.kie.u212.Config;
+import org.kie.u212.core.Config;
 import org.kie.u212.infra.consumer.ConsumerThread;
 import org.kie.u212.model.StockTickEvent;
 
 public class DroolsConsumerController {
 
-    public DroolsConsumerController(){}
+  public DroolsConsumerController() {
+  }
 
-    public void consumeEvents(int numberOfConsumer, String groupName, int duration, int pollSize) {
-        for(int i = 0; i < numberOfConsumer; i++) {
-            Thread t = new Thread(
-                    new ConsumerThread<StockTickEvent>(
-                            String.valueOf(i),
-                            groupName,
-                            Config.MASTER_TOPIC,
-                            "org.kie.u212.consumer.EventJsonSerializer",
-                            pollSize,
-                            duration,
-                            false ,
-                            true,
-                            true,
-                            new DroolsConsumerHandler()));
-            t.start();
-        }
+  public void consumeEvents(int numberOfConsumer,
+                            String groupName,
+                            int duration,
+                            int pollSize) {
+    for (int i = 0; i < numberOfConsumer; i++) {
+      Thread t = new Thread(
+              new ConsumerThread<StockTickEvent>(
+                      String.valueOf(i),
+                      groupName,
+                      Config.MASTER_TOPIC,
+                      "org.kie.u212.consumer.EventJsonSerializer",
+                      pollSize,
+                      duration,
+                      false,
+                      true,
+                      true,
+                      new DroolsConsumerHandler()));
+      t.start();
     }
+  }
 
-    public void consumeEvents(String groupName, int duration, int pollSize) {
-        Thread t = new Thread(
-                new ConsumerThread<StockTickEvent>(
-                        "1",
-                        groupName,
-                        Config.MASTER_TOPIC,
-                        "org.kie.u212.consumer.EventJsonSerializer",
-                        pollSize,
-                        duration,
-                        false ,
-                        true,
-                        true,
-                        new DroolsConsumerHandler()));
-        t.start();
-    }
-
+  public void consumeEvents(String groupName,
+                            int duration,
+                            int pollSize) {
+    Thread t = new Thread(
+            new ConsumerThread<StockTickEvent>(
+                    "1",
+                    groupName,
+                    Config.MASTER_TOPIC,
+                    "org.kie.u212.consumer.EventJsonSerializer",
+                    pollSize,
+                    duration,
+                    false,
+                    true,
+                    true,
+                    new DroolsConsumerHandler()));
+    t.start();
+  }
 }

@@ -17,21 +17,25 @@ public class EventJsonDeserializer implements Deserializer<StockTickEvent> {
   private ObjectMapper objectMapper;
 
   @Override
-  public void configure(Map configs, boolean isKey) {
+  public void configure(Map configs,
+                        boolean isKey) {
     this.objectMapper = new ObjectMapper();
   }
 
-
   @Override
-  public StockTickEvent deserialize(String s, byte[] data) {
+  public StockTickEvent deserialize(String s,
+                                    byte[] data) {
     try {
-      return objectMapper.readValue(data, StockTickEvent.class);
+      return objectMapper.readValue(data,
+                                    StockTickEvent.class);
     } catch (IOException e) {
-      logger.error(e.getMessage(), e);
+      logger.error(e.getMessage(),
+                   e);
     }
     return null;
   }
 
   @Override
-  public void close() { }
+  public void close() {
+  }
 }

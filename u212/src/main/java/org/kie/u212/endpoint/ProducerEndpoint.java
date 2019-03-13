@@ -6,32 +6,32 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.kie.u212.core.Config;
 import org.kie.u212.producer.DroolsEventProducerApp;
-import org.kie.u212.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Path("/pub")
 public class ProducerEndpoint {
 
-    private static DroolsEventProducerApp myEventProducerApp = new DroolsEventProducerApp();
+  private static DroolsEventProducerApp myEventProducerApp = new DroolsEventProducerApp();
 
-    private Logger logger = LoggerFactory.getLogger(ProducerEndpoint.class);
+  private Logger logger = LoggerFactory.getLogger(ProducerEndpoint.class);
 
-    @GET
-    @Path("/brokers")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String brokers() {
-        return Config.getBotStrapServers();
-    }
+  @GET
+  @Path("/brokers")
+  @Produces(MediaType.TEXT_PLAIN)
+  public String brokers() {
+    return Config.getBotStrapServers();
+  }
 
-    @GET
-    @Path("/demo/{eventNumber}")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String demo(@PathParam("eventNumber") Integer eventNumber) {
-        logger.info("Requested {} events", eventNumber);
-        myEventProducerApp.businessLogic(eventNumber);
-        return "produced " + eventNumber + " events";
-    }
-
+  @GET
+  @Path("/demo/{eventNumber}")
+  @Produces(MediaType.TEXT_PLAIN)
+  public String demo(@PathParam("eventNumber") Integer eventNumber) {
+    logger.info("Requested {} events",
+                eventNumber);
+    myEventProducerApp.businessLogic(eventNumber);
+    return "produced " + eventNumber + " events";
+  }
 }

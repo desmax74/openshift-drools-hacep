@@ -15,17 +15,17 @@
  */
 package org.kie.u212.endpoint;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Response;
 
 @Path("/hello")
 public class Welcome {
 
-    @GET
-    @Produces("text/plain")
-    public Response doGet() {
-        return Response.ok("Hello from Thorntail!").build();
-    }
+  @GET
+  @Produces("text/plain")
+  public Response doGet() {
+    return Response.ok("Hello from Thorntail!").build();
+  }
 }

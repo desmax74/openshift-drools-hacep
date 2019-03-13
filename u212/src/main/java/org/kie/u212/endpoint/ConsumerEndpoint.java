@@ -1,6 +1,5 @@
 package org.kie.u212.endpoint;
 
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -13,15 +12,14 @@ import org.slf4j.LoggerFactory;
 @Path("/sub")
 public class ConsumerEndpoint {
 
-    private Logger logger = LoggerFactory.getLogger(ProducerEndpoint.class);
-    private static DroolsEventCosumerApp myEventConsumerApp= new DroolsEventCosumerApp();
+  private static DroolsEventCosumerApp myEventConsumerApp = new DroolsEventCosumerApp();
+  private Logger logger = LoggerFactory.getLogger(ProducerEndpoint.class);
 
-    @GET
-    @Path("/demo")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String demo() {
-        myEventConsumerApp.businessLogic();
-        return "started 1 consumer";
-    }
-
+  @GET
+  @Path("/demo")
+  @Produces(MediaType.TEXT_PLAIN)
+  public String demo() {
+    myEventConsumerApp.businessLogic();
+    return "started 1 consumer";
+  }
 }

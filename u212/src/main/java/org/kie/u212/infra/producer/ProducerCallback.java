@@ -22,18 +22,20 @@ import org.slf4j.LoggerFactory;
 
 public class ProducerCallback implements Callback {
 
-    private Logger logger = LoggerFactory.getLogger(ProducerCallback.class);
+  private Logger logger = LoggerFactory.getLogger(ProducerCallback.class);
 
-    @Override
-    public void onCompletion(RecordMetadata recordMetadata, Exception e) {
-        if (e != null) {
-            logger.error(e.getMessage(), e);
-        } else {
-            logger.info("AsynchronousProducer call success ! \n Topic:{} \n Partition:{} \n Offset:{} \n Timestamp:{} \n",
-                        recordMetadata.topic(),
-                        recordMetadata.partition(),
-                        recordMetadata.offset(),
-                        recordMetadata.timestamp());
-        }
+  @Override
+  public void onCompletion(RecordMetadata recordMetadata,
+                           Exception e) {
+    if (e != null) {
+      logger.error(e.getMessage(),
+                   e);
+    } else {
+      logger.info("AsynchronousProducer call success ! \n Topic:{} \n Partition:{} \n Offset:{} \n Timestamp:{} \n",
+                  recordMetadata.topic(),
+                  recordMetadata.partition(),
+                  recordMetadata.offset(),
+                  recordMetadata.timestamp());
     }
+  }
 }
