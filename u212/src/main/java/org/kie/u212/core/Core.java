@@ -45,7 +45,7 @@ public class Core {
     return configuration;
   }
 
-  public static LeaderElection getLeadershipElection() {
+  public static LeaderElection getLeaderElection() {
     return leadership;
   }
 }
