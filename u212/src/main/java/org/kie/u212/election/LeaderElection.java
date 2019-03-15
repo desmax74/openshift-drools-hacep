@@ -22,4 +22,6 @@ public interface LeaderElection {
   void stop() throws Exception;
 
   boolean amITheLeader();
+
+  void fireCallback(Callback callback);
 }

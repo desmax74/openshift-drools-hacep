@@ -36,7 +36,7 @@ public class DroolsConsumerController<T> {
 
 
   public void consumeEvents(String topic, String groupName, int duration, int pollSize) {
-    logger.info("Starting consuming event on topic :{}", topic);
+    logger.info("Starting CONSUMING event on topic :{}", topic);
     Thread t = new Thread(
             new ConsumerThread<>(
                     "1",

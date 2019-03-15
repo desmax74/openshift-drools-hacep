@@ -15,8 +15,6 @@
  */
 package org.kie.u212.core;
 
-import io.fabric8.kubernetes.client.KubernetesClient;
-
 import org.kie.u212.consumer.DroolsConsumer;
 import org.kie.u212.consumer.DroolsConsumerController;
 import org.kie.u212.consumer.DroolsConsumerHandler;
@@ -35,9 +33,10 @@ import org.slf4j.LoggerFactory;
 public class Bootstrap {
 
     private static final Logger logger = LoggerFactory.getLogger(Bootstrap.class);
-    private static DroolsConsumerController consumerController;
-    private static final EventProducer<StockTickEvent> eventProducer = new EventProducer<>();
+    private static DroolsConsumerController consumerController ;
+    private static EventProducer<StockTickEvent> eventProducer ;
     private static DroolsConsumer<StockTickEvent> eventConsumer ;
+    private static volatile boolean master = false ;
 
     public static void startEngine(){
         //order matter
@@ -63,15 +62,14 @@ public class Bootstrap {
     private static void leaderElection() {
         KubernetesLockConfiguration configuration = Core.getKubernetesLockConfiguration();
         logger.info("ServletContextInitialized on pod:{}", configuration.getPodName());
-        KubernetesClient client = Core.getKubeClient();
         //@TODO configure from env the namespace
-        client.events().inNamespace("my-kafka-project").watch(WatcherFactory.createModifiedLogWatcher(configuration.getPodName()));
+        //KubernetesClient client = Core.getKubeClient();
+        //client.events().inNamespace("my-kafka-project").watch(WatcherFactory.createModifiedLogWatcher(configuration.getPodName()));
         LeaderElection leadership = Core.getLeaderElection();
         try {
             leadership.start();
         } catch (Exception e) {
-            logger.error(e.getMessage(),
-                         e);
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -80,12 +78,18 @@ public class Bootstrap {
         eventConsumer.start();
         consumerController = new DroolsConsumerController(eventConsumer);
         consumerController.consumeEvents((Core.getLeaderElection().amITheLeader() ? Config.MASTER_TOPIC : Config.USERS_INPUT_TOPIC),Config.GROUP, Config.LOOP_DURATION, Config.DEFAULT_POLL_SIZE);
-        logger.info("Start consumer on Group:{} , duration:{} pollSize:{}", Config.GROUP, Config.LOOP_DURATION , Config.DEFAULT_POLL_SIZE);
+        if(logger.isInfoEnabled()) {
+            logger.info("Start consumer on Group:{} , duration:{} pollSize:{}",
+                        Config.GROUP,
+                        Config.LOOP_DURATION,
+                        Config.DEFAULT_POLL_SIZE);
+        }
     }
 
 
 
     private static void startProducer(){
+        eventProducer = new EventProducer<>();
         if(Core.getLeaderElection().amITheLeader()) {
             eventProducer.start(Config.getDefaultConfig());
         }

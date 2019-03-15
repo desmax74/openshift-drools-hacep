@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class ConfigMapLockUtils {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ConfigMapLockUtils.class);
+  private static final Logger logger = LoggerFactory.getLogger(ConfigMapLockUtils.class);
 
   private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssX";
 
@@ -38,18 +38,15 @@ public final class ConfigMapLockUtils {
 
   private static final String LOCAL_TIMESTAMP_PREFIX = "leader.local.timestamp.";
 
-  private ConfigMapLockUtils() {
-  }
+  private ConfigMapLockUtils() { }
 
   public static ConfigMap createNewConfigMap(String configMapName,
                                              LeaderInfo leaderInfo) {
     return new ConfigMapBuilder().
             withNewMetadata()
             .withName(configMapName)
-            .addToLabels("provider",
-                         "camel")
-            .addToLabels("kind",
-                         "locks").
+            .addToLabels("provider", "drools")
+            .addToLabels("kind", "locks").
                     endMetadata()
             .addToData(LEADER_PREFIX + leaderInfo.getGroupName(),
                        leaderInfo.getLeader())
@@ -92,8 +89,7 @@ public final class ConfigMapLockUtils {
     try {
       return new SimpleDateFormat(DATE_TIME_FORMAT).format(date);
     } catch (Exception e) {
-      LOG.warn("Unable to format date '" + date + "' using format " + DATE_TIME_FORMAT,
-               e);
+      logger.warn("Unable to format date '" + date + "' using format " + DATE_TIME_FORMAT, e);
     }
 
     return null;
@@ -110,8 +106,7 @@ public final class ConfigMapLockUtils {
     try {
       return new SimpleDateFormat(DATE_TIME_FORMAT).parse(timestamp);
     } catch (Exception e) {
-      LOG.warn("Unable to parse time string '" + timestamp + "' using format " + DATE_TIME_FORMAT,
-               e);
+      logger.warn("Unable to parse time string '" + timestamp + "' using format " + DATE_TIME_FORMAT, e);
     }
 
     return null;

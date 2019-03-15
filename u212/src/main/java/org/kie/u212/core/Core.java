@@ -39,7 +39,13 @@ public class Core {
   }
 
   private static KubernetesLockConfiguration createKubeConfiguration() {
-    String podName = System.getenv("HOSTNAME");
+    String podName = System.getenv("POD_NAME");
+    if(podName == null ) {
+      podName = System.getenv("HOSTNAME");
+    }
+    if(logger.isInfoEnabled()){
+      logger.info("PodName: {}", podName);
+    }
     KubernetesLockConfiguration configuration = new KubernetesLockConfiguration();
     configuration.setPodName(podName);
     return configuration;
