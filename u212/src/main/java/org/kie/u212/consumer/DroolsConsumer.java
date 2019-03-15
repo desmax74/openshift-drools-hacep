@@ -21,8 +21,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 
 import org.apache.kafka.clients.consumer.CommitFailedException;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -35,7 +33,6 @@ import org.apache.kafka.common.errors.WakeupException;
 import org.kie.u212.core.Config;
 import org.kie.u212.infra.OffsetManager;
 import org.kie.u212.infra.PartitionListener;
-import org.kie.u212.infra.consumer.BaseConsumer;
 import org.kie.u212.infra.consumer.ConsumerHandler;
 import org.kie.u212.infra.consumer.EventConsumer;
 import org.kie.u212.infra.utils.ConsumerUtils;
@@ -44,7 +41,7 @@ import org.slf4j.LoggerFactory;
 
 public class DroolsConsumer<T> implements EventConsumer {
 
-  private Logger logger = LoggerFactory.getLogger(BaseConsumer.class);
+  private Logger logger = LoggerFactory.getLogger(DroolsConsumer.class);
   private Map<TopicPartition, OffsetAndMetadata> offsets = new HashMap<>();
   private org.apache.kafka.clients.consumer.Consumer<String, T> consumer;
   private ConsumerHandler consumerHandle;

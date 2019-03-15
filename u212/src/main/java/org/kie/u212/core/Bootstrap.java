@@ -38,8 +38,6 @@ public class Bootstrap {
     private static DroolsConsumerController consumerController;
     private static final EventProducer<StockTickEvent> eventProducer = new EventProducer<>();
     private static DroolsConsumer<StockTickEvent> eventConsumer ;
-    private static volatile boolean master = false;
-
 
     public static void startEngine(){
         //order matter
@@ -75,21 +73,20 @@ public class Bootstrap {
             logger.error(e.getMessage(),
                          e);
         }
-        master = leadership.amITheLeader();
     }
 
     private static void startConsumer(){
         eventConsumer = new DroolsConsumer<>(Core.getKubernetesLockConfiguration().getPodName(), new DroolsConsumerHandler());
         eventConsumer.start();
         consumerController = new DroolsConsumerController(eventConsumer);
-        consumerController.consumeEvents((master ? Config.MASTER_TOPIC : Config.USERS_INPUT_TOPIC),Config.GROUP, Config.LOOP_DURATION, Config.DEFAULT_POLL_SIZE);
+        consumerController.consumeEvents((Core.getLeaderElection().amITheLeader() ? Config.MASTER_TOPIC : Config.USERS_INPUT_TOPIC),Config.GROUP, Config.LOOP_DURATION, Config.DEFAULT_POLL_SIZE);
         logger.info("Start consumer on Group:{} , duration:{} pollSize:{}", Config.GROUP, Config.LOOP_DURATION , Config.DEFAULT_POLL_SIZE);
     }
 
 
 
     private static void startProducer(){
-        if(master) {
+        if(Core.getLeaderElection().amITheLeader()) {
             eventProducer.start(Config.getDefaultConfig());
         }
     }

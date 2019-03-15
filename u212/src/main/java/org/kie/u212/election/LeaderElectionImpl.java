@@ -54,15 +54,15 @@ public class LeaderElectionImpl implements LeaderElection {
 
   public void start(){
     if (serializedExecutor == null) {
-      logger.debug("{} Starting leadership controller...",
+      logger.debug("{} Starting leadership election...",
                    logPrefix());
       serializedExecutor = Executors.newSingleThreadScheduledExecutor();
       serializedExecutor.execute(this::refreshStatus);
     }
   }
 
-  public void stop() throws Exception {
-    logger.debug("{} Stopping leadership controller...",
+  public void stop() {
+    logger.debug("{} Stopping leadership election...",
                  logPrefix());
     if (serializedExecutor != null) {
       serializedExecutor.shutdownNow();
@@ -163,8 +163,7 @@ public class LeaderElectionImpl implements LeaderElection {
     try {
       Thread.sleep(delay);
     } catch (InterruptedException e) {
-      logger.warn("Thread interrupted",
-                  e);
+      logger.warn("Thread interrupted", e);
     }
 
     logger.info("{} Current pod is becoming the new leader now...",
