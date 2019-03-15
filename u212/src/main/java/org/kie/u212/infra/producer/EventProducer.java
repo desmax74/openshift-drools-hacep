@@ -51,11 +51,9 @@ public class EventProducer<T> extends AbstractProducer<String, T> implements Pro
     try {
       recordMetadata = producer.send(producerRecord).get();
     } catch (InterruptedException e) {
-      logger.error("Error in produceSync!",
-                   e);
+      logger.error("Error in produceSync!", e);
     } catch (ExecutionException e) {
-      logger.error("Error in produceSync!",
-                   e);
+      logger.error("Error in produceSync!", e);
     }
     return recordMetadata;
   }

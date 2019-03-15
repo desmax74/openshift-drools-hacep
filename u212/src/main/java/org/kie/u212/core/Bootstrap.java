@@ -17,10 +17,14 @@ package org.kie.u212.core;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
 
-
+import org.kie.u212.consumer.DroolsConsumer;
+import org.kie.u212.consumer.DroolsConsumerController;
+import org.kie.u212.consumer.DroolsConsumerHandler;
 import org.kie.u212.election.KubernetesLockConfiguration;
 
 import org.kie.u212.election.LeaderElection;
+import org.kie.u212.infra.producer.EventProducer;
+import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +35,11 @@ import org.slf4j.LoggerFactory;
 public class Bootstrap {
 
     private static final Logger logger = LoggerFactory.getLogger(Bootstrap.class);
+    private static DroolsConsumerController consumerController;
+    private static final EventProducer<StockTickEvent> eventProducer = new EventProducer<>();
+    private static DroolsConsumer<StockTickEvent> eventConsumer ;
+    private static volatile boolean master = false;
+
 
     public static void startEngine(){
         //order matter
@@ -38,6 +47,20 @@ public class Bootstrap {
         startProducer();
         startConsumer();
     }
+
+    public static void stopEngine(){
+        LeaderElection leadership = Core.getLeaderElection();
+        try {
+            leadership.stop();
+        } catch (Exception e) {
+            logger.error(e.getMessage(),
+                         e);
+        }
+        eventConsumer.stop();
+        eventProducer.stop();
+    }
+
+
 
     private static void leaderElection() {
         KubernetesLockConfiguration configuration = Core.getKubernetesLockConfiguration();
@@ -52,8 +75,22 @@ public class Bootstrap {
             logger.error(e.getMessage(),
                          e);
         }
+        master = leadership.amITheLeader();
     }
 
-    private static void startConsumer(){};
-    private static void startProducer(){};
+    private static void startConsumer(){
+        eventConsumer = new DroolsConsumer<>(Core.getKubernetesLockConfiguration().getPodName(), new DroolsConsumerHandler());
+        eventConsumer.start();
+        consumerController = new DroolsConsumerController(eventConsumer);
+        consumerController.consumeEvents((master ? Config.MASTER_TOPIC : Config.USERS_INPUT_TOPIC),Config.GROUP, Config.LOOP_DURATION, Config.DEFAULT_POLL_SIZE);
+        logger.info("Start consumer on Group:{} , duration:{} pollSize:{}", Config.GROUP, Config.LOOP_DURATION , Config.DEFAULT_POLL_SIZE);
+    }
+
+
+
+    private static void startProducer(){
+        if(master) {
+            eventProducer.start(Config.getDefaultConfig());
+        }
+    }
 }

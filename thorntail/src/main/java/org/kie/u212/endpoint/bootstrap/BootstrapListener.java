@@ -20,8 +20,6 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import org.kie.u212.core.Bootstrap;
-import org.kie.u212.core.Core;
-import org.kie.u212.election.LeaderElection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,14 +39,7 @@ public class BootstrapListener implements ServletContextListener {
 
 
   public void contextDestroyed(ServletContextEvent event) {
-
-    LeaderElection leadership = Core.getLeaderElection();
-    try {
-      leadership.stop();
-    } catch (Exception e) {
-      logger.error(e.getMessage(),
-                   e);
-    }
+    Bootstrap.stopEngine();
     logger.info("Core system closed");
   }
 }

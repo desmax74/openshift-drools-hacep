@@ -29,7 +29,9 @@ public class Config {
   public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT";
   public static final String BROKER_URL = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST);
   public static final String BROKER_PORT = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT);
-  public static final String GROUP = "group-1";//@ŢODO
+  public static final String GROUP = "drools-group";//@ŢODO
+  public static final int DEFAULT_POLL_SIZE = 10;
+  public static final int LOOP_DURATION = -1;
   private static final Logger logger = LoggerFactory.getLogger(Config.class);
 
   public static Properties getConfig(String groupId,

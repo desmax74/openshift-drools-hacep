@@ -16,13 +16,15 @@
 package org.kie.u212.consumer;
 
 import org.kie.u212.core.Config;
+import org.kie.u212.core.Core;
 
+//@TODO Only for manual Demo
 public class DroolsEventCosumerApp {
 
-  private DroolsConsumerController consumerController = new DroolsConsumerController();
+  private DroolsConsumerController consumerController = new DroolsConsumerController(new DroolsConsumer<>(Core.getKubernetesLockConfiguration().getPodName(), new DroolsConsumerHandler()));
 
-  public void businessLogic() {
-    consumerController.consumeEvents(Config.GROUP,
+  public void businessLogic(String topic) {
+    consumerController.consumeEvents(topic, Config.GROUP,
                                      -1,
                                      10);
   }

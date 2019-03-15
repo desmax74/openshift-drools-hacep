@@ -21,8 +21,6 @@ import javax.enterprise.event.Observes;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import org.kie.u212.core.Bootstrap;
-import org.kie.u212.core.Core;
-import org.kie.u212.election.LeaderElection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,14 +35,7 @@ public class AppLifecycleBean {
   }
 
   void onStop(@Observes ShutdownEvent ev) {
-    LeaderElection leadership = Core.getLeaderElection();
-    try {
-      leadership.stop();
-    } catch (Exception e) {
-      logger.error(e.getMessage(),
-                   e);
-    }
-    logger.info("Core system closed");
+    Bootstrap.stopEngine();
     logger.info("The application is stopping...");
   }
 

@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.kafka.clients.consumer.CommitFailedException;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -47,17 +48,29 @@ public class DroolsConsumer<T> implements EventConsumer {
   private Map<TopicPartition, OffsetAndMetadata> offsets = new HashMap<>();
   private org.apache.kafka.clients.consumer.Consumer<String, T> consumer;
   private ConsumerHandler consumerHandle;
-  private Properties properties;
   private String id;
   private String groupId;
   private boolean autoCommit;
 
-  public DroolsConsumer(String id,
-                        Properties properties,
-                        ConsumerHandler consumerHandle) {
+  public DroolsConsumer(String id, ConsumerHandler consumerHandler) {
     this.id = id;
-    this.properties = properties;
-    this.consumerHandle = consumerHandle;
+    this.consumerHandle = consumerHandler;
+  }
+
+  @Override
+  public void start() {
+    consumer = new KafkaConsumer<>(Config.getDefaultConfig());
+  }
+
+  @Override
+  public void start(ConsumerHandler consumerHandler) {
+    this.consumerHandle = consumerHandler;
+    consumer = new KafkaConsumer<>(Config.getDefaultConfig());
+  }
+
+  @Override
+  public void stop() {
+    consumer.close();
   }
 
   @Override
@@ -67,10 +80,7 @@ public class DroolsConsumer<T> implements EventConsumer {
 
     this.autoCommit = autoCommit;
     this.groupId = groupId;
-    consumer = new KafkaConsumer<>(Config.getDefaultConfig());
-    consumer.subscribe(Collections.singletonList(topic),
-                       new PartitionListener(consumer,
-                                             offsets));
+    consumer.subscribe(Collections.singletonList(topic), new PartitionListener(consumer, offsets));
   }
 
   @Override
@@ -96,8 +106,7 @@ public class DroolsConsumer<T> implements EventConsumer {
     try {
       if (duration == -1) {
         while (true) {
-          consume(size,
-                  commitSync);
+          consume(size, commitSync);
         }
       } else {
         long startTime = System.currentTimeMillis();
@@ -133,7 +142,6 @@ public class DroolsConsumer<T> implements EventConsumer {
                         List partitions,
                         boolean autoCommit) {
     boolean isAssigned = false;
-    consumer = new KafkaConsumer<>(Config.getDefaultConfig());
     List<PartitionInfo> partitionsInfo = consumer.partitionsFor(topic);
     Collection<TopicPartition> partitionCollection = new ArrayList<>();
     if (partitionsInfo != null) {
@@ -150,6 +158,14 @@ public class DroolsConsumer<T> implements EventConsumer {
     }
     this.autoCommit = autoCommit;
     return isAssigned;
+  }
+
+
+  @Override
+  public void changeTopic(String newTopic) {
+    consumer.close();
+    consumer = new KafkaConsumer<>(Config.getDefaultConfig());
+    consumer.subscribe(Collections.singletonList(newTopic), new PartitionListener(consumer, offsets));
   }
 
   private void consume(int size,

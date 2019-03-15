@@ -17,13 +17,14 @@ package org.kie.u212.endpoint;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.kie.u212.consumer.DroolsEventCosumerApp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+//@TODO Only for manual Demo
 @Path("/sub")
 public class ConsumerEndpoint {
 
@@ -31,10 +32,10 @@ public class ConsumerEndpoint {
   private Logger logger = LoggerFactory.getLogger(ProducerEndpoint.class);
 
   @GET
-  @Path("/demo")
+  @Path("/demo/{topic}")
   @Produces(MediaType.TEXT_PLAIN)
-  public String demo() {
-    myEventConsumerApp.businessLogic();
+  public String demo(@PathParam("topic") String topic) {
+    myEventConsumerApp.businessLogic(topic);
     return "started 1 consumer";
   }
 }

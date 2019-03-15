@@ -43,10 +43,8 @@ public class DroolsConsumerHandler implements ConsumerHandler {
   @Override
   public void process(ConsumerRecord record) {
     StockTickEvent stock = (StockTickEvent) record.value();
-    clock.advanceTime(stock.getTimestamp() - clock.getCurrentTime(),
-                      TimeUnit.MILLISECONDS);
+    clock.advanceTime(stock.getTimestamp() - clock.getCurrentTime(), TimeUnit.MILLISECONDS);
     kieSession.insert(stock);
-    logger.info("Process stock:{}",
-                record);
+    logger.info("Process stock:{}", record);
   }
 }

@@ -15,51 +15,40 @@
  */
 package org.kie.u212.consumer;
 
-import org.kie.u212.core.Config;
 import org.kie.u212.infra.consumer.ConsumerThread;
 import org.kie.u212.model.StockTickEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class DroolsConsumerController {
+//@TODO Only for manual Demo
+public class DroolsConsumerController<T> {
 
-  public DroolsConsumerController() {
+  private static final Logger logger = LoggerFactory.getLogger(DroolsConsumerController.class);
+  private DroolsConsumer<StockTickEvent> consumer;
+
+  public DroolsConsumerController(DroolsConsumer<StockTickEvent> consumer) {
+    this.consumer = consumer;
   }
 
-  public void consumeEvents(int numberOfConsumer,
-                            String groupName,
-                            int duration,
-                            int pollSize) {
-    for (int i = 0; i < numberOfConsumer; i++) {
-      Thread t = new Thread(
-              new ConsumerThread<StockTickEvent>(
-                      String.valueOf(i),
-                      groupName,
-                      Config.MASTER_TOPIC,
-                      "org.kie.u212.consumer.EventJsonSerializer",
-                      pollSize,
-                      duration,
-                      false,
-                      true,
-                      true,
-                      new DroolsConsumerHandler()));
-      t.start();
-    }
+  public DroolsConsumer getConsumer(){
+    return consumer;
   }
 
-  public void consumeEvents(String groupName,
-                            int duration,
-                            int pollSize) {
+
+  public void consumeEvents(String topic, String groupName, int duration, int pollSize) {
+    logger.info("Starting consuming event on topic :{}", topic);
     Thread t = new Thread(
-            new ConsumerThread<StockTickEvent>(
+            new ConsumerThread<>(
                     "1",
                     groupName,
-                    Config.MASTER_TOPIC,
+                    topic,
                     "org.kie.u212.consumer.EventJsonSerializer",
                     pollSize,
                     duration,
                     false,
                     true,
                     true,
-                    new DroolsConsumerHandler()));
+                    consumer));
     t.start();
   }
 }
