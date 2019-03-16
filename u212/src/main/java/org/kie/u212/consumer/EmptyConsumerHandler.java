@@ -16,6 +16,7 @@
 package org.kie.u212.consumer;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.kie.u212.election.State;
 import org.kie.u212.infra.consumer.ConsumerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +26,7 @@ public class EmptyConsumerHandler implements ConsumerHandler {
   private Logger logger = LoggerFactory.getLogger(EmptyConsumerHandler.class);
 
   @Override
-  public void process(ConsumerRecord record) {
-    logger.info("Process event:{}",
-                record);
+  public void process(ConsumerRecord record, State state) {
+    logger.info("Process event:{} with state{}", record, state);
   }
 }

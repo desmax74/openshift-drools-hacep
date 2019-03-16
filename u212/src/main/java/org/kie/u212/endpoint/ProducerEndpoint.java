@@ -44,8 +44,7 @@ public class ProducerEndpoint {
   @Path("/demo/{eventNumber}")
   @Produces(MediaType.TEXT_PLAIN)
   public String demo(@PathParam("eventNumber") Integer eventNumber) {
-    logger.info("Requested {} events",
-                eventNumber);
+    logger.info("Requested {} events", eventNumber);
     myEventProducerApp.businessLogic(eventNumber);
     return "produced " + eventNumber + " events";
   }

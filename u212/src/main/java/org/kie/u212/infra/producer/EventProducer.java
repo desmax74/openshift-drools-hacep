@@ -70,9 +70,6 @@ public class EventProducer<T> extends AbstractProducer<String, T> implements Pro
   public void updateStatus(State state) {
     if(state.equals(State.LEADER) && !leader){
       leader = true;
-      if(logger.isDebugEnabled()) {
-        logger.debug("I'm the new Leader");
-      }
     }else if(state.equals(State.NOT_LEADER) && leader){
       leader = false;
     }

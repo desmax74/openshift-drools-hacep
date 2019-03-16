@@ -17,6 +17,8 @@ package org.kie.u212.consumer;
 
 import org.kie.u212.core.Config;
 import org.kie.u212.core.Core;
+import org.kie.u212.infra.producer.EventProducer;
+import org.kie.u212.producer.DroolsProducer;
 
 //@TODO Only for manual Demo
 public class DroolsEventCosumerApp {
@@ -25,13 +27,11 @@ public class DroolsEventCosumerApp {
 
   public DroolsEventCosumerApp(){
     DroolsConsumer consumer = new DroolsConsumer(Core.getKubernetesLockConfiguration().getPodName());
-    consumer.start(new DroolsConsumerHandler());
+    consumer.start(new DroolsConsumerHandler(new EventProducer()));
     consumerController = new DroolsConsumerController(consumer);
   }
 
   public void businessLogic(String topic) {
-    consumerController.consumeEvents(topic, Config.GROUP,
-                                     -1,
-                                     10);
+    consumerController.consumeEvents();
   }
 }

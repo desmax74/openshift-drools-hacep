@@ -18,11 +18,16 @@ package org.kie.u212.consumer;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.time.SessionPseudoClock;
+import org.kie.u212.core.Config;
+import org.kie.u212.election.State;
 import org.kie.u212.infra.consumer.ConsumerHandler;
+import org.kie.u212.infra.producer.EventProducer;
+import org.kie.u212.infra.producer.Producer;
 import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,18 +38,24 @@ public class DroolsConsumerHandler implements ConsumerHandler {
   private KieContainer kieContainer;
   private KieSession kieSession;
   private SessionPseudoClock clock;
+  private Producer producer;
 
-  public DroolsConsumerHandler() {
+  public DroolsConsumerHandler(EventProducer producer) {
     kieContainer = KieServices.get().newKieClasspathContainer();
     kieSession = kieContainer.newKieSession();
     clock = kieSession.getSessionClock();
+    this.producer = producer;
   }
 
   @Override
-  public void process(ConsumerRecord record) {
+  public void process(ConsumerRecord record, State state) {
+    logger.info("Drools state:{} consume:{}", state, record);
     StockTickEvent stock = (StockTickEvent) record.value();
     clock.advanceTime(stock.getTimestamp() - clock.getCurrentTime(), TimeUnit.MILLISECONDS);
     kieSession.insert(stock);
-    logger.info("Process stock:{}", record);
+    logger.info("Process stock:{} state:{}", record, state);
+    if(state.equals(State.LEADER)){
+      producer.produceSync(new ProducerRecord<>(Config.MASTER_TOPIC, stock.getId(), stock));
+    }
   }
 }

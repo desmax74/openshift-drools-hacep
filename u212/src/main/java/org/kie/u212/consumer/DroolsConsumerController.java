@@ -15,15 +15,12 @@
  */
 package org.kie.u212.consumer;
 
+import org.kie.u212.core.Config;
 import org.kie.u212.infra.consumer.ConsumerThread;
 import org.kie.u212.model.StockTickEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-//@TODO Only for manual Demo
-public class DroolsConsumerController<T> {
+public class DroolsConsumerController {
 
-  private static final Logger logger = LoggerFactory.getLogger(DroolsConsumerController.class);
   private DroolsConsumer<StockTickEvent> consumer;
 
   public DroolsConsumerController(DroolsConsumer<StockTickEvent> consumer) {
@@ -35,18 +32,12 @@ public class DroolsConsumerController<T> {
   }
 
 
-  public void consumeEvents(String topic, String groupName, int duration, int pollSize) {
-    logger.info("Starting CONSUMING event on topic :{}", topic);
+  public void consumeEvents() {
     Thread t = new Thread(
-            new ConsumerThread<>(
-                    "1",
-                    groupName,
-                    topic,
-                    "org.kie.u212.consumer.EventJsonSerializer",
-                    pollSize,
-                    duration,
-                    false,
-                    true,
+            new ConsumerThread(
+                    Config.DEFAULT_POLL_SIZE,
+                    Config.LOOP_DURATION,
+                    Config.DEFAULT_COMMIT_SYNC,
                     true,
                     consumer));
     t.start();

@@ -16,8 +16,9 @@
 package org.kie.u212.infra.consumer;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.kie.u212.election.State;
 
 public interface ConsumerHandler {
 
-  void process(ConsumerRecord record);
+  void process(ConsumerRecord record, State currentState);
 }

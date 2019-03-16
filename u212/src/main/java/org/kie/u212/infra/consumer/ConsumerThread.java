@@ -15,54 +15,31 @@
  */
 package org.kie.u212.infra.consumer;
 
-import java.util.Properties;
-
 import org.kie.u212.consumer.DroolsConsumer;
 
-public class ConsumerThread<T> implements Runnable {
+public class ConsumerThread implements Runnable {
 
-    private String id;
-    private String groupId;
-    private String topic;
-    private String deserializerClass;
     private int size;
     private long duration;
-    private boolean autoCommit;
     private boolean commitSync;
     private boolean subscribeMode;
-    private DroolsConsumer<T> consumer;
+    private DroolsConsumer consumer;
 
     public ConsumerThread(
-            String id,
-            String groupId,
-            String topic,
-            String deserializerClass,
             int pollSize,
             long duration,
-            boolean autoCommit,
             boolean commitSync,
             boolean subscribeMode,
-            DroolsConsumer<T> consumer) {
-        this.id = id;
-        this.groupId = groupId;
-        this.topic = topic;
-        this.deserializerClass = deserializerClass;
+            DroolsConsumer consumer) {
         this.size = pollSize;
         this.duration = duration;
-        this.autoCommit = autoCommit;
         this.commitSync = commitSync;
         this.subscribeMode = subscribeMode;
         this.consumer = consumer;
     }
 
     public void run() {
-        Properties properties = new Properties();
-        properties.setProperty("key.deserializer", deserializerClass);
-        if (subscribeMode) {
-            consumer.subscribe(groupId, topic, autoCommit);
-        } else {
-            consumer.assign(topic, null, autoCommit);
-        }
-        consumer.poll(size, duration, commitSync);
+        consumer.setSubscribeMode(subscribeMode);
+        consumer.poll(size, duration, commitSync); //delayed to the first status update
     }
 }

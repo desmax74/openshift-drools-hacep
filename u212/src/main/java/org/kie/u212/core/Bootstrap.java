@@ -19,7 +19,6 @@ import java.util.Arrays;
 
 import org.kie.u212.consumer.DroolsConsumer;
 import org.kie.u212.consumer.DroolsConsumerController;
-import org.kie.u212.consumer.DroolsConsumerHandler;
 import org.kie.u212.consumer.EmptyConsumerHandler;
 import org.kie.u212.election.KubernetesLockConfiguration;
 
@@ -39,7 +38,6 @@ public class Bootstrap {
     private static DroolsConsumerController consumerController ;
     private static EventProducer<StockTickEvent> eventProducer ;
     private static DroolsConsumer<StockTickEvent> eventConsumer ;
-    private static volatile boolean master = false ;
 
     public static void startEngine(){
         //order matter
@@ -49,9 +47,6 @@ public class Bootstrap {
         addCallbacks();
     }
 
-    private static void addCallbacks() {
-        Core.getLeaderElection().addCallbacks(Arrays.asList(eventConsumer,eventProducer));
-    }
 
     public static void stopEngine(){
         LeaderElection leadership = Core.getLeaderElection();
@@ -64,7 +59,6 @@ public class Bootstrap {
         eventConsumer.stop();
         eventProducer.stop();
     }
-
 
 
     private static void leaderElection() {
@@ -81,12 +75,21 @@ public class Bootstrap {
         }
     }
 
+
+    private static void startProducer(){
+        eventProducer = new EventProducer<>();
+        if(Core.getLeaderElection().amITheLeader()) {
+            eventProducer.start(Config.getDefaultConfig());
+        }
+    }
+
+
     private static void startConsumer(){
         eventConsumer = new DroolsConsumer<>(Core.getKubernetesLockConfiguration().getPodName());
         //eventConsumer.start(new DroolsConsumerHandler());
         eventConsumer.start(new EmptyConsumerHandler());
         consumerController = new DroolsConsumerController(eventConsumer);
-        consumerController.consumeEvents((Core.getLeaderElection().amITheLeader() ? Config.MASTER_TOPIC : Config.USERS_INPUT_TOPIC),Config.GROUP, Config.LOOP_DURATION, Config.DEFAULT_POLL_SIZE);
+        consumerController.consumeEvents();
         if(logger.isInfoEnabled()) {
             logger.info("Start consumer on Group:{} , duration:{} pollSize:{}",
                         Config.GROUP,
@@ -96,11 +99,7 @@ public class Bootstrap {
     }
 
 
-
-    private static void startProducer(){
-        eventProducer = new EventProducer<>();
-        if(Core.getLeaderElection().amITheLeader()) {
-            eventProducer.start(Config.getDefaultConfig());
-        }
+    private static void addCallbacks() {
+        Core.getLeaderElection().addCallbacks(Arrays.asList(eventConsumer,eventProducer));
     }
 }

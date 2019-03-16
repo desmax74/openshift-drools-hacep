@@ -25,13 +25,13 @@ import org.kie.u212.infra.utils.RecordMetadataUtil;
 import org.kie.u212.model.StockTickEvent;
 
 public class DroolsProducer {
-
+  //For manual DEMO
   public RecordMetadata create(List<StockTickEvent> events) {
     EventProducer<StockTickEvent> eventProducer = new EventProducer<>();
     eventProducer.start(Config.getDefaultConfig());
     RecordMetadata lastRecord = null;
     for (StockTickEvent event : events) {
-      lastRecord = eventProducer.produceSync(new ProducerRecord<>(Config.MASTER_TOPIC,
+      lastRecord = eventProducer.produceSync(new ProducerRecord<>(Config.USERS_INPUT_TOPIC,
                                                                   event.getId(),
                                                                   event));
       RecordMetadataUtil.logRecord(lastRecord);

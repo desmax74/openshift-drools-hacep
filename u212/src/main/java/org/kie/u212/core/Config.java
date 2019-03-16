@@ -32,21 +32,9 @@ public class Config {
   public static final String GROUP = "drools-group";//@ŢODO
   public static final int DEFAULT_POLL_SIZE = 10;
   public static final int LOOP_DURATION = -1;
+  public static final boolean DEFAULT_COMMIT_SYNC = true;
   private static final Logger logger = LoggerFactory.getLogger(Config.class);
 
-  public static Properties getConfig(String groupId,
-                                     String valueSerializerClassName,
-                                     boolean autoCommit) {
-    Properties producerProperties = new Properties();
-    producerProperties.put("bootstrap.servers", BROKER_URL + ":" + BROKER_PORT);
-    producerProperties.put("group.id", groupId);
-    producerProperties.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-    producerProperties.put("value.deserializer", valueSerializerClassName);
-    producerProperties.setProperty("enable.auto.commit",
-                                   String.valueOf(autoCommit));
-    logConfig(producerProperties);
-    return producerProperties;
-  }
 
   public static String getBotStrapServers() {
     //@TODO

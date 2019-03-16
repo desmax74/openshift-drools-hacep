@@ -54,7 +54,7 @@ public class LeaderElectionImpl implements LeaderElection {
                             KubernetesLockConfiguration lockConfiguration) {
     this.kubernetesClient = kubernetesClient;
     this.lockConfiguration = lockConfiguration;
-    this.callbacks = new ArrayList<>(2);
+    this.callbacks = new ArrayList<>();
   }
 
   public void start(){
@@ -83,6 +83,11 @@ public class LeaderElectionImpl implements LeaderElection {
     this.callbacks.addAll(callbacks);
   }
 
+  @Override
+  public boolean removeCallback(Callback callback) {
+    return callbacks.remove(callback);
+  }
+
   private void refreshStatus() {
     switch (currentState) {
       case NOT_LEADER:
@@ -97,6 +102,7 @@ public class LeaderElectionImpl implements LeaderElection {
       default:
         throw new RuntimeException("Unsupported state " + currentState);
     }
+
     for (Callback callback: callbacks){
         callback.updateStatus(currentState);
     }
