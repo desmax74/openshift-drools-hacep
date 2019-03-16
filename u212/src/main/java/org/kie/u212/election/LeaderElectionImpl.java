@@ -16,6 +16,7 @@
 package org.kie.u212.election;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -50,11 +51,10 @@ public class LeaderElectionImpl implements LeaderElection {
   private List<Callback> callbacks;
 
   public LeaderElectionImpl(KubernetesClient kubernetesClient,
-                            KubernetesLockConfiguration lockConfiguration,
-                            List<Callback> callbacks) {
+                            KubernetesLockConfiguration lockConfiguration) {
     this.kubernetesClient = kubernetesClient;
     this.lockConfiguration = lockConfiguration;
-    this.callbacks = callbacks;
+    this.callbacks = new ArrayList<>(2);
   }
 
   public void start(){
@@ -77,6 +77,12 @@ public class LeaderElectionImpl implements LeaderElection {
     return currentState.equals(State.LEADER);
   }
 
+
+  @Override
+  public void addCallbacks(List<Callback> callbacks) {
+    this.callbacks.addAll(callbacks);
+  }
+
   private void refreshStatus() {
     switch (currentState) {
       case NOT_LEADER:
@@ -91,9 +97,8 @@ public class LeaderElectionImpl implements LeaderElection {
       default:
         throw new RuntimeException("Unsupported state " + currentState);
     }
-    logger.info("REFRESH STATUS sent msg to the core");
     for (Callback callback: callbacks){
-        callback.updateStatus();
+        callback.updateStatus(currentState);
     }
   }
 
@@ -392,15 +397,5 @@ public class LeaderElectionImpl implements LeaderElection {
     return "Pod[" + this.lockConfiguration.getPodName() + "]";
   }
 
-  private enum State {
-    NOT_LEADER,
-    BECOMING_LEADER,
-    LEADER
-  }
-
-  @Override
-  public void fireCallback(Callback callback) {
-
-  }
 }
 

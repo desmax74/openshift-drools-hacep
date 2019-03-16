@@ -13,27 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.infra.consumer;
+package org.kie.u212.election;
 
-import java.util.List;
-
-public interface EventConsumer<K, V> {
-
-    void subscribe(String groupId,
-                   String topic,
-                   boolean autoCommit);
-
-    void poll(int size,
-              long duration,
-              boolean commitSync);
-
-    boolean assign(String topic,
-                   List<Integer> partitions,
-                   boolean autoCommit);
-
-    void changeTopic(String newTopic);
-
-    void start(ConsumerHandler consumerHandler);
-
-    void stop();
+public enum State {
+  NOT_LEADER,
+  BECOMING_LEADER,
+  LEADER
 }

@@ -23,12 +23,15 @@ import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.kie.u212.election.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EventProducer<T> extends AbstractProducer<String, T> implements Producer<String, T> {
+public class EventProducer<T> extends AbstractProducer<String, T> implements Producer<String, T>, org.kie.u212.election.Callback {
 
   private Logger logger = LoggerFactory.getLogger(EventProducer.class);
+
+  private volatile boolean leader = false;
 
   public void start(Properties properties) {
     producer = new KafkaProducer(properties);
@@ -59,9 +62,19 @@ public class EventProducer<T> extends AbstractProducer<String, T> implements Pro
   }
 
   @Override
-  public void produceAsync(ProducerRecord<String, T> producerRecord,
-                           Callback callback) {
-    producer.send(producerRecord,
-                  new ProducerCallback());
+  public void produceAsync(ProducerRecord<String, T> producerRecord, Callback callback) {
+    producer.send(producerRecord, callback);
+  }
+
+  @Override
+  public void updateStatus(State state) {
+    if(state.equals(State.LEADER) && !leader){
+      leader = true;
+      if(logger.isDebugEnabled()) {
+        logger.debug("I'm the new Leader");
+      }
+    }else if(state.equals(State.NOT_LEADER) && leader){
+      leader = false;
+    }
   }
 }

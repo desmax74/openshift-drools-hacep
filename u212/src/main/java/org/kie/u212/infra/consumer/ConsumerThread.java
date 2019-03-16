@@ -58,15 +58,10 @@ public class ConsumerThread<T> implements Runnable {
     public void run() {
         Properties properties = new Properties();
         properties.setProperty("key.deserializer", deserializerClass);
-
         if (subscribeMode) {
-            consumer.subscribe(groupId,
-                               topic,
-                               autoCommit);
+            consumer.subscribe(groupId, topic, autoCommit);
         } else {
-            consumer.assign(topic,
-                            null,
-                            autoCommit);
+            consumer.assign(topic, null, autoCommit);
         }
         consumer.poll(size, duration, commitSync);
     }

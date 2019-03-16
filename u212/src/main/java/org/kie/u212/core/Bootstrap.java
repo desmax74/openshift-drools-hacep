@@ -15,9 +15,12 @@
  */
 package org.kie.u212.core;
 
+import java.util.Arrays;
+
 import org.kie.u212.consumer.DroolsConsumer;
 import org.kie.u212.consumer.DroolsConsumerController;
 import org.kie.u212.consumer.DroolsConsumerHandler;
+import org.kie.u212.consumer.EmptyConsumerHandler;
 import org.kie.u212.election.KubernetesLockConfiguration;
 
 import org.kie.u212.election.LeaderElection;
@@ -43,6 +46,11 @@ public class Bootstrap {
         leaderElection();
         startProducer();
         startConsumer();
+        addCallbacks();
+    }
+
+    private static void addCallbacks() {
+        Core.getLeaderElection().addCallbacks(Arrays.asList(eventConsumer,eventProducer));
     }
 
     public static void stopEngine(){
@@ -74,8 +82,9 @@ public class Bootstrap {
     }
 
     private static void startConsumer(){
-        eventConsumer = new DroolsConsumer<>(Core.getKubernetesLockConfiguration().getPodName(), new DroolsConsumerHandler());
-        eventConsumer.start();
+        eventConsumer = new DroolsConsumer<>(Core.getKubernetesLockConfiguration().getPodName());
+        //eventConsumer.start(new DroolsConsumerHandler());
+        eventConsumer.start(new EmptyConsumerHandler());
         consumerController = new DroolsConsumerController(eventConsumer);
         consumerController.consumeEvents((Core.getLeaderElection().amITheLeader() ? Config.MASTER_TOPIC : Config.USERS_INPUT_TOPIC),Config.GROUP, Config.LOOP_DURATION, Config.DEFAULT_POLL_SIZE);
         if(logger.isInfoEnabled()) {

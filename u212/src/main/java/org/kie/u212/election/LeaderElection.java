@@ -15,6 +15,8 @@
  */
 package org.kie.u212.election;
 
+import java.util.List;
+
 public interface LeaderElection {
 
   void start() throws Exception;
@@ -23,5 +25,5 @@ public interface LeaderElection {
 
   boolean amITheLeader();
 
-  void fireCallback(Callback callback);
+  void addCallbacks(List<Callback> callbacks);
 }
