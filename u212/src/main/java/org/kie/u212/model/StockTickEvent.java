@@ -23,9 +23,9 @@ import org.kie.api.definition.type.Timestamp;
 @Timestamp("timestamp")
 public class StockTickEvent {
 
-  private final String company;
-  private final double price;
-  private final String id;
+  private String company;
+  private double price;
+  private String id;
   private long timestamp;
 
   public StockTickEvent(String company,
@@ -33,6 +33,20 @@ public class StockTickEvent {
                         String id) {
     this.company = company;
     this.price = price;
+    this.id = id;
+  }
+
+  public StockTickEvent(){ }
+
+  public void setCompany(String company) {
+    this.company = company;
+  }
+
+  public void setPrice(double price) {
+    this.price = price;
+  }
+
+  public void setId(String id) {
     this.id = id;
   }
 

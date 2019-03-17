@@ -42,7 +42,9 @@ public class EventProducer<T> extends AbstractProducer<String, T> implements Pro
   }
 
   public void stop() {
-    producer.close();
+    if(producer != null) {
+      producer.close();
+    }
   }
 
   public Future<RecordMetadata> produceFireAndForget(ProducerRecord<String, T> producerRecord) {

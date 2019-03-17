@@ -62,7 +62,6 @@ public class DroolsConsumer<T> implements EventConsumer,
 
     public void setSubscribeMode(boolean subscribeMode){
         this.subscribeMode = subscribeMode;
-        logger.info("call set subscribe mode");
     }
 
     @Override
@@ -71,10 +70,6 @@ public class DroolsConsumer<T> implements EventConsumer,
         consumer = new KafkaConsumer<>(Config.getDefaultConfig());
     }
 
-    private void reStartAfterWakeUp() {
-        logger.info("restart after wake up");
-        consumer = new KafkaConsumer<>(Config.getDefaultConfig());
-    }
 
     @Override
     public void stop() {
@@ -92,27 +87,8 @@ public class DroolsConsumer<T> implements EventConsumer,
         currentState = state;
     }
 
-    private void enableConsumeOnLoop(State state) {
-        if (state.equals(State.LEADER) && !leader) {
-            startConsume(Config.USERS_INPUT_TOPIC);
-        }else if (state.equals(State.NOT_LEADER) && leader) {
-            startConsume(Config.MASTER_TOPIC);
-        }else if (state.equals(State.NOT_LEADER) && !leader){
-            startConsume(Config.MASTER_TOPIC);
-        }
-    }
-
-    private void startConsume(String topic) {
-        if (subscribeMode) {
-            subscribe(groupId, topic, autoCommit);
-            started = true;
-        } else {
-            assign(topic, null, autoCommit);
-            started = true;
-        }
-    }
-
     private void updateOnRunningConsumer(State state) {
+
         if (state.equals(State.LEADER) && !leader) {
             leader = true;
             changeTopic(Config.USERS_INPUT_TOPIC);
@@ -123,6 +99,32 @@ public class DroolsConsumer<T> implements EventConsumer,
         }
     }
 
+    private void enableConsumeOnLoop(State state) {
+        if (state.equals(State.LEADER) && !leader) {
+            leader = true;
+            startConsume(Config.USERS_INPUT_TOPIC);
+        }else if (state.equals(State.NOT_LEADER) && leader) {
+            leader = false;
+            startConsume(Config.MASTER_TOPIC);
+        }else if (state.equals(State.NOT_LEADER) && !leader) {
+            leader = false;
+            startConsume(Config.MASTER_TOPIC);
+        }
+    }
+
+    private void startConsume(String topic) {
+        logger.info("SUBSCRIBING topic:{} groupdID:{} autocommit:{}", topic, groupId, autoCommit);
+        if (subscribeMode) {
+            subscribe(groupId, topic, autoCommit);
+            started = true;
+        }else{
+            assign(topic, null, autoCommit);
+            started = true;
+        }
+    }
+
+
+
     @Override
     public void subscribe(String groupId,
                           String topic,
@@ -130,15 +132,41 @@ public class DroolsConsumer<T> implements EventConsumer,
 
         this.autoCommit = autoCommit;
         this.groupId = groupId;
-        logger.info("Consumersubscribe topic:{} offset:{}", topic, offsets);
+        logger.info("Consumer subscribe topic:{} offset:{}", topic, offsets);
         consumer.subscribe(Collections.singletonList(topic), new PartitionListener(consumer, offsets));
+    }
+
+
+    @Override
+    public boolean assign(String topic,
+                          List partitions,
+                          boolean autoCommit) {
+        boolean isAssigned = false;
+        List<PartitionInfo> partitionsInfo = consumer.partitionsFor(topic);
+        Collection<TopicPartition> partitionCollection = new ArrayList<>();
+
+        if (partitionsInfo != null) {
+            for (PartitionInfo partition : partitionsInfo) {
+                if (partitions == null || partitions.contains(partition.partition())) {
+                    partitionCollection.add(new TopicPartition(partition.topic(),
+                                                               partition.partition()));
+                }
+            }
+
+            if (!partitionCollection.isEmpty()) {
+                consumer.assign(partitionCollection);
+                isAssigned = true;
+            }
+        }
+        this.autoCommit = autoCommit;
+        return isAssigned;
     }
 
     @Override
     public void poll(int size,
                      long duration,
                      boolean commitSync) {
-        
+
         final Thread mainThread = Thread.currentThread();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("Starting exit...\n");
@@ -152,6 +180,7 @@ public class DroolsConsumer<T> implements EventConsumer,
         }));
 
         if (consumer == null) {
+            logger.error("consumer null");
             throw new IllegalStateException("Can't poll, consumer not subscribed or null!");
         }
 
@@ -181,45 +210,27 @@ public class DroolsConsumer<T> implements EventConsumer,
                 }
                 OffsetManager.store(offsets); //Store offsets
             } finally {
+                logger.info("Closing consumer on the loop");
                 consumer.close();
             }
         }
     }
 
-    @Override
-    public boolean assign(String topic,
-                          List partitions,
-                          boolean autoCommit) {
-        boolean isAssigned = false;
-        List<PartitionInfo> partitionsInfo = consumer.partitionsFor(topic);
-        Collection<TopicPartition> partitionCollection = new ArrayList<>();
 
-        if (partitionsInfo != null) {
-            for (PartitionInfo partition : partitionsInfo) {
-                if (partitions == null || partitions.contains(partition.partition())) {
-                    partitionCollection.add(new TopicPartition(partition.topic(),
-                                                               partition.partition()));
-                }
-            }
-
-            if (!partitionCollection.isEmpty()) {
-                consumer.assign(partitionCollection);
-                isAssigned = true;
-            }
-        }
-        this.autoCommit = autoCommit;
-        return isAssigned;
-    }
 
     @Override
     public void changeTopic(String newTopic) {
-        logger.info("Change topic");
         started = false;
+        //consumer.unsubscribe();
+        //consumer.close();
         consumer.wakeup();//this cause exit from the loop and close the consumer
-        reStartAfterWakeUp();
+        consumer = null;
+        consumer = new KafkaConsumer<>(Config.getDefaultConfig());
+        logger.info("subscribing newTopic:{}", newTopic);
         consumer.subscribe(Collections.singletonList(newTopic), new PartitionListener(consumer, offsets));
         started = true;
     }
+
 
     private void consume(int size, boolean commitSync) {
 
@@ -227,17 +238,15 @@ public class DroolsConsumer<T> implements EventConsumer,
             ConsumerRecords<String, T> records = consumer.poll(size);
             for (ConsumerRecord<String, T> record : records) {
                 //store next offset to commit
+                ConsumerUtils.prettyPrinter(id,
+                                            groupId,
+                                            record);
                 offsets.put(new TopicPartition(record.topic(),
                                                record.partition()),
                             new OffsetAndMetadata(record.offset() + 1,
                                                   "null"));
-                logger.info("consume record:{} state:{}", record, currentState);
+
                 consumerHandle.process(record, currentState);
-                if (logger.isInfoEnabled()) {
-                    ConsumerUtils.prettyPrinter(id,
-                                                groupId,
-                                                record);
-                }
             }
 
             if (!autoCommit) {

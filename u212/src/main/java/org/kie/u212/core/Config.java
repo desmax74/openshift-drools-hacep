@@ -23,14 +23,14 @@ import org.slf4j.LoggerFactory;
 
 public class Config {
 
-  public static final String MASTER_TOPIC = "master.events";
-  public static final String USERS_INPUT_TOPIC = "users.input.events";
+  public static final String MASTER_TOPIC = "master";
+  public static final String USERS_INPUT_TOPIC = "users";
   public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST";
   public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT";
   public static final String BROKER_URL = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST);
   public static final String BROKER_PORT = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT);
-  public static final String GROUP = "drools-group";//@ŢODO
-  public static final int DEFAULT_POLL_SIZE = 10;
+  public static final String GROUP = "drools";//@ŢODO
+  public static final int DEFAULT_POLL_SIZE = 1000;
   public static final int LOOP_DURATION = -1;
   public static final boolean DEFAULT_COMMIT_SYNC = true;
   private static final Logger logger = LoggerFactory.getLogger(Config.class);
@@ -51,7 +51,7 @@ public class Config {
     properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
     properties.put("value.serializer", "org.kie.u212.consumer.EventJsonSerializer");
     properties.put("bootstrap.servers", getBotStrapServers());
-    properties.put("group.id", "1");//@TODO
+    properties.put("group.id", GROUP);//@TODO
     properties.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
     properties.put("value.deserializer", "org.kie.u212.producer.EventJsonDeserializer");
     properties.setProperty("enable.auto.commit", String.valueOf(true));//@TODO

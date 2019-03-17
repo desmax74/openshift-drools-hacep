@@ -6,7 +6,7 @@ https://github.com/desmax74/openshift-handbook/blob/master/fedora/kafka.md
 
 - Prerequisites: install qs-playground 8.0-SNAPSHOT
 ```sh
-mvn clean install
+mvn clean install package
 mvn thorntail:run
 ```
 ### Hello World
@@ -22,16 +22,17 @@ docker images | grep openshift-kie
 ```
 
 #### Deploy on Openshift
+Relax RBAC for configmap
+```sh
+kubectl create clusterrolebinding permissive-binding --clusterrole=cluster-admin --group=system:serviceaccounts
+```
 By default will be created under project called "My Project"
 ```sh
 kubectl create -f kubernetes/deployment.yaml 
 kubectl create -f kubernetes/service.yaml 
 oc expose service  openshift-kie-thorntail
 ```
-Relax RBAC for configmap
-```sh
-kubectl create clusterrolebinding permissive-binding --clusterrole=cluster-admin --group=system:serviceaccounts
-```
+
 
 this create a yaml file and the route for us on openshift, like this (in routes section on My Project)
  ```yaml

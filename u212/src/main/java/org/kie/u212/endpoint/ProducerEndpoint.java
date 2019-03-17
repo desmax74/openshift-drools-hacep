@@ -41,11 +41,22 @@ public class ProducerEndpoint {
   }
 
   @GET
-  @Path("/demo/{eventNumber}")
+  @Path("/user")
   @Produces(MediaType.TEXT_PLAIN)
-  public String demo(@PathParam("eventNumber") Integer eventNumber) {
-    logger.info("Requested {} events", eventNumber);
-    myEventProducerApp.businessLogic(eventNumber);
-    return "produced " + eventNumber + " events";
+  public String user() {
+    logger.info("Requested {} events topic:users", 10);
+    myEventProducerApp.businessLogic(10, "users");
+    return "produced " + 10 + " events";
   }
+
+  @GET
+  @Path("/master")
+  @Produces(MediaType.TEXT_PLAIN)
+  public String master() {
+    logger.info("Requested {} events topic:master", 10);
+    myEventProducerApp.businessLogic(10, "master");
+    return "produced " + 10 + " events";
+  }
+
+
 }

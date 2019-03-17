@@ -30,7 +30,7 @@ public class DroolsEventProducerApp {
     droolsProducer = new DroolsProducer();
   }
 
-  public void businessLogic(Integer eventNumber) {
+  public void businessLogic(Integer eventNumber, String topic) {
     List<StockTickEvent> events = new ArrayList<>();
     for (int i = 0; i < eventNumber; i++) {
       events.add(new StockTickEvent("RHT",
@@ -38,7 +38,7 @@ public class DroolsEventProducerApp {
                                                                          100),
                                     UUID.randomUUID().toString()));
     }
-    droolsProducer.create(events);
+    droolsProducer.create(events, topic);
   }
 
   public void businessLogic(StockTickEvent event) {

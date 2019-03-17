@@ -60,6 +60,10 @@ public class Bootstrap {
         eventProducer.stop();
     }
 
+    public void startNewThreadConsumer(){
+        consumerController.consumeEvents();
+    }
+
 
     private static void leaderElection() {
         KubernetesLockConfiguration configuration = Core.getKubernetesLockConfiguration();
