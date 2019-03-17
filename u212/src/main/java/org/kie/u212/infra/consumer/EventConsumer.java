@@ -36,4 +36,8 @@ public interface EventConsumer<K, V> {
     void start(ConsumerHandler consumerHandler);
 
     void stop();
+
+    void waitStart( int pollSize,
+                           long duration,
+                           boolean commitSync);
 }

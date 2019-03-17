@@ -15,6 +15,7 @@
  */
 package org.kie.u212.infra.consumer;
 
+import org.kie.u212.consumer.DroolsBag;
 import org.kie.u212.consumer.DroolsConsumer;
 
 public class ConsumerThread implements Runnable {
@@ -23,23 +24,24 @@ public class ConsumerThread implements Runnable {
     private long duration;
     private boolean commitSync;
     private boolean subscribeMode;
-    private DroolsConsumer consumer;
+    private DroolsBag bag;
 
     public ConsumerThread(
             int pollSize,
             long duration,
             boolean commitSync,
             boolean subscribeMode,
-            DroolsConsumer consumer) {
+            DroolsBag bag) {
         this.size = pollSize;
         this.duration = duration;
         this.commitSync = commitSync;
         this.subscribeMode = subscribeMode;
-        this.consumer = consumer;
+        this.bag = bag;
     }
 
     public void run() {
-        consumer.setSubscribeMode(subscribeMode);
-        consumer.poll(size, duration, commitSync); //delayed to the first status update
+        bag.getConsumer().setSubscribeMode(subscribeMode);
+        //bag.getConsumer().poll(size, duration, commitSync); //delayed to the first status update
+        bag.getConsumer().waitStart(size,duration,commitSync);
     }
 }

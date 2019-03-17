@@ -17,6 +17,7 @@ package org.kie.u212.core;
 
 import java.util.Arrays;
 
+import org.kie.u212.consumer.DroolsBag;
 import org.kie.u212.consumer.DroolsConsumer;
 import org.kie.u212.consumer.DroolsConsumerController;
 import org.kie.u212.consumer.EmptyConsumerHandler;
@@ -37,7 +38,8 @@ public class Bootstrap {
     private static final Logger logger = LoggerFactory.getLogger(Bootstrap.class);
     private static DroolsConsumerController consumerController ;
     private static EventProducer<StockTickEvent> eventProducer ;
-    private static DroolsConsumer<StockTickEvent> eventConsumer ;
+    //private static DroolsConsumer<StockTickEvent> eventConsumer ;
+    private static DroolsBag droolsBag;
 
     public static void startEngine(){
         //order matter
@@ -56,7 +58,7 @@ public class Bootstrap {
             logger.error(e.getMessage(),
                          e);
         }
-        eventConsumer.stop();
+        droolsBag.getConsumer().stop();
         eventProducer.stop();
     }
 
@@ -89,10 +91,11 @@ public class Bootstrap {
 
 
     private static void startConsumer(){
-        eventConsumer = new DroolsConsumer<>(Core.getKubernetesLockConfiguration().getPodName());
+        droolsBag = new DroolsBag();
+        droolsBag.createDroolsConsumer(Core.getKubernetesLockConfiguration().getPodName());//new DroolsConsumer<>(Core.getKubernetesLockConfiguration().getPodName(), droolsBag);
         //eventConsumer.start(new DroolsConsumerHandler());
-        eventConsumer.start(new EmptyConsumerHandler());
-        consumerController = new DroolsConsumerController(eventConsumer);
+        droolsBag.getConsumer().start(new EmptyConsumerHandler());
+        consumerController = new DroolsConsumerController(droolsBag);
         consumerController.consumeEvents();
         if(logger.isInfoEnabled()) {
             logger.info("Start consumer on Group:{} , duration:{} pollSize:{}",
@@ -104,6 +107,6 @@ public class Bootstrap {
 
 
     private static void addCallbacks() {
-        Core.getLeaderElection().addCallbacks(Arrays.asList(eventConsumer,eventProducer));
+        Core.getLeaderElection().addCallbacks(Arrays.asList(droolsBag.getCallback(), eventProducer));
     }
 }

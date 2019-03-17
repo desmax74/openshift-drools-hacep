@@ -47,16 +47,19 @@ public class Config {
   }
 
   public static Properties getDefaultConfig() {
-    Properties properties = new Properties();
-    properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-    properties.put("value.serializer", "org.kie.u212.consumer.EventJsonSerializer");
-    properties.put("bootstrap.servers", getBotStrapServers());
-    properties.put("group.id", GROUP);//@TODO
-    properties.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-    properties.put("value.deserializer", "org.kie.u212.producer.EventJsonDeserializer");
-    properties.setProperty("enable.auto.commit", String.valueOf(true));//@TODO
-    logConfig(properties);
-    return properties;
+    Properties props = new Properties();
+    props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+    props.put("value.serializer", "org.kie.u212.consumer.EventJsonSerializer");
+    props.put("bootstrap.servers", getBotStrapServers());
+    props.put("group.id", GROUP);//@TODO
+    props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+    props.put("value.deserializer", "org.kie.u212.producer.EventJsonDeserializer");
+    props.put("max.poll.interval.ms", "300000");
+    props.put("batch.size","16384");
+    props.put("metadata.max.age.ms", "10000");
+    props.setProperty("enable.auto.commit", String.valueOf(true));//@TODO
+    logConfig(props);
+    return props;
   }
 
   private static void logConfig(Properties producerProperties) {
