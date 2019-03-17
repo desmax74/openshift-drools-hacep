@@ -16,7 +16,6 @@
 package org.kie.u212.consumer;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.kafka.clients.consumer.Consumer;
@@ -26,14 +25,16 @@ import org.apache.kafka.common.TopicPartition;
 import org.kie.u212.core.Config;
 import org.kie.u212.election.Callback;
 import org.kie.u212.infra.PartitionListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+/***
+ * Purpose of this class is to set a new consumer
+ * when a changeTopic in the DroolsConsumer is called without leave
+ * the ConsumerThread's inner loop
+ */
 public class DroolsBag {
 
   private DroolsConsumer consumer;
   private DroolsCallback callback;
-  private Logger logger = LoggerFactory.getLogger(DroolsBag.class);
 
   public DroolsBag(){
     callback = new DroolsCallback();
@@ -43,45 +44,15 @@ public class DroolsBag {
     consumer = new DroolsConsumer(id,this);
     callback.setConsumer(consumer);
   }
-/*
-  public void changeTopic(String newTopic, Map<TopicPartition, OffsetAndMetadata> offsets){
-    Consumer kafkaConsumer =  consumer.getKafkaConsumer();
-    Consumer newConsumer = new KafkaConsumer<>(Config.getDefaultConfig());
-    logger.info("subscribe new Topic:{}", newTopic);
-    newConsumer.subscribe(Collections.singletonList(newTopic), new PartitionListener(newConsumer, offsets));
-    consumer.setKafkaConsumer(newConsumer);
-    //callback.setConsumer(consumer);
-    logger.info("internalStart");
-    consumer.internalStart();
-
-    logger.info("changeTopic external");
-
-    kafkaConsumer.close();
-    kafkaConsumer = null;
-    logger.info("new Consumer");
-
-  }*/
 
   public void changeTopic(String newTopic, Map<TopicPartition, OffsetAndMetadata> offsets){
     Consumer kafkaConsumer =  consumer.getKafkaConsumer();
     Consumer newConsumer = new KafkaConsumer<>(Config.getDefaultConfig());
-    logger.info("subscribe new Topic:{}", newTopic);
     newConsumer.subscribe(Collections.singletonList(newTopic), new PartitionListener(newConsumer, offsets));
     consumer.setKafkaConsumer(newConsumer);
-    //callback.setConsumer(consumer);
-    logger.info("internalStart");
     consumer.internalStart();
-
-    logger.info("changeTopic external");
-
     kafkaConsumer.close();
     kafkaConsumer = null;
-    logger.info("new Consumer");
-
-  }
-
-  public DroolsBag(DroolsCallback callback){
-    this.callback = callback;
   }
 
   public DroolsConsumer getConsumer() {
@@ -96,7 +67,4 @@ public class DroolsBag {
     return callback;
   }
 
-  public void setCallback(DroolsCallback callback) {
-    this.callback = callback;
-  }
 }

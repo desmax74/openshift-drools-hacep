@@ -38,7 +38,6 @@ public class Bootstrap {
     private static final Logger logger = LoggerFactory.getLogger(Bootstrap.class);
     private static DroolsConsumerController consumerController ;
     private static EventProducer<StockTickEvent> eventProducer ;
-    //private static DroolsConsumer<StockTickEvent> eventConsumer ;
     private static DroolsBag droolsBag;
 
     public static void startEngine(){
@@ -61,11 +60,6 @@ public class Bootstrap {
         droolsBag.getConsumer().stop();
         eventProducer.stop();
     }
-
-    public void startNewThreadConsumer(){
-        consumerController.consumeEvents();
-    }
-
 
     private static void leaderElection() {
         KubernetesLockConfiguration configuration = Core.getKubernetesLockConfiguration();
@@ -92,8 +86,7 @@ public class Bootstrap {
 
     private static void startConsumer(){
         droolsBag = new DroolsBag();
-        droolsBag.createDroolsConsumer(Core.getKubernetesLockConfiguration().getPodName());//new DroolsConsumer<>(Core.getKubernetesLockConfiguration().getPodName(), droolsBag);
-        //eventConsumer.start(new DroolsConsumerHandler());
+        droolsBag.createDroolsConsumer(Core.getKubernetesLockConfiguration().getPodName());
         droolsBag.getConsumer().start(new EmptyConsumerHandler());
         consumerController = new DroolsConsumerController(droolsBag);
         consumerController.consumeEvents();

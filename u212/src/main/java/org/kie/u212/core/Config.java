@@ -54,7 +54,7 @@ public class Config {
     props.put("group.id", GROUP);//@TODO
     props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
     props.put("value.deserializer", "org.kie.u212.producer.EventJsonDeserializer");
-    props.put("max.poll.interval.ms", "300000");
+    props.put("max.poll.interval.ms", "10000");//time to discover the new consumer after a changetopicdefault 5 min 300000
     props.put("batch.size","16384");
     props.put("metadata.max.age.ms", "10000");
     props.setProperty("enable.auto.commit", String.valueOf(true));//@TODO
