@@ -15,23 +15,25 @@
  */
 package org.kie.u212.consumer;
 
-import org.kie.u212.core.Config;
-import org.kie.u212.core.Core;
-import org.kie.u212.infra.producer.EventProducer;
-import org.kie.u212.producer.DroolsProducer;
+import org.kie.u212.election.Callback;
+import org.kie.u212.election.State;
 
-//@TODO Only for manual Demo
-public class DroolsEventCosumerApp {
+/***
+ * Callback forwarder from the DroolsBAg
+ */
+public class DroolsCallback implements Callback {
 
-  private DroolsConsumerController consumerController;
+  private DroolsConsumer consumer;
 
-  public DroolsEventCosumerApp(){
-    DroolsConsumer consumer = new DroolsConsumer(Core.getKubernetesLockConfiguration().getPodName());
-    consumer.start(new DroolsConsumerHandler(new EventProducer()));
-    consumerController = new DroolsConsumerController(consumer);
+  public DroolsCallback(){}
+
+
+  public void setConsumer(DroolsConsumer newConsumer){
+    this.consumer = newConsumer;
   }
 
-  public void businessLogic(String topic) {
-    consumerController.consumeEvents();
+  @Override
+  public void updateStatus(State state) {
+      consumer.updateStatus(state);
   }
 }

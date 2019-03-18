@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.kafka.clients.consumer.CommitFailedException;
+import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -41,12 +42,11 @@ import org.kie.u212.infra.utils.ConsumerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DroolsConsumer<T> implements EventConsumer,
-                                          Callback {
+public class DroolsConsumer<T> implements EventConsumer, Callback {
 
     private Logger logger = LoggerFactory.getLogger(DroolsConsumer.class);
     private Map<TopicPartition, OffsetAndMetadata> offsets = new HashMap<>();
-    private org.apache.kafka.clients.consumer.Consumer<String, T> consumer;
+    private org.apache.kafka.clients.consumer.Consumer<String, T> kafkaConsumer;
     private ConsumerHandler consumerHandle;
     private String id;
     private String groupId;
@@ -55,9 +55,19 @@ public class DroolsConsumer<T> implements EventConsumer,
     private volatile boolean started;
     private boolean subscribeMode = true;
     private volatile State currentState;
+    private DroolsRestarter externalContainer;
 
-    public DroolsConsumer(String id) {
+    public DroolsConsumer(String id, DroolsRestarter externalContainer) {
         this.id = id;
+        this.externalContainer = externalContainer;
+    }
+
+    public Consumer getKafkaConsumer(){
+        return kafkaConsumer;
+    }
+
+    public void setKafkaConsumer(Consumer newConsumer){
+        this.kafkaConsumer = newConsumer;
     }
 
     public void setSubscribeMode(boolean subscribeMode){
@@ -67,13 +77,27 @@ public class DroolsConsumer<T> implements EventConsumer,
     @Override
     public void start(ConsumerHandler consumerHandler) {
         this.consumerHandle = consumerHandler;
-        consumer = new KafkaConsumer<>(Config.getDefaultConfig());
+        kafkaConsumer = new KafkaConsumer<>(Config.getDefaultConfig());
     }
 
+    public void internalStart(){
+        logger.info("internlaStart");
+        started = true;
+    }
+
+    public void waitStart( int pollSize,
+                           long duration,
+                           boolean commitSync) {
+        while(true){
+            if(started){
+                poll(pollSize, duration, commitSync);
+            }
+        }
+    }
 
     @Override
     public void stop() {
-        consumer.close();
+        kafkaConsumer.close();
         started = false;
     }
 
@@ -113,8 +137,8 @@ public class DroolsConsumer<T> implements EventConsumer,
     }
 
     private void startConsume(String topic) {
-        logger.info("SUBSCRIBING topic:{} groupdID:{} autocommit:{}", topic, groupId, autoCommit);
         if (subscribeMode) {
+            if(logger.isInfoEnabled()){logger.info("SUBSCRIBING topic:{} groupdID:{} autocommit:{}", topic, groupId, autoCommit);}
             subscribe(groupId, topic, autoCommit);
             started = true;
         }else{
@@ -129,11 +153,10 @@ public class DroolsConsumer<T> implements EventConsumer,
     public void subscribe(String groupId,
                           String topic,
                           boolean autoCommit) {
-
         this.autoCommit = autoCommit;
         this.groupId = groupId;
-        logger.info("Consumer subscribe topic:{} offset:{}", topic, offsets);
-        consumer.subscribe(Collections.singletonList(topic), new PartitionListener(consumer, offsets));
+        if(logger.isInfoEnabled()){ logger.info("Consumer subscribe topic:{} offset:{}", topic, offsets);}
+        kafkaConsumer.subscribe(Collections.singletonList(topic), new PartitionListener(kafkaConsumer, offsets));
     }
 
 
@@ -142,7 +165,7 @@ public class DroolsConsumer<T> implements EventConsumer,
                           List partitions,
                           boolean autoCommit) {
         boolean isAssigned = false;
-        List<PartitionInfo> partitionsInfo = consumer.partitionsFor(topic);
+        List<PartitionInfo> partitionsInfo = kafkaConsumer.partitionsFor(topic);
         Collection<TopicPartition> partitionCollection = new ArrayList<>();
 
         if (partitionsInfo != null) {
@@ -154,7 +177,7 @@ public class DroolsConsumer<T> implements EventConsumer,
             }
 
             if (!partitionCollection.isEmpty()) {
-                consumer.assign(partitionCollection);
+                kafkaConsumer.assign(partitionCollection);
                 isAssigned = true;
             }
         }
@@ -170,7 +193,7 @@ public class DroolsConsumer<T> implements EventConsumer,
         final Thread mainThread = Thread.currentThread();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("Starting exit...\n");
-            consumer.wakeup();
+            kafkaConsumer.wakeup();
             try {
                 mainThread.join();
             } catch (InterruptedException e) {
@@ -179,9 +202,9 @@ public class DroolsConsumer<T> implements EventConsumer,
             }
         }));
 
-        if (consumer == null) {
-            logger.error("consumer null");
-            throw new IllegalStateException("Can't poll, consumer not subscribed or null!");
+        if (kafkaConsumer == null) {
+            logger.error("kafkaConsumer null");
+            throw new IllegalStateException("Can't poll, kafkaConsumer not subscribed or null!");
         }
 
         try {
@@ -199,7 +222,7 @@ public class DroolsConsumer<T> implements EventConsumer,
         } catch (WakeupException e) {
         } finally {
             try {
-                consumer.commitSync();
+                kafkaConsumer.commitSync();
                 if (logger.isDebugEnabled()) {
                     for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : offsets.entrySet()) {
                         logger.debug("Consumer %s - partition %s - lastOffset %s\n",
@@ -210,8 +233,8 @@ public class DroolsConsumer<T> implements EventConsumer,
                 }
                 OffsetManager.store(offsets); //Store offsets
             } finally {
-                logger.info("Closing consumer on the loop");
-                consumer.close();
+                logger.info("Closing kafkaConsumer on the loop");
+                kafkaConsumer.close();
             }
         }
     }
@@ -220,14 +243,9 @@ public class DroolsConsumer<T> implements EventConsumer,
 
     @Override
     public void changeTopic(String newTopic) {
+        logger.info("ask to the external container the change topic");
         started = false;
-        //consumer.unsubscribe();
-        //consumer.close();
-        consumer.wakeup();//this cause exit from the loop and close the consumer
-        consumer = null;
-        consumer = new KafkaConsumer<>(Config.getDefaultConfig());
-        logger.info("subscribing newTopic:{}", newTopic);
-        consumer.subscribe(Collections.singletonList(newTopic), new PartitionListener(consumer, offsets));
+        externalContainer.changeTopic(newTopic, offsets);
         started = true;
     }
 
@@ -235,7 +253,7 @@ public class DroolsConsumer<T> implements EventConsumer,
     private void consume(int size, boolean commitSync) {
 
         if(started) {
-            ConsumerRecords<String, T> records = consumer.poll(size);
+            ConsumerRecords<String, T> records = kafkaConsumer.poll(size);
             for (ConsumerRecord<String, T> record : records) {
                 //store next offset to commit
                 ConsumerUtils.prettyPrinter(id,
@@ -253,7 +271,7 @@ public class DroolsConsumer<T> implements EventConsumer,
                 if (!commitSync) {
                     try {
                         //async doesn't do a retry
-                        consumer.commitAsync((map, e) -> {
+                        kafkaConsumer.commitAsync((map, e) -> {
                             if (e != null) {
                                 logger.error(e.getMessage(),
                                              e);
@@ -264,7 +282,7 @@ public class DroolsConsumer<T> implements EventConsumer,
                                      e);
                     }
                 } else {
-                    consumer.commitSync();
+                    kafkaConsumer.commitSync();
                 }
             }
         }

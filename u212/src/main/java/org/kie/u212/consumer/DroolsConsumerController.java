@@ -17,20 +17,14 @@ package org.kie.u212.consumer;
 
 import org.kie.u212.core.Config;
 import org.kie.u212.infra.consumer.ConsumerThread;
-import org.kie.u212.model.StockTickEvent;
 
 public class DroolsConsumerController {
 
-  private DroolsConsumer<StockTickEvent> consumer;
+  private DroolsRestarter bag;
 
-  public DroolsConsumerController(DroolsConsumer<StockTickEvent> consumer) {
-    this.consumer = consumer;
+  public DroolsConsumerController(DroolsRestarter bag) {
+    this.bag = bag;
   }
-
-  public DroolsConsumer getConsumer(){
-    return consumer;
-  }
-
 
   public void consumeEvents() {
     Thread t = new Thread(
@@ -39,7 +33,7 @@ public class DroolsConsumerController {
                     Config.LOOP_DURATION,
                     Config.DEFAULT_COMMIT_SYNC,
                     true,
-                    consumer));
+                    bag));
     t.start();
   }
 }
