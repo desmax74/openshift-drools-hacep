@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.consumer;
+package org.kie.u212.core.infra.consumer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,19 +32,17 @@ import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.kie.u212.core.Config;
-import org.kie.u212.election.Callback;
-import org.kie.u212.election.State;
-import org.kie.u212.infra.OffsetManager;
-import org.kie.u212.infra.PartitionListener;
-import org.kie.u212.infra.consumer.ConsumerHandler;
-import org.kie.u212.infra.consumer.EventConsumer;
-import org.kie.u212.infra.utils.ConsumerUtils;
+import org.kie.u212.core.infra.election.Callback;
+import org.kie.u212.core.infra.election.State;
+import org.kie.u212.core.infra.OffsetManager;
+import org.kie.u212.core.infra.PartitionListener;
+import org.kie.u212.core.infra.utils.ConsumerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DroolsConsumer<T> implements EventConsumer, Callback {
+public class DefaultConsumer<T> implements EventConsumer, Callback {
 
-    private Logger logger = LoggerFactory.getLogger(DroolsConsumer.class);
+    private Logger logger = LoggerFactory.getLogger(DefaultConsumer.class);
     private Map<TopicPartition, OffsetAndMetadata> offsets = new HashMap<>();
     private org.apache.kafka.clients.consumer.Consumer<String, T> kafkaConsumer;
     private ConsumerHandler consumerHandle;
@@ -55,9 +53,9 @@ public class DroolsConsumer<T> implements EventConsumer, Callback {
     private volatile boolean started;
     private boolean subscribeMode = true;
     private volatile State currentState;
-    private DroolsRestarter externalContainer;
+    private Restarter externalContainer;
 
-    public DroolsConsumer(String id, DroolsRestarter externalContainer) {
+    public DefaultConsumer(String id, Restarter externalContainer) {
         this.id = id;
         this.externalContainer = externalContainer;
     }
@@ -81,7 +79,6 @@ public class DroolsConsumer<T> implements EventConsumer, Callback {
     }
 
     public void internalStart(){
-        logger.info("internlaStart");
         started = true;
     }
 
@@ -155,7 +152,7 @@ public class DroolsConsumer<T> implements EventConsumer, Callback {
                           boolean autoCommit) {
         this.autoCommit = autoCommit;
         this.groupId = groupId;
-        if(logger.isInfoEnabled()){ logger.info("Consumer subscribe topic:{} offset:{}", topic, offsets);}
+        if(logger.isInfoEnabled()){ logger.info("Consumer subscribe topic:{}", topic);}
         kafkaConsumer.subscribe(Collections.singletonList(topic), new PartitionListener(kafkaConsumer, offsets));
     }
 
@@ -203,7 +200,6 @@ public class DroolsConsumer<T> implements EventConsumer, Callback {
         }));
 
         if (kafkaConsumer == null) {
-            logger.error("kafkaConsumer null");
             throw new IllegalStateException("Can't poll, kafkaConsumer not subscribed or null!");
         }
 
@@ -243,7 +239,6 @@ public class DroolsConsumer<T> implements EventConsumer, Callback {
 
     @Override
     public void changeTopic(String newTopic) {
-        logger.info("ask to the external container the change topic");
         started = false;
         externalContainer.changeTopic(newTopic, offsets);
         started = true;

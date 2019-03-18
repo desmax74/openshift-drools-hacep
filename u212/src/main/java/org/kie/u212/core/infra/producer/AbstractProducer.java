@@ -13,27 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.consumer;
+package org.kie.u212.core.infra.producer;
 
-import org.kie.u212.core.Config;
-import org.kie.u212.infra.consumer.ConsumerThread;
+import org.apache.kafka.clients.producer.Producer;
 
-public class DroolsConsumerController {
+public class AbstractProducer<K, V> {
 
-  private DroolsRestarter bag;
+  protected org.apache.kafka.clients.producer.Producer<K, V> producer;
 
-  public DroolsConsumerController(DroolsRestarter bag) {
-    this.bag = bag;
-  }
-
-  public void consumeEvents() {
-    Thread t = new Thread(
-            new ConsumerThread(
-                    Config.DEFAULT_POLL_SIZE,
-                    Config.LOOP_DURATION,
-                    Config.DEFAULT_COMMIT_SYNC,
-                    true,
-                    bag));
-    t.start();
+  public Producer<K, V> getProducer() {
+    return producer;
   }
 }

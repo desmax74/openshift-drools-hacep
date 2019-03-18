@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.infra.consumer;
+package org.kie.u212.core.infra.election;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.kie.u212.election.State;
-
-public interface ConsumerHandler {
-
-  void process(ConsumerRecord record, State currentState);
+public enum State {
+  NOT_LEADER,
+  BECOMING_LEADER,
+  LEADER
 }

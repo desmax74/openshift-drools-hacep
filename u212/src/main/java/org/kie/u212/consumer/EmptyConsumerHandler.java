@@ -16,8 +16,8 @@
 package org.kie.u212.consumer;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.kie.u212.election.State;
-import org.kie.u212.infra.consumer.ConsumerHandler;
+import org.kie.u212.core.infra.election.State;
+import org.kie.u212.core.infra.consumer.ConsumerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

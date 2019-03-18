@@ -17,13 +17,13 @@ package org.kie.u212.core;
 
 import java.util.Arrays;
 
-import org.kie.u212.consumer.DroolsRestarter;
-import org.kie.u212.consumer.DroolsConsumerController;
+import org.kie.u212.core.infra.consumer.Restarter;
+import org.kie.u212.core.infra.consumer.ConsumerController;
 import org.kie.u212.consumer.EmptyConsumerHandler;
-import org.kie.u212.election.KubernetesLockConfiguration;
+import org.kie.u212.core.infra.election.KubernetesLockConfiguration;
 
-import org.kie.u212.election.LeaderElection;
-import org.kie.u212.infra.producer.EventProducer;
+import org.kie.u212.core.infra.election.LeaderElection;
+import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +35,9 @@ import org.slf4j.LoggerFactory;
 public class Bootstrap {
 
     private static final Logger logger = LoggerFactory.getLogger(Bootstrap.class);
-    private static DroolsConsumerController consumerController ;
+    private static ConsumerController consumerController ;
     private static EventProducer<StockTickEvent> eventProducer ;
-    private static DroolsRestarter droolsBag;
+    private static Restarter droolsBag;
 
     public static void startEngine(){
         //order matter
@@ -84,10 +84,10 @@ public class Bootstrap {
 
 
     private static void startConsumer(){
-        droolsBag = new DroolsRestarter();
+        droolsBag = new Restarter();
         droolsBag.createDroolsConsumer(Core.getKubernetesLockConfiguration().getPodName());
         droolsBag.getConsumer().start(new EmptyConsumerHandler());
-        consumerController = new DroolsConsumerController(droolsBag);
+        consumerController = new ConsumerController(droolsBag);
         consumerController.consumeEvents();
         if(logger.isInfoEnabled()) {
             logger.info("Start consumer on Group:{} , duration:{} pollSize:{}",

@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.infra.producer;
+package org.kie.u212.core.infra.consumer;
 
-import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.kie.u212.core.infra.election.State;
 
-public class AbstractProducer<K, V> {
+public interface ConsumerHandler {
 
-  protected org.apache.kafka.clients.producer.Producer<K, V> producer;
-
-  public Producer<K, V> getProducer() {
-    return producer;
-  }
+  void process(ConsumerRecord record, State currentState);
 }

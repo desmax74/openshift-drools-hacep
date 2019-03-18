@@ -41,8 +41,4 @@ public class DroolsEventProducerApp {
     droolsProducer.create(events, topic);
   }
 
-  public void businessLogic(StockTickEvent event) {
-
-    droolsProducer.create(event);
-  }
 }

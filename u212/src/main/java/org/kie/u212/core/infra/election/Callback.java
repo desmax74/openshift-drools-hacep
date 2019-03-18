@@ -13,27 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.consumer;
+package org.kie.u212.core.infra.election;
 
-import org.kie.u212.election.Callback;
-import org.kie.u212.election.State;
+public interface Callback {
 
-/***
- * Callback forwarder from the DroolsBAg
- */
-public class DroolsCallback implements Callback {
-
-  private DroolsConsumer consumer;
-
-  public DroolsCallback(){}
-
-
-  public void setConsumer(DroolsConsumer newConsumer){
-    this.consumer = newConsumer;
-  }
-
-  @Override
-  public void updateStatus(State state) {
-      consumer.updateStatus(state);
-  }
+    void updateStatus(State state);
 }

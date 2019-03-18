@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.infra.consumer;
-
-import org.kie.u212.consumer.DroolsRestarter;
+package org.kie.u212.core.infra.consumer;
 
 public class ConsumerThread implements Runnable {
 
@@ -23,14 +21,14 @@ public class ConsumerThread implements Runnable {
     private long duration;
     private boolean commitSync;
     private boolean subscribeMode;
-    private DroolsRestarter bag;
+    private Restarter bag;
 
     public ConsumerThread(
             int pollSize,
             long duration,
             boolean commitSync,
             boolean subscribeMode,
-            DroolsRestarter bag) {
+            Restarter bag) {
         this.size = pollSize;
         this.duration = duration;
         this.commitSync = commitSync;

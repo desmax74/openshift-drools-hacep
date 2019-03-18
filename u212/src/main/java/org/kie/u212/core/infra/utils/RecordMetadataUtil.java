@@ -13,25 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.infra.producer;
+package org.kie.u212.core.infra.utils;
 
-import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProducerCallback implements Callback {
+public class RecordMetadataUtil {
 
-  private Logger logger = LoggerFactory.getLogger(ProducerCallback.class);
+  private static final Logger logger = LoggerFactory.getLogger(RecordMetadataUtil.class);
 
-  @Override
-  public void onCompletion(RecordMetadata recordMetadata,
-                           Exception e) {
-    if (e != null) {
-      logger.error(e.getMessage(),
-                   e);
-    } else {
-      logger.info("AsynchronousProducer call success ! \n Topic:{} \n Partition:{} \n Offset:{} \n Timestamp:{} \n",
+  public static void logRecord(RecordMetadata recordMetadata) {
+    if (recordMetadata != null && logger.isInfoEnabled()) {
+      logger.info("Topic: {} - Partition: {} - Offset: {} - TimeStamp: {}\n",
                   recordMetadata.topic(),
                   recordMetadata.partition(),
                   recordMetadata.offset(),

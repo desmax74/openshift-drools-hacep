@@ -17,9 +17,9 @@ package org.kie.u212.core;
 
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import org.kie.u212.election.KubernetesLockConfiguration;
-import org.kie.u212.election.LeaderElection;
-import org.kie.u212.election.LeaderElectionImpl;
+import org.kie.u212.core.infra.election.KubernetesLockConfiguration;
+import org.kie.u212.core.infra.election.LeaderElection;
+import org.kie.u212.core.infra.election.LeaderElectionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

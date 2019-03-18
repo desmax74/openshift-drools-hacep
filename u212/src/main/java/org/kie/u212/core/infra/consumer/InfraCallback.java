@@ -13,19 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.election;
+package org.kie.u212.core.infra.consumer;
 
-import java.util.List;
+import org.kie.u212.core.infra.election.Callback;
+import org.kie.u212.core.infra.election.State;
 
-public interface LeaderElection {
+/***
+ * Callback forwarder from the DroolsBAg
+ */
+public class InfraCallback implements Callback {
 
-  void start() throws Exception;
+  private DefaultConsumer consumer;
 
-  void stop() throws Exception;
+  public InfraCallback(){}
 
-  boolean amITheLeader();
 
-  void addCallbacks(List<Callback> callbacks);
+  public void setConsumer(DefaultConsumer newConsumer){
+    this.consumer = newConsumer;
+  }
 
-  boolean removeCallback(Callback callback);
+  @Override
+  public void updateStatus(State state) {
+      consumer.updateStatus(state);
+  }
 }

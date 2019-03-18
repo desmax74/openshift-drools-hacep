@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.consumer;
+package org.kie.u212.core.infra.consumer;
 
 import java.util.Collections;
 import java.util.Map;
@@ -23,25 +23,25 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.kie.u212.core.Config;
-import org.kie.u212.election.Callback;
-import org.kie.u212.infra.PartitionListener;
+import org.kie.u212.core.infra.election.Callback;
+import org.kie.u212.core.infra.PartitionListener;
 
 /***
  * Purpose of this class is to set a new consumer
  * when a changeTopic in the DroolsConsumer is called without leave
  * the ConsumerThread's inner loop
  */
-public class DroolsRestarter {
+public class Restarter {
 
-  private DroolsConsumer consumer;
-  private DroolsCallback callback;
+  private DefaultConsumer consumer;
+  private InfraCallback callback;
 
-  public DroolsRestarter(){
-    callback = new DroolsCallback();
+  public Restarter(){
+    callback = new InfraCallback();
   }
 
   public void createDroolsConsumer(String id){
-    consumer = new DroolsConsumer(id,this);
+    consumer = new DefaultConsumer(id, this);
     callback.setConsumer(consumer);
   }
 
@@ -55,11 +55,11 @@ public class DroolsRestarter {
     kafkaConsumer = null;
   }
 
-  public DroolsConsumer getConsumer() {
+  public DefaultConsumer getConsumer() {
     return consumer;
   }
 
-  public void setConsumer(DroolsConsumer consumer) {
+  public void setConsumer(DefaultConsumer consumer) {
     this.consumer = consumer;
   }
 

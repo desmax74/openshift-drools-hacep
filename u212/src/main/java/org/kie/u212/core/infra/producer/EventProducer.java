@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.infra.producer;
+package org.kie.u212.core.infra.producer;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -23,11 +23,11 @@ import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
-import org.kie.u212.election.State;
+import org.kie.u212.core.infra.election.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EventProducer<T> extends AbstractProducer<String, T> implements Producer<String, T>, org.kie.u212.election.Callback {
+public class EventProducer<T> extends AbstractProducer<String, T> implements Producer<String, T>, org.kie.u212.core.infra.election.Callback {
 
   private Logger logger = LoggerFactory.getLogger(EventProducer.class);
 

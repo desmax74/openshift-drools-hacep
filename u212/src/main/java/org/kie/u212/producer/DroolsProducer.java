@@ -20,8 +20,8 @@ import java.util.List;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.kie.u212.core.Config;
-import org.kie.u212.infra.producer.EventProducer;
-import org.kie.u212.infra.utils.RecordMetadataUtil;
+import org.kie.u212.core.infra.producer.EventProducer;
+import org.kie.u212.core.infra.utils.RecordMetadataUtil;
 import org.kie.u212.model.StockTickEvent;
 
 public class DroolsProducer {
@@ -40,14 +40,4 @@ public class DroolsProducer {
     return lastRecord;
   }
 
-  public RecordMetadata create(StockTickEvent event) {
-    EventProducer<StockTickEvent> eventProducer = new EventProducer<>();
-    eventProducer.start(Config.getDefaultConfig());
-    RecordMetadata lastRecord = eventProducer.produceSync(new ProducerRecord<>(Config.MASTER_TOPIC,
-                                                                               event.getId(),
-                                                                               event));
-    RecordMetadataUtil.logRecord(lastRecord);
-    eventProducer.stop();
-    return lastRecord;
-  }
 }

@@ -13,31 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.infra.consumer;
+package org.kie.u212.core.infra.election;
 
 import java.util.List;
 
-public interface EventConsumer<K, V> {
+public interface LeaderElection {
 
-    void subscribe(String groupId,
-                   String topic,
-                   boolean autoCommit);
+  void start() throws Exception;
 
-    void poll(int size,
-              long duration,
-              boolean commitSync);
+  void stop() throws Exception;
 
-    boolean assign(String topic,
-                   List<Integer> partitions,
-                   boolean autoCommit);
+  boolean amITheLeader();
 
-    void changeTopic(String newTopic);
+  void addCallbacks(List<Callback> callbacks);
 
-    void start(ConsumerHandler consumerHandler);
-
-    void stop();
-
-    void waitStart( int pollSize,
-                           long duration,
-                           boolean commitSync);
+  boolean removeCallback(Callback callback);
 }
