@@ -22,7 +22,7 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
-import org.kie.u212.core.Config;
+import org.kie.u212.Config;
 import org.kie.u212.core.infra.election.Callback;
 import org.kie.u212.core.infra.PartitionListener;
 

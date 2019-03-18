@@ -31,7 +31,7 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
-import org.kie.u212.core.Config;
+import org.kie.u212.Config;
 import org.kie.u212.core.infra.election.Callback;
 import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.OffsetManager;
@@ -109,14 +109,15 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
     }
 
     private void updateOnRunningConsumer(State state) {
-
         if (state.equals(State.LEADER) && !leader) {
             leader = true;
             changeTopic(Config.USERS_INPUT_TOPIC);
-
         } else if (state.equals(State.NOT_LEADER) && leader) {
             leader = false;
             changeTopic(Config.MASTER_TOPIC);
+        }else if (state.equals(State.NOT_LEADER) && !leader) {
+            leader = false;
+            startConsume(Config.MASTER_TOPIC);
         }
     }
 
@@ -135,7 +136,6 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
 
     private void startConsume(String topic) {
         if (subscribeMode) {
-            if(logger.isInfoEnabled()){logger.info("SUBSCRIBING topic:{} groupdID:{} autocommit:{}", topic, groupId, autoCommit);}
             subscribe(groupId, topic, autoCommit);
             started = true;
         }else{
@@ -152,7 +152,6 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
                           boolean autoCommit) {
         this.autoCommit = autoCommit;
         this.groupId = groupId;
-        if(logger.isInfoEnabled()){ logger.info("Consumer subscribe topic:{}", topic);}
         kafkaConsumer.subscribe(Collections.singletonList(topic), new PartitionListener(kafkaConsumer, offsets));
     }
 

@@ -17,7 +17,7 @@
     <version.thorntail>2.3.0.Final</version.thorntail>
     <version.org.kie>7.18.0.Final</version.org.kie>
     <version.kafka.client>2.1.1</version.kafka.client>
-    <!--<generateModel>YES</generateModel>-->
+    <generateModel>YES</generateModel>
     <quarkus.version>0.11.0</quarkus.version>
     <rest.assured>3.3.0</rest.assured>
     <surefire.forkCount>1</surefire.forkCount>

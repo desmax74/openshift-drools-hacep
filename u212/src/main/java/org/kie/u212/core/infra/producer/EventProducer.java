@@ -24,6 +24,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.kie.u212.core.infra.election.State;
+import org.kie.u212.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,10 +49,16 @@ public class EventProducer<T> extends AbstractProducer<String, T> implements Pro
   }
 
   public Future<RecordMetadata> produceFireAndForget(ProducerRecord<String, T> producerRecord) {
+    if(producer == null){
+      producer = new KafkaProducer<>(Config.getDefaultConfig());
+    }
     return producer.send(producerRecord);
   }
 
   public RecordMetadata produceSync(ProducerRecord<String, T> producerRecord) {
+    if(producer == null){
+      producer = new KafkaProducer<>(Config.getDefaultConfig());
+    }
     RecordMetadata recordMetadata = null;
     try {
       recordMetadata = producer.send(producerRecord).get();
@@ -65,6 +72,9 @@ public class EventProducer<T> extends AbstractProducer<String, T> implements Pro
 
   @Override
   public void produceAsync(ProducerRecord<String, T> producerRecord, Callback callback) {
+    if(producer == null){
+      producer = new KafkaProducer<>(Config.getDefaultConfig());
+    }
     producer.send(producerRecord, callback);
   }
 

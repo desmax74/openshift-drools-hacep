@@ -17,6 +17,8 @@ package org.kie.u212.core;
 
 import java.util.Arrays;
 
+import org.kie.u212.Config;
+import org.kie.u212.consumer.DroolsConsumerHandler;
 import org.kie.u212.core.infra.consumer.Restarter;
 import org.kie.u212.core.infra.consumer.ConsumerController;
 import org.kie.u212.consumer.EmptyConsumerHandler;
@@ -37,7 +39,7 @@ public class Bootstrap {
     private static final Logger logger = LoggerFactory.getLogger(Bootstrap.class);
     private static ConsumerController consumerController ;
     private static EventProducer<StockTickEvent> eventProducer ;
-    private static Restarter droolsBag;
+    private static Restarter restarter;
 
     public static void startEngine(){
         //order matter
@@ -56,7 +58,7 @@ public class Bootstrap {
             logger.error(e.getMessage(),
                          e);
         }
-        droolsBag.getConsumer().stop();
+        restarter.getConsumer().stop();
         eventProducer.stop();
     }
 
@@ -77,28 +79,28 @@ public class Bootstrap {
 
     private static void startProducer(){
         eventProducer = new EventProducer<>();
-        if(Core.getLeaderElection().amITheLeader()) {
-            eventProducer.start(Config.getDefaultConfig());
-        }
+        eventProducer.start(Config.getDefaultConfig());
     }
 
 
     private static void startConsumer(){
-        droolsBag = new Restarter();
-        droolsBag.createDroolsConsumer(Core.getKubernetesLockConfiguration().getPodName());
-        droolsBag.getConsumer().start(new EmptyConsumerHandler());
-        consumerController = new ConsumerController(droolsBag);
+        restarter = new Restarter();
+        restarter.createDroolsConsumer(Core.getKubernetesLockConfiguration().getPodName());
+        //restarter.getConsumer().start(new EmptyConsumerHandler());
+        restarter.getConsumer().start(new DroolsConsumerHandler(eventProducer));
+        consumerController = new ConsumerController(restarter);
         consumerController.consumeEvents();
         if(logger.isInfoEnabled()) {
-            logger.info("Start consumer on Group:{} , duration:{} pollSize:{}",
+            logger.info("Start consumer on Group:{} , duration:{} pollSize:{} aurtocommit:{}",
                         Config.GROUP,
                         Config.LOOP_DURATION,
-                        Config.DEFAULT_POLL_SIZE);
+                        Config.DEFAULT_POLL_SIZE,
+                        Config.DEFAULT_COMMIT_SYNC);
         }
     }
 
 
     private static void addCallbacks() {
-        Core.getLeaderElection().addCallbacks(Arrays.asList(droolsBag.getCallback(), eventProducer));
+        Core.getLeaderElection().addCallbacks(Arrays.asList(restarter.getCallback(), eventProducer));
     }
 }

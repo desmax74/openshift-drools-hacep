@@ -19,7 +19,7 @@ import java.util.List;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
-import org.kie.u212.core.Config;
+import org.kie.u212.Config;
 import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.core.infra.utils.RecordMetadataUtil;
 import org.kie.u212.model.StockTickEvent;

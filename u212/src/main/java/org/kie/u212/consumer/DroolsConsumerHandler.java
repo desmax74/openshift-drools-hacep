@@ -23,18 +23,15 @@ import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.time.SessionPseudoClock;
-import org.kie.u212.core.Config;
+import org.kie.u212.Config;
 import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.consumer.ConsumerHandler;
 import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.core.infra.producer.Producer;
 import org.kie.u212.model.StockTickEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DroolsConsumerHandler implements ConsumerHandler {
 
-  private Logger logger = LoggerFactory.getLogger(DroolsConsumerHandler.class);
   private KieContainer kieContainer;
   private KieSession kieSession;
   private SessionPseudoClock clock;
@@ -49,13 +46,15 @@ public class DroolsConsumerHandler implements ConsumerHandler {
 
   @Override
   public void process(ConsumerRecord record, State state) {
-    logger.info("Drools state:{} consume:{}", state, record);
     StockTickEvent stock = (StockTickEvent) record.value();
     clock.advanceTime(stock.getTimestamp() - clock.getCurrentTime(), TimeUnit.MILLISECONDS);
     kieSession.insert(stock);
-    logger.info("Process stock:{} state:{}", record, state);
     if(state.equals(State.LEADER)){
-      producer.produceSync(new ProducerRecord<>(Config.MASTER_TOPIC, stock.getId(), stock));
+      if(producer == null){
+        producer = new EventProducer();
+      }
+      //producer.produceSync(new ProducerRecord<>(Config.MASTER_TOPIC, stock.getId(), stock));
+        producer.produceFireAndForget(new ProducerRecord<>(Config.MASTER_TOPIC, stock.getId(), stock));
     }
   }
 }

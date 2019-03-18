@@ -15,14 +15,14 @@
  */
 package org.kie.u212.core.infra.consumer;
 
-import org.kie.u212.core.Config;
+import org.kie.u212.Config;
 
 public class ConsumerController {
 
-  private Restarter bag;
+  private Restarter restarter;
 
   public ConsumerController(Restarter bag) {
-    this.bag = bag;
+    this.restarter = bag;
   }
 
   public void consumeEvents() {
@@ -32,7 +32,7 @@ public class ConsumerController {
                     Config.LOOP_DURATION,
                     Config.DEFAULT_COMMIT_SYNC,
                     true,
-                    bag));
+                    restarter));
     t.start();
   }
 }
