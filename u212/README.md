@@ -1,6 +1,6 @@
 # U212 Drools
 
-![](../img/u212-todaro.jpg =250x)
+<img src="https://github.com/desmax74/openshift-hacep/blob/master/img/u212-todaro.jpg" alt="U212 Todaro" data-canonical-src="https://github.com/desmax74/openshift-hacep/blob/master/img/u212-todaro.jpg" width="200" height="400" />
 
 ![](https://github.com/desmax74/openshift-hacep/blob/master/img/u212-todaro.jpg =250x)
 
