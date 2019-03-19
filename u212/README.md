@@ -1,6 +1,6 @@
 # U212 Drools
 
-`https://github.com/desmax74/openshift-hacep/blob/master/img/u212-todaro.jpg` 
+![](https://github.com/desmax74/openshift-hacep/blob/master/img/u212-todaro.jpg)
 
 ## Installing and Running
 - Kafka Cluster on Openshift
