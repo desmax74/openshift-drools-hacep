@@ -1,6 +1,4 @@
-# U212 Drools
-
-<img src="./../img/u212-todaro.jpg" alt="U212 Todaro" data-canonical-src="./../img/u212-todaro.jpg" height="400" />
+# Drools 
 
 ## Installing and Running
 - Kafka Cluster on Openshift
@@ -8,8 +6,8 @@ https://github.com/desmax74/openshift-handbook/blob/master/fedora/kafka.md
 
 - Prerequisites: install qs-playground 8.0-SNAPSHOT
 ```sh
-mvn clean install
-mvn thorntail:run
+mvn clean package
+mvn springboot:run
 ```
 ### Hello World
 
