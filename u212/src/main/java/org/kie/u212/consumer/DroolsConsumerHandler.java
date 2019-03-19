@@ -50,10 +50,6 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     clock.advanceTime(stock.getTimestamp() - clock.getCurrentTime(), TimeUnit.MILLISECONDS);
     kieSession.insert(stock);
     if(state.equals(State.LEADER)){
-      if(producer == null){
-        producer = new EventProducer();
-      }
-      //producer.produceSync(new ProducerRecord<>(Config.MASTER_TOPIC, stock.getId(), stock));
         producer.produceFireAndForget(new ProducerRecord<>(Config.MASTER_TOPIC, stock.getId(), stock));
     }
   }
