@@ -1,5 +1,7 @@
 # U212 Drools
 
+![](./../img/u212-todaro.jpg =250x)
+
 ![](https://github.com/desmax74/openshift-hacep/blob/master/img/u212-todaro.jpg)
 
 ## Installing and Running
