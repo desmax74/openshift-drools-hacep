@@ -63,7 +63,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
   }
 
   private void processAsASlave(ConsumerRecord record, State state){
-    
+
   }
 
 }
