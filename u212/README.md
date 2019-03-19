@@ -1,7 +1,5 @@
 # U212 Drools
 
-<img src="https://github.com/desmax74/openshift-hacep/blob/master/img/u212-todaro.jpg" alt="U212 Todaro" data-canonical-src="https://github.com/desmax74/openshift-hacep/blob/master/img/u212-todaro.jpg" height="400" />
-
 <img src="./../img/u212-todaro.jpg" alt="U212 Todaro" data-canonical-src="https://github.com/desmax74/openshift-hacep/blob/master/img/u212-todaro.jpg" height="400" />
 
 ## Installing and Running
