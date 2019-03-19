@@ -15,25 +15,24 @@
  */
 package org.kie.u212.endpoint;
 
-import javax.servlet.ServletContext;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Context;
-
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnCloudPlatform;
 import org.springframework.boot.cloud.CloudPlatform;
+import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.springframework.context.annotation.ComponentScan;
 
-@ApplicationPath("/rest")
 @SpringBootApplication
 @ConditionalOnCloudPlatform(CloudPlatform.KUBERNETES)
-public class RestApplication extends Application {
-
-  @Context
-  ServletContext servletContext;
+@ComponentScan("org/kie/u212")
+@EnableAutoConfiguration
+@ServletComponentScan
+public class RestApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(RestApplication.class, args);
+    SpringApplication.run(RestApplication.class,
+                          args);
   }
+
 }

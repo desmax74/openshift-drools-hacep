@@ -37,7 +37,6 @@ public class BootstrapListener implements ServletContextListener {
     logger.info("Core system started");
   }
 
-
   public void contextDestroyed(ServletContextEvent event) {
     Bootstrap.stopEngine();
     logger.info("Core system closed");
