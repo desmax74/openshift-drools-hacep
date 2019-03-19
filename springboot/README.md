@@ -9,22 +9,18 @@ https://github.com/desmax74/openshift-handbook/blob/master/fedora/kafka.md
 In the root of the project
 ```sh
 mvn clean package
-mvn springboot:run
 ```
-In the springboot module
-```sh
-mvn springboot:run
-```
-### Hello World
+### API
 
-Point to http://localhost:8080/rest/hello for hello world
+- http://localhost:8080/rest/hello
 
-- http://<address>/rest/env/all returns a list of all env vars
+- http://<address>/rest/env/all  env vars
 
-- http://<address>//rest/pub/user/ start the creation of 10 events on the Kafka's topic named users
+- http://<address>//rest/pub/user/ starts the creation of 10 events on the Kafka's topic named users
 ### Manual Deploy on Openshift
 
 #### Build Container on docker
+In the springboot module
 ```sh
 docker build -t quickstarter/openshift-kie-springboot:latest .
 docker images | grep openshift-kie

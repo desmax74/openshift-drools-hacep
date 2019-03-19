@@ -6,30 +6,21 @@ https://github.com/desmax74/openshift-handbook/blob/master/fedora/kafka.md
 
 - Prerequisites: install qs-playground 8.0-SNAPSHOT
 ```sh
-mvn clean install
-mvn thorntail:run
-```
-### Hello World
-
-Point to http://localhost:8080/rest/hello for Drools hello world
-
-### More complex example
-
-- post 
-
-```sh
-curl -d '{"name":"edo", "age":32}' -H "Content-Type: application/json" \
-    -X POST http://localhost:8080/persons                                                                                                    ~
+mvn clean package
 ```
 
-- http://<address>/rest/env/all returns a list of all env vars
+### API
 
-- http://<address>//rest/pub/demo/<items> produces N items in the kafka's topic 
+- http://localhost:8080/rest/hello
 
-- http://<address>//rest/sub/demo/ start a consumer of the Kafka's topic
+- http://<address>/rest/env/all  env vars
+
+- http://<address>//rest/pub/user/ startz the creation of 10 events on the Kafka's topic named users
+
 ### Manual Deploy on Openshift
 
 #### Build Container on docker
+In the thorntail module
 ```sh
 docker build -t quickstarter/openshift-kie-thorntail:latest .
 docker images | grep openshift-kie
