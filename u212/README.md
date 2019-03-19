@@ -1,4 +1,6 @@
-# Drools 
+# U212 Drools
+
+`./../img/u212-todaro.jpg` 
 
 ## Installing and Running
 - Kafka Cluster on Openshift
