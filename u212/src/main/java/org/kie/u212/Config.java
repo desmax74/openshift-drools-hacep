@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 
 public class Config {
 
-  public static final String MASTER_TOPIC = "master";
-  public static final String USERS_INPUT_TOPIC = "users";
+  public static final String CONTROL_TOPIC = "control";
+  public static final String EVENTS_TOPIC = "events";
   public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST";
   public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT";
   public static final String BROKER_URL = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST);
@@ -66,7 +66,7 @@ public class Config {
     if (logger.isInfoEnabled()) {
       StringBuilder sb = new StringBuilder();
       for (Map.Entry<Object, Object> entry : producerProperties.entrySet()) {
-        sb.append(entry.getKey().toString()).append(":").append(entry.getValue());
+        sb.append(entry.getKey().toString()).append(":").append(entry.getValue()).append("\n");
       }
       logger.info(sb.toString());
     }

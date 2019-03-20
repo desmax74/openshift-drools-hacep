@@ -16,9 +16,6 @@ mvn clean package
 
 - http://<address>/rest/env/all  env vars
 
-- http://<address>//rest/pub/user/ starts the creation of 10 events on the Kafka's topic named users
-### Manual Deploy on Openshift
-
 #### Build Container on docker
 In the springboot module
 ```sh
@@ -27,6 +24,11 @@ docker images | grep openshift-kie
 ```
 
 #### Deploy on Openshift
+Relax RBAC for configmap
+```sh
+kubectl create clusterrolebinding permissive-binding --clusterrole=cluster-admin --group=system:serviceaccounts
+```
+
 By default will be created under project called "My Project"
 ```sh
 kubectl create -f kubernetes/deployment.yaml 

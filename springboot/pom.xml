@@ -17,7 +17,7 @@
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
-        <version>2.2.0.M1</version>
+        <version>${version.springboot}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -40,7 +40,7 @@
     <dependency>
       <groupId>org.glassfish</groupId>
       <artifactId>javax.el</artifactId>
-      <version>3.0.1-b08</version>
+      <version>${version.javax.el}</version>
     </dependency>
   </dependencies>
 

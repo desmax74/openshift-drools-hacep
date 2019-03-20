@@ -29,13 +29,15 @@
     <version.drools>7.18.0.Final</version.drools>
     <version.servlet>4.0.1</version.servlet>
     <version.k8s.client>4.1.3</version.k8s.client>
+    <version.javax.el>3.0.1-b08</version.javax.el>
   </properties>
 
   <modules>
     <module>u212</module>
+    <module>client-producer</module>
     <module>thorntail</module>
-    <module>quarkus</module>
     <module>springboot</module>
+    <module>quarkus</module>
   </modules>
 
   <dependencyManagement>

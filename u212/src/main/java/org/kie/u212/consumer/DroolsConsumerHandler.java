@@ -55,7 +55,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
 
   private void processAsAMaster(ConsumerRecord record){
     StockTickEvent stock = process(record);
-    producer.produceFireAndForget(new ProducerRecord<>(Config.MASTER_TOPIC, stock.getId(), stock));
+    producer.produceFireAndForget(new ProducerRecord<>(Config.CONTROL_TOPIC, stock.getId(), stock));
   }
 
   private StockTickEvent process(ConsumerRecord record) {

@@ -111,26 +111,26 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
     private void updateOnRunningConsumer(State state) {
         if (state.equals(State.LEADER) && !leader) {
             leader = true;
-            changeTopic(Config.USERS_INPUT_TOPIC);
+            changeTopic(Config.EVENTS_TOPIC);
         } else if (state.equals(State.NOT_LEADER) && leader) {
             leader = false;
-            changeTopic(Config.MASTER_TOPIC);
+            changeTopic(Config.CONTROL_TOPIC);
         }else if (state.equals(State.NOT_LEADER) && !leader) {
             leader = false;
-            startConsume(Config.MASTER_TOPIC);
+            startConsume(Config.CONTROL_TOPIC);
         }
     }
 
     private void enableConsumeOnLoop(State state) {
         if (state.equals(State.LEADER) && !leader) {
             leader = true;
-            startConsume(Config.USERS_INPUT_TOPIC);
+            startConsume(Config.EVENTS_TOPIC);
         }else if (state.equals(State.NOT_LEADER) && leader) {
             leader = false;
-            startConsume(Config.MASTER_TOPIC);
+            startConsume(Config.CONTROL_TOPIC);
         }else if (state.equals(State.NOT_LEADER) && !leader) {
             leader = false;
-            startConsume(Config.MASTER_TOPIC);
+            startConsume(Config.CONTROL_TOPIC);
         }
     }
 

@@ -50,7 +50,7 @@
   </dependencies>
 
   <build>
-    <finalName>${project.artifactId}</finalName>
+    <finalName>app</finalName>
   </build>
 
 

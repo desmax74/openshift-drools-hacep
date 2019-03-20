@@ -20,9 +20,9 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProducerCallback implements Callback {
+public class ProducerCallbackLog implements Callback {
 
-  private Logger logger = LoggerFactory.getLogger(ProducerCallback.class);
+  private Logger logger = LoggerFactory.getLogger(ProducerCallbackLog.class);
 
   @Override
   public void onCompletion(RecordMetadata recordMetadata,
