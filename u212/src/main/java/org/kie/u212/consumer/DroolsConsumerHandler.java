@@ -47,23 +47,26 @@ public class DroolsConsumerHandler implements ConsumerHandler {
   @Override
   public void process(ConsumerRecord record, State state) {
     if(state.equals(State.LEADER)){
-      processAsAMaster(record, state);
+      processAsAMaster(record);
     }else{
-      processAsASlave(record, state);
+      processAsASlave(record);
     }
   }
 
-  private void processAsAMaster(ConsumerRecord record, State state){
-    if(state.equals(State.LEADER)){
-      StockTickEvent stock = (StockTickEvent) record.value();
-      clock.advanceTime(stock.getTimestamp() - clock.getCurrentTime(), TimeUnit.MILLISECONDS);
-      kieSession.insert(stock);
-      producer.produceFireAndForget(new ProducerRecord<>(Config.MASTER_TOPIC, stock.getId(), stock));
-    }
+  private void processAsAMaster(ConsumerRecord record){
+    StockTickEvent stock = process(record);
+    producer.produceFireAndForget(new ProducerRecord<>(Config.MASTER_TOPIC, stock.getId(), stock));
   }
 
-  private void processAsASlave(ConsumerRecord record, State state){
+  private StockTickEvent process(ConsumerRecord record) {
+    StockTickEvent stock = (StockTickEvent) record.value();
+    clock.advanceTime(stock.getTimestamp() - record.timestamp(), TimeUnit.MILLISECONDS);
+    kieSession.insert(stock);
+    return stock;
+  }
 
+  private void processAsASlave(ConsumerRecord record){
+    StockTickEvent stock = process(record);
   }
 
 }

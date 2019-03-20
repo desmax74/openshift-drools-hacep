@@ -6,7 +6,7 @@ metadata:
     version: v1
   name: openshift-kie-springboot
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: openshift-kie-springboot
