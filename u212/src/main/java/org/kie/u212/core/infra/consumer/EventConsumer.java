@@ -16,6 +16,7 @@
 package org.kie.u212.core.infra.consumer;
 
 import java.util.List;
+import java.util.Properties;
 
 public interface EventConsumer<K, V> {
 
@@ -33,7 +34,7 @@ public interface EventConsumer<K, V> {
 
     void changeTopic(String newTopic);
 
-    void start(ConsumerHandler consumerHandler);
+    void start(ConsumerHandler consumerHandler, Properties properties);
 
     void stop();
 

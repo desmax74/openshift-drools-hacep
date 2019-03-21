@@ -15,6 +15,7 @@
  */
 package org.kie.u212.consumer;
 
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -36,6 +37,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
   private KieSession kieSession;
   private SessionPseudoClock clock;
   private Producer producer;
+  private Properties properties;
 
   public DroolsConsumerHandler(EventProducer producer) {
     kieContainer = KieServices.get().newKieClasspathContainer();

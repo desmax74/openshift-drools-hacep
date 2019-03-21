@@ -6,6 +6,7 @@ import java.util.concurrent.Future;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.kie.u212.core.Core;
 import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.core.infra.utils.RecordMetadataUtil;
 import org.kie.u212.model.StockTickEvent;

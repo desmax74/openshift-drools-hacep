@@ -31,17 +31,12 @@
       <version>1.0-SNAPSHOT</version>
     </dependency>
 
-    <!-- to use JAX-RS annotations -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-jersey</artifactId>
+      <artifactId>spring-boot-starter-web</artifactId>
       <version>${version.springboot}</version>
     </dependency>
-    <dependency>
-      <groupId>org.glassfish</groupId>
-      <artifactId>javax.el</artifactId>
-      <version>${version.javax.el}</version>
-    </dependency>
+
   </dependencies>
 
   <build>

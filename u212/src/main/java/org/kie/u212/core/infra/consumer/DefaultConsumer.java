@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.kafka.clients.consumer.CommitFailedException;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -32,6 +33,7 @@ import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.kie.u212.Config;
+import org.kie.u212.core.Core;
 import org.kie.u212.core.infra.election.Callback;
 import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.OffsetManager;
@@ -73,9 +75,9 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
     }
 
     @Override
-    public void start(ConsumerHandler consumerHandler) {
+    public void start(ConsumerHandler consumerHandler, Properties properties) {
         this.consumerHandle = consumerHandler;
-        kafkaConsumer = new KafkaConsumer<>(Config.getDefaultConfig());
+        kafkaConsumer = new KafkaConsumer<>(properties);
     }
 
     public void internalStart(){

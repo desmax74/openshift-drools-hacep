@@ -15,13 +15,11 @@
  */
 package org.kie.u212.endpoint;
 
-import org.glassfish.jersey.server.ResourceConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnCloudPlatform;
 import org.springframework.boot.cloud.CloudPlatform;
 import org.springframework.boot.web.servlet.ServletComponentScan;
-import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 @ConditionalOnCloudPlatform(CloudPlatform.KUBERNETES)
@@ -32,10 +30,4 @@ public class RestApplication {
     SpringApplication.run(RestApplication.class, args);
   }
 
-  @Bean
-  ResourceConfig resourceConfig(){
-    return new ResourceConfig(EnvEndpoint.class,
-                              HealthCheckEndpoint.class,
-                              ProducerEndpoint.class);
-  }
 }

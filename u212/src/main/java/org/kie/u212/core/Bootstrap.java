@@ -16,6 +16,7 @@
 package org.kie.u212.core;
 
 import java.util.Arrays;
+import java.util.Properties;
 
 import org.kie.u212.Config;
 import org.kie.u212.consumer.DroolsConsumerHandler;
@@ -44,8 +45,10 @@ public class Bootstrap {
     public static void startEngine(){
         //order matter
         leaderElection();
-        startProducer();
-        startConsumer();
+        Properties properties = Config.getDefaultConfig();
+        logger.info("Properties propagated pod:{}",properties);
+        startProducer(properties);
+        startConsumer(properties);
         addCallbacks();
     }
 
@@ -77,26 +80,19 @@ public class Bootstrap {
     }
 
 
-    private static void startProducer(){
+    private static void startProducer(Properties properties){
         eventProducer = new EventProducer<>();
-        eventProducer.start(Config.getDefaultConfig());
+        eventProducer.start(properties);
     }
 
 
-    private static void startConsumer(){
-        restarter = new Restarter();
+    private static void startConsumer(Properties properties){
+        restarter = new Restarter(properties);
         restarter.createDroolsConsumer(Core.getKubernetesLockConfiguration().getPodName());
         //restarter.getConsumer().start(new EmptyConsumerHandler());
-        restarter.getConsumer().start(new DroolsConsumerHandler(eventProducer));
+        restarter.getConsumer().start(new DroolsConsumerHandler(eventProducer),properties);
         consumerController = new ConsumerController(restarter);
         consumerController.consumeEvents();
-        if(logger.isInfoEnabled()) {
-            logger.info("Start consumer on Group:{} , duration:{} pollSize:{} aurtocommit:{}",
-                        Config.GROUP,
-                        Config.LOOP_DURATION,
-                        Config.DEFAULT_POLL_SIZE,
-                        Config.DEFAULT_COMMIT_SYNC);
-        }
     }
 
 

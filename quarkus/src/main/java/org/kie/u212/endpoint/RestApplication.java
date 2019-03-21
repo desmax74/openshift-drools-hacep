@@ -27,9 +27,7 @@ public class RestApplication extends Application {
   @Override
   public Set<Class<?>> getClasses() {
     // the scanpath of the  annotated class in other jars seems broken on quarkus 0.11.0, this list here is a workaround
-    return new HashSet<>(Arrays.asList(EnvEndpoint.class,
-                                       HealthCheckEndpoint.class,
-                                       ProducerEndpoint.class));
+    return new HashSet<>(Arrays.asList());
   }
 
 }

@@ -17,12 +17,14 @@ package org.kie.u212.core.infra.consumer;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.kie.u212.Config;
+import org.kie.u212.core.Core;
 import org.kie.u212.core.infra.election.Callback;
 import org.kie.u212.core.infra.PartitionListener;
 
@@ -35,9 +37,11 @@ public class Restarter {
 
   private DefaultConsumer consumer;
   private InfraCallback callback;
+  private Properties properties;
 
-  public Restarter(){
+  public Restarter( Properties properties){
     callback = new InfraCallback();
+    this.properties = properties;
   }
 
   public void createDroolsConsumer(String id){
@@ -47,7 +51,7 @@ public class Restarter {
 
   public void changeTopic(String newTopic, Map<TopicPartition, OffsetAndMetadata> offsets){
     Consumer kafkaConsumer =  consumer.getKafkaConsumer();
-    Consumer newConsumer = new KafkaConsumer<>(Config.getDefaultConfig());
+    Consumer newConsumer = new KafkaConsumer<>(properties);
     newConsumer.subscribe(Collections.singletonList(newTopic), new PartitionListener(newConsumer, offsets));
     consumer.setKafkaConsumer(newConsumer);
     consumer.internalStart();

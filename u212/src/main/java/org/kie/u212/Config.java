@@ -17,6 +17,7 @@ package org.kie.u212;
 
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ public class Config {
   public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT";
   public static final String BROKER_URL = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST);
   public static final String BROKER_PORT = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT);
-  public static final String GROUP = "drools";//@ŢODO
+  //public static final String GROUP = "drools-";//@ŢODO
   public static final int DEFAULT_POLL_SIZE = 1000;
   public static final int LOOP_DURATION = -1;
   public static final boolean DEFAULT_COMMIT_SYNC = true;
@@ -51,7 +52,9 @@ public class Config {
     props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
     props.put("value.serializer", "org.kie.u212.consumer.EventJsonSerializer");
     props.put("bootstrap.servers", getBotStrapServers());
-    props.put("group.id", GROUP);//@TODO
+    String groupID = "drools-"+UUID.randomUUID().toString();
+    logger.info("GRoupdID:{}", groupID);
+    props.put("group.id", groupID);//@TODO
     props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
     props.put("value.deserializer", "org.kie.u212.producer.EventJsonDeserializer");
     props.put("max.poll.interval.ms", "10000");//time to discover the new consumer after a changetopic default 5 min 300000
@@ -63,10 +66,11 @@ public class Config {
   }
 
   private static void logConfig(Properties producerProperties) {
+    logger.info("Log config:");
     if (logger.isInfoEnabled()) {
       StringBuilder sb = new StringBuilder();
       for (Map.Entry<Object, Object> entry : producerProperties.entrySet()) {
-        sb.append(entry.getKey().toString()).append(":").append(entry.getValue()).append("\n");
+        sb.append(entry.getKey().toString()).append(":").append(entry.getValue()).append("  \n");
       }
       logger.info(sb.toString());
     }
