@@ -18,7 +18,7 @@ public class ClientTest {
   public static void main(String[] args) throws Exception {
 
     String topic="user";
-    String kafkaRoute = "https://my-cluster-kafka-0-my-kafka-project.192.168.42.57.nip.io:9091";//replace with your kafka address
+    String kafkaRoute = "https://my-cluster-kafka-0-my-kafka-project.<ip>.nip.io:9091";//replace with your kafka address
 
 
     Client client = new Client(kafkaRoute, topic);
