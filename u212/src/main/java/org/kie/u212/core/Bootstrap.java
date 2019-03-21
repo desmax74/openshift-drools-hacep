@@ -46,10 +46,12 @@ public class Bootstrap {
         //order matter
         leaderElection();
         Properties properties = Config.getDefaultConfig();
-        logger.info("Properties propagated pod:{}",properties);
+        properties.put("group.id", Core.getKubernetesLockConfiguration().getPodName().
+                replace("openshift-kie-", ""));
         startProducer(properties);
         startConsumer(properties);
         addCallbacks();
+        logger.info("CONFIGURE ON START ENGINE:{}", properties);
     }
 
 
@@ -89,7 +91,6 @@ public class Bootstrap {
     private static void startConsumer(Properties properties){
         restarter = new Restarter(properties);
         restarter.createDroolsConsumer(Core.getKubernetesLockConfiguration().getPodName());
-        //restarter.getConsumer().start(new EmptyConsumerHandler());
         restarter.getConsumer().start(new DroolsConsumerHandler(eventProducer),properties);
         consumerController = new ConsumerController(restarter);
         consumerController.consumeEvents();

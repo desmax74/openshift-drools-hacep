@@ -33,7 +33,6 @@ import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.kie.u212.Config;
-import org.kie.u212.core.Core;
 import org.kie.u212.core.infra.election.Callback;
 import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.OffsetManager;
@@ -113,27 +112,28 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
     private void updateOnRunningConsumer(State state) {
         if (state.equals(State.LEADER) && !leader) {
             leader = true;
-            changeTopic(Config.EVENTS_TOPIC);
+            //schangeTopic(Config.EVENTS_TOPIC);
         } else if (state.equals(State.NOT_LEADER) && leader) {
             leader = false;
-            changeTopic(Config.CONTROL_TOPIC);
+            //changeTopic(Config.CONTROL_TOPIC);
         }else if (state.equals(State.NOT_LEADER) && !leader) {
             leader = false;
-            startConsume(Config.CONTROL_TOPIC);
+            //startConsume(Config.CONTROL_TOPIC);
         }
     }
 
     private void enableConsumeOnLoop(State state) {
         if (state.equals(State.LEADER) && !leader) {
             leader = true;
-            startConsume(Config.EVENTS_TOPIC);
+            //startConsume(Config.EVENTS_TOPIC);
         }else if (state.equals(State.NOT_LEADER) && leader) {
             leader = false;
-            startConsume(Config.CONTROL_TOPIC);
+            //startConsume(Config.CONTROL_TOPIC);
         }else if (state.equals(State.NOT_LEADER) && !leader) {
             leader = false;
-            startConsume(Config.CONTROL_TOPIC);
+            //startConsume(Config.CONTROL_TOPIC);
         }
+        startConsume(Config.EVENTS_TOPIC);
     }
 
     private void startConsume(String topic) {

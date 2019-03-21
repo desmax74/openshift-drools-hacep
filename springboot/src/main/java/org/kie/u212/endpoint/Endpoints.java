@@ -64,7 +64,7 @@ public class Endpoints {
   @GetMapping("/pub/user")
   public String user() {
     logger.info("Requested {} events topic:users", 10);
-    myEventProducerApp.businessLogic(10, "users");
+    myEventProducerApp.businessLogic(10, "events");
     return "produced " + 10 + " events";
   }
 }
