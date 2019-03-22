@@ -21,22 +21,16 @@ import javax.enterprise.event.Observes;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import org.kie.u212.core.Bootstrap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class AppLifecycleBean {
 
-  private static final Logger logger = LoggerFactory.getLogger("ListenerBean");
-
   void onStart(@Observes StartupEvent ev) {
-    logger.info("The application is starting...");
     Bootstrap.startEngine();
   }
 
   void onStop(@Observes ShutdownEvent ev) {
     Bootstrap.stopEngine();
-    logger.info("The application is stopping...");
   }
 
 }

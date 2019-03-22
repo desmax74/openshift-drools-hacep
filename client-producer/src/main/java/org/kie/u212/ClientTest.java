@@ -17,11 +17,7 @@ public class ClientTest {
 
   public static void main(String[] args) throws Exception {
 
-    String topic="user";
-    String kafkaRoute = "https://my-cluster-kafka-0-my-kafka-project.<ip>.nip.io:9091";//replace with your kafka address
-
-
-    Client client = new Client(kafkaRoute, topic);
+    Client client = new Client(Config.EVENTS_TOPIC);
     client.start();
 
     StockTickEvent eventA = new StockTickEvent("RHT", ThreadLocalRandom.current().nextLong(80, 100), UUID.randomUUID().toString());

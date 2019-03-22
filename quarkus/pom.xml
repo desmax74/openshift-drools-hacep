@@ -47,6 +47,11 @@
       <artifactId>quarkus-arc</artifactId>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -92,7 +97,7 @@
                   <goal>native-image</goal>
                 </goals>
                 <configuration>
-                  <additionalBuildArgs>--allow-incomplete-classpath</additionalBuildArgs>
+
                   <enableHttpUrlHandler>true</enableHttpUrlHandler>
                 </configuration>
               </execution>

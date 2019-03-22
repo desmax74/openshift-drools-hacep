@@ -15,19 +15,10 @@
  */
 package org.kie.u212.endpoint;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.ApplicationPath;
 
 @ApplicationPath("/rest")
 public class RestApplication extends Application {
-
-  @Override
-  public Set<Class<?>> getClasses() {
-    // the scanpath of the  annotated class in other jars seems broken on quarkus 0.11.0, this list here is a workaround
-    return new HashSet<>(Arrays.asList());
-  }
 
 }

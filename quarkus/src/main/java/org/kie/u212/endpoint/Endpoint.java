@@ -15,17 +15,38 @@
  */
 package org.kie.u212.endpoint;
 
+import java.util.Map;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
 
-@Path("/hello")
-public class Welcome {
+public class Endpoint {
 
     @GET
+    @Path("/hello")
     @Produces("text/plain")
     public Response doGet() {
         return Response.ok("Welcome from Quarkus!").build();
     }
+
+    @GET
+    @Path("/env/all")
+    @Produces("text/plain")
+    public Response all() {
+        StringBuilder sb = new StringBuilder();
+        Map<String, String> env = System.getenv();
+        for (Map.Entry<String, String> entry : env.entrySet()) {
+            sb.append(entry.getKey()).append(":").append(entry.getValue()).append("\n");
+        }
+        return Response.ok(sb.toString()).build();
+    }
+
+    @GET
+    @Path("/health")
+    @Produces("text/plain")
+    public Response check() {
+        return Response.ok().build();
+    }
+
 }

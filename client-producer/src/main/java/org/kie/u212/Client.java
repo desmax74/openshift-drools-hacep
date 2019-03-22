@@ -17,19 +17,17 @@ public class Client implements AutoCloseable{
 
   private static Logger logger = LoggerFactory.getLogger(Client.class);
   private EventProducer producer;
-  private String kafkaUrl;
   private Properties properties;
   private String topic;
 
-  public Client(String kafkaUrl, String topic){
-    this.kafkaUrl = kafkaUrl;
+  public Client(String topic){
     producer = new EventProducer<>();
-    properties = Config.getDefaultConfig();
+    properties = new Properties();
+    properties = getConfiguration();
     this.topic = topic;
   }
 
   public void start(){
-    properties.put("bootstrap.servers", kafkaUrl);
     logger.info("Start client producer");
     producer.start(properties);
   }
@@ -54,5 +52,26 @@ public class Client implements AutoCloseable{
 
   public Future<RecordMetadata> insertFireAndForget(StockTickEvent event){
     return producer.produceFireAndForget(new ProducerRecord<>(topic, event.getId(), event));
+  }
+
+  private Properties getConfiguration(){
+    Properties props = new Properties();
+    props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+    props.put("value.serializer", "org.kie.u212.consumer.EventJsonSerializer");
+    props.put("bootstrap.servers", "<bootstrap.server_url>:443");
+    props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+    props.put("value.deserializer", "org.kie.u212.producer.EventJsonDeserializer");
+    props.put("max.poll.interval.ms", "10000");//time to discover the new consumer after a changetopic default 5 min 300000
+    props.put("metadata.max.age.ms", "10000");
+    props.put("acks", "all");
+    props.put("retries", 0);
+    props.put("batch.size", 16384);
+    props.put("linger.ms", 1);
+    props.put("security.protocol", "SSL");
+    props.put("ssl.keystore.location", "<path>/src/main/resources/keystore.jks");
+    props.put("ssl.keystore.password", "password");
+    props.put("ssl.truststore.location", "<path>/src/main/resources/keystore.jks");
+    props.put("ssl.truststore.password", "password");
+    return  props;
   }
 }

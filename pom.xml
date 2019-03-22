@@ -35,31 +35,13 @@
   <modules>
     <module>u212</module>
     <module>client-producer</module>
-    <module>thorntail</module>
     <module>springboot</module>
     <module>quarkus</module>
   </modules>
 
   <dependencyManagement>
     <dependencies>
-      <!-- Thorntail -->
-      <dependency>
-        <groupId>io.thorntail</groupId>
-        <artifactId>bom-all</artifactId>
-        <version>${version.thorntail}</version>
-        <scope>import</scope>
-        <type>pom</type>
-      </dependency>
-
-      <dependency>
-        <!-- Spring Boot -->
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-dependencies</artifactId>
-        <version>${version.springboot}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
+      
       <!-- drools -->
       <dependency>
         <groupId>org.drools</groupId>
@@ -110,41 +92,6 @@
         <artifactId>quarkus-arc-runtime</artifactId>
         <version>${quarkus.version}</version>
       </dependency>
-      <dependency>
-        <groupId>io.quarkus</groupId>
-        <artifactId>quarkus-junit5</artifactId>
-        <version>${quarkus.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>io.rest-assured</groupId>
-        <artifactId>rest-assured</artifactId>
-        <version>${rest.assured}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <!-- thorntail -->
-      <dependency>
-        <groupId>io.thorntail</groupId>
-        <artifactId>cdi</artifactId>
-        <version>${version.thorntail}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.thorntail</groupId>
-        <artifactId>jaxrs</artifactId>
-        <version>${version.thorntail}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.thorntail</groupId>
-        <artifactId>logging</artifactId>
-        <version>${version.thorntail}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.thorntail</groupId>
-        <artifactId>undertow</artifactId>
-        <version>${version.thorntail}</version>
-      </dependency>
-
 
       <!-- fabric8 -->
       <dependency>
@@ -154,6 +101,15 @@
       </dependency>
 
       <dependency>
+        <!-- Spring Boot -->
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${version.springboot}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>
         <version>${version.springboot}</version>
@@ -163,12 +119,6 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>
         <version>${version.springboot}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-tomcat</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
 
       <dependency>
@@ -192,7 +142,6 @@
         <scope>provided</scope>
       </dependency>
 
-      <!-- https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api -->
       <dependency>
         <groupId>javax.ws.rs</groupId>
         <artifactId>javax.ws.rs-api</artifactId>

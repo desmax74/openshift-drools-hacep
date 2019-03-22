@@ -29,7 +29,6 @@ public class Config {
   public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST";
   public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT";
   public static final String BROKER_URL = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST);
-  public static final String BROKER_PORT = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT);
   public static final int DEFAULT_POLL_SIZE = 1000;
   public static final int LOOP_DURATION = -1;
   public static final boolean DEFAULT_COMMIT_SYNC = true;
@@ -37,15 +36,9 @@ public class Config {
 
 
   public static String getBotStrapServers() {
-    //@TODO
     StringBuilder sb = new StringBuilder();
-    sb.append(Config.BROKER_URL).append(":").append(Config.BROKER_PORT)
-            .append(",").append("my-cluster-kafka-brokers.my-kafka-project.svc").append(":9091")
-            .append(",").append("my-cluster-kafka-brokers.my-kafka-project.svc").append(":9092")
-            .append(",").append("my-cluster-kafka-brokers.my-kafka-project.svc").append(":9093");
-            /*.append(",").append("my-cluster-kafka-0.my-kafka-project.svc").append(":9094")
-            .append(",").append("my-cluster-kafka-1.my-kafka-project.svc").append(":9094")
-            .append(",").append("my-cluster-kafka-2.my-kafka-project.svc").append(":9094")*/;
+    sb.append(Config.BROKER_URL).append("my-cluster-kafka-brokers.my-kafka-project.svc:9092");//plain
+            //.append(",").append("my-cluster-kafka-brokers.my-kafka-project.svc").append(":9093");//tls
     return sb.toString();
   }
 
@@ -54,8 +47,6 @@ public class Config {
     props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
     props.put("value.serializer", "org.kie.u212.consumer.EventJsonSerializer");
     props.put("bootstrap.servers", getBotStrapServers());
-    //String groupID = "drools-"+UUID.randomUUID().toString();//every consumer alone in a group
-    //props.put("group.id", groupID);
     props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
     props.put("value.deserializer", "org.kie.u212.producer.EventJsonDeserializer");
     props.put("max.poll.interval.ms", "10000");//time to discover the new consumer after a changetopic default 5 min 300000
