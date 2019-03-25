@@ -27,7 +27,6 @@ public class Config {
   public static final String CONTROL_TOPIC = "control";
   public static final String EVENTS_TOPIC = "events";
   public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST";
-  public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_PORT";
   public static final String BROKER_URL = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST);
   public static final int DEFAULT_POLL_SIZE = 1000;
   public static final int LOOP_DURATION = -1;
@@ -37,7 +36,8 @@ public class Config {
 
   public static String getBotStrapServers() {
     StringBuilder sb = new StringBuilder();
-    sb.append(Config.BROKER_URL).append("my-cluster-kafka-brokers.my-kafka-project.svc:9092");//plain
+    sb.append(Config.BROKER_URL).append(":9092");
+            //append("my-cluster-kafka-bootstrap.my-kafka-project.svc:9092");//plain
             //.append(",").append("my-cluster-kafka-brokers.my-kafka-project.svc").append(":9093");//tls
     return sb.toString();
   }

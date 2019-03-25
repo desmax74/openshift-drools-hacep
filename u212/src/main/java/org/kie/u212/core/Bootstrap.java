@@ -55,7 +55,7 @@ public class Bootstrap {
     }
 
 
-    public static void stopEngine(){
+    public static void stopEngine() {
         LeaderElection leadership = Core.getLeaderElection();
         try {
             leadership.stop();
@@ -63,8 +63,12 @@ public class Bootstrap {
             logger.error(e.getMessage(),
                          e);
         }
-        restarter.getConsumer().stop();
-        eventProducer.stop();
+        if (restarter != null){
+            restarter.getConsumer().stop();
+        }
+        if(eventProducer != null) {
+            eventProducer.stop();
+        }
     }
 
     private static void leaderElection() {
