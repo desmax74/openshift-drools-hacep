@@ -13,7 +13,7 @@ oc extract secret/my-cluster-cluster-ca-cert --keys=ca.crt --to=- > src/main/res
 keytool -import -trustcacerts -alias root -file src/main/resources/ca.crt -keystore src/main/resources/keystore.jks -storepass password -noprompt
 ```
 
--In the Client.getConfiguration add the path of the keystore.jks 
+-In the configuration.properties add the path of the keystore.jks 
 in the fields:
 "ssl.keystore.location"
 and 

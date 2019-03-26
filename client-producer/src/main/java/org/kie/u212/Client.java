@@ -1,5 +1,7 @@
 package org.kie.u212;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.Future;
 
@@ -56,22 +58,17 @@ public class Client implements AutoCloseable{
 
   private Properties getConfiguration(){
     Properties props = new Properties();
-    props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-    props.put("value.serializer", "org.kie.u212.consumer.EventJsonSerializer");
-    props.put("bootstrap.servers", "<bootstrap.server_url>:443");
-    props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-    props.put("value.deserializer", "org.kie.u212.producer.EventJsonDeserializer");
-    props.put("max.poll.interval.ms", "10000");//time to discover the new consumer after a changetopic default 5 min 300000
-    props.put("metadata.max.age.ms", "10000");
-    props.put("acks", "all");
-    props.put("retries", 0);
-    props.put("batch.size", 16384);
-    props.put("linger.ms", 1);
-    props.put("security.protocol", "SSL");
-    props.put("ssl.keystore.location", "<path>/src/main/resources/keystore.jks");
-    props.put("ssl.keystore.password", "password");
-    props.put("ssl.truststore.location", "<path>/src/main/resources/keystore.jks");
-    props.put("ssl.truststore.password", "password");
+    InputStream in = null;
+    try {
+      in = this.getClass().getClassLoader().getResourceAsStream("configuration.properties");
+    }catch (Exception e){
+    }finally {
+      try{
+      props.load(in);
+      in.close();
+      }catch (IOException ioe){}
+    }
+
     return  props;
   }
 }

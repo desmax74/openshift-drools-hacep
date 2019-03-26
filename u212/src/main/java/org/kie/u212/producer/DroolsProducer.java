@@ -16,6 +16,7 @@
 package org.kie.u212.producer;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -32,7 +33,7 @@ public class DroolsProducer {
     RecordMetadata lastRecord = null;
     for (StockTickEvent event : events) {
       lastRecord = eventProducer.produceSync(new ProducerRecord<>(topic,
-                                                                  event.getId(),
+                                                                  event.getId() != null ? event.getId() : UUID.randomUUID().toString(),
                                                                   event));
       RecordMetadataUtil.logRecord(lastRecord);
     }

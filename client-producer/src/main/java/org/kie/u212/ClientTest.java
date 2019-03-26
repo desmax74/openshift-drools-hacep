@@ -17,6 +17,11 @@ public class ClientTest {
 
   public static void main(String[] args) throws Exception {
 
+    //insertThreeShowcase();
+    insertBatch(100);
+  }
+
+  private static void insertThreeShowcase() throws  Exception{
     Client client = new Client(Config.EVENTS_TOPIC);
     client.start();
 
@@ -31,6 +36,18 @@ public class ClientTest {
     Future<RecordMetadata> futureRecord = client.insertFireAndForget(eventC);
     RecordMetadata last = futureRecord.get();
     logger.info("Insert EventC");
+    client.close();
+  }
+
+
+  private static void insertBatch(int items){
+    Client client = new Client(Config.EVENTS_TOPIC);
+    client.start();
+    for(int i = 0; i<items; i++){
+      StockTickEvent eventA = new StockTickEvent("RHT", ThreadLocalRandom.current().nextLong(80, 100), UUID.randomUUID().toString());
+      client.insertSync(eventA, true);
+
+    }
     client.close();
   }
 }

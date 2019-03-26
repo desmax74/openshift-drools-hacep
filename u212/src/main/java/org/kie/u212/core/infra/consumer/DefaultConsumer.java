@@ -55,6 +55,7 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
     private boolean subscribeMode = true;
     private volatile State currentState;
     private Restarter externalContainer;
+    private long lastOffset;
 
     public DefaultConsumer(String id, Restarter externalContainer) {
         this.id = id;
@@ -92,6 +93,9 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
             }
         }
     }
+
+
+
 
     @Override
     public void stop() {
