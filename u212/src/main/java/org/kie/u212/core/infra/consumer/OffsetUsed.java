@@ -15,10 +15,11 @@
  */
 package org.kie.u212.core.infra.consumer;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.kie.u212.core.infra.election.State;
-
-public interface ConsumerHandler {
-
-  void process(ConsumerRecord record, State currentState, EventConsumer consumer);
+public enum OffsetUsed {
+  BEGIN, // start from the begin of the topic
+  END,   // start from the end of the topic
+  TIME,  // start from a specific interval before now
+  INDEX, // start from a specific index
+  WAIT,  // the offset was already set and we don't want to change
+  CHANGE // we want to change in a next iteration
 }

@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.core.infra.consumer;
+package org.kie.u212.model;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.kie.u212.core.infra.election.State;
-
-public interface ConsumerHandler {
-
-  void process(ConsumerRecord record, State currentState, EventConsumer consumer);
+public enum EventType {
+  APP,
+  SYSTEM_PRODUCER_WAIT,
+  SYSTEM_PRODUCER_STOP,
+  SYSTEM_PRODUCER_START,
+  SYSTEM_CONSUMER_WAIT,
+  SYSTEM_CONSUMER_STOP,
+  SYSTEM_CONSUMER_START,
+  SYSTEM_CONSUMER_CLOSE
 }

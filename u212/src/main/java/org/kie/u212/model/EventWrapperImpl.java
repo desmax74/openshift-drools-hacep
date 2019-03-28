@@ -20,11 +20,13 @@ public class EventWrapperImpl<T> implements  EventWrapper {
   private T domainEvent;
   private String id ;
   private long offset;
+  private EventType eventType;
 
-  public EventWrapperImpl(T domainEvent, String id, long offset){
+  public EventWrapperImpl(T domainEvent, String id, long offset, EventType eventType){
       this.domainEvent = domainEvent;
       this.offset = offset;
       this.id = id;
+      this.eventType = eventType;
   }
 
   @Override
@@ -41,6 +43,9 @@ public class EventWrapperImpl<T> implements  EventWrapper {
   public long getOffset() {
     return offset;
   }
+
+  @Override
+  public EventType getEventType() { return eventType; }
 
   @Override
   public String toString() {

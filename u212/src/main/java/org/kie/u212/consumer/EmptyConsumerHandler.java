@@ -16,17 +16,22 @@
 package org.kie.u212.consumer;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.kie.u212.core.infra.consumer.EventConsumer;
 import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.consumer.ConsumerHandler;
+import org.kie.u212.core.infra.producer.EventProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EmptyConsumerHandler implements ConsumerHandler {
 
   private Logger logger = LoggerFactory.getLogger(EmptyConsumerHandler.class);
+  private EventProducer producer;
+  private EventConsumer consumer;
+
 
   @Override
-  public void process(ConsumerRecord record, State state) {
+  public void process(ConsumerRecord record, State state, EventConsumer eventConsumer) {
     logger.info("Process event:{} with state{}", record, state);
   }
 }

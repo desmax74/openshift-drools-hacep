@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import org.kie.u212.Config;
-import org.kie.u212.consumer.DroolsConsumerHandler;
 import org.kie.u212.core.infra.consumer.Restarter;
 import org.kie.u212.core.infra.consumer.ConsumerController;
 import org.kie.u212.consumer.EmptyConsumerHandler;
@@ -95,7 +94,7 @@ public class Bootstrap {
     private static void startConsumer(Properties properties){
         restarter = new Restarter(properties);
         restarter.createDroolsConsumer(Core.getKubernetesLockConfiguration().getPodName());
-        //restarter.getConsumer().start(new DroolsConsumerHandler(eventProducer),properties);
+        //restarter.getConsumer().start(new DroolsConsumerHandler(eventProducer),properties); @TODO
         restarter.getConsumer().start(new EmptyConsumerHandler(), properties);
 
         consumerController = new ConsumerController(restarter);

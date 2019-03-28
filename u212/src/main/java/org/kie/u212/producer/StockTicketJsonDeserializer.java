@@ -20,13 +20,13 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Deserializer;
-import org.kie.u212.model.EventWrapper;
+import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EventJsonDeserializer implements Deserializer<EventWrapper> {
+public class StockTicketJsonDeserializer implements Deserializer<StockTickEvent> {
 
-  private Logger logger = LoggerFactory.getLogger(EventJsonDeserializer.class);
+  private Logger logger = LoggerFactory.getLogger(StockTicketJsonDeserializer.class);
 
   private ObjectMapper objectMapper;
 
@@ -37,11 +37,11 @@ public class EventJsonDeserializer implements Deserializer<EventWrapper> {
   }
 
   @Override
-  public EventWrapper deserialize(String s,
+  public StockTickEvent deserialize(String s,
                                     byte[] data) {
     try {
       return objectMapper.readValue(data,
-                                    EventWrapper.class);
+                                    StockTickEvent.class);
     } catch (IOException e) {
       logger.error(e.getMessage(),
                    e);

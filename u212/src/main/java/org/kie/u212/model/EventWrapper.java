@@ -18,6 +18,10 @@ package org.kie.u212.model;
 public interface EventWrapper<T> {
 
   T getDomainEvent();
+
   String getID();
+
   long getOffset();
+
+  EventType getEventType();
 }

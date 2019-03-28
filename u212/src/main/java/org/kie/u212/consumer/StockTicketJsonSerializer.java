@@ -13,43 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.producer;
+package org.kie.u212.consumer;
 
-import java.io.IOException;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.kafka.common.serialization.Deserializer;
-import org.kie.u212.model.EventWrapper;
+import org.apache.kafka.common.serialization.Serializer;
+import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EventJsonDeserializer implements Deserializer<EventWrapper> {
+public class StockTicketJsonSerializer implements Serializer<StockTickEvent> {
 
-  private Logger logger = LoggerFactory.getLogger(EventJsonDeserializer.class);
-
-  private ObjectMapper objectMapper;
+  private Logger logger = LoggerFactory.getLogger(StockTicketJsonSerializer.class);
 
   @Override
-  public void configure(Map configs,
-                        boolean isKey) {
-    this.objectMapper = new ObjectMapper();
-  }
+  public void configure(Map<String, ?> configs, boolean isKey) {}
 
   @Override
-  public EventWrapper deserialize(String s,
-                                    byte[] data) {
+  public byte[] serialize(String topic,
+                          StockTickEvent data) {
+    byte[] output = null;
+    ObjectMapper mapper = new ObjectMapper();
     try {
-      return objectMapper.readValue(data,
-                                    EventWrapper.class);
-    } catch (IOException e) {
-      logger.error(e.getMessage(),
-                   e);
+      output = mapper.writeValueAsString(data).getBytes();
+    } catch (Exception exception) {
+      logger.error("Error in serialize {} \n {} \n {} \n",
+                   data,
+                   exception.getMessage(),
+                   exception);
     }
-    return null;
+    return output;
   }
 
   @Override
-  public void close() {
-  }
+  public void close() {}
 }

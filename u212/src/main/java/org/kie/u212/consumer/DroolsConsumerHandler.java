@@ -25,19 +25,23 @@ import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.time.SessionPseudoClock;
 import org.kie.u212.Config;
+import org.kie.u212.core.infra.consumer.EventConsumer;
 import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.consumer.ConsumerHandler;
 import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.core.infra.producer.Producer;
+import org.kie.u212.model.EventWrapper;
 import org.kie.u212.model.StockTickEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DroolsConsumerHandler implements ConsumerHandler {
 
+  private static final Logger logger = LoggerFactory.getLogger(DroolsConsumerHandler.class);
   private KieContainer kieContainer;
   private KieSession kieSession;
   private SessionPseudoClock clock;
   private Producer producer;
-  private Properties properties;
 
   public DroolsConsumerHandler(EventProducer producer) {
     kieContainer = KieServices.get().newKieClasspathContainer();
@@ -47,7 +51,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
   }
 
   @Override
-  public void process(ConsumerRecord record, State state) {
+  public void process(ConsumerRecord record, State state, EventConsumer consumer) {
     if(state.equals(State.LEADER)){
       processAsAMaster(record);
     }else{
@@ -56,12 +60,20 @@ public class DroolsConsumerHandler implements ConsumerHandler {
   }
 
   private void processAsAMaster(ConsumerRecord record){
-    StockTickEvent stock = process(record);
-    producer.produceFireAndForget(new ProducerRecord<>(Config.CONTROL_TOPIC, stock.getId(), stock));
+    EventWrapper wr = (EventWrapper) record.value();
+    switch (wr.getEventType()){
+      case APP:
+        StockTickEvent stock = process(record);
+        producer.produceFireAndForget(new ProducerRecord<>(Config.CONTROL_TOPIC, stock.getId(), stock));
+        break;
+        default:
+          logger.info("Event type not handled:{}", wr.getEventType());
+    }
   }
 
   private StockTickEvent process(ConsumerRecord record) {
-    StockTickEvent stock = (StockTickEvent) record.value();
+    EventWrapper wr = (EventWrapper) record.value();
+    StockTickEvent stock = (StockTickEvent) wr.getDomainEvent();
     clock.advanceTime(stock.getTimestamp() - record.timestamp(), TimeUnit.MILLISECONDS);
     kieSession.insert(stock);
     return stock;
