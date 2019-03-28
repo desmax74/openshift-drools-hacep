@@ -26,6 +26,7 @@ import org.kie.u212.core.infra.election.KubernetesLockConfiguration;
 
 import org.kie.u212.core.infra.election.LeaderElection;
 import org.kie.u212.core.infra.producer.EventProducer;
+import org.kie.u212.core.infra.utils.ConsumerUtils;
 import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,8 @@ public class Bootstrap {
         startProducer(properties);
         startConsumer(properties);
         addCallbacks();
+        ConsumerUtils.getOffset(Config.EVENTS_TOPIC, properties);
+        ConsumerUtils.getOffset(Config.CONTROL_TOPIC, properties);
         logger.info("CONFIGURE ON START ENGINE:{}", properties);
     }
 

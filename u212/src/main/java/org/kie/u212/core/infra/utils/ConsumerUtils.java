@@ -15,7 +15,17 @@
  */
 package org.kie.u212.core.infra.utils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.PartitionInfo;
+import org.apache.kafka.common.TopicPartition;
+import org.kie.u212.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,5 +46,20 @@ public class ConsumerUtils {
                   consumerRecord.key(),
                   consumerRecord.value());
     }
+  }
+
+  public static void getOffset(String topic, Properties configuration) {
+    KafkaConsumer consumer = new KafkaConsumer(configuration);
+    consumer.subscribe(Arrays.asList(topic));
+    List<PartitionInfo> infos = consumer.partitionsFor(topic);
+    List<TopicPartition> tps = new ArrayList<>();
+    for (PartitionInfo info : infos) {
+      tps.add(new TopicPartition(topic, info.partition()));
+    }
+    Map<TopicPartition, Long> offsets = consumer.endOffsets(tps);
+    for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
+      logger.info("Topic:{} offset:{}",entry.getKey(), entry.getValue());
+    }
+    consumer.close();
   }
 }

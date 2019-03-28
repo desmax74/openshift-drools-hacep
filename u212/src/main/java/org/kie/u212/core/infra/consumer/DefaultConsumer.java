@@ -99,11 +99,9 @@ public class DefaultConsumer<T> implements EventConsumer,
                         long duration,
                         boolean commitSync) {
     while (true) {
-      if (started) {
         poll(pollSize,
              duration,
              commitSync);
-      }
     }
   }
 
@@ -159,6 +157,20 @@ public class DefaultConsumer<T> implements EventConsumer,
     } else {
       assign(topic, null, autoCommit);
       started = true;
+    }
+  }
+
+  private void getOffset(String topic, Properties configuration) {
+    KafkaConsumer consumer = new KafkaConsumer(configuration);
+    consumer.subscribe(Arrays.asList(topic));
+    List<PartitionInfo> infos = consumer.partitionsFor(topic);
+    List<TopicPartition> tps = new ArrayList<>();
+    for(PartitionInfo info : infos){
+      tps.add(new TopicPartition(topic,info.partition()));
+    }
+    Map<TopicPartition, Long> offsets = consumer.endOffsets(tps);
+    for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
+      logger.info(entry.getKey() + ":" + entry.getValue());
     }
   }
 
@@ -232,9 +244,7 @@ public class DefaultConsumer<T> implements EventConsumer,
     started = true;
   }
 
-  private void consume(int size,
-                       boolean commitSync) {
-
+  private void consume(int size, boolean commitSync) {
     if (started) {
       defaultProcess(size, commitSync);
     }
@@ -242,8 +252,8 @@ public class DefaultConsumer<T> implements EventConsumer,
 
   private void defaultProcess(int size,
                               boolean commitSync) {
-    ConsumerRecords<String, T> records = kafkaConsumer.poll(size);
     setInitialOffset();
+    ConsumerRecords<String, T> records = kafkaConsumer.poll(size);
     for (ConsumerRecord<String, T> record : records) {
         //store next offset to commit
         ConsumerUtils.prettyPrinter(id, groupId, record);
