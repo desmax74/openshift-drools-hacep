@@ -11,6 +11,7 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.kie.u212.core.Core;
 import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.core.infra.utils.RecordMetadataUtil;
+import org.kie.u212.model.EventWrapper;
 import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,12 +49,28 @@ public class Client implements AutoCloseable{
     return lastRecord;
   }
 
+  public RecordMetadata insertSync(EventWrapper event, boolean logInsert){
+    RecordMetadata lastRecord = producer.produceSync(new ProducerRecord<>(topic, event.getID(), event));
+    if(logInsert) {
+      RecordMetadataUtil.logRecord(lastRecord);
+    }
+    return lastRecord;
+  }
+
   public void insertAsync(StockTickEvent event, Callback callback){
     producer.produceAsync(new ProducerRecord<>(topic, event.getId(), event), callback);
   }
 
+  public void insertAsync(EventWrapper event, Callback callback){
+    producer.produceAsync(new ProducerRecord<>(topic, event.getID(), event), callback);
+  }
+
   public Future<RecordMetadata> insertFireAndForget(StockTickEvent event){
     return producer.produceFireAndForget(new ProducerRecord<>(topic, event.getId(), event));
+  }
+
+  public Future<RecordMetadata> insertFireAndForget(EventWrapper event){
+    return producer.produceFireAndForget(new ProducerRecord<>(topic, event.getID(), event));
   }
 
   private Properties getConfiguration(){

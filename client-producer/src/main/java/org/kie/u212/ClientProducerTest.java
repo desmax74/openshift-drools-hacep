@@ -6,6 +6,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.kie.u212.core.infra.producer.ProducerCallbackLog;
+import org.kie.u212.model.EventType;
+import org.kie.u212.model.EventWrapperImpl;
 import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +19,7 @@ public class ClientProducerTest {
   public static void main(String[] args) throws Exception {
 
     //insertThreeShowcase();
-    insertBatch(10);
+    insertBatchStock(1);
   }
 
   private static void insertThreeShowcase() throws  Exception{
@@ -39,13 +41,23 @@ public class ClientProducerTest {
   }
 
 
-  private static void insertBatch(int items){
+  private static void insertBatchStock(int items){
     Client client = new Client(Config.EVENTS_TOPIC);
     client.start();
     for(int i = 0; i<items; i++){
       StockTickEvent eventA = new StockTickEvent("RHT", ThreadLocalRandom.current().nextLong(80, 100), UUID.randomUUID().toString());
       client.insertSync(eventA, true);
+    }
+    client.close();
+  }
 
+  private static void insertBatchEvent(int items){
+    Client client = new Client(Config.EVENTS_TOPIC);
+    client.start();
+    for(int i = 0; i<items; i++){
+      StockTickEvent eventA = new StockTickEvent("RHT", ThreadLocalRandom.current().nextLong(80, 100), UUID.randomUUID().toString());
+      EventWrapperImpl wr = new EventWrapperImpl(eventA, eventA.getId(), 0l, EventType.APP);
+      client.insertSync(wr, true);
     }
     client.close();
   }
