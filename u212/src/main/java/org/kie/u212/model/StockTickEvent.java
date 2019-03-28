@@ -71,4 +71,15 @@ public class StockTickEvent {
   public String getId() {
     return id;
   }
+
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder("StockTickEvent{");
+    sb.append("company='").append(company).append('\'');
+    sb.append(", price=").append(price);
+    sb.append(", id='").append(id).append('\'');
+    sb.append(", timestamp=").append(timestamp);
+    sb.append('}');
+    return sb.toString();
+  }
 }

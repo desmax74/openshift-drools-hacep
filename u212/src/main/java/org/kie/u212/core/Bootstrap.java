@@ -95,7 +95,9 @@ public class Bootstrap {
     private static void startConsumer(Properties properties){
         restarter = new Restarter(properties);
         restarter.createDroolsConsumer(Core.getKubernetesLockConfiguration().getPodName());
-        restarter.getConsumer().start(new DroolsConsumerHandler(eventProducer),properties);
+        //restarter.getConsumer().start(new DroolsConsumerHandler(eventProducer),properties);
+        restarter.getConsumer().start(new EmptyConsumerHandler(), properties);
+
         consumerController = new ConsumerController(restarter);
         consumerController.consumeEvents();
     }

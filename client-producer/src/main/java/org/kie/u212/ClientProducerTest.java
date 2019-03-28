@@ -10,15 +10,14 @@ import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClientTest {
+public class ClientProducerTest {
 
-
-  private static Logger logger = LoggerFactory.getLogger(ProducerCallbackLog.class);
+  private static Logger logger = LoggerFactory.getLogger(ClientProducerTest.class);
 
   public static void main(String[] args) throws Exception {
 
     //insertThreeShowcase();
-    insertBatch(100);
+    insertBatch(10);
   }
 
   private static void insertThreeShowcase() throws  Exception{

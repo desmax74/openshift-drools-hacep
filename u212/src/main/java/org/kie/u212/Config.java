@@ -15,9 +15,10 @@
  */
 package org.kie.u212;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,25 @@ public class Config {
     props.put("batch.size","16384");
     props.put("metadata.max.age.ms", "10000");
     props.setProperty("enable.auto.commit", String.valueOf(true));
-    logConfig(props);
+    //logConfig(props);
+    return props;
+  }
+
+  public static Properties getDefaultConfigFromProps() {
+    Properties props = new Properties();
+
+    InputStream in = null;
+    try {
+      in = Config.class.getClassLoader().getResourceAsStream("configuration.properties");
+    } catch (Exception e) {
+    } finally {
+      try {
+        props.load(in);
+        in.close();
+      } catch (IOException ioe) {
+        logger.error(ioe.getMessage(), ioe);
+      }
+    }
     return props;
   }
 

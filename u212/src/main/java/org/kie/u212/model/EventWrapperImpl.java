@@ -41,4 +41,14 @@ public class EventWrapperImpl<T> implements  EventWrapper {
   public long getOffset() {
     return offset;
   }
+
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder("EventWrapperImpl{");
+    sb.append("domainEvent=").append(domainEvent);
+    sb.append(", id='").append(id).append('\'');
+    sb.append(", offset=").append(offset);
+    sb.append('}');
+    return sb.toString();
+  }
 }
