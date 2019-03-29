@@ -25,15 +25,12 @@ public class StockTickEvent {
 
   private String company;
   private double price;
-  private String id;
   private long timestamp;
 
   public StockTickEvent(String company,
-                        double price,
-                        String id) {
+                        double price) {
     this.company = company;
     this.price = price;
-    this.id = id;
   }
 
   public StockTickEvent(){ }
@@ -44,10 +41,6 @@ public class StockTickEvent {
 
   public void setPrice(double price) {
     this.price = price;
-  }
-
-  public void setId(String id) {
-    this.id = id;
   }
 
   public String getCompany() {
@@ -68,16 +61,11 @@ public class StockTickEvent {
     }
   }
 
-  public String getId() {
-    return id;
-  }
-
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder("StockTickEvent{");
     sb.append("company='").append(company).append('\'');
-    sb.append(", price=").append(price);
-    sb.append(", id='").append(id).append('\'');
+    sb.append(", price=").append(price).append('\'');
     sb.append(", timestamp=").append(timestamp);
     sb.append('}');
     return sb.toString();

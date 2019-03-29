@@ -22,11 +22,29 @@ public class EventWrapperImpl<T> implements  EventWrapper {
   private long offset;
   private EventType eventType;
 
+  public EventWrapperImpl(){}
+
   public EventWrapperImpl(T domainEvent, String id, long offset, EventType eventType){
       this.domainEvent = domainEvent;
       this.offset = offset;
       this.id = id;
       this.eventType = eventType;
+  }
+
+  public void setDomainEvent(T domainEvent) {
+    this.domainEvent = domainEvent;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public void setOffset(long offset) {
+    this.offset = offset;
+  }
+
+  public void setEventType(EventType eventType) {
+    this.eventType = eventType;
   }
 
   @Override

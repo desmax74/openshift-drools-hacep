@@ -19,12 +19,11 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Serializer;
-import org.kie.u212.model.EventWrapper;
-import org.kie.u212.model.StockTickEvent;
+import org.kie.u212.model.EventWrapperImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EventJsonSerializer implements Serializer<EventWrapper> {
+public class EventJsonSerializer implements Serializer<EventWrapperImpl> {
 
   private Logger logger = LoggerFactory.getLogger(EventJsonSerializer.class);
 
@@ -35,7 +34,7 @@ public class EventJsonSerializer implements Serializer<EventWrapper> {
 
   @Override
   public byte[] serialize(String topic,
-                          EventWrapper data) {
+                          EventWrapperImpl data) {
     byte[] output = null;
     ObjectMapper mapper = new ObjectMapper();
     try {

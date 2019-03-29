@@ -15,7 +15,7 @@
  */
 package org.kie.u212.consumer;
 
-import java.util.Properties;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -30,7 +30,9 @@ import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.consumer.ConsumerHandler;
 import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.core.infra.producer.Producer;
+import org.kie.u212.model.EventType;
 import org.kie.u212.model.EventWrapper;
+import org.kie.u212.model.EventWrapperImpl;
 import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,18 +55,19 @@ public class DroolsConsumerHandler implements ConsumerHandler {
   @Override
   public void process(ConsumerRecord record, State state, EventConsumer consumer) {
     if(state.equals(State.LEADER)){
-      processAsAMaster(record);
+      processAsMaster(record);
     }else{
       processAsASlave(record);
     }
   }
 
-  private void processAsAMaster(ConsumerRecord record){
+  private void processAsMaster(ConsumerRecord record){
     EventWrapper wr = (EventWrapper) record.value();
     switch (wr.getEventType()){
       case APP:
         StockTickEvent stock = process(record);
-        producer.produceFireAndForget(new ProducerRecord<>(Config.CONTROL_TOPIC, stock.getId(), stock));
+        EventWrapper newEventWrapper = new EventWrapperImpl(stock, wr.getID(), 0l, EventType.APP);
+        producer.produceFireAndForget(new ProducerRecord<>(Config.CONTROL_TOPIC, wr.getID(), newEventWrapper));
         break;
         default:
           logger.info("Event type not handled:{}", wr.getEventType());
@@ -73,10 +76,16 @@ public class DroolsConsumerHandler implements ConsumerHandler {
 
   private StockTickEvent process(ConsumerRecord record) {
     EventWrapper wr = (EventWrapper) record.value();
-    StockTickEvent stock = (StockTickEvent) wr.getDomainEvent();
-    clock.advanceTime(stock.getTimestamp() - record.timestamp(), TimeUnit.MILLISECONDS);
-    kieSession.insert(stock);
-    return stock;
+    Map map = (Map) wr.getDomainEvent();
+    logger.info("keyset:{}", map.keySet());
+    logger.info("values:{}", map.values());
+    StockTickEvent stockTickEvent = new StockTickEvent();
+    stockTickEvent.setCompany(map.get("company").toString());
+    stockTickEvent.setPrice((Double)map.get("price"));
+    stockTickEvent.setTimestamp(record.timestamp());
+    clock.advanceTime(stockTickEvent.getTimestamp() - record.timestamp(), TimeUnit.MILLISECONDS);
+    kieSession.insert(stockTickEvent);
+    return stockTickEvent;
   }
 
   private void processAsASlave(ConsumerRecord record){

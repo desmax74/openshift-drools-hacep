@@ -46,10 +46,10 @@ public class Config {
   public static Properties getDefaultConfig() {
     Properties props = new Properties();
     props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-    props.put("value.serializer", "org.kie.u212.consumer.StockTicketJsonSerializer");
+    props.put("value.serializer", "org.kie.u212.consumer.EventJsonSerializer");
     props.put("bootstrap.servers", getBotStrapServers());
     props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-    props.put("value.deserializer", "org.kie.u212.producer.StockTicketJsonDeserializer");
+    props.put("value.deserializer", "org.kie.u212.producer.EventJsonDeserializer");
     props.put("max.poll.interval.ms", "10000");//time to discover the new consumer after a changetopic default 5 min 300000
     props.put("batch.size","16384");
     props.put("metadata.max.age.ms", "10000");

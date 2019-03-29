@@ -48,7 +48,16 @@ public class ConsumerUtils {
     }
   }
 
-  public static void getOffset(String topic, Properties configuration) {
+  public static void printOffset(String topic, Properties configuration) {
+    Map<TopicPartition, Long> offsets = getOffset(topic, configuration);
+    for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
+      logger.info("Topic:{} offset:{}",entry.getKey(), entry.getValue());
+    }
+  }
+
+
+
+  public static Map<TopicPartition, Long> getOffset(String topic, Properties configuration) {
     KafkaConsumer consumer = new KafkaConsumer(configuration);
     consumer.subscribe(Arrays.asList(topic));
     List<PartitionInfo> infos = consumer.partitionsFor(topic);
@@ -57,9 +66,7 @@ public class ConsumerUtils {
       tps.add(new TopicPartition(topic, info.partition()));
     }
     Map<TopicPartition, Long> offsets = consumer.endOffsets(tps);
-    for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
-      logger.info("Topic:{} offset:{}",entry.getKey(), entry.getValue());
-    }
     consumer.close();
+    return offsets;
   }
 }

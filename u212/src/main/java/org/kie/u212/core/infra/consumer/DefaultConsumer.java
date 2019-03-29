@@ -62,14 +62,16 @@ public class DefaultConsumer<T> implements EventConsumer,
   private volatile State currentState;
   private volatile boolean leader = false;
   private volatile boolean started = false;
-  private volatile OffsetUsed offsetUsed = OffsetUsed.BEGIN;
+  private volatile OffsetUsed offsetUsed = OffsetUsed.INDEX;
   private volatile boolean changeStatusPending = false;
-  private long startOffset = 0l;
+  private long startControlOffset = 0l;
+  private Properties configuration;
 
-  public DefaultConsumer(String id, String groupId,
+  public DefaultConsumer(String id, Properties properties,
                          Restarter externalContainer) {
     this.id = id;
-    this.groupId = groupId;
+    this.configuration = properties;
+    this.groupId = properties.getProperty("group.id");
     this.externalContainer = externalContainer;
   }
 
@@ -85,10 +87,14 @@ public class DefaultConsumer<T> implements EventConsumer,
     this.subscribeMode = subscribeMode;
   }
 
-  @Override
   public void start(ConsumerHandler consumerHandler, Properties properties) {
     this.consumerHandle = consumerHandler;
     kafkaConsumer = new KafkaConsumer<>(properties);
+  }
+
+  public void stop() {
+    kafkaConsumer.close();
+    started = false;
   }
 
   public void internalStart() {
@@ -105,13 +111,7 @@ public class DefaultConsumer<T> implements EventConsumer,
     }
   }
 
-  @Override
-  public void stop() {
-    kafkaConsumer.close();
-    started = false;
-  }
 
-  @Override
   public void updateStatus(State state) {
     if (started) {
       updateOnRunningConsumer(state);
@@ -120,6 +120,7 @@ public class DefaultConsumer<T> implements EventConsumer,
     }
     currentState = state;
   }
+
 
   private void updateOnRunningConsumer(State state) {
     if (state.equals(State.LEADER) && !leader) {
@@ -140,11 +141,19 @@ public class DefaultConsumer<T> implements EventConsumer,
       //startConsume(Config.EVENTS_TOPIC);
     } else if (state.equals(State.NOT_LEADER) && leader) {
       leader = false;
-      changeStatusPending = true;
+      Map<TopicPartition, Long> offsets = ConsumerUtils.getOffset(Config.EVENTS_TOPIC,configuration);
+      for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
+        if(entry.getKey().toString().startsWith(Config.EVENTS_TOPIC)){
+          startControlOffset = entry.getValue();
+          logger.info("startControlOffset:{}", startControlOffset);
+        }
+      }
+      //startControlOffset = offset.get()
+      //changeStatusPending = true;
       //startConsume(Config.CONTROL_TOPIC);
     } else if (state.equals(State.NOT_LEADER) && !leader) {
       leader = false;
-      changeStatusPending = true;
+      //changeStatusPending = true;
       //startConsume(Config.CONTROL_TOPIC);
     }
     startConsume(Config.EVENTS_TOPIC);
@@ -157,20 +166,6 @@ public class DefaultConsumer<T> implements EventConsumer,
     } else {
       assign(topic, null, autoCommit);
       started = true;
-    }
-  }
-
-  private void getOffset(String topic, Properties configuration) {
-    KafkaConsumer consumer = new KafkaConsumer(configuration);
-    consumer.subscribe(Arrays.asList(topic));
-    List<PartitionInfo> infos = consumer.partitionsFor(topic);
-    List<TopicPartition> tps = new ArrayList<>();
-    for(PartitionInfo info : infos){
-      tps.add(new TopicPartition(topic,info.partition()));
-    }
-    Map<TopicPartition, Long> offsets = consumer.endOffsets(tps);
-    for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
-      logger.info(entry.getKey() + ":" + entry.getValue());
     }
   }
 
@@ -229,7 +224,7 @@ public class DefaultConsumer<T> implements EventConsumer,
                          entry.getValue().offset());
           }
         }
-        OffsetManager.store(offsets); //Store offsets
+        OffsetManager.store(offsets);
       } finally {
         logger.info("Closing kafkaConsumer on the loop");
         kafkaConsumer.close();
@@ -237,7 +232,6 @@ public class DefaultConsumer<T> implements EventConsumer,
     }
   }
 
-  @Override
   public void changeTopic(String newTopic) {
     started = false;
     externalContainer.changeTopic(newTopic, offsets);
@@ -292,7 +286,7 @@ public class DefaultConsumer<T> implements EventConsumer,
         setOffsetToEnd();
         break;
       case INDEX:
-        setOffsetToSpecificValue(startOffset);
+        setOffsetToSpecificValue(startControlOffset);
         break;
       case TIME:
         setOffsetToTimeInterval();

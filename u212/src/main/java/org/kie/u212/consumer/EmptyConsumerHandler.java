@@ -26,9 +26,6 @@ import org.slf4j.LoggerFactory;
 public class EmptyConsumerHandler implements ConsumerHandler {
 
   private Logger logger = LoggerFactory.getLogger(EmptyConsumerHandler.class);
-  private EventProducer producer;
-  private EventConsumer consumer;
-
 
   @Override
   public void process(ConsumerRecord record, State state, EventConsumer eventConsumer) {

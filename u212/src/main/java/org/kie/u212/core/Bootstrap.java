@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import org.kie.u212.Config;
+import org.kie.u212.consumer.DroolsConsumerHandler;
 import org.kie.u212.core.infra.consumer.Restarter;
 import org.kie.u212.core.infra.consumer.ConsumerController;
 import org.kie.u212.consumer.EmptyConsumerHandler;
@@ -51,8 +52,8 @@ public class Bootstrap {
         startProducer(properties);
         startConsumer(properties);
         addCallbacks();
-        ConsumerUtils.getOffset(Config.EVENTS_TOPIC, properties);
-        ConsumerUtils.getOffset(Config.CONTROL_TOPIC, properties);
+        ConsumerUtils.printOffset(Config.EVENTS_TOPIC, properties);
+        ConsumerUtils.printOffset(Config.CONTROL_TOPIC, properties);
         logger.info("CONFIGURE ON START ENGINE:{}", properties);
     }
 
@@ -97,9 +98,8 @@ public class Bootstrap {
     private static void startConsumer(Properties properties){
         restarter = new Restarter(properties);
         restarter.createDroolsConsumer(Core.getKubernetesLockConfiguration().getPodName());
-        //restarter.getConsumer().start(new DroolsConsumerHandler(eventProducer),properties); @TODO
-        restarter.getConsumer().start(new EmptyConsumerHandler(), properties);
-
+        restarter.getConsumer().start(new DroolsConsumerHandler(eventProducer), properties); //@TODO
+        //restarter.getConsumer().start(new EmptyConsumerHandler(), properties);
         consumerController = new ConsumerController(restarter);
         consumerController.consumeEvents();
     }

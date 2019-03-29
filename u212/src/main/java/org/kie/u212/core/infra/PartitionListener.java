@@ -16,13 +16,17 @@
 package org.kie.u212.core.infra;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
+import org.kie.u212.Config;
+import org.kie.u212.core.infra.utils.ConsumerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,11 +57,24 @@ public class PartitionListener<T> implements ConsumerRebalanceListener {
     //seek from offset
     for (TopicPartition partition : partitions) {
       try {
-        String offset = properties.getProperty(partition.topic() + "-" + partition.partition());
+        String offset = null;
+        if(properties == null){
+          Map<String, List<PartitionInfo>> topics = consumer.listTopics();
+          String topic = topics.keySet().iterator().next();//@TODO throw ex if more than one
+          logger.info("topic subscribed on partitionAssigned :{}", topic);
+          Map<TopicPartition, Long> offsets =ConsumerUtils.getOffset(topic, Config.getDefaultConfig());
+          for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
+            offset = entry.getValue().toString();
+            logger.info("offset:{}", offset);
+          }
+        }else{
+          offset = properties.getProperty(partition.topic() + "-" + partition.partition());
+        }
         if (offset != null) {
           consumer.seek(partition,
                         Long.valueOf(offset));
-          logger.info("Consumer - partition {} - initOffset {}\n",
+          logger.info("Consumer - topic{} - partition {} - initOffset {}\n",
+                      partition.topic(),
                       partition.partition(),
                       offset);
         }
