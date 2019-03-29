@@ -23,17 +23,17 @@ import org.kie.u212.core.infra.election.State;
  */
 public class InfraCallback implements Callback {
 
-  private DefaultConsumer consumer;
+    private DefaultConsumer consumer;
 
-  public InfraCallback(){}
+    public InfraCallback() {
+    }
 
+    public void setConsumer(DefaultConsumer newConsumer) {
+        this.consumer = newConsumer;
+    }
 
-  public void setConsumer(DefaultConsumer newConsumer){
-    this.consumer = newConsumer;
-  }
-
-  @Override
-  public void updateStatus(State state) {
-      consumer.updateStatus(state);
-  }
+    @Override
+    public void updateStatus(State state) {
+        consumer.updateStatus(state);
+    }
 }

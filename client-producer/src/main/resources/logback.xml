@@ -7,7 +7,7 @@
   </appender>
 
   <root level="INFO">
-    <appender-ref ref="STDOUT" />
+    <appender-ref ref="STDOUT"/>
   </root>
 
   <logger name="org.kie.u212" level="INFO"/>

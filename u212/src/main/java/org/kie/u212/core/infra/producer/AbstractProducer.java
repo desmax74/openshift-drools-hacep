@@ -19,9 +19,9 @@ import org.apache.kafka.clients.producer.Producer;
 
 public class AbstractProducer<K, V> {
 
-  protected org.apache.kafka.clients.producer.Producer<K, V> producer;
+    protected org.apache.kafka.clients.producer.Producer<K, V> producer;
 
-  public Producer<K, V> getProducer() {
-    return producer;
-  }
+    public Producer<K, V> getProducer() {
+        return producer;
+    }
 }

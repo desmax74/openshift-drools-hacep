@@ -25,27 +25,30 @@ import org.slf4j.LoggerFactory;
 
 public class StockTicketJsonSerializer implements Serializer<StockTickEvent> {
 
-  private Logger logger = LoggerFactory.getLogger(StockTicketJsonSerializer.class);
+    private Logger logger = LoggerFactory.getLogger(StockTicketJsonSerializer.class);
 
-  @Override
-  public void configure(Map<String, ?> configs, boolean isKey) {}
-
-  @Override
-  public byte[] serialize(String topic,
-                          StockTickEvent data) {
-    byte[] output = null;
-    ObjectMapper mapper = new ObjectMapper();
-    try {
-      output = mapper.writeValueAsString(data).getBytes();
-    } catch (Exception exception) {
-      logger.error("Error in serialize {} \n {} \n {} \n",
-                   data,
-                   exception.getMessage(),
-                   exception);
+    @Override
+    public void configure(Map<String, ?> configs,
+                          boolean isKey) {
     }
-    return output;
-  }
 
-  @Override
-  public void close() {}
+    @Override
+    public byte[] serialize(String topic,
+                            StockTickEvent data) {
+        byte[] output = null;
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            output = mapper.writeValueAsString(data).getBytes();
+        } catch (Exception exception) {
+            logger.error("Error in serialize {} \n {} \n {} \n",
+                         data,
+                         exception.getMessage(),
+                         exception);
+        }
+        return output;
+    }
+
+    @Override
+    public void close() {
+    }
 }

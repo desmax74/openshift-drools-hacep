@@ -19,13 +19,13 @@ import java.util.List;
 
 public interface LeaderElection {
 
-  void start() throws Exception;
+    void start() throws Exception;
 
-  void stop() throws Exception;
+    void stop() throws Exception;
 
-  boolean amITheLeader();
+    boolean amITheLeader();
 
-  void addCallbacks(List<Callback> callbacks);
+    void addCallbacks(List<Callback> callbacks);
 
-  boolean removeCallback(Callback callback);
+    boolean removeCallback(Callback callback);
 }

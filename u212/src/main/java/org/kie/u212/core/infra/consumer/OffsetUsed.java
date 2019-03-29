@@ -16,10 +16,10 @@
 package org.kie.u212.core.infra.consumer;
 
 public enum OffsetUsed {
-  BEGIN, // start from the begin of the topic
-  END,   // start from the end of the topic
-  TIME,  // start from a specific interval before now
-  INDEX, // start from a specific index
-  WAIT,  // the offset was already set and we don't want to change
-  CHANGE // we want to change in a next iteration
+    BEGIN, // start from the begin of the topic
+    END,   // start from the end of the topic
+    TIME,  // start from a specific interval before now
+    INDEX, // start from a specific index
+    WAIT,  // the offset was already set and we don't want to change
+    CHANGE // we want to change in a next iteration
 }

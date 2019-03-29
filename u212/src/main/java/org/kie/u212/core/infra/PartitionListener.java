@@ -36,52 +36,44 @@ import org.slf4j.LoggerFactory;
  */
 public class PartitionListener<T> implements ConsumerRebalanceListener {
 
-  private Logger logger = LoggerFactory.getLogger(PartitionListener.class);
-  private Consumer<String, T> consumer;
-  private Map<TopicPartition, OffsetAndMetadata> offsets;
+    private Logger logger = LoggerFactory.getLogger(PartitionListener.class);
+    private Consumer<String, T> consumer;
+    private Map<TopicPartition, OffsetAndMetadata> offsets;
 
-  public PartitionListener(Consumer<String, T> consumer,
-                           Map<TopicPartition, OffsetAndMetadata> offsets) {
-    this.consumer = consumer;
-    this.offsets = offsets;
-  }
-
-  @Override
-  public void onPartitionsRevoked(Collection<TopicPartition> collection) {
-    //TODO save inside the cluster, infinispan
-  }
-
-  @Override
-  public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-    Properties properties = OffsetManager.load();
-    //seek from offset
-    for (TopicPartition partition : partitions) {
-      try {
-        String offset = null;
-        if(properties == null){
-          Map<String, List<PartitionInfo>> topics = consumer.listTopics();
-          String topic = topics.keySet().iterator().next();//@TODO throw ex if more than one
-          logger.info("topic subscribed on partitionAssigned :{}", topic);
-          Map<TopicPartition, Long> offsets =ConsumerUtils.getOffset(topic, Config.getDefaultConfig());
-          for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
-            offset = entry.getValue().toString();
-            logger.info("offset:{}", offset);
-          }
-        }else{
-          offset = properties.getProperty(partition.topic() + "-" + partition.partition());
-        }
-        if (offset != null) {
-          consumer.seek(partition,
-                        Long.valueOf(offset));
-          logger.info("Consumer - topic{} - partition {} - initOffset {}\n",
-                      partition.topic(),
-                      partition.partition(),
-                      offset);
-        }
-      } catch (Exception ex) {
-        logger.info("Consumer - partition {} - initOffset not from DB\n",
-                    partition.partition());
-      }
+    public PartitionListener(Consumer<String, T> consumer,
+                             Map<TopicPartition, OffsetAndMetadata> offsets) {
+        this.consumer = consumer;
+        this.offsets = offsets;
     }
-  }
+
+    @Override
+    public void onPartitionsRevoked(Collection<TopicPartition> collection) {
+        //TODO save inside the cluster, infinispan
+    }
+
+    @Override
+    public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+        notContainerEnvironment(partitions);
+    }
+
+
+    private void notContainerEnvironment(Collection<TopicPartition> partitions) {
+        Properties properties = OffsetManager.load();
+        //seek from offset
+        for (TopicPartition partition : partitions) {
+            try {
+                String offset = properties.getProperty(partition.topic() + "-" + partition.partition());
+                if (offset != null) {
+                    consumer.seek(partition,
+                                  Long.valueOf(offset));
+                    logger.info("Consumer - partition {} - initOffset {}\n",
+                                partition.partition(),
+                                offset);
+                }
+            } catch (Exception ex) {
+                logger.info("Consumer - partition {} - initOffset not from DB\n",
+                            partition.partition());
+            }
+        }
+    }
 }

@@ -25,16 +25,16 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 
 public interface Producer<K, V> {
 
-  void start(Properties properties);
+    void start(Properties properties);
 
-  void start(KafkaProducer<K, V> kafkaProducer);
+    void start(KafkaProducer<K, V> kafkaProducer);
 
-  void stop();
+    void stop();
 
-  Future<RecordMetadata> produceFireAndForget(ProducerRecord<K, V> producerRecord);
+    Future<RecordMetadata> produceFireAndForget(ProducerRecord<K, V> producerRecord);
 
-  RecordMetadata produceSync(ProducerRecord<K, V> producerRecord);
+    RecordMetadata produceSync(ProducerRecord<K, V> producerRecord);
 
-  void produceAsync(ProducerRecord<K, V> producerRecord,
-                    Callback callback);
+    void produceAsync(ProducerRecord<K, V> producerRecord,
+                      Callback callback);
 }

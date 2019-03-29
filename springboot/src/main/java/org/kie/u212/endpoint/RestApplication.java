@@ -26,8 +26,8 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 @ServletComponentScan
 public class RestApplication {
 
-  public static void main(String[] args) {
-    SpringApplication.run(RestApplication.class, args);
-  }
-
+    public static void main(String[] args) {
+        SpringApplication.run(RestApplication.class,
+                              args);
+    }
 }

@@ -25,34 +25,35 @@ import org.slf4j.LoggerFactory;
 
 public class Core {
 
-  private static final Logger logger = LoggerFactory.getLogger(Core.class);
-  private static KubernetesClient kubernetesClient = new DefaultKubernetesClient();
-  private static KubernetesLockConfiguration configuration = createKubeConfiguration();
-  private static LeaderElection leadership = new LeaderElectionImpl(kubernetesClient, configuration);
+    private static final Logger logger = LoggerFactory.getLogger(Core.class);
+    private static KubernetesClient kubernetesClient = new DefaultKubernetesClient();
+    private static KubernetesLockConfiguration configuration = createKubeConfiguration();
+    private static LeaderElection leadership = new LeaderElectionImpl(kubernetesClient,
+                                                                      configuration);
 
-  public static KubernetesClient getKubeClient() {
-    return kubernetesClient;
-  }
-
-  public static KubernetesLockConfiguration getKubernetesLockConfiguration() {
-    return configuration;
-  }
-
-  private static KubernetesLockConfiguration createKubeConfiguration() {
-    String podName = System.getenv("POD_NAME");
-    if(podName == null ) {
-      podName = System.getenv("HOSTNAME");
+    public static KubernetesClient getKubeClient() {
+        return kubernetesClient;
     }
-    if(logger.isInfoEnabled()){
-      logger.info("PodName: {}", podName);
-    }
-    KubernetesLockConfiguration configuration = new KubernetesLockConfiguration();
-    configuration.setPodName(podName);
-    return configuration;
-  }
 
-  public static LeaderElection getLeaderElection() {
-    return leadership;
-  }
+    public static KubernetesLockConfiguration getKubernetesLockConfiguration() {
+        return configuration;
+    }
+
+    private static KubernetesLockConfiguration createKubeConfiguration() {
+        String podName = System.getenv("POD_NAME");
+        if (podName == null) {
+            podName = System.getenv("HOSTNAME");
+        }
+        if (logger.isInfoEnabled()) {
+            logger.info("PodName: {}", podName);
+        }
+        KubernetesLockConfiguration configuration = new KubernetesLockConfiguration();
+        configuration.setPodName(podName);
+        return configuration;
+    }
+
+    public static LeaderElection getLeaderElection() {
+        return leadership;
+    }
 }
 

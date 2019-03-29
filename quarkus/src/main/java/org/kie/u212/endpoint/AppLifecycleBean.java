@@ -25,12 +25,11 @@ import org.kie.u212.core.Bootstrap;
 @ApplicationScoped
 public class AppLifecycleBean {
 
-  void onStart(@Observes StartupEvent ev) {
-    Bootstrap.startEngine();
-  }
+    void onStart(@Observes StartupEvent ev) {
+        Bootstrap.startEngine();
+    }
 
-  void onStop(@Observes ShutdownEvent ev) {
-    Bootstrap.stopEngine();
-  }
-
+    void onStop(@Observes ShutdownEvent ev) {
+        Bootstrap.stopEngine();
+    }
 }

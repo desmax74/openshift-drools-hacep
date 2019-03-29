@@ -19,20 +19,20 @@ import org.kie.u212.Config;
 
 public class ConsumerController {
 
-  private Restarter restarter;
+    private Restarter restarter;
 
-  public ConsumerController(Restarter bag) {
-    this.restarter = bag;
-  }
+    public ConsumerController(Restarter bag) {
+        this.restarter = bag;
+    }
 
-  public void consumeEvents() {
-    Thread t = new Thread(
-            new ConsumerThread(
-                    Config.DEFAULT_POLL_SIZE,
-                    Config.LOOP_DURATION,
-                    Config.DEFAULT_COMMIT_SYNC,
-                    true,
-                    restarter));
-    t.start();
-  }
+    public void consumeEvents() {
+        Thread t = new Thread(
+                new ConsumerThread(
+                        Config.DEFAULT_POLL_SIZE,
+                        Config.LOOP_DURATION,
+                        Config.DEFAULT_COMMIT_SYNC,
+                        true,
+                        restarter));
+        t.start();
+    }
 }

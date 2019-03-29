@@ -26,19 +26,19 @@ import org.slf4j.LoggerFactory;
 @WebListener
 public class BootstrapListener implements ServletContextListener {
 
-  private Logger logger = LoggerFactory.getLogger(BootstrapListener.class);
+    private Logger logger = LoggerFactory.getLogger(BootstrapListener.class);
 
-  public void contextInitialized(ServletContextEvent event) {
-    initServices();
-  }
+    public void contextInitialized(ServletContextEvent event) {
+        initServices();
+    }
 
-  private void initServices() {
-    Bootstrap.startEngine();
-    logger.info("Core system started");
-  }
+    private void initServices() {
+        Bootstrap.startEngine();
+        logger.info("Core system started");
+    }
 
-  public void contextDestroyed(ServletContextEvent event) {
-    Bootstrap.stopEngine();
-    logger.info("Core system closed");
-  }
+    public void contextDestroyed(ServletContextEvent event) {
+        Bootstrap.stopEngine();
+        logger.info("Core system closed");
+    }
 }

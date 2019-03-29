@@ -23,10 +23,8 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
-import org.kie.u212.Config;
-import org.kie.u212.core.Core;
-import org.kie.u212.core.infra.election.Callback;
 import org.kie.u212.core.infra.PartitionListener;
+import org.kie.u212.core.infra.election.Callback;
 
 /***
  * Purpose of this class is to set a new consumer
@@ -35,40 +33,40 @@ import org.kie.u212.core.infra.PartitionListener;
  */
 public class Restarter {
 
-  private DefaultConsumer consumer;
-  private InfraCallback callback;
-  private Properties properties;
+    private DefaultConsumer consumer;
+    private InfraCallback callback;
+    private Properties properties;
 
-  public Restarter( Properties properties){
-    callback = new InfraCallback();
-    this.properties = properties;
-  }
+    public Restarter(Properties properties) {
+        callback = new InfraCallback();
+        this.properties = properties;
+    }
 
-  public void createDroolsConsumer(String id){
-    consumer = new DefaultConsumer(id, properties,this);
-    callback.setConsumer(consumer);
-  }
+    public void createDroolsConsumer(String id) {
+        consumer = new DefaultConsumer(id, properties,this);
+        callback.setConsumer(consumer);
+    }
 
-  public void changeTopic(String newTopic, Map<TopicPartition, OffsetAndMetadata> offsets){
-    Consumer kafkaConsumer =  consumer.getKafkaConsumer();
-    Consumer newConsumer = new KafkaConsumer<>(properties);
-    newConsumer.subscribe(Collections.singletonList(newTopic), new PartitionListener(newConsumer, offsets));
-    consumer.setKafkaConsumer(newConsumer);
-    consumer.internalStart();
-    kafkaConsumer.close();
-    kafkaConsumer = null;
-  }
+    public void changeTopic(String newTopic,
+                            Map<TopicPartition, OffsetAndMetadata> offsets) {
+        Consumer kafkaConsumer = consumer.getKafkaConsumer();
+        Consumer newConsumer = new KafkaConsumer<>(properties);
+        newConsumer.subscribe(Collections.singletonList(newTopic), new PartitionListener(newConsumer, offsets));
+        consumer.setKafkaConsumer(newConsumer);
+        consumer.internalStart();
+        kafkaConsumer.close();
+        kafkaConsumer = null;
+    }
 
-  public DefaultConsumer getConsumer() {
-    return consumer;
-  }
+    public DefaultConsumer getConsumer() {
+        return consumer;
+    }
 
-  public void setConsumer(DefaultConsumer consumer) {
-    this.consumer = consumer;
-  }
+    public void setConsumer(DefaultConsumer consumer) {
+        this.consumer = consumer;
+    }
 
-  public Callback getCallback() {
-    return callback;
-  }
-
+    public Callback getCallback() {
+        return callback;
+    }
 }

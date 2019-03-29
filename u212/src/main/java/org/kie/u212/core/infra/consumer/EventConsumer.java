@@ -34,11 +34,12 @@ public interface EventConsumer<K, V> {
 
     void changeTopic(String newTopic);
 
-    void start(ConsumerHandler consumerHandler, Properties properties);
+    void start(ConsumerHandler consumerHandler,
+               Properties properties);
 
     void stop();
 
-    void waitStart( int pollSize,
-                           long duration,
-                           boolean commitSync);
+    void waitStart(int pollSize,
+                   long duration,
+                   boolean commitSync);
 }

@@ -22,45 +22,48 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WatcherFactory {
-  private static final Logger logger = LoggerFactory.getLogger(WatcherFactory.class);
 
+    private static final Logger logger = LoggerFactory.getLogger(WatcherFactory.class);
 
-  public static Watcher createModifiedLogWatcher(String podName) {
-    logger.info("Created MODIFIED watcher on pod {}", podName);
-    return new Watcher<Event>() {
-      @Override
-      public void eventReceived(Action action,
-                                Event event) {
-        if (action.equals(Action.MODIFIED)) {
-          logger.info("Action:{} event:{}",
-                      action.name(),
-                      event);
-        }
-      }
+    public static Watcher createModifiedLogWatcher(String podName) {
+        logger.info("Created MODIFIED watcher on pod {}",
+                    podName);
+        return new Watcher<Event>() {
+            @Override
+            public void eventReceived(Action action,
+                                      Event event) {
+                if (action.equals(Action.MODIFIED)) {
+                    logger.info("Action:{} event:{}",
+                                action.name(),
+                                event);
+                }
+            }
 
-      @Override
-      public void onClose(KubernetesClientException e) {
+            @Override
+            public void onClose(KubernetesClientException e) {
 
-      }
-    };
-  }
+            }
+        };
+    }
 
     public static Watcher createAddedLogWatcher(String podName) {
-      logger.info("Created {} watcher on pod {}", podName);
-      return new Watcher<Event>() {
-        @Override
-        public void eventReceived(Action action,
-                                  Event event) {
-          if (action.equals(Action.ADDED)) {
-            logger.info("Action:{} event:{}", action.name(), event);
-          }
-        }
+        logger.info("Created {} watcher on pod {}",
+                    podName);
+        return new Watcher<Event>() {
+            @Override
+            public void eventReceived(Action action,
+                                      Event event) {
+                if (action.equals(Action.ADDED)) {
+                    logger.info("Action:{} event:{}",
+                                action.name(),
+                                event);
+                }
+            }
 
-        @Override
-        public void onClose(KubernetesClientException e) {
+            @Override
+            public void onClose(KubernetesClientException e) {
 
-        }
-      };
-
-  }
+            }
+        };
+    }
 }

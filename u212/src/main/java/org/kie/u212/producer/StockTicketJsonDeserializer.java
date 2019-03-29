@@ -26,30 +26,30 @@ import org.slf4j.LoggerFactory;
 
 public class StockTicketJsonDeserializer implements Deserializer<StockTickEvent> {
 
-  private Logger logger = LoggerFactory.getLogger(StockTicketJsonDeserializer.class);
+    private Logger logger = LoggerFactory.getLogger(StockTicketJsonDeserializer.class);
 
-  private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
-  @Override
-  public void configure(Map configs,
-                        boolean isKey) {
-    this.objectMapper = new ObjectMapper();
-  }
-
-  @Override
-  public StockTickEvent deserialize(String s,
-                                    byte[] data) {
-    try {
-      return objectMapper.readValue(data,
-                                    StockTickEvent.class);
-    } catch (IOException e) {
-      logger.error(e.getMessage(),
-                   e);
+    @Override
+    public void configure(Map configs,
+                          boolean isKey) {
+        this.objectMapper = new ObjectMapper();
     }
-    return null;
-  }
 
-  @Override
-  public void close() {
-  }
+    @Override
+    public StockTickEvent deserialize(String s,
+                                      byte[] data) {
+        try {
+            return objectMapper.readValue(data,
+                                          StockTickEvent.class);
+        } catch (IOException e) {
+            logger.error(e.getMessage(),
+                         e);
+        }
+        return null;
+    }
+
+    @Override
+    public void close() {
+    }
 }

@@ -21,36 +21,33 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.kie.u212.model.EventWrapper;
-import org.kie.u212.model.EventWrapperImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EventJsonDeserializer implements Deserializer<EventWrapperImpl> {
+public class EventJsonDeserializer implements Deserializer<EventWrapper> {
 
-  private Logger logger = LoggerFactory.getLogger(EventJsonDeserializer.class);
+    private Logger logger = LoggerFactory.getLogger(EventJsonDeserializer.class);
 
-  private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
-  @Override
-  public void configure(Map configs,
-                        boolean isKey) {
-    this.objectMapper = new ObjectMapper();
-  }
-
-  @Override
-  public EventWrapperImpl deserialize(String s,
-                                    byte[] data) {
-    try {
-      return objectMapper.readValue(data,
-                                    EventWrapperImpl.class);
-    } catch (IOException e) {
-      logger.error(e.getMessage(),
-                   e);
+    @Override
+    public void configure(Map configs,
+                          boolean isKey) {
+        this.objectMapper = new ObjectMapper();
     }
-    return null;
-  }
 
-  @Override
-  public void close() {
-  }
+    @Override
+    public EventWrapper deserialize(String s,
+                                    byte[] data) {
+        try {
+            return objectMapper.readValue(data, EventWrapper.class);
+        } catch (IOException e) {
+            logger.error(e.getMessage(),
+                         e);
+        }
+        return null;
+    }
+
+    @Override
+    public void close() { }
 }

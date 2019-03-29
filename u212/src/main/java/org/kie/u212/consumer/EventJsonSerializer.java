@@ -19,36 +19,36 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Serializer;
-import org.kie.u212.model.EventWrapperImpl;
+import org.kie.u212.model.EventWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EventJsonSerializer implements Serializer<EventWrapperImpl> {
+public class EventJsonSerializer implements Serializer<EventWrapper> {
 
-  private Logger logger = LoggerFactory.getLogger(EventJsonSerializer.class);
+    private Logger logger = LoggerFactory.getLogger(EventJsonSerializer.class);
 
-  @Override
-  public void configure(Map<String, ?> configs,
-                        boolean isKey) {
-  }
-
-  @Override
-  public byte[] serialize(String topic,
-                          EventWrapperImpl data) {
-    byte[] output = null;
-    ObjectMapper mapper = new ObjectMapper();
-    try {
-      output = mapper.writeValueAsString(data).getBytes();
-    } catch (Exception exception) {
-      logger.error("Error in serialize {} \n {} \n {} \n",
-                   data,
-                   exception.getMessage(),
-                   exception);
+    @Override
+    public void configure(Map<String, ?> configs,
+                          boolean isKey) {
     }
-    return output;
-  }
 
-  @Override
-  public void close() {
-  }
+    @Override
+    public byte[] serialize(String topic,
+                            EventWrapper data) {
+        byte[] output = null;
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            output = mapper.writeValueAsString(data).getBytes();
+        } catch (Exception exception) {
+            logger.error("Error in serialize {} \n {} \n {} \n",
+                         data,
+                         exception.getMessage(),
+                         exception);
+        }
+        return output;
+    }
+
+    @Override
+    public void close() {
+    }
 }

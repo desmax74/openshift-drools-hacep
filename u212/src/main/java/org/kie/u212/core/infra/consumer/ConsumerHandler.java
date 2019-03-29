@@ -20,5 +20,7 @@ import org.kie.u212.core.infra.election.State;
 
 public interface ConsumerHandler {
 
-  void process(ConsumerRecord record, State currentState, EventConsumer consumer);
+    void process(ConsumerRecord record,
+                 State currentState,
+                 EventConsumer consumer);
 }

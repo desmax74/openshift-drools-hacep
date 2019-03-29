@@ -15,13 +15,74 @@
  */
 package org.kie.u212.model;
 
-public interface EventWrapper<T> {
+public class EventWrapper<T>  {
 
-  T getDomainEvent();
+    private T domainEvent;
+    private String id;
+    private long offset;
+    private EventType eventType;
+    private long timestamp;
 
-  String getID();
+    public EventWrapper() {
+    }
 
-  long getOffset();
+    public EventWrapper(T domainEvent,
+                        String id,
+                        long offset,
+                        EventType eventType) {
+        this.domainEvent = domainEvent;
+        this.offset = offset;
+        this.id = id;
+        this.eventType = eventType;
+    }
 
-  EventType getEventType();
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public void setID(String id) {
+        this.id = id;
+    }
+
+    public T getDomainEvent() {
+        return domainEvent;
+    }
+
+    public void setDomainEvent(T domainEvent) {
+        this.domainEvent = domainEvent;
+    }
+
+    public String getID() {
+        return id;
+    }
+
+    public long getOffset() {
+        return offset;
+    }
+
+    public void setOffset(long offset) {
+        this.offset = offset;
+    }
+
+    public EventType getEventType() {
+        return eventType;
+    }
+
+    public void setEventType(EventType eventType) {
+        this.eventType = eventType;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("EventWrapperImpl{");
+        sb.append("domainEvent=").append(domainEvent);
+        sb.append(", id='").append(id).append('\'');
+        sb.append(", offset=").append(offset);
+        sb.append('}');
+        return sb.toString();
+    }
 }

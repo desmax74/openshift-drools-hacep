@@ -27,53 +27,58 @@ import org.kie.u212.core.infra.election.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EventProducer<T> extends AbstractProducer<String, T> implements Producer<String, T>, org.kie.u212.core.infra.election.Callback {
+public class EventProducer<T> extends AbstractProducer<String, T> implements Producer<String, T>,
+                                                                             org.kie.u212.core.infra.election.Callback {
 
-  private Logger logger = LoggerFactory.getLogger(EventProducer.class);
+    private Logger logger = LoggerFactory.getLogger(EventProducer.class);
 
-  private volatile boolean leader = false;
+    private volatile boolean leader = false;
 
-  public void start(Properties properties) {
-    producer = new KafkaProducer(properties);
-  }
-
-  public void start(KafkaProducer<String, T> kafkaProducer) {
-    producer = kafkaProducer;
-  }
-
-  public void stop() {
-    if(producer != null) {
-      producer.close();
+    public void start(Properties properties) {
+        producer = new KafkaProducer(properties);
     }
-  }
 
-  public Future<RecordMetadata> produceFireAndForget(ProducerRecord<String, T> producerRecord) {
-    return producer.send(producerRecord);
-  }
-
-  public RecordMetadata produceSync(ProducerRecord<String, T> producerRecord) {
-    RecordMetadata recordMetadata = null;
-    try {
-      recordMetadata = producer.send(producerRecord).get();
-    } catch (InterruptedException e) {
-      logger.error("Error in produceSync!", e);
-    } catch (ExecutionException e) {
-      logger.error("Error in produceSync!", e);
+    public void start(KafkaProducer<String, T> kafkaProducer) {
+        producer = kafkaProducer;
     }
-    return recordMetadata;
-  }
 
-  @Override
-  public void produceAsync(ProducerRecord<String, T> producerRecord, Callback callback) {
-    producer.send(producerRecord, callback);
-  }
-
-  @Override
-  public void updateStatus(State state) {
-    if(state.equals(State.LEADER) && !leader){
-      leader = true;
-    }else if(state.equals(State.NOT_LEADER) && leader){
-      leader = false;
+    public void stop() {
+        if (producer != null) {
+            producer.close();
+        }
     }
-  }
+
+    public Future<RecordMetadata> produceFireAndForget(ProducerRecord<String, T> producerRecord) {
+        return producer.send(producerRecord);
+    }
+
+    public RecordMetadata produceSync(ProducerRecord<String, T> producerRecord) {
+        RecordMetadata recordMetadata = null;
+        try {
+            recordMetadata = producer.send(producerRecord).get();
+        } catch (InterruptedException e) {
+            logger.error("Error in produceSync!",
+                         e);
+        } catch (ExecutionException e) {
+            logger.error("Error in produceSync!",
+                         e);
+        }
+        return recordMetadata;
+    }
+
+    @Override
+    public void produceAsync(ProducerRecord<String, T> producerRecord,
+                             Callback callback) {
+        producer.send(producerRecord,
+                      callback);
+    }
+
+    @Override
+    public void updateStatus(State state) {
+        if (state.equals(State.LEADER) && !leader) {
+            leader = true;
+        } else if (state.equals(State.NOT_LEADER) && leader) {
+            leader = false;
+        }
+    }
 }

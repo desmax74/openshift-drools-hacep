@@ -20,11 +20,9 @@ import java.util.Properties;
 
 import org.kie.u212.Config;
 import org.kie.u212.consumer.DroolsConsumerHandler;
-import org.kie.u212.core.infra.consumer.Restarter;
 import org.kie.u212.core.infra.consumer.ConsumerController;
-import org.kie.u212.consumer.EmptyConsumerHandler;
+import org.kie.u212.core.infra.consumer.Restarter;
 import org.kie.u212.core.infra.election.KubernetesLockConfiguration;
-
 import org.kie.u212.core.infra.election.LeaderElection;
 import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.core.infra.utils.ConsumerUtils;
@@ -34,29 +32,32 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Here is where we start all the services needed by the POD
- *
- * */
+ */
 public class Bootstrap {
 
     private static final Logger logger = LoggerFactory.getLogger(Bootstrap.class);
-    private static ConsumerController consumerController ;
-    private static EventProducer<StockTickEvent> eventProducer ;
+    private static ConsumerController consumerController;
+    private static EventProducer<StockTickEvent> eventProducer;
     private static Restarter restarter;
 
-    public static void startEngine(){
+    public static void startEngine() {
         //order matter
         leaderElection();
         Properties properties = Config.getDefaultConfig();
-        properties.put("group.id", Core.getKubernetesLockConfiguration().getPodName().
-                replace("openshift-kie-", ""));
+        properties.put("group.id",
+                       Core.getKubernetesLockConfiguration().getPodName().
+                               replace("openshift-kie-",
+                                       ""));
         startProducer(properties);
         startConsumer(properties);
         addCallbacks();
-        ConsumerUtils.printOffset(Config.EVENTS_TOPIC, properties);
-        ConsumerUtils.printOffset(Config.CONTROL_TOPIC, properties);
-        logger.info("CONFIGURE ON START ENGINE:{}", properties);
+        ConsumerUtils.printOffset(Config.EVENTS_TOPIC,
+                                  properties);
+        ConsumerUtils.printOffset(Config.CONTROL_TOPIC,
+                                  properties);
+        logger.info("CONFIGURE ON START ENGINE:{}",
+                    properties);
     }
-
 
     public static void stopEngine() {
         LeaderElection leadership = Core.getLeaderElection();
@@ -66,17 +67,18 @@ public class Bootstrap {
             logger.error(e.getMessage(),
                          e);
         }
-        if (restarter != null){
+        if (restarter != null) {
             restarter.getConsumer().stop();
         }
-        if(eventProducer != null) {
+        if (eventProducer != null) {
             eventProducer.stop();
         }
     }
 
     private static void leaderElection() {
         KubernetesLockConfiguration configuration = Core.getKubernetesLockConfiguration();
-        logger.info("ServletContextInitialized on pod:{}", configuration.getPodName());
+        logger.info("ServletContextInitialized on pod:{}",
+                    configuration.getPodName());
         //@TODO configure from env the namespace
         //KubernetesClient client = Core.getKubeClient();
         //client.events().inNamespace("my-kafka-project").watch(WatcherFactory.createModifiedLogWatcher(configuration.getPodName()));
@@ -84,28 +86,28 @@ public class Bootstrap {
         try {
             leadership.start();
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.error(e.getMessage(),
+                         e);
         }
     }
 
-
-    private static void startProducer(Properties properties){
+    private static void startProducer(Properties properties) {
         eventProducer = new EventProducer<>();
         eventProducer.start(properties);
     }
 
-
-    private static void startConsumer(Properties properties){
+    private static void startConsumer(Properties properties) {
         restarter = new Restarter(properties);
         restarter.createDroolsConsumer(Core.getKubernetesLockConfiguration().getPodName());
-        restarter.getConsumer().start(new DroolsConsumerHandler(eventProducer), properties); //@TODO
+        restarter.getConsumer().start(new DroolsConsumerHandler(eventProducer),
+                                      properties); //@TODO
         //restarter.getConsumer().start(new EmptyConsumerHandler(), properties);
         consumerController = new ConsumerController(restarter);
         consumerController.consumeEvents();
     }
 
-
     private static void addCallbacks() {
-        Core.getLeaderElection().addCallbacks(Arrays.asList(restarter.getCallback(), eventProducer));
+        Core.getLeaderElection().addCallbacks(Arrays.asList(restarter.getCallback(),
+                                                            eventProducer));
     }
 }

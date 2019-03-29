@@ -25,19 +25,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class Endpoints {
 
-  @GetMapping("/env/all")
-  public ResponseEntity<String> all() {
-    StringBuilder sb = new StringBuilder();
-    Map<String, String> env = System.getenv();
-    for (Map.Entry<String, String> entry : env.entrySet()) {
-      sb.append(entry.getKey()).append(":").append(entry.getValue()).append("\n");
+    @GetMapping("/env/all")
+    public ResponseEntity<String> all() {
+        StringBuilder sb = new StringBuilder();
+        Map<String, String> env = System.getenv();
+        for (Map.Entry<String, String> entry : env.entrySet()) {
+            sb.append(entry.getKey()).append(":").append(entry.getValue()).append("\n");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(sb.toString());
     }
-    return ResponseEntity.status(HttpStatus.OK).body(sb.toString());
-  }
 
-  @GetMapping("/health")
-  public ResponseEntity<String> check() {
-    return ResponseEntity.status(HttpStatus.OK).build();
-  }
-
+    @GetMapping("/health")
+    public ResponseEntity<String> check() {
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }

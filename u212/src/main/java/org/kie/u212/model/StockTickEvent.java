@@ -23,51 +23,52 @@ import org.kie.api.definition.type.Timestamp;
 @Timestamp("timestamp")
 public class StockTickEvent {
 
-  private String company;
-  private double price;
-  private long timestamp;
+    private String company;
+    private double price;
+    private long timestamp;
 
-  public StockTickEvent(String company,
-                        double price) {
-    this.company = company;
-    this.price = price;
-  }
-
-  public StockTickEvent(){ }
-
-  public void setCompany(String company) {
-    this.company = company;
-  }
-
-  public void setPrice(double price) {
-    this.price = price;
-  }
-
-  public String getCompany() {
-    return company;
-  }
-
-  public double getPrice() {
-    return price;
-  }
-
-  public long getTimestamp() {
-    return timestamp;
-  }
-
-  public void setTimestamp(long timestamp) {
-    if (this.timestamp == 0) {
-      this.timestamp = timestamp;
+    public StockTickEvent(String company,
+                          double price) {
+        this.company = company;
+        this.price = price;
     }
-  }
 
-  @Override
-  public String toString() {
-    final StringBuilder sb = new StringBuilder("StockTickEvent{");
-    sb.append("company='").append(company).append('\'');
-    sb.append(", price=").append(price).append('\'');
-    sb.append(", timestamp=").append(timestamp);
-    sb.append('}');
-    return sb.toString();
-  }
+    public StockTickEvent() {
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        if (this.timestamp == 0) {
+            this.timestamp = timestamp;
+        }
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("StockTickEvent{");
+        sb.append("company='").append(company).append('\'');
+        sb.append(", price=").append(price).append('\'');
+        sb.append(", timestamp=").append(timestamp);
+        sb.append('}');
+        return sb.toString();
+    }
 }
