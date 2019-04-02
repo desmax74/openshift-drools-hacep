@@ -25,6 +25,7 @@ import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.time.SessionPseudoClock;
 import org.kie.u212.Config;
+import org.kie.u212.ConverterUtil;
 import org.kie.u212.core.infra.consumer.ConsumerHandler;
 import org.kie.u212.core.infra.consumer.EventConsumer;
 import org.kie.u212.core.infra.election.State;
@@ -80,9 +81,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private StockTickEvent process(ConsumerRecord record) {
         EventWrapper wr = (EventWrapper) record.value();
         Map map = (Map) wr.getDomainEvent();
-        StockTickEvent stockTickEvent = new StockTickEvent();
-        stockTickEvent.setCompany(map.get("company").toString());
-        stockTickEvent.setPrice((Double) map.get("price"));
+        StockTickEvent stockTickEvent = ConverterUtil.fromMap(map);
         stockTickEvent.setTimestamp(record.timestamp());
         clock.advanceTime(stockTickEvent.getTimestamp() - record.timestamp(), TimeUnit.MILLISECONDS);
         kieSession.insert(stockTickEvent);

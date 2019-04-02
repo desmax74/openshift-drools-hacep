@@ -15,6 +15,8 @@
  */
 package org.kie.u212.core.infra.utils;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -28,6 +30,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
+import org.kie.u212.Config;
+import org.kie.u212.ConverterUtil;
 import org.kie.u212.model.EventType;
 import org.kie.u212.model.EventWrapper;
 import org.kie.u212.model.StockTickEvent;
@@ -35,15 +39,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class ConsumerUtils<T> {
+public class ConsumerUtils {
 
     private static Logger logger = LoggerFactory.getLogger(ConsumerUtils.class);
 
     public static void prettyPrinter(String id,
                                      String groupId,
-                                     ConsumerRecord consumerRecord) {
+                                     ConsumerRecord consumerRecord, boolean processed) {
         if (consumerRecord != null && logger.isInfoEnabled()) {
-            logger.info("Id: {} - Group id {} - Topic: {} - Partition: {} - Offset: {} - Key: {} - Value: {}\n",
+            logger.info("Processed:{} Id: {} - Group id {} - Topic: {} - Partition: {} - Offset: {} - Key: {} - Value: {}\n",
+                        processed,
                         id,
                         groupId,
                         consumerRecord.topic(),
@@ -80,25 +85,6 @@ public class ConsumerUtils<T> {
         return offsets;
     }
 
-    private static Long getOffset(String topic,
-                                  Properties props) {
-        KafkaConsumer consumer = new KafkaConsumer(props);
-        List<PartitionInfo> infos = consumer.partitionsFor(topic);
-        List<TopicPartition> tps = new ArrayList<>();
-        for (PartitionInfo info : infos) {
-            tps.add(new TopicPartition(topic,
-                                       info.partition()));
-        }
-        Map<TopicPartition, Long> offsets = consumer.endOffsets(tps);
-        Long lastOffset = 0l;
-        for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
-            logger.info(entry.getKey() + ":" + entry.getValue());
-            lastOffset = entry.getValue();
-        }
-        consumer.close();
-        return lastOffset;
-    }
-
     public static EventWrapper getLastEvent(String topic,
                                             Properties props) {
         KafkaConsumer consumer = new KafkaConsumer(props);
@@ -117,8 +103,7 @@ public class ConsumerUtils<T> {
         for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
             lastOffset = entry.getValue();
         }
-        logger.info("last offset:{}",
-                    lastOffset);
+        logger.info("last offset:{} on topic:{}", lastOffset, topic);
 
         Set<TopicPartition> assignments = consumer.assignment();
         for (TopicPartition part : assignments) {
@@ -128,20 +113,18 @@ public class ConsumerUtils<T> {
 
         EventWrapper eventWrapper = new EventWrapper();
         try {
-            ConsumerRecords records = consumer.poll(1000);
+            ConsumerRecords records = consumer.poll(Duration.of(Config.DEFAULT_POLL_TIMEOUT_MS, ChronoUnit.MILLIS));
             for (Object item : records) {
                 ConsumerRecord<String, EventWrapper> record = (ConsumerRecord<String, EventWrapper>) item;
                 eventWrapper.setEventType(EventType.APP);
                 eventWrapper.setID(record.key());
                 eventWrapper.setOffset(record.offset());
+                eventWrapper.setTimestamp(record.timestamp());
                 Map map = (Map) record.value().getDomainEvent();
-                StockTickEvent ticket = new StockTickEvent(map.get("company").toString(),
-                                                           Double.valueOf(map.get("price").toString()));
+                StockTickEvent ticket = ConverterUtil.fromMap(map);
                 ticket.setTimestamp(record.timestamp());
                 Date date = new Date(record.timestamp());
-                logger.info("Date:{}", date);
-
-                logger.info("Instant:{}",date.toInstant());
+                logger.info("Timestamp Date last offset:{}", date);
                 eventWrapper.setDomainEvent(ticket);
             }
         } catch (Exception ex) {
@@ -152,47 +135,4 @@ public class ConsumerUtils<T> {
         }
         return eventWrapper;
     }
-
-    public static EventWrapper getLastEvent(Long offset,
-                                            String topic,
-                                            Properties props) {
-        KafkaConsumer consumer = new KafkaConsumer(props);
-        List<PartitionInfo> infos = consumer.partitionsFor(topic);
-        List<TopicPartition> partitions = new ArrayList();
-        if (infos != null) {
-            for (PartitionInfo partition : infos) {
-                partitions.add(new TopicPartition(partition.topic(),
-                                                  partition.partition()));
-            }
-        }
-        consumer.assign(partitions);
-
-        Set<TopicPartition> assignments = consumer.assignment();
-        assignments.forEach(topicPartition -> consumer.seek(topicPartition,
-                                                            offset));
-        EventWrapper eventWrapper = new EventWrapper();
-        try {
-            ConsumerRecords records = consumer.poll(1000);
-            for (Object item : records) {
-                ConsumerRecord<String, EventWrapper> record = (ConsumerRecord<String, EventWrapper>) item;
-                eventWrapper.setEventType(EventType.APP);
-                eventWrapper.setID(record.key());
-                eventWrapper.setOffset(record.offset());
-                Map map = (Map) record.value().getDomainEvent();
-                StockTickEvent ticket = new StockTickEvent(map.get("company").toString(),
-                                                           Double.valueOf(map.get("price").toString()));
-                ticket.setTimestamp(record.timestamp());
-                eventWrapper.setDomainEvent(ticket);
-            }
-        } catch (Exception ex) {
-            logger.error(ex.getMessage(),
-                         ex);
-        } finally {
-            consumer.close();
-        }
-        return eventWrapper;
-    }
-
-
-
 }

@@ -78,10 +78,12 @@ public class EventWrapper<T>  {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("EventWrapperImpl{");
+        final StringBuilder sb = new StringBuilder("EventWrapper{");
         sb.append("domainEvent=").append(domainEvent);
         sb.append(", id='").append(id).append('\'');
         sb.append(", offset=").append(offset);
+        sb.append(", eventType=").append(eventType);
+        sb.append(", timestamp=").append(timestamp);
         sb.append('}');
         return sb.toString();
     }

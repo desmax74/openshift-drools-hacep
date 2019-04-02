@@ -28,10 +28,10 @@ public class ConsumerController {
     public void consumeEvents() {
         Thread t = new Thread(
                 new ConsumerThread(
-                        Config.DEFAULT_POLL_SIZE,
+                        Config.DEFAULT_POLL_TIMEOUT_MS,
                         Config.LOOP_DURATION,
                         Config.DEFAULT_COMMIT_SYNC,
-                        true,
+                        Config.SUBSCRIBE_MODE,
                         restarter));
         t.start();
     }

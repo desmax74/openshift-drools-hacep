@@ -34,7 +34,7 @@ public interface EventConsumer<K, V> {
 
     void changeTopic(String newTopic);
 
-    void start(ConsumerHandler consumerHandler,
+    void createConsumer(ConsumerHandler consumerHandler,
                Properties properties);
 
     void stop();

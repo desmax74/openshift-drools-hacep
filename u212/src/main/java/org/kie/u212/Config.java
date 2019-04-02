@@ -29,9 +29,10 @@ public class Config {
     public static final String EVENTS_TOPIC = "events";
     public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST";
     public static final String BROKER_URL = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST);
-    public static final int DEFAULT_POLL_SIZE = 1000;
+    public static final int DEFAULT_POLL_TIMEOUT_MS = 1000;
     public static final int LOOP_DURATION = -1;
     public static final boolean DEFAULT_COMMIT_SYNC = true;
+    public static final boolean SUBSCRIBE_MODE = false;
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
 
     public static String getBotStrapServers() {
