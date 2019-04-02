@@ -32,7 +32,7 @@ public interface EventConsumer<K, V> {
                    List<Integer> partitions,
                    boolean autoCommit);
 
-    void changeTopic(String newTopic);
+    void changeTopicFromOld();
 
     void createConsumer(ConsumerHandler consumerHandler,
                Properties properties);

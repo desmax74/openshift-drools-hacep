@@ -17,7 +17,12 @@ package org.kie.u212;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -41,11 +46,8 @@ public class ClientConsumerTest {
 
     public static void main(String[] args) {
         Properties props = getConfiguration();
-
-        EventWrapper wrapper = ConsumerUtils.getLastEvent(Config.CONTROL_TOPIC,
-                                                          props);
-        logger.info("EventWrpper:{}", wrapper);
-
+        EventWrapper wrapper = ConsumerUtils.getLastEvent(Config.CONTROL_TOPIC, props);
+        processAllEventsFromBegin(wrapper.getID(), Config.CONTROL_TOPIC, props);
     }
 
     private static Properties getConfiguration() {
@@ -61,7 +63,44 @@ public class ClientConsumerTest {
             } catch (IOException ioe) {
             }
         }
-
         return props;
+    }
+
+    public static void processAllEventsFromBegin(String key, String topic, Properties props) {
+        KafkaConsumer consumer = new KafkaConsumer(props);
+        List<PartitionInfo> infos = consumer.partitionsFor(topic);
+        List<TopicPartition> partitions = new ArrayList();
+        if (infos != null) {
+            for (PartitionInfo partition : infos) {
+                partitions.add(new TopicPartition(partition.topic(), partition.partition()));
+            }
+        }
+        consumer.assign(partitions);
+        Set<TopicPartition> assignments = consumer.assignment();
+        assignments.forEach(topicPartition -> consumer.seekToBeginning(assignments));
+
+        try {
+            while(true) {
+                ConsumerRecords records = consumer.poll(Duration.of(Config.DEFAULT_POLL_TIMEOUT_MS, ChronoUnit.MILLIS));
+                records.forEach(record -> skipOrProcess(key, (ConsumerRecord<String, EventWrapper>)record));
+            }
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+        } finally {
+            consumer.close();
+        }
+    }
+
+    public static void skipOrProcess(String key, ConsumerRecord<String, EventWrapper> record){
+        if(record.key().equals(key)) {
+            Map map = (Map) record.value().getDomainEvent();
+            StockTickEvent ticket = new StockTickEvent(map.get("company").toString(),
+                                                       Double.valueOf(map.get("price").toString()));
+            ticket.setTimestamp(record.timestamp());
+            logger.info(" key:{} offset:{} ticket:{}",
+                        record.key(),
+                        record.offset(),
+                        ticket);
+        }
     }
 }

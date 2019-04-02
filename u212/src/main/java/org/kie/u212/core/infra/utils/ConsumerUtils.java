@@ -92,8 +92,7 @@ public class ConsumerUtils {
         List<TopicPartition> partitions = new ArrayList<>();
         if (infos != null) {
             for (PartitionInfo partition : infos) {
-                partitions.add(new TopicPartition(topic,
-                                                  partition.partition()));
+                partitions.add(new TopicPartition(topic, partition.partition()));
             }
         }
         consumer.assign(partitions);
@@ -103,7 +102,6 @@ public class ConsumerUtils {
         for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
             lastOffset = entry.getValue();
         }
-        logger.info("last offset:{} on topic:{}", lastOffset, topic);
 
         Set<TopicPartition> assignments = consumer.assignment();
         for (TopicPartition part : assignments) {

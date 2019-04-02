@@ -62,7 +62,7 @@ public class DefaultConsumer<T> implements EventConsumer,
     private volatile boolean leader = false;
     private volatile boolean started = false;
     private volatile String startProcessingKey= "";
-    private volatile boolean processing = true;
+    private volatile boolean processing = false;
     private Properties configuration;
 
 
@@ -137,29 +137,6 @@ public class DefaultConsumer<T> implements EventConsumer,
         kafkaConsumer.subscribe(Collections.singletonList(topic), new PartitionListener(kafkaConsumer, offsets));
     }
 
-   /* @Override
-    public boolean assign(String topic,
-                          List partitions,
-                          boolean autoCommit) {
-        boolean isAssigned = false;
-        List<PartitionInfo> partitionsInfo = kafkaConsumer.partitionsFor(topic);
-        Collection<TopicPartition> partitionCollection = new ArrayList<>();
-
-        if (partitionsInfo != null) {
-            for (PartitionInfo partition : partitionsInfo) {
-                if (partitions == null || partitions.contains(partition.partition())) {
-                    partitionCollection.add(new TopicPartition(partition.topic(), partition.partition()));
-                }
-            }
-
-            if (!partitionCollection.isEmpty()) {
-                kafkaConsumer.assign(partitionCollection);
-                isAssigned = true;
-            }
-        }
-        this.autoCommit = autoCommit;
-        return isAssigned;
-    }*/
 
     @Override
     public boolean assign(String topic,
@@ -243,49 +220,55 @@ public class DefaultConsumer<T> implements EventConsumer,
     }
 
 
-    public void changeTopic(String newTopic) {
+    public void changeTopicFromOld() {
+        Set<TopicPartition> currentTopics = kafkaConsumer.assignment();
+        if(currentTopics.size() > 1){
+            throw new RuntimeException("More than one topic assigned");
+        }
+        String topic = currentTopics.iterator().next().topic();
+        logger.info("Old topic:{}", topic);
         started = false;
-        externalContainer.changeTopic(newTopic, offsets);
+        externalContainer.changeTopic(topic.equals(Config.CONTROL_TOPIC) ? Config.EVENTS_TOPIC : Config.CONTROL_TOPIC);
         started = true;
     }
 
 
 
-
-
     private void updateOnRunningConsumer(State state) {
+        //@TODO test if becoming leader is possible
         if (state.equals(State.LEADER) && !leader) {
             leader = true;
-            //changeTopic(Config.EVENTS_TOPIC);
         } else if (state.equals(State.NOT_LEADER) && leader) {
             leader = false;
-            //changeTopic(Config.CONTROL_TOPIC);
-        } else if (state.equals(State.NOT_LEADER) && !leader) {
-            leader = false;
-            //startConsume(Config.CONTROL_TOPIC);
         }
     }
 
 
     private void enableConsumeAndStartLoop(State state) {
+        logger.info("State:{} leader:{}", state, leader);
         if (state.equals(State.LEADER) && !leader) {
             leader = true;
-            //startConsume(Config.EVENTS_TOPIC);
+            processing = false;
         } else if (state.equals(State.NOT_LEADER) && leader) {
             leader = false;
-            //startConsume(Config.CONTROL_TOPIC);
+            processing = true;
         } else if (state.equals(State.NOT_LEADER) && !leader) {
             leader = false;
+            processing = true;
+        } else if (state.equals(State.BECOMING_LEADER) && !leader) {
+            leader = true;
+            processing = false;
         }
         setLastprocessedKey();
         startConsume(Config.EVENTS_TOPIC);
+
     }
 
 
     private void setLastprocessedKey(){
-        EventWrapper<StockTickEvent> lastWrapper = ConsumerUtils.getLastEvent(Config.EVENTS_TOPIC, configuration);
+        EventWrapper<StockTickEvent> lastWrapper = ConsumerUtils.getLastEvent(Config.CONTROL_TOPIC, configuration);
         startProcessingKey = lastWrapper.getID();
-        logger.info("Last processedEvent ID:{} Timestamp:{}", lastWrapper.getID(), lastWrapper.getTimestamp());
+        logger.info("Last processedEvent on Control topic ID:{} Timestamp:{} Offset:{}", lastWrapper.getID(), lastWrapper.getTimestamp(), lastWrapper.getOffset());
     }
 
 
@@ -294,15 +277,13 @@ public class DefaultConsumer<T> implements EventConsumer,
             subscribe(groupId, topic, autoCommit);
             started = true;
         } else {
-            logger.info("assign");
             assign(topic, null, autoCommit);
             started = true;
         }
     }
 
 
-    private void consume(int size,
-                         boolean commitSync) {
+    private void consume(int size, boolean commitSync) {
         if (started) {
             defaultProcess(size, commitSync);
         }
@@ -312,19 +293,12 @@ public class DefaultConsumer<T> implements EventConsumer,
     private void defaultProcess(int size, boolean commitSync) {
         ConsumerRecords<String, T> records = kafkaConsumer.poll(Duration.of(size, ChronoUnit.MILLIS));
         for (ConsumerRecord<String, T> record : records) {
-            //store next offset to commit
-            if(record.key().equals(startProcessingKey)) {
-                logger.info("Found last processed key, stopping the processing ");
-                processing = false; // we have found the last processed events on the contorl topic
+            if(leader) {
+                processMaster(record);
+            }else{
+                processSlave(record);
             }
 
-            ConsumerUtils.prettyPrinter(id, groupId, record, processing);
-            if(processing) {
-                offsets.put(new TopicPartition(record.topic(), record.partition()),
-                            new OffsetAndMetadata(record.offset() + 1,
-                                                  "null"));
-                consumerHandle.process(record, currentState, this);
-            }
         }
 
         if (!autoCommit) {
@@ -344,6 +318,35 @@ public class DefaultConsumer<T> implements EventConsumer,
             } else {
                 kafkaConsumer.commitSync();
             }
+        }
+    }
+
+    private void processMaster(ConsumerRecord<String,T> record) {
+        if(record.key().equals(startProcessingKey)) {
+            logger.info("Reached last processed key, starting processing events to produce on Control");
+            processing = true;
+        }
+        ConsumerUtils.prettyPrinter(id, groupId, record, processing);
+        if(processing) {
+            offsets.put(new TopicPartition(record.topic(), record.partition()),
+                        new OffsetAndMetadata(record.offset() + 1, "null"));
+            consumerHandle.process(record, currentState, this);
+        }
+    }
+
+    private void processSlave(ConsumerRecord<String, T> record) {
+        if(record.key().equals(startProcessingKey)) {
+            logger.info("Reached last processed key, stopping the processing on events");
+            processing = false;
+            logger.info("Switching on Control Topic");
+            changeTopicFromOld();
+        }
+
+        ConsumerUtils.prettyPrinter(id, groupId, record, processing);
+        if(processing) {
+            offsets.put(new TopicPartition(record.topic(), record.partition()),
+                        new OffsetAndMetadata(record.offset() + 1, "null"));
+            consumerHandle.process(record, currentState, this);
         }
     }
 }
