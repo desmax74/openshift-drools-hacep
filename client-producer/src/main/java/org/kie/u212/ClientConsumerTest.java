@@ -101,6 +101,16 @@ public class ClientConsumerTest {
                         record.key(),
                         record.offset(),
                         ticket);
+            return;
+        }else {
+            Map map = (Map) record.value().getDomainEvent();
+            StockTickEvent ticket = new StockTickEvent(map.get("company").toString(),
+                                                       Double.valueOf(map.get("price").toString()));
+            ticket.setTimestamp(record.timestamp());
+            logger.info(" key:{} offset:{} ticket:{}",
+                        record.key(),
+                        record.offset(),
+                        ticket);
         }
     }
 }

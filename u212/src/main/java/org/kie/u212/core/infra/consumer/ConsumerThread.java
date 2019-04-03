@@ -37,8 +37,7 @@ public class ConsumerThread implements Runnable {
     }
 
     public void run() {
-        bag.getConsumer().setSubscribeMode(subscribeMode);
-        bag.getConsumer().waitStart(size,
+        bag.getConsumer().poll(size,
                                     duration,
                                     commitSync);
     }

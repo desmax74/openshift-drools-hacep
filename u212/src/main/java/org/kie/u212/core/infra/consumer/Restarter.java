@@ -54,7 +54,7 @@ public class Restarter {
     public void changeTopic(String newTopic) {
         logger.info("Switching to new Topic:{}",
                     newTopic);
-        Consumer kafkaConsumer = consumer.getKafkaConsumer();
+       /* Consumer kafkaConsumer = consumer.getKafkaConsumer();
         Consumer newConsumer = new KafkaConsumer<>(properties);
         List<PartitionInfo> infos = newConsumer.partitionsFor(newTopic);
         List<TopicPartition> partitions = new ArrayList<>();
@@ -69,7 +69,7 @@ public class Restarter {
         consumer.setKafkaConsumer(newConsumer);
         consumer.internalStart();
         kafkaConsumer.close();
-        kafkaConsumer = null;
+        kafkaConsumer = null;*/
     }
 
     public DefaultConsumer getConsumer() {

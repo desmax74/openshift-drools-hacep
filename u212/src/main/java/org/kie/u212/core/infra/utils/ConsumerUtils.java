@@ -102,7 +102,9 @@ public class ConsumerUtils {
         for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
             lastOffset = entry.getValue();
         }
-
+        if(lastOffset == 0){
+            lastOffset = 1l;// this is to start the seek with offset -1 on empty topic
+        }
         Set<TopicPartition> assignments = consumer.assignment();
         for (TopicPartition part : assignments) {
             consumer.seek(part,

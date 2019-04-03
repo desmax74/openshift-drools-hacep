@@ -20,26 +20,17 @@ import java.util.Properties;
 
 public interface EventConsumer<K, V> {
 
-    void subscribe(String groupId,
-                   String topic,
-                   boolean autoCommit);
-
     void poll(int size,
               long duration,
               boolean commitSync);
 
-    boolean assign(String topic,
-                   List<Integer> partitions,
+    void assign(List<Integer> partitions,
                    boolean autoCommit);
 
-    void changeTopicFromOld();
 
     void createConsumer(ConsumerHandler consumerHandler,
                Properties properties);
 
     void stop();
 
-    void waitStart(int pollSize,
-                   long duration,
-                   boolean commitSync);
 }

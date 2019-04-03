@@ -29,7 +29,7 @@ public class ClientProducerTest {
     }
 
     private static void insertBatchEvent(int items) {
-        Client client = new Client(Config.CONTROL_TOPIC);
+        Client client = new Client(Config.EVENTS_TOPIC);
         client.start();
         for (int i = 0; i < items; i++) {
             StockTickEvent eventA = new StockTickEvent("RHT",
