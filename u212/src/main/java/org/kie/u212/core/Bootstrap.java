@@ -44,15 +44,12 @@ public class Bootstrap {
         //order matter
         leaderElection();
         Properties properties = Config.getDefaultConfig();
-        properties.put("group.id",
-                       Core.getKubernetesLockConfiguration().getPodName().
-                               replace("openshift-kie-", ""));
         startProducer(properties);
         startConsumer(properties);
         addCallbacks();
         ConsumerUtils.printOffset(Config.EVENTS_TOPIC, properties);
         ConsumerUtils.printOffset(Config.CONTROL_TOPIC, properties);
-        logger.info("CONFIGURE ON START ENGINE:{}", properties);
+        logger.info("CONFIGURE on start engine:{}", properties);
     }
 
     public static void stopEngine() {
@@ -101,7 +98,6 @@ public class Bootstrap {
     }
 
     private static void addCallbacks() {
-        Core.getLeaderElection().addCallbacks(Arrays.asList(restarter.getCallback(),
-                                                            eventProducer));
+        Core.getLeaderElection().addCallbacks(Arrays.asList(restarter.getCallback(), eventProducer));
     }
 }

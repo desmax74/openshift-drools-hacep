@@ -15,17 +15,9 @@
  */
 package org.kie.u212.core.infra.consumer;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.PartitionInfo;
-import org.apache.kafka.common.TopicPartition;
 import org.kie.u212.core.infra.election.Callback;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /***
  * Purpose of this class is to set a new consumer
@@ -34,7 +26,6 @@ import org.slf4j.LoggerFactory;
  */
 public class Restarter {
 
-    private Logger logger = LoggerFactory.getLogger(Restarter.class);
     private DefaultConsumer consumer;
     private InfraCallback callback;
     private Properties properties;
@@ -45,32 +36,10 @@ public class Restarter {
     }
 
     public void createDroolsConsumer(String id) {
-        consumer = new DefaultConsumer(id,
-                                       properties,
-                                       this);
+        consumer = new DefaultConsumer(id, properties, this);
         callback.setConsumer(consumer);
     }
 
-    public void changeTopic(String newTopic) {
-        logger.info("Switching to new Topic:{}",
-                    newTopic);
-       /* Consumer kafkaConsumer = consumer.getKafkaConsumer();
-        Consumer newConsumer = new KafkaConsumer<>(properties);
-        List<PartitionInfo> infos = newConsumer.partitionsFor(newTopic);
-        List<TopicPartition> partitions = new ArrayList<>();
-        if (infos != null) {
-            for (PartitionInfo partition : infos) {
-                partitions.add(new TopicPartition(newTopic,
-                                                  partition.partition()));
-            }
-        }
-        newConsumer.assign(partitions);
-
-        consumer.setKafkaConsumer(newConsumer);
-        consumer.internalStart();
-        kafkaConsumer.close();
-        kafkaConsumer = null;*/
-    }
 
     public DefaultConsumer getConsumer() {
         return consumer;
