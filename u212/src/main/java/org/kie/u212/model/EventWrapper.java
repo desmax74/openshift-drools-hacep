@@ -18,7 +18,7 @@ package org.kie.u212.model;
 public class EventWrapper<T>  {
 
     private T domainEvent;
-    private String id;
+    private String key;
     private long offset;
     private EventType eventType;
     private long timestamp;
@@ -27,12 +27,12 @@ public class EventWrapper<T>  {
     }
 
     public EventWrapper(T domainEvent,
-                        String id,
+                        String key,
                         long offset,
                         EventType eventType) {
         this.domainEvent = domainEvent;
         this.offset = offset;
-        this.id = id;
+        this.key = key;
         this.eventType = eventType;
     }
 
@@ -44,8 +44,8 @@ public class EventWrapper<T>  {
         this.timestamp = timestamp;
     }
 
-    public void setID(String id) {
-        this.id = id;
+    public void setKey(String key) {
+        this.key = key;
     }
 
     public T getDomainEvent() {
@@ -56,8 +56,8 @@ public class EventWrapper<T>  {
         this.domainEvent = domainEvent;
     }
 
-    public String getID() {
-        return id;
+    public String getKey() {
+        return key;
     }
 
     public long getOffset() {
@@ -80,7 +80,7 @@ public class EventWrapper<T>  {
     public String toString() {
         final StringBuilder sb = new StringBuilder("EventWrapper{");
         sb.append("domainEvent=").append(domainEvent);
-        sb.append(", id='").append(id).append('\'');
+        sb.append(", key='").append(key).append('\'');
         sb.append(", offset=").append(offset);
         sb.append(", eventType=").append(eventType);
         sb.append(", timestamp=").append(timestamp);

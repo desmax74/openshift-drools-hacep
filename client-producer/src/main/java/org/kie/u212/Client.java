@@ -57,7 +57,7 @@ public class Client implements AutoCloseable {
     public RecordMetadata insertSync(EventWrapper event,
                                      boolean logInsert) {
         RecordMetadata lastRecord = producer.produceSync(new ProducerRecord<>(topic,
-                                                                              event.getID(),
+                                                                              event.getKey(),
                                                                               event));
         if (logInsert) {
             RecordMetadataUtil.logRecord(lastRecord);
@@ -68,14 +68,14 @@ public class Client implements AutoCloseable {
     public void insertAsync(EventWrapper event,
                             Callback callback) {
         producer.produceAsync(new ProducerRecord<>(topic,
-                                                   event.getID(),
+                                                   event.getKey(),
                                                    event),
                               callback);
     }
 
     public Future<RecordMetadata> insertFireAndForget(EventWrapper event) {
         return producer.produceFireAndForget(new ProducerRecord<>(topic,
-                                                                  event.getID(),
+                                                                  event.getKey(),
                                                                   event));
     }
 

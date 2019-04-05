@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
@@ -68,10 +69,11 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         switch (wr.getEventType()) {
             case APP:
                 StockTickEvent stock = process(record);
-                EventWrapper newEventWrapper = new EventWrapper(stock, wr.getID(), 0l, EventType.APP);
-                producer.produceFireAndForget(new ProducerRecord<>(Config.CONTROL_TOPIC,
-                                                                   wr.getID(),
-                                                                   newEventWrapper));
+                EventWrapper newEventWrapper = new EventWrapper(stock, wr.getKey(), 0l, EventType.APP);
+                producer.produceSync(new ProducerRecord<>(Config.CONTROL_TOPIC,
+                                                                         wr.getKey(),
+                                                                         newEventWrapper));
+
                 break;
             default:
                 logger.info("Event type not handled:{}", wr.getEventType());
@@ -88,7 +90,8 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         return stockTickEvent;
     }
 
-    private void processAsASlave(ConsumerRecord record) {
+    private long processAsASlave(ConsumerRecord record) {
         StockTickEvent stock = process(record);
+        return 0l;
     }
 }

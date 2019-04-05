@@ -117,7 +117,7 @@ public class ConsumerUtils {
             for (Object item : records) {
                 ConsumerRecord<String, EventWrapper> record = (ConsumerRecord<String, EventWrapper>) item;
                 eventWrapper.setEventType(EventType.APP);
-                eventWrapper.setID(record.key());
+                eventWrapper.setKey(record.key());
                 eventWrapper.setOffset(record.offset());
                 eventWrapper.setTimestamp(record.timestamp());
                 Map map = (Map) record.value().getDomainEvent();

@@ -25,7 +25,7 @@ import org.kie.u212.model.StockTickEvent;
 public class ClientProducerTest {
 
     public static void main(String[] args) throws Exception {
-        insertBatchEvent(2);
+        insertBatchEvent(1);
     }
 
     private static void insertBatchEvent(int items) {

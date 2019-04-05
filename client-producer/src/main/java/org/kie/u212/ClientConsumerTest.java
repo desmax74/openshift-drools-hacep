@@ -19,10 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -34,7 +31,6 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.kie.u212.core.infra.utils.ConsumerUtils;
-import org.kie.u212.model.EventType;
 import org.kie.u212.model.EventWrapper;
 import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
@@ -47,7 +43,7 @@ public class ClientConsumerTest {
     public static void main(String[] args) {
         Properties props = getConfiguration();
         EventWrapper wrapper = ConsumerUtils.getLastEvent(Config.CONTROL_TOPIC, props);
-        processAllEventsFromBegin(wrapper.getID(), Config.CONTROL_TOPIC, props);
+        processAllEventsFromBegin(wrapper.getKey(), Config.CONTROL_TOPIC, props);
     }
 
     private static Properties getConfiguration() {
