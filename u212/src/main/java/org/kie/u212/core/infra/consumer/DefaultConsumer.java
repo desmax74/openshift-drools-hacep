@@ -234,8 +234,8 @@ public class DefaultConsumer<T> implements EventConsumer,
         } else if (state.equals(State.NOT_LEADER) && !leader) {
             leader = false;
             processingSlave = true;
-            pollingEvents = true;
-            pollingControl = false;
+            pollingEvents = false;
+            pollingControl = true;
         } else if (state.equals(State.BECOMING_LEADER) && !leader) {
             leader = true;
             processingMaster = false;
@@ -263,6 +263,7 @@ public class DefaultConsumer<T> implements EventConsumer,
                 processingMaster = true;// the leader starts to process from events topic and publish on control topic
             } else {
                 processingSlave = false;
+                pollingEvents = false;
                 pollingControl = true; // the nodes start to poll only the controlTopic until a event is available
             }
         }
@@ -408,7 +409,7 @@ public class DefaultConsumer<T> implements EventConsumer,
                                     "groupId",
                                     record,
                                     processingSlave);
-        if (record.offset() == processingKeyOffset + 1) {
+        if (record.offset() == processingKeyOffset + 1 || record.offset() == 0) {
             processingKey = record.key();
             processingKeyOffset = record.offset();
             logger.info("New key found on control setting startProcessing key:{} new Offset:{} going to poll events to find this new key",
@@ -418,13 +419,13 @@ public class DefaultConsumer<T> implements EventConsumer,
             pollingEvents = true;
             processingSlave = true;
         }
-        //not yeat reached we commit to mark as processed
+        //not yet reached we commit to mark as processed
         Map map = new HashMap();
         map.put(new TopicPartition(record.topic(),
                                    record.partition()),
                 new OffsetAndMetadata(record.offset() + 1));
         kafkaSecondaryConsumer.commitSync(map);
-        logger.info("nothing to do on control : record key:{} processingKey:{} ",
+        logger.info("nothing to do on control : record key:{} processingSlave:{} ",
                     record.key(),
                     processingSlave);
 

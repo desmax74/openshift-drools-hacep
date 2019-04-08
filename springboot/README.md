@@ -49,7 +49,7 @@ oc expose service  openshift-kie-springboot
   To see all the env available use the address
   http://quick-drools-my-kafka-project.192.168.99.109.nip.io/rest/env/all
   
-###Remote debug    
+### Remote debug    
     
 #### Using docker hub registry
 ```sh
@@ -58,14 +58,14 @@ docker build -t <user_username>/openshift-kie-springboot:<tag> .
 docker push <user_username>/openshift-kie-springboot:<tag>
 ```
 
-####Deploy
+#### Deploy
 With version 0.2 of desmax74/openshift-kie-springboot
 ```sh
 kubectl create -f kubernetes/debug_pod.yaml
 kubectl create -f kubernetes/deployment_registry.yaml
 ```
 
-####Port forward
+#### Port forward
 port forwarding 
 ```sh
 oc port-forward <POD> 8000 3000 3001
@@ -77,7 +77,7 @@ jdb -connect com.sun.jdi.SocketAttach:hostname=localhost,port=8000
 #### Visualvm
 visualvm --openjmx localhost:3000
 
-####IntellijIdea
+#### IntellijIdea
 Attach to process
 
 
