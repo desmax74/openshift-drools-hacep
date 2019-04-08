@@ -24,8 +24,7 @@ public interface EventConsumer<K, V> {
               long duration,
               boolean commitSync);
 
-    void assign(List<Integer> partitions,
-                   boolean autoCommit);
+    void assign(List<Integer> partitions);
 
 
     void createConsumer(ConsumerHandler consumerHandler,

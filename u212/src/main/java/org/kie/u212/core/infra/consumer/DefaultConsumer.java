@@ -47,11 +47,9 @@ public class DefaultConsumer<T> implements EventConsumer,
 
     private Logger logger = LoggerFactory.getLogger(DefaultConsumer.class);
     private Map<TopicPartition, OffsetAndMetadata> offsetsEvents = new HashMap<>();
-    private Map<TopicPartition, OffsetAndMetadata> offsetsControl = new HashMap<>();
     private org.apache.kafka.clients.consumer.Consumer<String, T> kafkaConsumer, kafkaSecondaryConsumer;
     private ConsumerHandler consumerHandle;
     private String id;
-    private boolean autoCommit;
     private Restarter externalContainer;
     private volatile State currentState;
     private volatile boolean leader = false;
@@ -62,6 +60,7 @@ public class DefaultConsumer<T> implements EventConsumer,
     private volatile boolean processingSlave = false;
     private volatile boolean pollingEvents, pollingControl = true;
     private Properties configuration;
+    private boolean demo = true;
 
     public DefaultConsumer(String id,
                            Properties properties,
@@ -98,43 +97,24 @@ public class DefaultConsumer<T> implements EventConsumer,
     }
 
     @Override
-    public void assign(List partitions,
-                       boolean autoCommit) {
+    public void assign(List partitions) {
         if (leader) {
-            assignAsALeader(partitions,
-                            autoCommit);
+            assignAsALeader(partitions);
         } else {
-            assignNotLeader(partitions,
-                            autoCommit);
+            assignNotLeader(partitions);
         }
     }
 
-    private void assignAsALeader(List partitions,
-                                 boolean autoCommit) {
-        //Primary consumer
-        assignConsumer(kafkaConsumer,
-                       Config.EVENTS_TOPIC,
-                       partitions);
-        this.autoCommit = autoCommit;
+    private void assignAsALeader(List partitions) {
+        assignConsumer(kafkaConsumer, Config.EVENTS_TOPIC, partitions);
     }
 
-    private void assignNotLeader(List partitions,
-                                 boolean autoCommit) {
-        this.autoCommit = autoCommit;
-
-        //Primary consumer
-        assignConsumer(kafkaConsumer,
-                       Config.EVENTS_TOPIC,
-                       partitions);
-        //SecondaryConsumer
-        assignConsumer(kafkaSecondaryConsumer,
-                       Config.CONTROL_TOPIC,
-                       partitions);
+    private void assignNotLeader(List partitions) {
+        assignConsumer(kafkaConsumer, Config.EVENTS_TOPIC, partitions);
+        assignConsumer(kafkaSecondaryConsumer, Config.CONTROL_TOPIC, partitions);
     }
 
-    private void assignConsumer(Consumer<String, T> kafkaConsumer,
-                                String topic,
-                                List partitions) {
+    private void assignConsumer(Consumer<String, T> kafkaConsumer, String topic, List partitions) {
         List<PartitionInfo> partitionsInfo = kafkaConsumer.partitionsFor(topic);
         Collection<TopicPartition> partitionCollection = new ArrayList<>();
 
@@ -197,10 +177,7 @@ public class DefaultConsumer<T> implements EventConsumer,
                 kafkaConsumer.commitSync();
                 if (logger.isDebugEnabled()) {
                     for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : offsetsEvents.entrySet()) {
-                        logger.debug("Consumer %s - partition %s - lastOffset %s\n",
-                                     this.id,
-                                     entry.getKey().partition(),
-                                     entry.getValue().offset());
+                        logger.debug("Consumer %s - partition %s - lastOffset %s\n", this.id, entry.getKey().partition(), entry.getValue().offset());
                     }
                 }
                 OffsetManager.store(offsetsEvents);
@@ -213,16 +190,19 @@ public class DefaultConsumer<T> implements EventConsumer,
     }
 
     private void updateOnRunningConsumer(State state) {
-        //@TODO test if becoming leader is possible
         if (state.equals(State.LEADER) && !leader) {
             leader = true;
+            logger.info("updateOnRunningConsumer leader:{}", leader);
         } else if (state.equals(State.NOT_LEADER) && leader) {
             leader = false;
+            logger.info("updateOnRunningConsumer leader:{}", leader);
         }
     }
 
     private void enableConsumeAndStartLoop(State state) {
-        logger.info("enableConsumeAndStartLoop");
+        if(demo) {
+            logger.info("enableConsumeAndStartLoop");
+        }
         if (state.equals(State.LEADER) && !leader) {
             leader = true;
             processingMaster = false;
@@ -241,24 +221,21 @@ public class DefaultConsumer<T> implements EventConsumer,
             processingMaster = false;
         }
 
-        setLastprocessedKey();
+        setLastProcessedKey();
         startConsume();
     }
 
-    private void setLastprocessedKey() {
-        EventWrapper<StockTickEvent> lastWrapper = ConsumerUtils.getLastEvent(Config.CONTROL_TOPIC,
-                                                                              configuration);
+    private void setLastProcessedKey() {
+        EventWrapper<StockTickEvent> lastWrapper = ConsumerUtils.getLastEvent(Config.CONTROL_TOPIC, configuration);
         settingsOnAEmptyControlTopic(lastWrapper);
         processingKey = lastWrapper.getKey();
         processingKeyOffset = lastWrapper.getOffset();
-        logger.info("On Startup, last processedEvent on Control topic is key:{}  Offset:{}",
-                    lastWrapper.getKey(),
-                    lastWrapper.getOffset());
+        if(demo){ logger.info("On Startup, last processedEvent on Control topic is key:{}  Offset:{}", lastWrapper.getKey(), lastWrapper.getOffset()); }
     }
 
     void settingsOnAEmptyControlTopic(EventWrapper<StockTickEvent> lastWrapper) {
         if (lastWrapper.getKey() == null && lastWrapper.getOffset() == 0l) {
-            logger.info("Empty topic control");
+            if(demo){logger.info("Empty topic control");}
             if (leader) {
                 processingMaster = true;// the leader starts to process from events topic and publish on control topic
             } else {
@@ -270,8 +247,7 @@ public class DefaultConsumer<T> implements EventConsumer,
     }
 
     private void startConsume() {
-        assign(null,
-               autoCommit);
+        assign(null);
         started = true;
     }
 
@@ -287,150 +263,100 @@ public class DefaultConsumer<T> implements EventConsumer,
 
     private void defaultProcessAsLeader(int size) {
         pollingEvents = true;
-        ConsumerRecords<String, T> records = kafkaConsumer.poll(Duration.of(size,
-                                                                            ChronoUnit.MILLIS));
+        ConsumerRecords<String, T> records = kafkaConsumer.poll(Duration.of(size, ChronoUnit.MILLIS));
         for (ConsumerRecord<String, T> record : records) {
             processLeader(record);
         }
-        //manageAutocommit(commitSync);
     }
 
     private void processLeader(ConsumerRecord<String, T> record) {
-        ConsumerUtils.prettyPrinter(id,
-                                    "groupId",
-                                    record,
-                                    processingMaster);
-        if (record.key().equals(processingKey) /*&& offsetProcessingKey == record.offset()*/) {//@TODO improve the search key condition to switch between consumers
-            logger.info("Reached last processed key, starting processingMaster new events");
+        ConsumerUtils.prettyPrinter(id, "groupId", record, processingMaster);
+        if (record.key().equals(processingKey)) {
+            if(demo) { logger.info("Reached last processed key, starting processingMaster new events"); }
             processingMaster = true;
         } else if (processingMaster) {
-            consumerHandle.process(record,
-                                   currentState,
-                                   this);
-            //todo the new processed became the new processingKey
-            processingKey = record.key();
-            logger.info("new value:processingKey:{}",
-                        processingKey);
-            Map map = new HashMap();
-            map.put(new TopicPartition(record.topic(),
-                                       record.partition()),
-                    new OffsetAndMetadata(record.offset() + 1));
-            kafkaConsumer.commitSync(map);
+            consumerHandle.process(record, currentState, this);
+            processingKey = record.key();// the new processed became the new processingKey
+            if(demo) { logger.info("new value:processingKey:{}", processingKey); }
+            saveOffset(record,kafkaConsumer);
         }
     }
 
     private void defaultProcessAsNotLeader(int size) {
-        //events
+
         if (pollingEvents) {
-            ConsumerRecords<String, T> records = kafkaConsumer.poll(Duration.of(size,
-                                                                                ChronoUnit.MILLIS));
+            ConsumerRecords<String, T> records = kafkaConsumer.poll(Duration.of(size, ChronoUnit.MILLIS));
             for (ConsumerRecord<String, T> record : records) {
-                processEvents(record);
+                processEventsAsANonLeader(record);
                 if (!pollingEvents) {
-                    logger.info("break on polling events");
                     break;
                 }
-                //manageAutocommit(commitSync);
             }
         }
 
-        //control
+
         if (pollingControl) {
-            ConsumerRecords<String, T> records = kafkaSecondaryConsumer.poll(Duration.of(size,
-                                                                                         ChronoUnit.MILLIS));
+            ConsumerRecords<String, T> records = kafkaSecondaryConsumer.poll(Duration.of(size, ChronoUnit.MILLIS));
             for (ConsumerRecord<String, T> record : records) {
-                processControl(record);
+                processControlAsANonLeader(record);
                 if (!pollingControl) {
-                    logger.info("break on polling control");
                     break;
                 }
             }
-            //manageAutocommit(commitSync);
         }
     }
-/*
-    private void manageAutocommit(boolean commitSync) {
-        if (!autoCommit) {
-            if (!commitSync) {
-                try {
-                    kafkaConsumer.commitAsync((map, e) -> {
-                        if (e != null) {
-                            logger.error(e.getMessage(), e);
-                        }
-                    });
-                } catch (CommitFailedException e) {
-                    logger.error(e.getMessage(),
-                                 e);
-                }
-            } else {
-                logger.info("commitSync");
-                kafkaConsumer.commitSync();
-            }
-        }
-    }
-*/
 
-    private void processEvents(ConsumerRecord<String, T> record) {
-        logger.info("process event processingKey:{}",
-                    processingKey);
-        ConsumerUtils.prettyPrinter(id,
-                                    "groupId",
-                                    record,
-                                    processingSlave);
-        if (record.key().equals(processingKey)) {//@TODO improve the search key condition to switch between consumers
-            logger.info("Reached last processed key, stopping the processingMaster on events' topic, move on the control Topic");
+
+    private void processEventsAsANonLeader(ConsumerRecord<String, T> record) {
+        if (demo) {
+            logger.info("process event processingKey:{}", processingKey);
+        }
+        ConsumerUtils.prettyPrinter(id, "groupId", record, processingSlave);
+        if (record.key().equals(processingKey)) {
+            if(demo) {
+                logger.info("Reached last processed key, stopping the processingMaster on events' topic, move on the control Topic");
+            }
             pollingEvents = false;
             pollingControl = true;
             processingSlave = false;
         } else if (processingSlave) {
-            logger.info("processing slave events");
-            consumerHandle.process(record,
-                                   currentState,
-                                   this);
-            Map map = new HashMap();
-            map.put(new TopicPartition(record.topic(),
-                                       record.partition()),
-                    new OffsetAndMetadata(record.offset() + 1));
-            kafkaConsumer.commitSync(map);
-        } else {
-            logger.info("nothing to do on events : record key:{} processingKey:{} ",
-                        record.key(),
-                        processingKey);
+            if(demo){
+                logger.info("processing slave events");
+            }
+            consumerHandle.process(record, currentState, this);
+            saveOffset(record, kafkaConsumer);
         }
-        logger.info("exiting from Process Events pollingControl:{} pollingEvents:{}",
-                    pollingControl,
-                    pollingEvents);
     }
 
-    private void processControl(ConsumerRecord<String, T> record) {
-        logger.info("process control processingSlave:{}",
-                    processingSlave);
-        ConsumerUtils.prettyPrinter(id,
-                                    "groupId",
-                                    record,
-                                    processingSlave);
+    private void processControlAsANonLeader(ConsumerRecord<String, T> record) {
+        if(demo) { logger.info("process control processingSlave:{}", processingSlave); }
+
+        ConsumerUtils.prettyPrinter(id, "groupId", record, false);
         if (record.offset() == processingKeyOffset + 1 || record.offset() == 0) {
-            processingKey = record.key();
-            processingKeyOffset = record.offset();
-            logger.info("New key found on control setting startProcessing key:{} new Offset:{} going to poll events to find this new key",
-                        processingKey,
-                        processingKeyOffset);
+            if(record.offset() > 0) {
+                processingKey = record.key();
+                processingKeyOffset = record.offset();
+            }
+
+            if(demo) { logger.info("New key found on control setting startProcessing key:{} new Offset:{} going to poll events to find this new key", processingKey, processingKeyOffset); }
+
             pollingControl = false;
             pollingEvents = true;
             processingSlave = true;
         }
-        //not yet reached we commit to mark as processed
-        Map map = new HashMap();
-        map.put(new TopicPartition(record.topic(),
-                                   record.partition()),
-                new OffsetAndMetadata(record.offset() + 1));
-        kafkaSecondaryConsumer.commitSync(map);
-        logger.info("nothing to do on control : record key:{} processingSlave:{} ",
-                    record.key(),
-                    processingSlave);
 
+        saveOffset(record, kafkaSecondaryConsumer);
+
+        if(demo) { logger.info("nothing to do on control : record key:{} processingSlave:{} ", record.key(), processingSlave);
         logger.info("exiting from Process Control pollingControl:{} pollingEvents:{}",
-                    pollingControl,
-                    pollingEvents);
+                        pollingControl,
+                        pollingEvents);
+        }
+    }
+
+    private void saveOffset(ConsumerRecord<String, T> record, Consumer<String, T> kafkaSecondaryConsumer) {
+        Map map = new HashMap();
+        map.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset() + 1));
+        kafkaSecondaryConsumer.commitSync(map);
     }
 }
