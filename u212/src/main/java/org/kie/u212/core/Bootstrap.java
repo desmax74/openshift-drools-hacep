@@ -45,8 +45,8 @@ public class Bootstrap {
         leaderElection();
         Properties properties = Config.getDefaultConfig();
         startProducer(properties);
-        startConsumer(properties);
-        addCallbacks();
+        startConsumers(properties);
+        addMasterElectionCallbacks();
         ConsumerUtils.printOffset(Config.EVENTS_TOPIC, properties);
         ConsumerUtils.printOffset(Config.CONTROL_TOPIC, properties);
         logger.info("CONFIGURE on start engine:{}", properties);
@@ -70,8 +70,7 @@ public class Bootstrap {
 
     private static void leaderElection() {
         KubernetesLockConfiguration configuration = Core.getKubernetesLockConfiguration();
-        logger.info("ServletContextInitialized on pod:{}",
-                    configuration.getPodName());
+        logger.info("ServletContextInitialized on pod:{}", configuration.getPodName());
         //@TODO configure from env the namespace
         //KubernetesClient client = Core.getKubeClient();
         //client.events().inNamespace("my-kafka-project").watch(WatcherFactory.createModifiedLogWatcher(configuration.getPodName()));
@@ -79,8 +78,7 @@ public class Bootstrap {
         try {
             leadership.start();
         } catch (Exception e) {
-            logger.error(e.getMessage(),
-                         e);
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -89,7 +87,7 @@ public class Bootstrap {
         eventProducer.start(properties);
     }
 
-    private static void startConsumer(Properties properties) {
+    private static void startConsumers(Properties properties) {
         restarter = new Restarter(properties);
         restarter.createDroolsConsumer(Core.getKubernetesLockConfiguration().getPodName());
         restarter.getConsumer().createConsumer(new DroolsConsumerHandler(eventProducer), properties); //@TODO
@@ -97,7 +95,7 @@ public class Bootstrap {
         consumerController.consumeEvents();
     }
 
-    private static void addCallbacks() {
+    private static void addMasterElectionCallbacks() {
         Core.getLeaderElection().addCallbacks(Arrays.asList(restarter.getCallback(), eventProducer));
     }
 }

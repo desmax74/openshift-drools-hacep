@@ -42,8 +42,7 @@ import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DefaultConsumer<T> implements EventConsumer,
-                                           Callback {
+public class DefaultConsumer<T> implements EventConsumer, Callback {
 
     private Logger logger = LoggerFactory.getLogger(DefaultConsumer.class);
     private Map<TopicPartition, OffsetAndMetadata> offsetsEvents = new HashMap<>();
@@ -76,6 +75,16 @@ public class DefaultConsumer<T> implements EventConsumer,
         kafkaConsumer = new KafkaConsumer<>(properties);
         if (!leader) {
             kafkaSecondaryConsumer = new KafkaConsumer<>(properties);
+        }
+    }
+
+    public void restartConsumer(){
+        logger.info("Restart Consumers");
+        kafkaConsumer = new KafkaConsumer<>(configuration);
+        if (!leader) {
+            kafkaSecondaryConsumer = new KafkaConsumer<>(configuration);
+        }else {
+            kafkaSecondaryConsumer = null;
         }
     }
 
@@ -121,8 +130,7 @@ public class DefaultConsumer<T> implements EventConsumer,
         if (partitionsInfo != null) {
             for (PartitionInfo partition : partitionsInfo) {
                 if (partitions == null || partitions.contains(partition.partition())) {
-                    partitionCollection.add(new TopicPartition(partition.topic(),
-                                                               partition.partition()));
+                    partitionCollection.add(new TopicPartition(partition.topic(), partition.partition()));
                 }
             }
 
@@ -191,10 +199,13 @@ public class DefaultConsumer<T> implements EventConsumer,
 
     private void updateOnRunningConsumer(State state) {
         if (state.equals(State.LEADER) && !leader) {
-            leader = true;
+            stopConsume();
+            restartConsumer();
+            enableConsumeAndStartLoop(state);
             logger.info("updateOnRunningConsumer leader:{}", leader);
         } else if (state.equals(State.NOT_LEADER) && leader) {
-            leader = false;
+            stopConsume();
+            enableConsumeAndStartLoop(state);
             logger.info("updateOnRunningConsumer leader:{}", leader);
         }
     }
@@ -249,6 +260,10 @@ public class DefaultConsumer<T> implements EventConsumer,
     private void startConsume() {
         assign(null);
         started = true;
+    }
+
+    private void stopConsume(){
+        started = false;
     }
 
     private void consume(int size) {
