@@ -61,12 +61,13 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
     private volatile boolean processingLeader, processingNotLeader = false;
     private volatile boolean pollingEvents, pollingControl = true;
     private Properties configuration;
-    private boolean demo = true;
+
 
     public DefaultConsumer(Properties properties, Restarter externalContainer) {
         this.configuration = properties;
         this.externalContainer = externalContainer;
     }
+
 
     public void createConsumer(ConsumerHandler consumerHandler,
                                Properties properties) {
@@ -76,6 +77,7 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
             kafkaSecondaryConsumer = new KafkaConsumer<>(properties);
         }
     }
+
 
     public void restartConsumer(){
         logger.info("Restart Consumers");
@@ -87,6 +89,7 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         }
     }
 
+
     public void stop() {
         kafkaConsumer.close();
         if (kafkaSecondaryConsumer != null) {
@@ -94,6 +97,7 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         }
         stopConsume();
     }
+
 
     public void updateStatus(State state) {
         if (started) {
@@ -104,6 +108,7 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         currentState = state;
     }
 
+
     @Override
     public void assign(List partitions) {
         if (leader) {
@@ -113,14 +118,17 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         }
     }
 
+
     private void assignAsALeader(List partitions) {
         assignConsumer(kafkaConsumer, Config.EVENTS_TOPIC, partitions);
     }
+
 
     private void assignNotLeader(List partitions) {
         assignConsumer(kafkaConsumer, Config.EVENTS_TOPIC, partitions);
         assignConsumer(kafkaSecondaryConsumer, Config.CONTROL_TOPIC, partitions);
     }
+
 
     private void assignConsumer(Consumer<String, T> kafkaConsumer, String topic, List partitions) {
         List<PartitionInfo> partitionsInfo = kafkaConsumer.partitionsFor(topic);
@@ -139,6 +147,7 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         }
         kafkaConsumer.assignment().forEach(topicPartition -> kafkaConsumer.seekToBeginning(partitionCollection));
     }
+
 
     @Override
     public void poll(int size, long duration, boolean commitSync) {
@@ -188,15 +197,15 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         }
     }
 
+
     private void updateOnRunningConsumer(State state) {
         if (state.equals(State.LEADER) && !leader) {
             restart(state);
-            if(demo){logger.info("updateOnRunningConsumer leader:{}", leader);}
         } else if (state.equals(State.NOT_LEADER) && leader) {
             restart(state);
-            if(demo){logger.info("updateOnRunningConsumer leader:{}", leader);}
         }
     }
+
 
     private void restart(State state){
         stopConsume();
@@ -204,8 +213,8 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         enableConsumeAndStartLoop(state);
     }
 
+
     private void enableConsumeAndStartLoop(State state) {
-        //if(demo) { logger.info("enableConsumeAndStartLoop"); }
         if (state.equals(State.LEADER) && !leader) {
             leader = true;
             stopLeaderProcessing();
@@ -229,18 +238,16 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
     }
 
 
-
     private void setLastProcessedKey() {
         EventWrapper<StockTickEvent> lastWrapper = ConsumerUtils.getLastEvent(Config.CONTROL_TOPIC, configuration);
         settingsOnAEmptyControlTopic(lastWrapper);
         processingKey = lastWrapper.getKey();
         processingKeyOffset = lastWrapper.getOffset();
-        if(demo){ logger.info("On Startup, last processedEvent on Control topic is key:{}  Offset:{}", lastWrapper.getKey(), lastWrapper.getOffset()); }
     }
 
-    void settingsOnAEmptyControlTopic(EventWrapper<StockTickEvent> lastWrapper) {
+
+    private void settingsOnAEmptyControlTopic(EventWrapper<StockTickEvent> lastWrapper) {
         if (lastWrapper.getKey() == null && lastWrapper.getOffset() == 0l) {
-            if(demo){logger.info("Empty topic control");}
             if (leader) {
                 startProcessingLeader();
             } else {
@@ -252,12 +259,10 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
     }
 
 
-
     private void assignAndStartConsume() {
         assign(null);
         startConsume();
     }
-
 
 
     private void consume(int size) {
@@ -270,6 +275,7 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         }
     }
 
+
     private void defaultProcessAsLeader(int size) {
         startPollingEvents();
         ConsumerRecords<String, T> records = kafkaConsumer.poll(Duration.of(size, ChronoUnit.MILLIS));
@@ -278,19 +284,19 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         }
     }
 
+
     private void processLeader(ConsumerRecord<String, T> record) {
         ConsumerUtils.prettyPrinter(record,
                                     processingLeader);
         if (record.key().equals(processingKey)) {
-            if(demo) { logger.info("Reached last processed key, starting processingLeader new events"); }
             startProcessingLeader();
         } else if (processingLeader) {
             consumerHandle.process(record, currentState, this);
             processingKey = record.key();// the new processed became the new processingKey
-            if(demo) { logger.info("new value:processingKey:{}", processingKey); }
             saveOffset(record,kafkaConsumer);
         }
     }
+
 
     private void defaultProcessAsNotLeader(int size) {
 
@@ -318,48 +324,31 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
 
 
     private void processEventsAsANonLeader(ConsumerRecord<String, T> record) {
-        if (demo) { logger.info("process event processingKey:{}", processingKey); }
-        ConsumerUtils.prettyPrinter(record,
-                                    processingNotLeader);
+        ConsumerUtils.prettyPrinter(record, processingNotLeader);
         if (record.key().equals(processingKey)) {
-            if(demo) { logger.info("Reached last processed key, stopping the processingLeader on events' topic, move on the control Topic"); }
             stopPollingEvents();
             startPollingControl();
             stopProcessingNotLeader();
         } else if (processingNotLeader) {
-            if(demo){ logger.info("processing slave events"); }
             consumerHandle.process(record, currentState, this);
             saveOffset(record, kafkaConsumer);
         }
     }
 
 
-
     private void processControlAsANonLeader(ConsumerRecord<String, T> record) {
-        //il recordo processato ha offset 10 ma è il primo
-        if(demo) {logger.info("process control processingKeyOffset:{}", processingKeyOffset); }
         ConsumerUtils.prettyPrinter(record, false);
         if (record.offset() == processingKeyOffset + 1 || record.offset() == 0) {
             if(record.offset() > 0) {
                 processingKey = record.key();
                 processingKeyOffset = record.offset();
             }
-            if(demo) { logger.info("New key found on control setting startProcessing key:{} new Offset:{} going to poll events to find this new key", processingKey, processingKeyOffset); }
-
             stopPollingControl();
             startPollingEvents();
             startProcessingNotLeader();
         }
-
         saveOffset(record, kafkaSecondaryConsumer);
-
-        if(demo) { logger.info("nothing to do on control : record key:{} processingNotLeader:{} ", record.key(), processingNotLeader);
-        logger.info("exiting from Process Control pollingControl:{} pollingEvents:{}",
-                        pollingControl,
-                        pollingEvents);
-        }
     }
-
 
 
     private void saveOffset(ConsumerRecord<String, T> record, Consumer<String, T> kafkaSecondaryConsumer) {
@@ -368,42 +357,52 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         kafkaSecondaryConsumer.commitSync(map);
     }
 
+
     private void stopProcessingNotLeader() {
         processingNotLeader = false;
     }
+
 
     private void startProcessingLeader() {
         processingLeader = true;// the leader starts to process from events topic and publish on control topic
     }
 
+
     private void startPollingControl() {
         pollingControl = true;
     }
+
 
     private void stopPollingControl() {
         pollingControl = false;
     }
 
+
     private void startConsume(){
         started = true;
     }
+
 
     private void stopConsume(){
         started = false;
     }
 
+
     private void startProcessingNotLeader() {
         processingNotLeader = true;
     }
+
 
     private void stopPollingEvents() {
         pollingEvents = false;
     }
 
+
     private void stopLeaderProcessing() {
         processingLeader = false;
     }
 
+    
     private void startPollingEvents() {
         pollingEvents = true;
     }
