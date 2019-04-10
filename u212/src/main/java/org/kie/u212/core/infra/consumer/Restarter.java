@@ -35,8 +35,8 @@ public class Restarter {
         this.properties = properties;
     }
 
-    public void createDroolsConsumer(String id) {
-        consumer = new DefaultConsumer(id, properties, this);
+    public void createDroolsConsumer() {
+        consumer = new DefaultConsumer(properties, this);
         callback.setConsumer(consumer);
     }
 

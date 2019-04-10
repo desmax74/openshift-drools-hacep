@@ -43,14 +43,10 @@ public class ConsumerUtils {
 
     private static Logger logger = LoggerFactory.getLogger(ConsumerUtils.class);
 
-    public static void prettyPrinter(String id,
-                                     String groupId,
-                                     ConsumerRecord consumerRecord, boolean processed) {
+    public static void prettyPrinter(ConsumerRecord consumerRecord, boolean processed) {
         if (consumerRecord != null && logger.isInfoEnabled()) {
-            logger.info("Processed:{} Id: {} - Group id {} - Topic: {} - Partition: {} - Offset: {} - Key: {} - Value: {}\n",
+            logger.info("Processed:{} - Topic: {} - Partition: {} - Offset: {} - Key: {} - Value: {}\n",
                         processed,
-                        id,
-                        groupId,
                         consumerRecord.topic(),
                         consumerRecord.partition(),
                         consumerRecord.offset(),
