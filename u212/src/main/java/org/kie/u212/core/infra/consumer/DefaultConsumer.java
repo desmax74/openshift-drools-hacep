@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -61,11 +62,13 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
     private volatile boolean processingLeader, processingNotLeader = false;
     private volatile boolean pollingEvents, pollingControl = true;
     private Properties configuration;
+    private int iterationBetweenSnapshot;
 
 
     public DefaultConsumer(Properties properties, Restarter externalContainer) {
         this.configuration = properties;
         this.externalContainer = externalContainer;
+        iterationBetweenSnapshot = Integer.valueOf(properties.getProperty(Config.ITERATION_BETWEEN_SNAPSHOT));
     }
 
 
@@ -279,19 +282,24 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
     private void defaultProcessAsLeader(int size) {
         startPollingEvents();
         ConsumerRecords<String, T> records = kafkaConsumer.poll(Duration.of(size, ChronoUnit.MILLIS));
+        AtomicInteger counter = new AtomicInteger(0);
         for (ConsumerRecord<String, T> record : records) {
-            processLeader(record);
+            processLeader(record, counter);
         }
     }
 
 
-    private void processLeader(ConsumerRecord<String, T> record) {
-        ConsumerUtils.prettyPrinter(record,
-                                    processingLeader);
+    private void processLeader(ConsumerRecord<String, T> record, AtomicInteger counter) {
+        ConsumerUtils.prettyPrinter(record, processingLeader);
         if (record.key().equals(processingKey)) {
             startProcessingLeader();
         } else if (processingLeader) {
+            counter.incrementAndGet();
             consumerHandle.process(record, currentState, this);
+            if(counter.get() == iterationBetweenSnapshot){
+                counter.set(0);
+                //@TODO snapshot
+            }
             processingKey = record.key();// the new processed became the new processingKey
             saveOffset(record,kafkaConsumer);
         }

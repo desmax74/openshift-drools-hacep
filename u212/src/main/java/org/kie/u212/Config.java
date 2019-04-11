@@ -28,6 +28,7 @@ public class Config {
     public static final String CONTROL_TOPIC = "control";
     public static final String EVENTS_TOPIC = "events";
     public static final String SNAPSHOT_TOPIC = "snapshot";
+    public static final String ITERATION_BETWEEN_SNAPSHOT = "iteration.between.snapshot";
     public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST";
     public static final String BROKER_URL = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST);
     public static final int DEFAULT_POLL_TIMEOUT_MS = 1000;
@@ -55,6 +56,7 @@ public class Config {
         props.put("batch.size", "16384");
         props.put("enable.auto.commit", "false");
         props.put("metadata.max.age.ms", "10000");
+        props.put("iteration.between.snapshot", "10");
         props.setProperty("enable.auto.commit", String.valueOf(true));
         //logConfig(props);
         return props;
