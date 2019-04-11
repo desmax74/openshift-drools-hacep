@@ -12,8 +12,6 @@ mvn clean package
 ```
 ### API
 
-- http://localhost:8080/rest/hello
-
 - http://<address>/rest/env/all  env vars
 
 #### Build Container on docker
