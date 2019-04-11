@@ -27,6 +27,7 @@ public class Config {
 
     public static final String CONTROL_TOPIC = "control";
     public static final String EVENTS_TOPIC = "events";
+    public static final String SNAPSHOT_TOPIC = "snapshot";
     public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST";
     public static final String BROKER_URL = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST);
     public static final int DEFAULT_POLL_TIMEOUT_MS = 1000;
@@ -45,26 +46,16 @@ public class Config {
 
     public static Properties getDefaultConfig() {
         Properties props = new Properties();
-        props.put("key.serializer",
-                  "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer",
-                  "org.kie.u212.consumer.EventJsonSerializer");
-        props.put("bootstrap.servers",
-                  getBotStrapServers());
-        props.put("key.deserializer",
-                  "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put("value.deserializer",
-                  "org.kie.u212.producer.EventJsonDeserializer");
-        props.put("max.poll.interval.ms",
-                  "10000");//time to discover the new consumer after a changetopic default 5 min 300000
-        props.put("batch.size",
-                  "16384");
-        props.put("enable.auto.commit",
-                  "false");
-        props.put("metadata.max.age.ms",
-                  "10000");
-        props.setProperty("enable.auto.commit",
-                          String.valueOf(true));
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "org.kie.u212.consumer.EventJsonSerializer");
+        props.put("bootstrap.servers", getBotStrapServers());
+        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("value.deserializer", "org.kie.u212.producer.EventJsonDeserializer");
+        props.put("max.poll.interval.ms", "10000");//time to discover the new consumer after a changetopic default 5 min 300000
+        props.put("batch.size", "16384");
+        props.put("enable.auto.commit", "false");
+        props.put("metadata.max.age.ms", "10000");
+        props.setProperty("enable.auto.commit", String.valueOf(true));
         //logConfig(props);
         return props;
     }

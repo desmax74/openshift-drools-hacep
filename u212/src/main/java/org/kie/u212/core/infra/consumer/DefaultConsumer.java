@@ -217,7 +217,7 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
     private void enableConsumeAndStartLoop(State state) {
         if (state.equals(State.LEADER) && !leader) {
             leader = true;
-            stopLeaderProcessing();
+            stopLeaderProcessing();// we starts to processing only when the last key readed on bootstrap is reached
         } else if (state.equals(State.NOT_LEADER) && leader) {
             leader = false;
             startProcessingNotLeader();
@@ -402,7 +402,7 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         processingLeader = false;
     }
 
-    
+
     private void startPollingEvents() {
         pollingEvents = true;
     }

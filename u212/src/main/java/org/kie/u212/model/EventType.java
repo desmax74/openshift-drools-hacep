@@ -16,5 +16,6 @@
 package org.kie.u212.model;
 
 public enum EventType {
-    APP
+    APP,
+    SNAPSHOT
 }

@@ -70,10 +70,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
             case APP:
                 StockTickEvent stock = process(record);
                 EventWrapper newEventWrapper = new EventWrapper(stock, wr.getKey(), 0l, EventType.APP);
-                producer.produceSync(new ProducerRecord<>(Config.CONTROL_TOPIC,
-                                                                         wr.getKey(),
-                                                                         newEventWrapper));
-
+                producer.produceSync(new ProducerRecord<>(Config.CONTROL_TOPIC, wr.getKey(), newEventWrapper));
                 break;
             default:
                 logger.info("Event type not handled:{}", wr.getEventType());
