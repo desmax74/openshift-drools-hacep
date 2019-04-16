@@ -103,8 +103,7 @@ public class ConsumerUtils {
         }
         Set<TopicPartition> assignments = consumer.assignment();
         for (TopicPartition part : assignments) {
-            consumer.seek(part,
-                          lastOffset - 1);
+            consumer.seek(part, lastOffset - 1);
         }
 
         EventWrapper eventWrapper = new EventWrapper();

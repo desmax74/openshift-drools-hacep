@@ -42,12 +42,13 @@ import org.kie.u212.model.EventWrapper;
 import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 /**
  * The default consumer relies on the Consumer thread and
  * is based on the loop around poll method.
- *
- * */
-public class DefaultConsumer<T> implements EventConsumer, Callback {
+ */
+public class DefaultConsumer<T> implements EventConsumer,
+                                           Callback {
 
     private Logger logger = LoggerFactory.getLogger(DefaultConsumer.class);
     private Map<TopicPartition, OffsetAndMetadata> offsetsEvents = new HashMap<>();
@@ -63,14 +64,14 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
     private volatile boolean pollingEvents, pollingControl = true;
     private Properties configuration;
     private int iterationBetweenSnapshot;
+    private List<ConsumerRecord<String, T>> eventsReadedBuffer;
 
-
-    public DefaultConsumer(Properties properties, Restarter externalContainer) {
+    public DefaultConsumer(Properties properties,
+                           Restarter externalContainer) {
         this.configuration = properties;
         this.externalContainer = externalContainer;
         iterationBetweenSnapshot = Integer.valueOf(properties.getProperty(Config.ITERATION_BETWEEN_SNAPSHOT));
     }
-
 
     public void createConsumer(ConsumerHandler consumerHandler,
                                Properties properties) {
@@ -81,17 +82,15 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         }
     }
 
-
-    public void restartConsumer(){
+    public void restartConsumer() {
         logger.info("Restart Consumers");
         kafkaConsumer = new KafkaConsumer<>(configuration);
         if (!leader) {
             kafkaSecondaryConsumer = new KafkaConsumer<>(configuration);
-        }else {
+        } else {
             kafkaSecondaryConsumer = null;
         }
     }
-
 
     public void stop() {
         kafkaConsumer.close();
@@ -100,7 +99,6 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         }
         stopConsume();
     }
-
 
     public void updateStatus(State state) {
         if (started) {
@@ -111,7 +109,6 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         currentState = state;
     }
 
-
     @Override
     public void assign(List partitions) {
         if (leader) {
@@ -121,26 +118,32 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         }
     }
 
-
     private void assignAsALeader(List partitions) {
-        assignConsumer(kafkaConsumer, Config.EVENTS_TOPIC, partitions);
+        assignConsumer(kafkaConsumer,
+                       Config.EVENTS_TOPIC,
+                       partitions);
     }
-
 
     private void assignNotLeader(List partitions) {
-        assignConsumer(kafkaConsumer, Config.EVENTS_TOPIC, partitions);
-        assignConsumer(kafkaSecondaryConsumer, Config.CONTROL_TOPIC, partitions);
+        assignConsumer(kafkaConsumer,
+                       Config.EVENTS_TOPIC,
+                       partitions);
+        assignConsumer(kafkaSecondaryConsumer,
+                       Config.CONTROL_TOPIC,
+                       partitions);
     }
 
-
-    private void assignConsumer(Consumer<String, T> kafkaConsumer, String topic, List partitions) {
+    private void assignConsumer(Consumer<String, T> kafkaConsumer,
+                                String topic,
+                                List partitions) {
         List<PartitionInfo> partitionsInfo = kafkaConsumer.partitionsFor(topic);
         Collection<TopicPartition> partitionCollection = new ArrayList<>();
 
         if (partitionsInfo != null) {
             for (PartitionInfo partition : partitionsInfo) {
                 if (partitions == null || partitions.contains(partition.partition())) {
-                    partitionCollection.add(new TopicPartition(partition.topic(), partition.partition()));
+                    partitionCollection.add(new TopicPartition(partition.topic(),
+                                                               partition.partition()));
                 }
             }
 
@@ -151,9 +154,10 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         kafkaConsumer.assignment().forEach(topicPartition -> kafkaConsumer.seekToBeginning(partitionCollection));
     }
 
-
     @Override
-    public void poll(int size, long duration, boolean commitSync) {
+    public void poll(int size,
+                     long duration,
+                     boolean commitSync) {
 
         final Thread mainThread = Thread.currentThread();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -188,7 +192,9 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
                 kafkaConsumer.commitSync();
                 if (logger.isDebugEnabled()) {
                     for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : offsetsEvents.entrySet()) {
-                        logger.debug("Consumer partition %s - lastOffset %s\n",  entry.getKey().partition(), entry.getValue().offset());
+                        logger.debug("Consumer partition %s - lastOffset %s\n",
+                                     entry.getKey().partition(),
+                                     entry.getValue().offset());
                     }
                 }
                 OffsetManager.store(offsetsEvents);
@@ -200,7 +206,6 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         }
     }
 
-
     private void updateOnRunningConsumer(State state) {
         if (state.equals(State.LEADER) && !leader) {
             restart(state);
@@ -209,13 +214,11 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         }
     }
 
-
-    private void restart(State state){
+    private void restart(State state) {
         stopConsume();
         restartConsumer();
         enableConsumeAndStartLoop(state);
     }
-
 
     private void enableConsumeAndStartLoop(State state) {
         if (state.equals(State.LEADER) && !leader) {
@@ -240,17 +243,18 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         assignAndStartConsume();
     }
 
-
     private void setLastProcessedKey() {
-        EventWrapper<StockTickEvent> lastWrapper = ConsumerUtils.getLastEvent(Config.CONTROL_TOPIC, configuration);
+        EventWrapper<StockTickEvent> lastWrapper = ConsumerUtils.getLastEvent(Config.CONTROL_TOPIC,
+                                                                              configuration);
+        logger.info("Last Event:{}",
+                    lastWrapper);
         settingsOnAEmptyControlTopic(lastWrapper);
         processingKey = lastWrapper.getKey();
         processingKeyOffset = lastWrapper.getOffset();
     }
 
-
     private void settingsOnAEmptyControlTopic(EventWrapper<StockTickEvent> lastWrapper) {
-        if (lastWrapper.getKey() == null && lastWrapper.getOffset() == 0l) {
+        if (lastWrapper.getKey() == null /* lastWrapper.getOffset() == 0l*/) {// completely empty or restart of ephemeral already used
             if (leader) {
                 startProcessingLeader();
             } else {
@@ -261,12 +265,10 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         }
     }
 
-
     private void assignAndStartConsume() {
         assign(null);
         startConsume();
     }
-
 
     private void consume(int size) {
         if (started) {
@@ -278,49 +280,60 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         }
     }
 
-
     private void defaultProcessAsLeader(int size) {
         startPollingEvents();
-        ConsumerRecords<String, T> records = kafkaConsumer.poll(Duration.of(size, ChronoUnit.MILLIS));
+        ConsumerRecords<String, T> records = kafkaConsumer.poll(Duration.of(size,
+                                                                            ChronoUnit.MILLIS));
         AtomicInteger counter = new AtomicInteger(0);
         for (ConsumerRecord<String, T> record : records) {
-            processLeader(record, counter);
+            processLeader(record,
+                          counter);
         }
     }
 
-
-    private void processLeader(ConsumerRecord<String, T> record, AtomicInteger counter) {
-        ConsumerUtils.prettyPrinter(record, processingLeader);
+    private void processLeader(ConsumerRecord<String, T> record,
+                               AtomicInteger counter) {
+        ConsumerUtils.prettyPrinter(record,
+                                    processingLeader);
         if (record.key().equals(processingKey)) {
             startProcessingLeader();
         } else if (processingLeader) {
+            logger.info("processingLeader !");
             counter.incrementAndGet();
-            consumerHandle.process(record, currentState, this);
-            if(counter.get() == iterationBetweenSnapshot){
+            consumerHandle.process(record,
+                                   currentState,
+                                   this);
+            if (counter.get() == iterationBetweenSnapshot) {
                 counter.set(0);
+                logger.info("SNAPSHOT !!!");
                 //@TODO snapshot
             }
             processingKey = record.key();// the new processed became the new processingKey
-            saveOffset(record,kafkaConsumer);
+            saveOffset(record,
+                       kafkaConsumer);
         }
     }
-
 
     private void defaultProcessAsNotLeader(int size) {
 
         if (pollingEvents) {
-            ConsumerRecords<String, T> records = kafkaConsumer.poll(Duration.of(size, ChronoUnit.MILLIS));
-            for (ConsumerRecord<String, T> record : records) {
-                processEventsAsANonLeader(record);
-                if (!pollingEvents) {
-                    break;
+            if (eventsReadedBuffer != null && eventsReadedBuffer.size() > 0) { // events previously readed and not processed
+                //logger.info("process previously readed events");
+                consumeFromBuffer();
+            } else {
+                //logger.info("process not yet readed events");
+                ConsumerRecords<String, T> records = kafkaConsumer.poll(Duration.of(size, ChronoUnit.MILLIS));
+                if (records.count() > 0) {
+                    ConsumerRecord<String, T> first = records.iterator().next();
+                    eventsReadedBuffer = records.records(new TopicPartition(first.topic(), first.partition()));
+                    consumeFromBuffer();
                 }
             }
         }
 
-
         if (pollingControl) {
-            ConsumerRecords<String, T> records = kafkaSecondaryConsumer.poll(Duration.of(size, ChronoUnit.MILLIS));
+            ConsumerRecords<String, T> records = kafkaSecondaryConsumer.poll(Duration.of(size,
+                                                                                         ChronoUnit.MILLIS));
             for (ConsumerRecord<String, T> record : records) {
                 processControlAsANonLeader(record);
                 if (!pollingControl) {
@@ -330,24 +343,49 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
         }
     }
 
+    private void consumeFromBuffer() {
+        int index = 0;
+        int end = eventsReadedBuffer.size();
+        for (ConsumerRecord<String, T> record : eventsReadedBuffer) {
+            processEventsAsANonLeader(record);
+            index++;
+            if (!pollingEvents) {
+                if (end > index) {
+                    eventsReadedBuffer = eventsReadedBuffer.subList(index, end);
+                }
+                break;
+            }
+        }
+        if (end == index) {
+            //logger.info("consumed all elements");
+            eventsReadedBuffer = null;
+        }
+    }
 
     private void processEventsAsANonLeader(ConsumerRecord<String, T> record) {
-        ConsumerUtils.prettyPrinter(record, processingNotLeader);
+        ConsumerUtils.prettyPrinter(record,
+                                    processingNotLeader);
+        //logger.info("processingKey:{}",processingKey);
         if (record.key().equals(processingKey)) {
             stopPollingEvents();
             startPollingControl();
             stopProcessingNotLeader();
+            //logger.info("change topic");
         } else if (processingNotLeader) {
-            consumerHandle.process(record, currentState, this);
-            saveOffset(record, kafkaConsumer);
+            //logger.info("consume");
+            consumerHandle.process(record,
+                                   currentState,
+                                   this);
+            saveOffset(record,
+                       kafkaConsumer);
         }
     }
 
-
     private void processControlAsANonLeader(ConsumerRecord<String, T> record) {
-        ConsumerUtils.prettyPrinter(record, false);
+        ConsumerUtils.prettyPrinter(record,
+                                    false);
         if (record.offset() == processingKeyOffset + 1 || record.offset() == 0) {
-            if(record.offset() > 0) {
+            if (record.offset() > 0) {
                 processingKey = record.key();
                 processingKeyOffset = record.offset();
             }
@@ -355,61 +393,54 @@ public class DefaultConsumer<T> implements EventConsumer, Callback {
             startPollingEvents();
             startProcessingNotLeader();
         }
-        saveOffset(record, kafkaSecondaryConsumer);
+        saveOffset(record,
+                   kafkaSecondaryConsumer);
     }
 
-
-    private void saveOffset(ConsumerRecord<String, T> record, Consumer<String, T> kafkaSecondaryConsumer) {
+    private void saveOffset(ConsumerRecord<String, T> record,
+                            Consumer<String, T> kafkaSecondaryConsumer) {
         Map map = new HashMap();
-        map.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset() + 1));
+        map.put(new TopicPartition(record.topic(),
+                                   record.partition()),
+                new OffsetAndMetadata(record.offset() + 1));
         kafkaSecondaryConsumer.commitSync(map);
     }
-
 
     private void stopProcessingNotLeader() {
         processingNotLeader = false;
     }
 
-
     private void startProcessingLeader() {
         processingLeader = true;// the leader starts to process from events topic and publish on control topic
     }
-
 
     private void startPollingControl() {
         pollingControl = true;
     }
 
-
     private void stopPollingControl() {
         pollingControl = false;
     }
 
-
-    private void startConsume(){
+    private void startConsume() {
         started = true;
     }
 
-
-    private void stopConsume(){
+    private void stopConsume() {
         started = false;
     }
-
 
     private void startProcessingNotLeader() {
         processingNotLeader = true;
     }
 
-
     private void stopPollingEvents() {
         pollingEvents = false;
     }
 
-
     private void stopLeaderProcessing() {
         processingLeader = false;
     }
-
 
     private void startPollingEvents() {
         pollingEvents = true;
