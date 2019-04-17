@@ -297,7 +297,6 @@ public class DefaultConsumer<T> implements EventConsumer,
             int iteration = counter.incrementAndGet();
             if (iteration == iterationBetweenSnapshot) {
                 counter.set(0);
-                logger.info("SNAPSHOT !!!");
                 consumerHandle.processWithSnapshot(record, currentState, this);
             }else {
                 consumerHandle.process(record, currentState, this);

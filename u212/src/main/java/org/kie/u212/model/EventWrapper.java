@@ -81,9 +81,13 @@ public class EventWrapper<T>  {
         final StringBuilder sb = new StringBuilder("EventWrapper{");
         sb.append("domainEvent=").append(domainEvent);
         sb.append(", key='").append(key).append('\'');
-        sb.append(", offset=").append(offset);
+        if(offset != 0l) {
+            sb.append(", offset=").append(offset);
+        }
         sb.append(", eventType=").append(eventType);
-        sb.append(", timestamp=").append(timestamp);
+        if(timestamp != 0l) {
+            sb.append(", timestamp=").append(timestamp);
+        }
         sb.append('}');
         return sb.toString();
     }

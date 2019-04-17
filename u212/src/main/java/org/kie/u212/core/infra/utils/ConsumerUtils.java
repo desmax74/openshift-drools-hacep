@@ -45,12 +45,11 @@ public class ConsumerUtils {
 
     public static void prettyPrinter(ConsumerRecord consumerRecord, boolean processed) {
         if (consumerRecord != null && logger.isInfoEnabled()) {
-            logger.info("Processed:{} - Topic: {} - Partition: {} - Offset: {} - Key: {} - Value: {}\n",
+            logger.info("Processed:{} - Topic: {} - Partition: {} - Offset: {} - Value: {}\n",
                         processed,
                         consumerRecord.topic(),
                         consumerRecord.partition(),
                         consumerRecord.offset(),
-                        consumerRecord.key(),
                         consumerRecord.value());
         }
     }
