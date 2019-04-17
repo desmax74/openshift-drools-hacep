@@ -30,8 +30,13 @@ public class EmptyConsumerHandler implements ConsumerHandler {
     public void process(ConsumerRecord record,
                         State state,
                         EventConsumer eventConsumer) {
-        logger.info("Process event:{} with state{}",
-                    record,
-                    state);
+        logger.info("Process event:{} with state{}", record, state);
+    }
+
+    @Override
+    public void processWithSnapshot(ConsumerRecord record,
+                                    State currentState,
+                                    EventConsumer consumer) {
+        logger.info("Process event with snapshot:{} with state{}", record, currentState);
     }
 }

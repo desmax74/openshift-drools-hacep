@@ -62,6 +62,7 @@ public class SessionSnaptshooter<T> {
 
 
     public void serialize(KieSession kSession){
+        logger.info("I'm serializing session !");
         KieMarshallers marshallers = KieServices.get().getMarshallers();
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             marshallers.newMarshaller( kSession.getKieBase() ).marshall( out, kSession );

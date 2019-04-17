@@ -16,6 +16,7 @@
 package org.kie.u212.consumer;
 
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -35,6 +36,7 @@ import org.kie.u212.core.infra.producer.Producer;
 import org.kie.u212.model.EventType;
 import org.kie.u212.model.EventWrapper;
 import org.kie.u212.model.StockTickEvent;
+import org.kie.u212.producer.SessionSnaptshooter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +47,16 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private KieSession kieSession;
     private SessionPseudoClock clock;
     private Producer producer;
+    private SessionSnaptshooter snapshooter;
+    private Properties configuration;
 
-    public DroolsConsumerHandler(EventProducer producer) {
+    public DroolsConsumerHandler(EventProducer producer, Properties configuration) {
         kieContainer = KieServices.get().newKieClasspathContainer();
         kieSession = kieContainer.newKieSession();
         clock = kieSession.getSessionClock();
         this.producer = producer;
+        this.configuration = configuration;
+        snapshooter = new SessionSnaptshooter(configuration);
     }
 
     @Override
@@ -62,6 +68,17 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         } else {
             processAsASlave(record);
         }
+    }
+
+    @Override
+    public void processWithSnapshot(ConsumerRecord record,
+                                    State currentState,
+                                    EventConsumer consumer) {
+        logger.info("SNAPSHOT !!!");
+        snapshooter.serialize(kieSession);
+        process(record, currentState, consumer);
+
+
     }
 
     private void processAsMaster(ConsumerRecord record) {

@@ -16,12 +16,14 @@
 
 package org.kie.u212.model;
 
+import java.io.Serializable;
+
 import org.kie.api.definition.type.Role;
 import org.kie.api.definition.type.Timestamp;
 
 @Role(Role.Type.EVENT)
 @Timestamp("timestamp")
-public class StockTickEvent {
+public class StockTickEvent implements Serializable {
 
     private String company;
     private double price;

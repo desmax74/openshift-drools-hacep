@@ -40,6 +40,7 @@ import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.utils.ConsumerUtils;
 import org.kie.u212.model.EventWrapper;
 import org.kie.u212.model.StockTickEvent;
+import org.kie.u212.producer.SessionSnaptshooter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +67,8 @@ public class DefaultConsumer<T> implements EventConsumer,
     private int iterationBetweenSnapshot;
     private List<ConsumerRecord<String, T>> eventsBuffer;
     private List<ConsumerRecord<String, T>> controlBuffer;
+    private AtomicInteger counter = new AtomicInteger(0);
+
 
     public DefaultConsumer(Properties properties,
                            Restarter externalContainer) {
@@ -209,6 +212,7 @@ public class DefaultConsumer<T> implements EventConsumer,
 
     private void updateOnRunningConsumer(State state) {
         if (state.equals(State.LEADER) && !leader) {
+
             restart(state);
         } else if (state.equals(State.NOT_LEADER) && leader) {
             restart(state);
@@ -283,9 +287,7 @@ public class DefaultConsumer<T> implements EventConsumer,
 
     private void defaultProcessAsLeader(int size) {
         startPollingEvents();
-        ConsumerRecords<String, T> records = kafkaConsumer.poll(Duration.of(size,
-                                                                            ChronoUnit.MILLIS));
-        AtomicInteger counter = new AtomicInteger(0);
+        ConsumerRecords<String, T> records = kafkaConsumer.poll(Duration.of(size, ChronoUnit.MILLIS));
         for (ConsumerRecord<String, T> record : records) {
             processLeader(record,
                           counter);
@@ -299,15 +301,13 @@ public class DefaultConsumer<T> implements EventConsumer,
         if (record.key().equals(processingKey)) {
             startProcessingLeader();
         } else if (processingLeader) {
-            logger.info("processingLeader !");
-            counter.incrementAndGet();
-            consumerHandle.process(record,
-                                   currentState,
-                                   this);
-            if (counter.get() == iterationBetweenSnapshot) {
+            int iteration = counter.incrementAndGet();
+            if (iteration == iterationBetweenSnapshot) {
                 counter.set(0);
                 logger.info("SNAPSHOT !!!");
-                //@TODO snapshot
+                consumerHandle.processWithSnapshot(record, currentState, this);
+            }else {
+                consumerHandle.process(record, currentState, this);
             }
             processingKey = record.key();// the new processed became the new processingKey
             saveOffset(record,

@@ -23,4 +23,8 @@ public interface ConsumerHandler {
     void process(ConsumerRecord record,
                  State currentState,
                  EventConsumer consumer);
+
+    void processWithSnapshot(ConsumerRecord record,
+                 State currentState,
+                 EventConsumer consumer);
 }
