@@ -15,9 +15,6 @@
  */
 package org.kie.u212;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 import java.util.concurrent.Future;
 
 import org.apache.kafka.clients.producer.Callback;
@@ -33,19 +30,16 @@ public class Client implements AutoCloseable {
 
     private static Logger logger = LoggerFactory.getLogger(Client.class);
     private EventProducer producer;
-    private Properties properties;
     private String topic;
 
     public Client(String topic) {
         producer = new EventProducer<>();
-        properties = new Properties();
-        properties = getConfiguration();
         this.topic = topic;
     }
 
     public void start() {
         logger.info("Start client producer");
-        producer.start(properties);
+        producer.start(ClientUtils.getConfiguration(ClientUtils.PRODUCER_CONF));
     }
 
     @Override
@@ -79,20 +73,5 @@ public class Client implements AutoCloseable {
                                                                   event));
     }
 
-    private Properties getConfiguration() {
-        Properties props = new Properties();
-        InputStream in = null;
-        try {
-            in = this.getClass().getClassLoader().getResourceAsStream("configuration.properties");
-        } catch (Exception e) {
-        } finally {
-            try {
-                props.load(in);
-                in.close();
-            } catch (IOException ioe) {
-            }
-        }
 
-        return props;
-    }
 }

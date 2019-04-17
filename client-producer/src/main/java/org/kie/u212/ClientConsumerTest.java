@@ -15,8 +15,6 @@
  */
 package org.kie.u212;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -41,26 +39,11 @@ public class ClientConsumerTest {
     private static Logger logger = LoggerFactory.getLogger(ClientConsumerTest.class);
 
     public static void main(String[] args) {
-        Properties props = getConfiguration();
-        EventWrapper wrapper = ConsumerUtils.getLastEvent(Config.CONTROL_TOPIC, props);
+        Properties props = ClientUtils.getConfiguration(ClientUtils.CONSUMER_CONF);
+        EventWrapper wrapper = ConsumerUtils.getLastEvent(Config.CONTROL_TOPIC, ClientUtils.getConfiguration(ClientUtils.CONSUMER_CONF));
         processAllEventsFromBegin(wrapper.getKey(), Config.CONTROL_TOPIC, props);
     }
 
-    private static Properties getConfiguration() {
-        Properties props = new Properties();
-        InputStream in = null;
-        try {
-            in = ClientConsumerTest.class.getClassLoader().getResourceAsStream("configuration.properties");
-        } catch (Exception e) {
-        } finally {
-            try {
-                props.load(in);
-                in.close();
-            } catch (IOException ioe) {
-            }
-        }
-        return props;
-    }
 
     public static void processAllEventsFromBegin(String key, String topic, Properties props) {
         KafkaConsumer consumer = new KafkaConsumer(props);

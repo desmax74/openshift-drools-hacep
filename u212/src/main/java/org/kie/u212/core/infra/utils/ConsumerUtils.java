@@ -79,7 +79,11 @@ public class ConsumerUtils {
     }
 
     public static EventWrapper getLastEvent(String topic) {
-        KafkaConsumer consumer = new KafkaConsumer(Config.getConsumerConfig());
+        return getLastEvent(topic, Config.getConsumerConfig());
+    }
+
+    public static EventWrapper getLastEvent(String topic, Properties properties) {
+        KafkaConsumer consumer = new KafkaConsumer(properties);
         List<PartitionInfo> infos = consumer.partitionsFor(topic);
         List<TopicPartition> partitions = new ArrayList<>();
         if (infos != null) {
