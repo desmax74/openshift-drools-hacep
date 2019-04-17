@@ -48,15 +48,13 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private SessionPseudoClock clock;
     private Producer producer;
     private SessionSnaptshooter snapshooter;
-    private Properties configuration;
 
-    public DroolsConsumerHandler(EventProducer producer, Properties configuration) {
+    public DroolsConsumerHandler(EventProducer producer) {
         kieContainer = KieServices.get().newKieClasspathContainer();
         kieSession = kieContainer.newKieSession();
         clock = kieSession.getSessionClock();
         this.producer = producer;
-        this.configuration = configuration;
-        snapshooter = new SessionSnaptshooter(configuration);
+        snapshooter = new SessionSnaptshooter();
     }
 
     @Override

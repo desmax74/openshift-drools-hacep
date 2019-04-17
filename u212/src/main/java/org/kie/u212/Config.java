@@ -36,6 +36,11 @@ public class Config {
     public static final boolean DEFAULT_COMMIT_SYNC = true;
     public static final boolean SUBSCRIBE_MODE = false;
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
+    private static Properties config;
+    private static Properties consumerConf, producerConf;
+    private static final String CONSUMER_CONF = "consumer.properties";
+    private static final String PRODUCER_CONF = "producer.properties";
+    private static final String CONF = "infra.properties";
 
     public static String getBotStrapServers() {
         StringBuilder sb = new StringBuilder();
@@ -46,39 +51,65 @@ public class Config {
     }
 
     public static Properties getDefaultConfig() {
-        Properties props = new Properties();
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.kie.u212.consumer.EventJsonSerializer");
-        props.put("bootstrap.servers", getBotStrapServers());
-        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put("value.deserializer", "org.kie.u212.producer.EventJsonDeserializer");
-        props.put("max.poll.interval.ms", "10000");//time to discover the new consumer after a changetopic default 5 min 300000
-        props.put("batch.size", "16384");
-        props.put("enable.auto.commit", "false");
-        props.put("metadata.max.age.ms", "10000");
-        props.put("iteration.between.snapshot", "10");
-        props.setProperty("enable.auto.commit", String.valueOf(true));
-        //logConfig(props);
-        return props;
+        return getDefaultConfigFromProps(CONF);
     }
 
-    public static Properties getDefaultConfigFromProps() {//@TODO
-        Properties props = new Properties();
-
-        InputStream in = null;
-        try {
-            in = Config.class.getClassLoader().getResourceAsStream("configuration.properties");
-        } catch (Exception e) {
-        } finally {
-            try {
-                props.load(in);
-                in.close();
-            } catch (IOException ioe) {
-                logger.error(ioe.getMessage(),
-                             ioe);
-            }
+    public static Properties getConsumerConfig() {
+        if(consumerConf == null){
+            consumerConf = getDefaultConfigFromProps(CONSUMER_CONF);
         }
-        return props;
+        return consumerConf;
+    }
+
+    public static Properties getProducerConfig() {
+        if(producerConf == null){
+            producerConf = getDefaultConfigFromProps(PRODUCER_CONF);
+        }
+        return producerConf;
+    }
+
+    public static Properties getStatic() {
+        if(config == null) {
+            config = new Properties();
+            config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+            config.put("value.serializer", "org.kie.u212.consumer.EventJsonSerializer");
+            config.put("bootstrap.servers", getBotStrapServers());
+            config.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+            config.put("value.deserializer", "org.kie.u212.producer.EventJsonDeserializer");
+            config.put("max.poll.interval.ms", "10000");//time to discover the new consumer after a changetopic default 5 min 300000
+            config.put("batch.size", "16384");
+            config.put("enable.auto.commit", "false");
+            config.put("metadata.max.age.ms", "10000");
+            config.put("iteration.between.snapshot", "10");
+            //config.setProperty("enable.auto.commit", String.valueOf(true));
+        }
+        //logConfig(props);
+        return config;
+    }
+
+
+
+    public static Properties getDefaultConfigFromProps(String fileName) {//@TODO
+
+            Properties config = new Properties();
+            InputStream in = null;
+            try {
+                in = Config.class.getClassLoader().getResourceAsStream(fileName);
+            } catch (Exception e) {
+            } finally {
+                try {
+                    config.load(in);
+                    in.close();
+                } catch (IOException ioe) {
+                    logger.error(ioe.getMessage(),
+                                 ioe);
+                }
+            }
+
+        if(config.get("bootstrap.servers")== null){
+            config.put("bootstrap.servers", getBotStrapServers());
+        }
+        return config;
     }
 
     private static void logConfig(Properties producerProperties) {

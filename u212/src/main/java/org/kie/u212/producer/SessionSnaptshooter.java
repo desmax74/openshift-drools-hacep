@@ -46,17 +46,16 @@ public class SessionSnaptshooter<T> {
 
     private EventProducer<Byte[]> producer;
     private KafkaConsumer<String, Byte[]> consumer;
-    private Properties configuration;
+
     private  KieContainer kieContainer;
     private final String key = "LAST-SNAPSHOT";
 
     private final Logger logger = LoggerFactory.getLogger(SessionSnaptshooter.class);
 
-    public SessionSnaptshooter(Properties config){
-        configuration =config;
+    public SessionSnaptshooter(){
         kieContainer = KieServices.get().newKieClasspathContainer();
         producer = new EventProducer<>();
-        producer.start(configuration);
+        producer.start(Config.getProducerConfig());
         configConsumer();
     }
 
@@ -92,7 +91,7 @@ public class SessionSnaptshooter<T> {
 
 
     private void configConsumer() {
-        consumer = new KafkaConsumer(configuration);
+        consumer = new KafkaConsumer(Config.getConsumerConfig());
         List<PartitionInfo> partitionsInfo = consumer.partitionsFor(Config.SNAPSHOT_TOPIC);
         List<TopicPartition> partitions = new ArrayList<>();
         Collection<TopicPartition> partitionCollection = new ArrayList<>();

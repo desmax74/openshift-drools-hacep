@@ -55,10 +55,8 @@ public class ConsumerUtils {
         }
     }
 
-    public static void printOffset(String topic,
-                                   Properties configuration) {
-        Map<TopicPartition, Long> offsets = getOffsets(topic,
-                                                      configuration);
+    public static void printOffset(String topic) {
+        Map<TopicPartition, Long> offsets = getOffsets(topic);
         for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
             logger.info("Topic:{} offset:{}",
                         entry.getKey(),
@@ -66,9 +64,8 @@ public class ConsumerUtils {
         }
     }
 
-    public static Map<TopicPartition, Long> getOffsets(String topic,
-                                                      Properties configuration) {
-        KafkaConsumer consumer = new KafkaConsumer(configuration);
+    public static Map<TopicPartition, Long> getOffsets(String topic) {
+        KafkaConsumer consumer = new KafkaConsumer(Config.getConsumerConfig());
         consumer.subscribe(Arrays.asList(topic));
         List<PartitionInfo> infos = consumer.partitionsFor(topic);
         List<TopicPartition> tps = new ArrayList<>();
@@ -81,9 +78,8 @@ public class ConsumerUtils {
         return offsets;
     }
 
-    public static EventWrapper getLastEvent(String topic,
-                                            Properties props) {
-        KafkaConsumer consumer = new KafkaConsumer(props);
+    public static EventWrapper getLastEvent(String topic) {
+        KafkaConsumer consumer = new KafkaConsumer(Config.getConsumerConfig());
         List<PartitionInfo> infos = consumer.partitionsFor(topic);
         List<TopicPartition> partitions = new ArrayList<>();
         if (infos != null) {

@@ -16,7 +16,6 @@
 package org.kie.u212.core.infra.consumer;
 
 import java.util.List;
-import java.util.Properties;
 
 public interface EventConsumer<K, V> {
 
@@ -27,8 +26,7 @@ public interface EventConsumer<K, V> {
     void assign(List<Integer> partitions);
 
 
-    void createConsumer(ConsumerHandler consumerHandler,
-               Properties properties);
+    void createConsumer(ConsumerHandler consumerHandler);
 
     void stop();
 

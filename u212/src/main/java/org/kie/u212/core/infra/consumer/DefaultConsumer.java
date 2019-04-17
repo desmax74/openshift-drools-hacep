@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.kafka.clients.consumer.Consumer;
@@ -40,7 +39,6 @@ import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.utils.ConsumerUtils;
 import org.kie.u212.model.EventWrapper;
 import org.kie.u212.model.StockTickEvent;
-import org.kie.u212.producer.SessionSnaptshooter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,34 +61,30 @@ public class DefaultConsumer<T> implements EventConsumer,
     private volatile boolean started = false;
     private volatile boolean processingLeader, processingNotLeader = false;
     private volatile boolean pollingEvents, pollingControl = true;
-    private Properties configuration;
     private int iterationBetweenSnapshot;
     private List<ConsumerRecord<String, T>> eventsBuffer;
     private List<ConsumerRecord<String, T>> controlBuffer;
     private AtomicInteger counter = new AtomicInteger(0);
 
 
-    public DefaultConsumer(Properties properties,
-                           Restarter externalContainer) {
-        this.configuration = properties;
+    public DefaultConsumer(Restarter externalContainer) {
         this.externalContainer = externalContainer;
-        iterationBetweenSnapshot = Integer.valueOf(properties.getProperty(Config.ITERATION_BETWEEN_SNAPSHOT));
+        iterationBetweenSnapshot = Integer.valueOf(Config.getDefaultConfig().getProperty(Config.ITERATION_BETWEEN_SNAPSHOT));
     }
 
-    public void createConsumer(ConsumerHandler consumerHandler,
-                               Properties properties) {
+    public void createConsumer(ConsumerHandler consumerHandler) {
         this.consumerHandle = consumerHandler;
-        kafkaConsumer = new KafkaConsumer<>(properties);
+        kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
         if (!leader) {
-            kafkaSecondaryConsumer = new KafkaConsumer<>(properties);
+            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
         }
     }
 
     public void restartConsumer() {
         logger.info("Restart Consumers");
-        kafkaConsumer = new KafkaConsumer<>(configuration);
+        kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
         if (!leader) {
-            kafkaSecondaryConsumer = new KafkaConsumer<>(configuration);
+            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
         } else {
             kafkaSecondaryConsumer = null;
         }
@@ -249,8 +243,7 @@ public class DefaultConsumer<T> implements EventConsumer,
     }
 
     private void setLastProcessedKey() {
-        EventWrapper<StockTickEvent> lastWrapper = ConsumerUtils.getLastEvent(Config.CONTROL_TOPIC,
-                                                                              configuration);
+        EventWrapper<StockTickEvent> lastWrapper = ConsumerUtils.getLastEvent(Config.CONTROL_TOPIC);
         logger.info("Last Event:{}",
                     lastWrapper);
         settingsOnAEmptyControlTopic(lastWrapper);

@@ -15,8 +15,6 @@
  */
 package org.kie.u212.core.infra.consumer;
 
-import java.util.Properties;
-
 import org.kie.u212.core.infra.election.Callback;
 
 /***
@@ -28,15 +26,13 @@ public class Restarter {
 
     private DefaultConsumer consumer;
     private InfraCallback callback;
-    private Properties properties;
 
-    public Restarter(Properties properties) {
+    public Restarter() {
         callback = new InfraCallback();
-        this.properties = properties;
     }
 
     public void createDroolsConsumer() {
-        consumer = new DefaultConsumer(properties, this);
+        consumer = new DefaultConsumer(this);
         callback.setConsumer(consumer);
     }
 

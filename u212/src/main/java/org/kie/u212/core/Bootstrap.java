@@ -44,11 +44,11 @@ public class Bootstrap {
         //order matter
         leaderElection();
         Properties properties = Config.getDefaultConfig();
-        startProducer(properties);
-        startConsumers(properties);
+        startProducer();
+        startConsumers();
         addMasterElectionCallbacks();
-        ConsumerUtils.printOffset(Config.EVENTS_TOPIC, properties);
-        ConsumerUtils.printOffset(Config.CONTROL_TOPIC, properties);
+        ConsumerUtils.printOffset(Config.EVENTS_TOPIC);
+        ConsumerUtils.printOffset(Config.CONTROL_TOPIC);
         logger.info("CONFIGURE on start engine:{}", properties);
     }
 
@@ -82,15 +82,15 @@ public class Bootstrap {
         }
     }
 
-    private static void startProducer(Properties properties) {
+    private static void startProducer() {
         eventProducer = new EventProducer<>();
-        eventProducer.start(properties);
+        eventProducer.start(Config.getProducerConfig());
     }
 
-    private static void startConsumers(Properties properties) {
-        restarter = new Restarter(properties);
+    private static void startConsumers() {
+        restarter = new Restarter();
         restarter.createDroolsConsumer();
-        restarter.getConsumer().createConsumer(new DroolsConsumerHandler(eventProducer, properties), properties);
+        restarter.getConsumer().createConsumer(new DroolsConsumerHandler(eventProducer));
         consumerController = new ConsumerController(restarter);
         consumerController.consumeEvents();
     }
