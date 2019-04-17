@@ -23,7 +23,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -60,17 +59,17 @@ public class SessionSnaptshooter<T> {
     }
 
 
-    public void serialize(KieSession kSession){
+    public void serialize(KieSession kSession, String lastInsertedEventkey, long lastInsertedEventOffset){
         logger.info("I'm serializing session !");
         KieMarshallers marshallers = KieServices.get().getMarshallers();
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             marshallers.newMarshaller( kSession.getKieBase() ).marshall( out, kSession );
-            EventWrapper wrapper = new EventWrapper(out.toByteArray(),key, 0l, EventType.SNAPSHOT);
-            producer.produceSync(new ProducerRecord(wrapper.getKey(), wrapper));
+            /* We are storing the last inserted key and offset together with the session's bytes */
+            EventWrapper wrapper = new EventWrapper(out.toByteArray(),lastInsertedEventkey, 0l, EventType.SNAPSHOT, lastInsertedEventOffset);
+            producer.produceSync(new ProducerRecord(key, wrapper));
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
-
     }
 
 
@@ -78,10 +77,13 @@ public class SessionSnaptshooter<T> {
         KieMarshallers marshallers = KieServices.get().getMarshallers();
         KieSession kSession = null;
         ConsumerRecords<String, Byte[]> records = consumer.poll(Duration.of(Integer.valueOf(Config.DEFAULT_POLL_TIMEOUT_MS), ChronoUnit.MILLIS));
+        EventWrapper wrapper = null;
         for (ConsumerRecord record : records) {
-            EventWrapper wrapper = (EventWrapper) record.value();
-            try (ByteArrayInputStream in = new ByteArrayInputStream((byte[])wrapper.getDomainEvent())) {
-                kSession = marshallers.newMarshaller( kieContainer.getKieBase() ).unmarshall( in );
+            wrapper = (EventWrapper) record.value();
+        }
+        if(wrapper != null) {
+            try (ByteArrayInputStream in = new ByteArrayInputStream((byte[]) wrapper.getDomainEvent())) {
+                kSession = marshallers.newMarshaller(kieContainer.getKieBase()).unmarshall(in);
             } catch (IOException | ClassNotFoundException e) {
                 logger.error(e.getMessage(), e);
             }

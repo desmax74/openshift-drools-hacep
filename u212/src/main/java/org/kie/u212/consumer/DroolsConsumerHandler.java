@@ -16,12 +16,10 @@
 package org.kie.u212.consumer;
 
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
@@ -50,11 +48,17 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private SessionSnaptshooter snapshooter;
 
     public DroolsConsumerHandler(EventProducer producer) {
+        snapshooter = new SessionSnaptshooter();
+        /* M3
+        kieSession = snapshooter.deserialize();
+        if(kieSession == null) {
+            kieContainer = KieServices.get().newKieClasspathContainer();
+            kieSession = kieContainer.newKieSession();// con deserialize
+        }*/
         kieContainer = KieServices.get().newKieClasspathContainer();
         kieSession = kieContainer.newKieSession();
         clock = kieSession.getSessionClock();
         this.producer = producer;
-        snapshooter = new SessionSnaptshooter();
     }
 
     @Override
@@ -73,7 +77,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
                                     State currentState,
                                     EventConsumer consumer) {
         logger.info("SNAPSHOT !!!");
-        snapshooter.serialize(kieSession);
+        snapshooter.serialize(kieSession, record.key().toString(), record.offset());
         process(record, currentState, consumer);
 
 

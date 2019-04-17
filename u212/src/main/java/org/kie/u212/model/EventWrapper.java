@@ -19,7 +19,7 @@ public class EventWrapper<T>  {
 
     private T domainEvent;
     private String key;
-    private long offset;
+    private long offset, longValueToStore;
     private EventType eventType;
     private long timestamp;
 
@@ -34,6 +34,18 @@ public class EventWrapper<T>  {
         this.offset = offset;
         this.key = key;
         this.eventType = eventType;
+    }
+
+    public EventWrapper(T domainEvent,
+                        String key,
+                        long offset,
+                        EventType eventType,
+                        long valueToStore) {
+        this.domainEvent = domainEvent;
+        this.offset = offset;
+        this.key = key;
+        this.eventType = eventType;
+        this.longValueToStore = valueToStore;
     }
 
     public long getTimestamp() {
@@ -76,6 +88,14 @@ public class EventWrapper<T>  {
         this.eventType = eventType;
     }
 
+    public long getLongValueToStore() {
+        return longValueToStore;
+    }
+
+    public void setLongValueToStore(long longValueToStore) {
+        this.longValueToStore = longValueToStore;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("EventWrapper{");
@@ -87,6 +107,9 @@ public class EventWrapper<T>  {
         sb.append(", eventType=").append(eventType);
         if(timestamp != 0l) {
             sb.append(", timestamp=").append(timestamp);
+        }
+        if(longValueToStore != 0l) {
+            sb.append(", longValueToStore=").append(longValueToStore);
         }
         sb.append('}');
         return sb.toString();
