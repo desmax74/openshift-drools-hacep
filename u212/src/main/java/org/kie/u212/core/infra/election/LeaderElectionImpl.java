@@ -58,16 +58,14 @@ public class LeaderElectionImpl implements LeaderElection {
 
     public void start() {
         if (serializedExecutor == null) {
-            logger.debug("{} Starting leadership election...",
-                         logPrefix());
+            logger.debug("{} Starting leadership election...", logPrefix());
             serializedExecutor = Executors.newSingleThreadScheduledExecutor();
             serializedExecutor.execute(this::refreshStatus);
         }
     }
 
     public void stop() {
-        logger.debug("{} Stopping leadership election...",
-                     logPrefix());
+        logger.debug("{} Stopping leadership election...", logPrefix());
         if (serializedExecutor != null) {
             serializedExecutor.shutdownNow();
         }

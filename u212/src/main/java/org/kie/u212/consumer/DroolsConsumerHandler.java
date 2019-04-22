@@ -26,6 +26,7 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.time.SessionPseudoClock;
 import org.kie.u212.Config;
 import org.kie.u212.ConverterUtil;
+import org.kie.u212.core.infra.SnapshotInfos;
 import org.kie.u212.core.infra.consumer.ConsumerHandler;
 import org.kie.u212.core.infra.consumer.EventConsumer;
 import org.kie.u212.core.infra.election.State;
@@ -34,7 +35,7 @@ import org.kie.u212.core.infra.producer.Producer;
 import org.kie.u212.model.EventType;
 import org.kie.u212.model.EventWrapper;
 import org.kie.u212.model.StockTickEvent;
-import org.kie.u212.producer.SessionSnaptshooter;
+import org.kie.u212.core.infra.SessionSnapShooter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,18 +46,32 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private KieSession kieSession;
     private SessionPseudoClock clock;
     private Producer producer;
-    private SessionSnaptshooter snapshooter;
+    private SessionSnapShooter snapshooter;
 
-    public DroolsConsumerHandler(EventProducer producer) {
-        snapshooter = new SessionSnaptshooter();
+    public DroolsConsumerHandler(EventProducer producer, SessionSnapShooter snapshooter) {
+        this.snapshooter = snapshooter;
         /* M3
         kieSession = snapshooter.deserialize();
         if(kieSession == null) {
             kieContainer = KieServices.get().newKieClasspathContainer();
-            kieSession = kieContainer.newKieSession();// con deserialize
+            kieSession = kieContainer.newKieSession();
         }*/
         kieContainer = KieServices.get().newKieClasspathContainer();
+        logger.info("Creating new Kie Session");
         kieSession = kieContainer.newKieSession();
+        clock = kieSession.getSessionClock();
+        this.producer = producer;
+    }
+
+    public DroolsConsumerHandler(EventProducer producer, SessionSnapShooter snapshooter, SnapshotInfos infos) {
+        this.snapshooter = snapshooter;
+        if(infos.getKieSession() == null) {
+            kieContainer = KieServices.get().newKieClasspathContainer();
+            kieSession = kieContainer.newKieSession();
+        }else {
+            logger.info("Applying snapshot");
+            kieSession = infos.getKieSession();
+        }
         clock = kieSession.getSessionClock();
         this.producer = producer;
     }

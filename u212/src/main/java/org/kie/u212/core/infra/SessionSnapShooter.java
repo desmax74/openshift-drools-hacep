@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.producer;
+package org.kie.u212.core.infra;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -28,6 +28,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.kie.api.KieServices;
@@ -36,75 +37,86 @@ import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.u212.Config;
 import org.kie.u212.core.infra.producer.EventProducer;
+import org.kie.u212.core.infra.utils.RecordMetadataUtil;
 import org.kie.u212.model.EventType;
 import org.kie.u212.model.EventWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SessionSnaptshooter<T> {
+public class SessionSnapShooter<T> {
 
+    private final String key = "LAST-SNAPSHOT";
+    private final Logger logger = LoggerFactory.getLogger(SessionSnapShooter.class);
     private EventProducer<Byte[]> producer;
     private KafkaConsumer<String, Byte[]> consumer;
+    private KieContainer kieContainer;
 
-    private  KieContainer kieContainer;
-    private final String key = "LAST-SNAPSHOT";
-
-    private final Logger logger = LoggerFactory.getLogger(SessionSnaptshooter.class);
-
-    public SessionSnaptshooter(){
+    public SessionSnapShooter() {
         kieContainer = KieServices.get().newKieClasspathContainer();
         producer = new EventProducer<>();
         producer.start(Config.getProducerConfig());
         configConsumer();
     }
 
-
-    public void serialize(KieSession kSession, String lastInsertedEventkey, long lastInsertedEventOffset){
+    public void serialize(KieSession kSession, String lastInsertedEventkey, long lastInsertedEventOffset) {
         logger.info("I'm serializing session !");
         KieMarshallers marshallers = KieServices.get().getMarshallers();
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            marshallers.newMarshaller( kSession.getKieBase() ).marshall( out, kSession );
+            marshallers.newMarshaller(kSession.getKieBase()).marshall(out, kSession);
             /* We are storing the last inserted key and offset together with the session's bytes */
-            EventWrapper wrapper = new EventWrapper(out.toByteArray(),lastInsertedEventkey, 0l, EventType.SNAPSHOT, lastInsertedEventOffset);
-            producer.produceSync(new ProducerRecord(key, wrapper));
+            byte[] bytez = out.toByteArray();
+            EventWrapper wrapper = new EventWrapper(bytez,
+                                                    lastInsertedEventkey,
+                                                    0l,
+                                                    EventType.SNAPSHOT,
+                                                    lastInsertedEventOffset);
+            RecordMetadata metadata = producer.produceSync(new ProducerRecord(Config.SNAPSHOT_TOPIC, key, wrapper));
+            RecordMetadataUtil.logRecord(metadata);
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            logger.error(e.getMessage(),
+                         e);
         }
     }
 
-
-    public KieSession deserialize(){
+    public SnapshotInfos deserialize() {
         KieMarshallers marshallers = KieServices.get().getMarshallers();
         KieSession kSession = null;
-        ConsumerRecords<String, Byte[]> records = consumer.poll(Duration.of(Integer.valueOf(Config.DEFAULT_POLL_TIMEOUT_MS), ChronoUnit.MILLIS));
+        ConsumerRecords<String, Byte[]> records = consumer.poll(Duration.of(Integer.valueOf(Config.DEFAULT_POLL_TIMEOUT_MS),
+                                                                            ChronoUnit.MILLIS));
         EventWrapper wrapper = null;
         for (ConsumerRecord record : records) {
             wrapper = (EventWrapper) record.value();
         }
-        if(wrapper != null) {
+        if (wrapper != null) {
+            logger.info("wrapper serialized:{}", wrapper);
+            logger.info("wrapper class:{}",wrapper.getDomainEvent().getClass());
+            byte[] bytez = (byte[])wrapper.getDomainEvent();
             try (ByteArrayInputStream in = new ByteArrayInputStream((byte[]) wrapper.getDomainEvent())) {
                 kSession = marshallers.newMarshaller(kieContainer.getKieBase()).unmarshall(in);
             } catch (IOException | ClassNotFoundException e) {
-                logger.error(e.getMessage(), e);
+                logger.error(e.getMessage(),
+                             e);
             }
+            return new SnapshotInfos(kSession,
+                                     wrapper.getKey(),
+                                     wrapper.getLongValueToStore());
         }
-        return kSession;
+        return new SnapshotInfos();
     }
-
 
     private void configConsumer() {
         consumer = new KafkaConsumer(Config.getConsumerConfig());
         List<PartitionInfo> partitionsInfo = consumer.partitionsFor(Config.SNAPSHOT_TOPIC);
-        List<TopicPartition> partitions = new ArrayList<>();
+        List<TopicPartition> partitions = null;
         Collection<TopicPartition> partitionCollection = new ArrayList<>();
 
         if (partitionsInfo != null) {
             for (PartitionInfo partition : partitionsInfo) {
                 if (partitions == null || partitions.contains(partition.partition())) {
-                    partitionCollection.add(new TopicPartition(partition.topic(), partition.partition()));
+                    partitionCollection.add(new TopicPartition(partition.topic(),
+                                                               partition.partition()));
                 }
             }
-
             if (!partitionCollection.isEmpty()) {
                 consumer.assign(partitionCollection);
             }
@@ -112,4 +124,8 @@ public class SessionSnaptshooter<T> {
         consumer.assignment().forEach(topicPartition -> consumer.seekToBeginning(partitionCollection));
     }
 
+    public void close() {
+        producer.stop();
+        consumer.close();
+    }
 }

@@ -20,6 +20,8 @@ import java.util.Properties;
 
 import org.kie.u212.Config;
 import org.kie.u212.consumer.DroolsConsumerHandler;
+import org.kie.u212.core.infra.SessionSnapShooter;
+import org.kie.u212.core.infra.SnapshotInfos;
 import org.kie.u212.core.infra.consumer.ConsumerController;
 import org.kie.u212.core.infra.consumer.Restarter;
 import org.kie.u212.core.infra.election.KubernetesLockConfiguration;
@@ -39,21 +41,19 @@ public class Bootstrap {
     private static ConsumerController consumerController;
     private static EventProducer<StockTickEvent> eventProducer;
     private static Restarter restarter;
+    private static SessionSnapShooter snaptshooter;
 
     public static void startEngine() {
         //order matter
         leaderElection();
-        Properties properties = Config.getDefaultConfig();
         startProducer();
         startConsumers();
         addMasterElectionCallbacks();
-        ConsumerUtils.printOffset(Config.EVENTS_TOPIC);
-        ConsumerUtils.printOffset(Config.CONTROL_TOPIC);
-        logger.info("CONFIGURE on start engine:{}", properties);
+        logger.info("CONFIGURE on start engine:{}", Config.getDefaultConfig());
     }
 
     public static void stopEngine() {
-        LeaderElection leadership = Core.getLeaderElection();
+        LeaderElection leadership = CoreKube.getLeaderElection();
         try {
             leadership.stop();
         } catch (Exception e) {
@@ -66,15 +66,15 @@ public class Bootstrap {
         if (eventProducer != null) {
             eventProducer.stop();
         }
+        snaptshooter.close();
     }
 
     private static void leaderElection() {
-        KubernetesLockConfiguration configuration = Core.getKubernetesLockConfiguration();
-        logger.info("ServletContextInitialized on pod:{}", configuration.getPodName());
+        KubernetesLockConfiguration configuration = CoreKube.getKubernetesLockConfiguration();
         //@TODO configure from env the namespace
         //KubernetesClient client = Core.getKubeClient();
         //client.events().inNamespace("my-kafka-project").watch(WatcherFactory.createModifiedLogWatcher(configuration.getPodName()));
-        LeaderElection leadership = Core.getLeaderElection();
+        LeaderElection leadership = CoreKube.getLeaderElection();
         try {
             leadership.start();
         } catch (Exception e) {
@@ -88,14 +88,19 @@ public class Bootstrap {
     }
 
     private static void startConsumers() {
+        snaptshooter = new SessionSnapShooter<>();
+        //SnapshotInfos infos = snaptshooter.deserialize();
+        SnapshotInfos infos = new SnapshotInfos();
         restarter = new Restarter();
         restarter.createDroolsConsumer();
-        restarter.getConsumer().createConsumer(new DroolsConsumerHandler(eventProducer));
+        restarter.getConsumer().createConsumer(infos.getKeyDuringSnaphot() == null ?
+                                                       new DroolsConsumerHandler(eventProducer, snaptshooter) :
+                                                       new DroolsConsumerHandler(eventProducer, snaptshooter, infos));
         consumerController = new ConsumerController(restarter);
         consumerController.consumeEvents();
     }
 
     private static void addMasterElectionCallbacks() {
-        Core.getLeaderElection().addCallbacks(Arrays.asList(restarter.getCallback(), eventProducer));
+        CoreKube.getLeaderElection().addCallbacks(Arrays.asList(restarter.getCallback(), eventProducer));
     }
 }

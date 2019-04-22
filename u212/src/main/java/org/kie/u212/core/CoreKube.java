@@ -23,9 +23,9 @@ import org.kie.u212.core.infra.election.LeaderElectionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Core {
+public class CoreKube {
 
-    private static final Logger logger = LoggerFactory.getLogger(Core.class);
+    private static final Logger logger = LoggerFactory.getLogger(CoreKube.class);
     private static KubernetesClient kubernetesClient = new DefaultKubernetesClient();
     private static KubernetesLockConfiguration configuration = createKubeConfiguration();
     private static LeaderElection leadership = new LeaderElectionImpl(kubernetesClient,
