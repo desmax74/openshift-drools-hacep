@@ -37,10 +37,12 @@ public class Config {
     public static final boolean SUBSCRIBE_MODE = false;
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
     private static Properties config;
-    private static Properties consumerConf, producerConf;
+    private static Properties consumerConf, producerConf, snapshotConsumerConf, snapshotProducerConf;
     private static final String CONSUMER_CONF = "consumer.properties";
     private static final String PRODUCER_CONF = "producer.properties";
     private static final String CONF = "infra.properties";
+    private static final String SNAPSHOT_CONSUMER_CONF = "snapshot_consumer.properties";
+    private static final String SNAPSHOT_PRODUCER_CONF = "snapshot_producer.properties";
 
     public static String getBotStrapServers() {
         StringBuilder sb = new StringBuilder();
@@ -68,11 +70,25 @@ public class Config {
         return producerConf;
     }
 
+    public static Properties getSnapshotConsumerConfig() {
+        if(snapshotConsumerConf == null){
+            snapshotConsumerConf = getDefaultConfigFromProps(SNAPSHOT_CONSUMER_CONF);
+        }
+        return snapshotConsumerConf;
+    }
+
+    public static Properties getSnapshotProducerConfig() {
+        if(snapshotProducerConf == null){
+            snapshotProducerConf = getDefaultConfigFromProps(SNAPSHOT_PRODUCER_CONF);
+        }
+        return snapshotProducerConf;
+    }
+
     public static Properties getStatic() {
         if(config == null) {
             config = new Properties();
             config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-            config.put("value.serializer", "org.kie.u212.consumer.EventJsonSerializer");
+            config.put("value.serializer", "org.kie.u212.serializer.EventJsonSerializer");
             config.put("bootstrap.servers", getBotStrapServers());
             config.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
             config.put("value.deserializer", "org.kie.u212.producer.EventJsonDeserializer");

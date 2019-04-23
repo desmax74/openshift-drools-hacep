@@ -15,7 +15,9 @@
  */
 package org.kie.u212.model;
 
-public class EventWrapper<T>  {
+import java.io.Serializable;
+
+public class EventWrapper<T> implements Serializable {
 
     private T domainEvent;
     private String key;

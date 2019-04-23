@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.producer;
+package org.kie.u212.deserializer;
 
 import java.io.IOException;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Deserializer;
-import org.kie.u212.model.EventWrapper;
+import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EventJsonDeserializer implements Deserializer<EventWrapper> {
+public class StockTicketDeserializer implements Deserializer<StockTickEvent> {
 
-    private Logger logger = LoggerFactory.getLogger(EventJsonDeserializer.class);
+    private Logger logger = LoggerFactory.getLogger(StockTicketDeserializer.class);
 
     private ObjectMapper objectMapper;
 
@@ -37,10 +37,11 @@ public class EventJsonDeserializer implements Deserializer<EventWrapper> {
     }
 
     @Override
-    public EventWrapper deserialize(String s,
-                                    byte[] data) {
+    public StockTickEvent deserialize(String s,
+                                      byte[] data) {
         try {
-            return objectMapper.readValue(data, EventWrapper.class);
+            return objectMapper.readValue(data,
+                                          StockTickEvent.class);
         } catch (IOException e) {
             logger.error(e.getMessage(),
                          e);
@@ -49,5 +50,6 @@ public class EventJsonDeserializer implements Deserializer<EventWrapper> {
     }
 
     @Override
-    public void close() { }
+    public void close() {
+    }
 }

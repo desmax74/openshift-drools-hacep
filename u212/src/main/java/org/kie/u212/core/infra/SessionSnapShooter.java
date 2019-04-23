@@ -18,6 +18,8 @@ package org.kie.u212.core.infra;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -54,7 +56,7 @@ public class SessionSnapShooter<T> {
     public SessionSnapShooter() {
         kieContainer = KieServices.get().newKieClasspathContainer();
         producer = new EventProducer<>();
-        producer.start(Config.getProducerConfig());
+        producer.start(Config.getSnapshotProducerConfig());
         configConsumer();
     }
 
@@ -70,22 +72,45 @@ public class SessionSnapShooter<T> {
                                                     0l,
                                                     EventType.SNAPSHOT,
                                                     lastInsertedEventOffset);
-            RecordMetadata metadata = producer.produceSync(new ProducerRecord(Config.SNAPSHOT_TOPIC, key, wrapper));
+            RecordMetadata metadata = producer.produceSync(new ProducerRecord(Config.SNAPSHOT_TOPIC, key.getBytes(), serializeEventWrapper(wrapper)));
             RecordMetadataUtil.logRecord(metadata);
         } catch (IOException e) {
-            logger.error(e.getMessage(),
-                         e);
+            logger.error(e.getMessage(), e);
         }
     }
 
-    public SnapshotInfos deserialize() {
+    private byte[] serializeEventWrapper(EventWrapper obj){
+        try(ByteArrayOutputStream b = new ByteArrayOutputStream()){
+            try(ObjectOutputStream o = new ObjectOutputStream(b)){
+                o.writeObject(obj);
+            }
+            return b.toByteArray();
+        }catch (IOException io){
+            logger.error(io.getMessage(), io);
+        }
+        return new byte[]{};
+    }
+
+    private EventWrapper deserializeEventWrapper(byte[] bytes)  {
+        try(ByteArrayInputStream b = new ByteArrayInputStream(bytes)){
+            try(ObjectInputStream o = new ObjectInputStream(b)){
+                return (EventWrapper) o.readObject();
+            }
+        }catch (Exception e){
+            logger.error(e.getMessage(), e);
+        }
+        return new EventWrapper();
+    }
+
+    public SnapshotInfos deserializeEventWrapper() {
         KieMarshallers marshallers = KieServices.get().getMarshallers();
         KieSession kSession = null;
         ConsumerRecords<String, Byte[]> records = consumer.poll(Duration.of(Integer.valueOf(Config.DEFAULT_POLL_TIMEOUT_MS),
                                                                             ChronoUnit.MILLIS));
         EventWrapper wrapper = null;
         for (ConsumerRecord record : records) {
-            wrapper = (EventWrapper) record.value();
+            byte[] eventBytez = (byte[]) record.value();
+            wrapper = deserializeEventWrapper(eventBytez);
         }
         if (wrapper != null) {
             logger.info("wrapper serialized:{}", wrapper);
@@ -105,7 +130,7 @@ public class SessionSnapShooter<T> {
     }
 
     private void configConsumer() {
-        consumer = new KafkaConsumer(Config.getConsumerConfig());
+        consumer = new KafkaConsumer(Config.getSnapshotConsumerConfig());
         List<PartitionInfo> partitionsInfo = consumer.partitionsFor(Config.SNAPSHOT_TOPIC);
         List<TopicPartition> partitions = null;
         Collection<TopicPartition> partitionCollection = new ArrayList<>();

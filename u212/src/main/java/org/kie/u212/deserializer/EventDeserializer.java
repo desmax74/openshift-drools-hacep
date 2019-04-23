@@ -13,42 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.consumer;
+package org.kie.u212.deserializer;
 
+import java.io.IOException;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.kafka.common.serialization.Serializer;
+import org.apache.kafka.common.serialization.Deserializer;
 import org.kie.u212.model.EventWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EventJsonSerializer implements Serializer<EventWrapper> {
+public class EventDeserializer implements Deserializer<EventWrapper> {
 
-    private Logger logger = LoggerFactory.getLogger(EventJsonSerializer.class);
+    private Logger logger = LoggerFactory.getLogger(EventDeserializer.class);
+    private ObjectMapper objectMapper;
 
     @Override
-    public void configure(Map<String, ?> configs,
-                          boolean isKey) {
+    public void configure(Map configs, boolean isKey) {
+        this.objectMapper = new ObjectMapper();
     }
 
     @Override
-    public byte[] serialize(String topic,
-                            EventWrapper data) {
-        byte[] output = null;
-        ObjectMapper mapper = new ObjectMapper();
+    public EventWrapper deserialize(String s, byte[] data) {
         try {
-            output = mapper.writeValueAsString(data).getBytes();
-        } catch (Exception exception) {
-            logger.error("Error in serialize {} \n {} \n {} \n",
-                         data,
-                         exception.getMessage(),
-                         exception);
+            return objectMapper.readValue(data, EventWrapper.class);
+        } catch (IOException e) {
+            logger.error(e.getMessage(),
+                         e);
         }
-        return output;
+        return null;
     }
 
     @Override
-    public void close() {
-    }
+    public void close() { }
 }

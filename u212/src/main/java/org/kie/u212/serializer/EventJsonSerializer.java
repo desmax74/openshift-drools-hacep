@@ -13,42 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.consumer;
+package org.kie.u212.serializer;
 
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Serializer;
-import org.kie.u212.model.StockTickEvent;
+import org.kie.u212.model.EventWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StockTicketJsonSerializer implements Serializer<StockTickEvent> {
+public class EventJsonSerializer implements Serializer<EventWrapper> {
 
-    private Logger logger = LoggerFactory.getLogger(StockTicketJsonSerializer.class);
-
-    @Override
-    public void configure(Map<String, ?> configs,
-                          boolean isKey) {
-    }
+    private Logger logger = LoggerFactory.getLogger(EventJsonSerializer.class);
 
     @Override
-    public byte[] serialize(String topic,
-                            StockTickEvent data) {
+    public byte[] serialize(String topic, EventWrapper data) {
         byte[] output = null;
         ObjectMapper mapper = new ObjectMapper();
         try {
             output = mapper.writeValueAsString(data).getBytes();
         } catch (Exception exception) {
-            logger.error("Error in serialize {} \n {} \n {} \n",
-                         data,
-                         exception.getMessage(),
-                         exception);
+            logger.error("Error in serialize {} \n {} \n {} \n", data, exception.getMessage(), exception);
         }
         return output;
     }
 
     @Override
-    public void close() {
-    }
+    public void configure(Map<String, ?> configs, boolean isKey) {}
+
+    @Override
+    public void close() {}
 }
