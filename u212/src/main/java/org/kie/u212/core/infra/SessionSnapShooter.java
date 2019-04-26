@@ -72,7 +72,7 @@ public class SessionSnapShooter<T> {
                                                     0l,
                                                     EventType.SNAPSHOT,
                                                     lastInsertedEventOffset);
-            RecordMetadata metadata = producer.produceSync(new ProducerRecord(Config.SNAPSHOT_TOPIC, key.getBytes(), serializeEventWrapper(wrapper)));
+            RecordMetadata metadata = producer.produceSync(new ProducerRecord(Config.SNAPSHOT_TOPIC, key, serializeEventWrapper(wrapper)));
             RecordMetadataUtil.logRecord(metadata);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
@@ -109,12 +109,13 @@ public class SessionSnapShooter<T> {
                                                                             ChronoUnit.MILLIS));
         EventWrapper wrapper = null;
         for (ConsumerRecord record : records) {
+            logger.info("snapshot record:{}", record);
             byte[] eventBytez = (byte[]) record.value();
             wrapper = deserializeEventWrapper(eventBytez);
         }
-        if (wrapper != null) {
+        if (wrapper != null && wrapper.getKey()!= null) {
             logger.info("wrapper serialized:{}", wrapper);
-            logger.info("wrapper class:{}",wrapper.getDomainEvent().getClass());
+            //logger.info("wrapper class:{}",wrapper.getDomainEvent().getClass());
             byte[] bytez = (byte[])wrapper.getDomainEvent();
             try (ByteArrayInputStream in = new ByteArrayInputStream((byte[]) wrapper.getDomainEvent())) {
                 kSession = marshallers.newMarshaller(kieContainer.getKieBase()).unmarshall(in);

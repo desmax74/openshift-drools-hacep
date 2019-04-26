@@ -89,8 +89,8 @@ public class Bootstrap {
 
     private static void startConsumers() {
         snaptshooter = new SessionSnapShooter<>();
-        //SnapshotInfos infos = snaptshooter.deserialize();
-        SnapshotInfos infos = new SnapshotInfos();
+        SnapshotInfos infos = snaptshooter.deserializeEventWrapper();
+        //SnapshotInfos infos = new SnapshotInfos();
         restarter = new Restarter();
         restarter.createDroolsConsumer();
         restarter.getConsumer().createConsumer(infos.getKeyDuringSnaphot() == null ?

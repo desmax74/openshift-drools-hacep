@@ -50,12 +50,6 @@ public class DroolsConsumerHandler implements ConsumerHandler {
 
     public DroolsConsumerHandler(EventProducer producer, SessionSnapShooter snapshooter) {
         this.snapshooter = snapshooter;
-        /* M3
-        kieSession = snapshooter.deserialize();
-        if(kieSession == null) {
-            kieContainer = KieServices.get().newKieClasspathContainer();
-            kieSession = kieContainer.newKieSession();
-        }*/
         kieContainer = KieServices.get().newKieClasspathContainer();
         logger.info("Creating new Kie Session");
         kieSession = kieContainer.newKieSession();
@@ -77,9 +71,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     }
 
     @Override
-    public void process(ConsumerRecord record,
-                        State state,
-                        EventConsumer consumer) {
+    public void process(ConsumerRecord record, State state, EventConsumer consumer) {
         if (state.equals(State.LEADER)) {
             processAsMaster(record);
         } else {
