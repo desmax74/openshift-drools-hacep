@@ -69,7 +69,7 @@ public class SessionSnapShooter<T> {
     }
 
     public void serialize(KieSession kSession, String lastInsertedEventkey, long lastInsertedEventOffset) {
-        logger.info("I'm serializing session !");
+        //logger.info("I'm serializing session ! lastInsertedEventkey:{} lastInsertedEventOffset:{}", lastInsertedEventkey, lastInsertedEventOffset);
         KieMarshallers marshallers = KieServices.get().getMarshallers();
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             marshallers.newMarshaller(kSession.getKieBase()).marshall(out, kSession);
@@ -119,16 +119,11 @@ public class SessionSnapShooter<T> {
                                                                                 ChronoUnit.MILLIS));
             EventWrapper wrapper = null;
             for (ConsumerRecord record : records) {
-                logger.info("snapshot record:{}",
-                            record);
+                //logger.info("snapshot record:{}", record);
                 byte[] eventBytez = (byte[]) record.value();
                 wrapper = deserializeEventWrapper(eventBytez);
             }
             if (wrapper != null && wrapper.getKey() != null) {
-                logger.info("wrapper serialized:{}",
-                            wrapper);
-                //logger.info("wrapper class:{}",wrapper.getDomainEvent().getClass());
-                byte[] bytez = (byte[]) wrapper.getDomainEvent();
                 try (ByteArrayInputStream in = new ByteArrayInputStream((byte[]) wrapper.getDomainEvent())) {
                     KieSessionConfiguration conf = KieServices.get().newKieSessionConfiguration();
                     conf.setOption(ClockTypeOption.get("pseudo"));

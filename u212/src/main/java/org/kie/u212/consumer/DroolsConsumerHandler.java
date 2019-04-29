@@ -47,6 +47,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private SessionPseudoClock clock;
     private Producer producer;
     private SessionSnapShooter snapshooter;
+    private SnapshotInfos snapshotInfos;
 
     public DroolsConsumerHandler(EventProducer producer, SessionSnapShooter snapshooter) {
         this.snapshooter = snapshooter;
@@ -63,8 +64,9 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     }
 
     public DroolsConsumerHandler(EventProducer producer, SessionSnapShooter snapshooter, SnapshotInfos infos) {
+        this.snapshotInfos = infos;
         this.snapshooter = snapshooter;
-        if(infos.getKieSession() == null) {
+        if(snapshotInfos.getKieSession() == null) {
             kieContainer = KieServices.get().newKieClasspathContainer();
             kieSession = kieContainer.newKieSession();
         }else {
@@ -91,9 +93,8 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         logger.info("SNAPSHOT !!!");
         snapshooter.serialize(kieSession, record.key().toString(), record.offset());
         process(record, currentState, consumer);
-
-
     }
+
 
     private void processAsMaster(ConsumerRecord record) {
         EventWrapper wr = (EventWrapper) record.value();

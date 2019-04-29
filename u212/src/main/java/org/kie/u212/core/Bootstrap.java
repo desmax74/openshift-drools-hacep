@@ -68,7 +68,7 @@ public class Bootstrap {
     }
 
     private static void leaderElection() {
-        KubernetesLockConfiguration configuration = CoreKube.getKubernetesLockConfiguration();
+        //KubernetesLockConfiguration configuration = CoreKube.getKubernetesLockConfiguration();
         //@TODO configure from env the namespace
         //KubernetesClient client = Core.getKubeClient();
         //client.events().inNamespace("my-kafka-project").watch(WatcherFactory.createModifiedLogWatcher(configuration.getPodName()));
@@ -88,12 +88,14 @@ public class Bootstrap {
     private static void startConsumers() {
         snaptshooter = new SessionSnapShooter<>();
         SnapshotInfos infos = snaptshooter.deserializeEventWrapper();
-        //SnapshotInfos infos = new SnapshotInfos();
         restarter = new Restarter();
         restarter.createDroolsConsumer();
-        restarter.getConsumer().createConsumer(infos.getKeyDuringSnaphot() == null ?
-                                                       new DroolsConsumerHandler(eventProducer, snaptshooter) :
-                                                       new DroolsConsumerHandler(eventProducer, snaptshooter, infos));
+        logger.info("start consumer with:{}", infos);
+        if (infos.getKeyDuringSnaphot() != null) {
+            restarter.getConsumer().createConsumer(new DroolsConsumerHandler(eventProducer, snaptshooter, infos), infos);
+        } else {
+            restarter.getConsumer().createConsumer(new DroolsConsumerHandler(eventProducer, snaptshooter));
+        }
         consumerController = new ConsumerController(restarter);
         consumerController.consumeEvents();
     }

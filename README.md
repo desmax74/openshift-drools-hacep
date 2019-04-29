@@ -10,5 +10,5 @@ mvn clean package
 ### Deployment
 
 - Quarkus
-- Springboot
-- Jdk HttpServer
+- Springboot     (openshift-kie-springboot.jar 52,5 mb)
+- Jdk HttpServer (openshift-kie-jdkhttp.jar 37 mb)

@@ -34,6 +34,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.kie.u212.Config;
 import org.kie.u212.core.infra.OffsetManager;
+import org.kie.u212.core.infra.SnapshotInfos;
 import org.kie.u212.core.infra.election.Callback;
 import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.utils.ConsumerUtils;
@@ -65,6 +66,7 @@ public class DefaultConsumer<T> implements EventConsumer,
     private List<ConsumerRecord<String, T>> eventsBuffer;
     private List<ConsumerRecord<String, T>> controlBuffer;
     private AtomicInteger counter = new AtomicInteger(0);
+    private SnapshotInfos snapshotInfos;
 
 
     public DefaultConsumer(Restarter externalContainer) {
@@ -73,6 +75,15 @@ public class DefaultConsumer<T> implements EventConsumer,
     }
 
     public void createConsumer(ConsumerHandler consumerHandler) {
+        this.consumerHandle = consumerHandler;
+        kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
+        if (!leader) {
+            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
+        }
+    }
+
+    public void createConsumer(ConsumerHandler consumerHandler, SnapshotInfos infos) {
+        this.snapshotInfos = infos;
         this.consumerHandle = consumerHandler;
         kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
         if (!leader) {
@@ -149,7 +160,15 @@ public class DefaultConsumer<T> implements EventConsumer,
                 kafkaConsumer.assign(partitionCollection);
             }
         }
-        kafkaConsumer.assignment().forEach(topicPartition -> kafkaConsumer.seekToBeginning(partitionCollection));
+
+        if(snapshotInfos != null) {
+            if(partitionCollection.size() >1){
+                throw new RuntimeException("The system must run with only one partition per topic");
+            }
+            kafkaConsumer.assignment().forEach(topicPartition -> kafkaConsumer.seek(partitionCollection.iterator().next(), snapshotInfos.getOffsetDuringSnapshot()));
+        }else{
+            kafkaConsumer.assignment().forEach(topicPartition -> kafkaConsumer.seekToBeginning(partitionCollection));
+        }
     }
 
     @Override
@@ -244,8 +263,7 @@ public class DefaultConsumer<T> implements EventConsumer,
 
     private void setLastProcessedKey() {
         EventWrapper<StockTickEvent> lastWrapper = ConsumerUtils.getLastEvent(Config.CONTROL_TOPIC);
-        logger.info("Last Event:{}",
-                    lastWrapper);
+        logger.info("Last Event:{}", lastWrapper);
         settingsOnAEmptyControlTopic(lastWrapper);
         processingKey = lastWrapper.getKey();
         processingKeyOffset = lastWrapper.getOffset();
