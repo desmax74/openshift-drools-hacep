@@ -49,7 +49,6 @@
       <artifactId>kubernetes-client</artifactId>
       <version>${version.k8s.client}</version>
     </dependency>
-
   </dependencies>
 
   <build>
@@ -65,7 +64,6 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${surefire.version}</version>
       </plugin>
-
     </plugins>
   </build>
 

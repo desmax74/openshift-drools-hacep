@@ -16,7 +16,6 @@
 package org.kie.u212.core;
 
 import java.util.Arrays;
-import java.util.Properties;
 
 import org.kie.u212.Config;
 import org.kie.u212.consumer.DroolsConsumerHandler;
@@ -27,7 +26,6 @@ import org.kie.u212.core.infra.consumer.Restarter;
 import org.kie.u212.core.infra.election.KubernetesLockConfiguration;
 import org.kie.u212.core.infra.election.LeaderElection;
 import org.kie.u212.core.infra.producer.EventProducer;
-import org.kie.u212.core.infra.utils.ConsumerUtils;
 import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

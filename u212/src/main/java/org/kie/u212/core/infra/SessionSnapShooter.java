@@ -33,10 +33,13 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
+import org.drools.core.SessionConfigurationImpl;
 import org.kie.api.KieServices;
 import org.kie.api.marshalling.KieMarshallers;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.KieSessionConfiguration;
+import org.kie.api.runtime.conf.ClockTypeOption;
 import org.kie.u212.Config;
 import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.core.infra.utils.RecordMetadataUtil;
@@ -54,10 +57,15 @@ public class SessionSnapShooter<T> {
     private KieContainer kieContainer;
 
     public SessionSnapShooter() {
-        kieContainer = KieServices.get().newKieClasspathContainer();
-        producer = new EventProducer<>();
-        producer.start(Config.getSnapshotProducerConfig());
-        configConsumer();
+        KieServices srv = KieServices.get();
+        if(srv != null){
+            kieContainer = srv.newKieClasspathContainer();
+            producer = new EventProducer<>();
+            producer.start(Config.getSnapshotProducerConfig());
+            configConsumer();
+        }else{
+            logger.error("KieServices is null");
+        }
     }
 
     public void serialize(KieSession kSession, String lastInsertedEventkey, long lastInsertedEventOffset) {
@@ -103,31 +111,40 @@ public class SessionSnapShooter<T> {
     }
 
     public SnapshotInfos deserializeEventWrapper() {
-        KieMarshallers marshallers = KieServices.get().getMarshallers();
-        KieSession kSession = null;
-        ConsumerRecords<String, Byte[]> records = consumer.poll(Duration.of(Integer.valueOf(Config.DEFAULT_POLL_TIMEOUT_MS),
-                                                                            ChronoUnit.MILLIS));
-        EventWrapper wrapper = null;
-        for (ConsumerRecord record : records) {
-            logger.info("snapshot record:{}", record);
-            byte[] eventBytez = (byte[]) record.value();
-            wrapper = deserializeEventWrapper(eventBytez);
-        }
-        if (wrapper != null && wrapper.getKey()!= null) {
-            logger.info("wrapper serialized:{}", wrapper);
-            //logger.info("wrapper class:{}",wrapper.getDomainEvent().getClass());
-            byte[] bytez = (byte[])wrapper.getDomainEvent();
-            try (ByteArrayInputStream in = new ByteArrayInputStream((byte[]) wrapper.getDomainEvent())) {
-                kSession = marshallers.newMarshaller(kieContainer.getKieBase()).unmarshall(in);
-            } catch (IOException | ClassNotFoundException e) {
-                logger.error(e.getMessage(),
-                             e);
+        KieServices srv = KieServices.get();
+        if(srv != null) {
+            KieMarshallers marshallers = KieServices.get().getMarshallers();
+            KieSession kSession = null;
+            ConsumerRecords<String, Byte[]> records = consumer.poll(Duration.of(Integer.valueOf(Config.DEFAULT_POLL_TIMEOUT_MS),
+                                                                                ChronoUnit.MILLIS));
+            EventWrapper wrapper = null;
+            for (ConsumerRecord record : records) {
+                logger.info("snapshot record:{}",
+                            record);
+                byte[] eventBytez = (byte[]) record.value();
+                wrapper = deserializeEventWrapper(eventBytez);
             }
-            return new SnapshotInfos(kSession,
-                                     wrapper.getKey(),
-                                     wrapper.getLongValueToStore());
+            if (wrapper != null && wrapper.getKey() != null) {
+                logger.info("wrapper serialized:{}",
+                            wrapper);
+                //logger.info("wrapper class:{}",wrapper.getDomainEvent().getClass());
+                byte[] bytez = (byte[]) wrapper.getDomainEvent();
+                try (ByteArrayInputStream in = new ByteArrayInputStream((byte[]) wrapper.getDomainEvent())) {
+                    KieSessionConfiguration conf = KieServices.get().newKieSessionConfiguration();
+                    conf.setOption(ClockTypeOption.get("pseudo"));
+                    kSession = marshallers.newMarshaller(kieContainer.getKieBase()).unmarshall(in, conf, null);
+                } catch (IOException | ClassNotFoundException e) {
+                    logger.error(e.getMessage(),
+                                 e);
+                }
+                return new SnapshotInfos(kSession,
+                                         wrapper.getKey(),
+                                         wrapper.getLongValueToStore());
+            }
+            return new SnapshotInfos();
+        }else{
+            return new SnapshotInfos();
         }
-        return new SnapshotInfos();
     }
 
     private void configConsumer() {

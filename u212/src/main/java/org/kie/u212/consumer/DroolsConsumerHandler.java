@@ -50,11 +50,16 @@ public class DroolsConsumerHandler implements ConsumerHandler {
 
     public DroolsConsumerHandler(EventProducer producer, SessionSnapShooter snapshooter) {
         this.snapshooter = snapshooter;
-        kieContainer = KieServices.get().newKieClasspathContainer();
-        logger.info("Creating new Kie Session");
-        kieSession = kieContainer.newKieSession();
-        clock = kieSession.getSessionClock();
-        this.producer = producer;
+        KieServices srv = KieServices.get();
+        if(srv != null) {
+            kieContainer = KieServices.get().newKieClasspathContainer();
+            logger.info("Creating new Kie Session");
+            kieSession = kieContainer.newKieSession();
+            clock = kieSession.getSessionClock();
+            this.producer = producer;
+        }else{
+            logger.error("KieService is null");
+        }
     }
 
     public DroolsConsumerHandler(EventProducer producer, SessionSnapShooter snapshooter, SnapshotInfos infos) {
@@ -66,7 +71,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
             logger.info("Applying snapshot");
             kieSession = infos.getKieSession();
         }
-        //clock = kieSession.getSessionClock(); //java.lang.ClassCastException: org.drools.core.time.impl.JDKTimerService cannot be cast to org.kie.api.time.SessionPseudoClock
+        clock = kieSession.getSessionClock();
         this.producer = producer;
     }
 
@@ -108,7 +113,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         Map map = (Map) wr.getDomainEvent();
         StockTickEvent stockTickEvent = ConverterUtil.fromMap(map);
         stockTickEvent.setTimestamp(record.timestamp());
-        //clock.advanceTime(stockTickEvent.getTimestamp() - record.timestamp(), TimeUnit.MILLISECONDS); see line 69
+        clock.advanceTime(stockTickEvent.getTimestamp() - record.timestamp(), TimeUnit.MILLISECONDS);
         kieSession.insert(stockTickEvent);
         return stockTickEvent;
     }
