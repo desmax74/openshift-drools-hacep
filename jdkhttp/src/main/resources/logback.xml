@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+  <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <Pattern>
+        %d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n
+      </Pattern>
+    </layout>
+  </appender>
+
+  <logger name="org.kie.u212" level="info">
+    <appender-ref ref="console"/>
+  </logger>
+
+  <logger name="org.drools" level="info">
+    <appender-ref ref="console"/>
+  </logger>
+
+  <logger name="org.apache.kafka" level="warn">
+    <appender-ref ref="console"/>
+  </logger>
+</configuration>

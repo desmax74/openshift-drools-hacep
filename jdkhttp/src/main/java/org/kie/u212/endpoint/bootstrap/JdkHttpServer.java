@@ -40,8 +40,9 @@ public class JdkHttpServer {
             Bootstrap.startEngine();
             logger.info("Core system started");
         }finally {
-            Bootstrap.stopEngine();
+           // Bootstrap.stopEngine();
         }
+        server.start();
     }
 
     static class HealthHandler implements HttpHandler {
