@@ -1,0 +1,83 @@
+
+[INFO] Scanning for projects...
+[WARNING]
+[WARNING] Some problems were encountered while building the effective model for org.kie:openshift-kie-jdkhttp:jar:1.0-SNAPSHOT
+[WARNING] 'dependencyManagement.dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.springframework.boot:spring-boot-starter-web:jar -> duplicate declaration of version ${version.springboot} @ org.kie:openshift-kie-parent:1.0-SNAPSHOT, /data/drools_w/openshift-hacep/pom.xml, line 118, column 19
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] 
+[INFO] -------------------< org.kie:openshift-kie-jdkhttp >--------------------
+[INFO] Building openshift-kie-jdkhttp 1.0-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+Downloading from jboss: http://repository.jboss.org/nexus/content/groups/public/org/kie/openshift-kie-u212/1.0-SNAPSHOT/maven-metadata.xml
+Downloading from spring-snapshots: https://repo.spring.io/snapshot/org/kie/openshift-kie-u212/1.0-SNAPSHOT/maven-metadata.xml
+Downloading from spring-milestones: https://repo.spring.io/milestone/org/kie/openshift-kie-u212/1.0-SNAPSHOT/maven-metadata.xml
+Downloading from central: http://repo.maven.apache.org/maven2/org/kie/openshift-kie-u212/1.0-SNAPSHOT/maven-metadata.xml
+Downloading from spring-snapshots: https://repo.spring.io/snapshot/org/kie/openshift-kie-parent/1.0-SNAPSHOT/maven-metadata.xml
+Downloading from jboss: http://repository.jboss.org/nexus/content/groups/public/org/kie/openshift-kie-parent/1.0-SNAPSHOT/maven-metadata.xml
+Downloading from central: http://repo.maven.apache.org/maven2/org/kie/openshift-kie-parent/1.0-SNAPSHOT/maven-metadata.xml
+Downloading from spring-milestones: https://repo.spring.io/milestone/org/kie/openshift-kie-parent/1.0-SNAPSHOT/maven-metadata.xml
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ openshift-kie-jdkhttp ---
+[INFO] org.kie:openshift-kie-jdkhttp:jar:1.0-SNAPSHOT
+[INFO] +- org.kie:openshift-kie-u212:jar:1.0-SNAPSHOT:compile
+[INFO] |  +- org.drools:drools-model-compiler:jar:7.20.0.Final:compile
+[INFO] |  |  +- org.mvel:mvel2:jar:2.4.4.Final:compile
+[INFO] |  |  +- org.kie:kie-api:jar:7.20.0.Final:compile
+[INFO] |  |  +- org.kie:kie-internal:jar:7.20.0.Final:compile
+[INFO] |  |  +- org.kie.soup:kie-soup-project-datamodel-commons:jar:7.20.0.Final:compile
+[INFO] |  |  |  +- org.kie.soup:kie-soup-commons:jar:7.20.0.Final:compile
+[INFO] |  |  |  \- org.kie.soup:kie-soup-project-datamodel-api:jar:7.20.0.Final:compile
+[INFO] |  |  +- org.kie.soup:kie-soup-maven-support:jar:7.20.0.Final:compile
+[INFO] |  |  +- org.drools:drools-canonical-model:jar:7.20.0.Final:compile
+[INFO] |  |  +- org.drools:drools-core:jar:7.20.0.Final:compile
+[INFO] |  |  |  \- commons-codec:commons-codec:jar:1.12:compile
+[INFO] |  |  +- org.drools:drools-compiler:jar:7.20.0.Final:compile
+[INFO] |  |  |  +- org.antlr:antlr-runtime:jar:3.5.2:compile
+[INFO] |  |  |  +- org.eclipse.jdt.core.compiler:ecj:jar:4.6.1:compile
+[INFO] |  |  |  +- com.thoughtworks.xstream:xstream:jar:1.4.10:compile
+[INFO] |  |  |  |  +- xmlpull:xmlpull:jar:1.1.3.1:compile
+[INFO] |  |  |  |  \- xpp3:xpp3_min:jar:1.1.4c:compile
+[INFO] |  |  |  \- com.google.protobuf:protobuf-java:jar:3.6.1:compile
+[INFO] |  |  +- com.github.javaparser:javaparser-core:jar:3.10.2:compile
+[INFO] |  |  \- org.drools:drools-constraint-parser:jar:7.20.0.Final:compile
+[INFO] |  |     \- org.jboss.spec.javax.annotation:jboss-annotations-api_1.2_spec:jar:1.0.0.Final:compile
+[INFO] |  +- org.apache.kafka:kafka-clients:jar:2.1.1:compile
+[INFO] |  |  +- com.github.luben:zstd-jni:jar:1.3.7-1:compile
+[INFO] |  |  +- org.lz4:lz4-java:jar:1.5.0:compile
+[INFO] |  |  \- org.xerial.snappy:snappy-java:jar:1.1.7.2:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:2.9.8:compile
+[INFO] |  |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.9.8:compile
+[INFO] |  |  \- com.fasterxml.jackson.core:jackson-core:jar:2.9.8:compile
+[INFO] |  +- javax.ws.rs:javax.ws.rs-api:jar:2.1.1:compile
+[INFO] |  +- javax.enterprise:cdi-api:jar:2.0.SP1:compile
+[INFO] |  |  +- javax.el:javax.el-api:jar:3.0.0:compile
+[INFO] |  |  +- javax.interceptor:javax.interceptor-api:jar:1.2:compile
+[INFO] |  |  \- javax.inject:javax.inject:jar:1:compile
+[INFO] |  \- io.fabric8:kubernetes-client:jar:4.2.1:compile
+[INFO] |     +- io.fabric8:kubernetes-model:jar:4.2.1:compile
+[INFO] |     |  +- io.fabric8:kubernetes-model-common:jar:4.2.1:compile
+[INFO] |     |  +- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:jar:2.9.8:compile
+[INFO] |     |  +- javax.validation:validation-api:jar:2.0.1.Final:compile
+[INFO] |     |  \- org.glassfish:javax.el:jar:3.0.1-b08:compile
+[INFO] |     +- com.squareup.okhttp3:okhttp:jar:3.12.0:compile
+[INFO] |     |  \- com.squareup.okio:okio:jar:1.15.0:compile
+[INFO] |     +- com.squareup.okhttp3:logging-interceptor:jar:3.12.0:compile
+[INFO] |     +- org.slf4j:jul-to-slf4j:jar:1.7.26:compile
+[INFO] |     +- com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:jar:2.9.8:compile
+[INFO] |     |  \- org.yaml:snakeyaml:jar:1.24:compile
+[INFO] |     +- io.fabric8:zjsonpatch:jar:0.3.0:compile
+[INFO] |     \- com.github.mifmif:generex:jar:1.0.2:compile
+[INFO] |        \- dk.brics.automaton:automaton:jar:1.11-8:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.25:compile
+[INFO] +- ch.qos.logback:logback-core:jar:1.2.3:compile
+[INFO] \- ch.qos.logback:logback-classic:jar:1.2.3:compile
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 2.443 s
+[INFO] Finished at: 2019-04-29T12:05:54+02:00
+[INFO] ------------------------------------------------------------------------

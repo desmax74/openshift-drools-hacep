@@ -11,3 +11,4 @@ mvn clean package
 
 - Quarkus
 - Springboot
+- Jdk HttpServer

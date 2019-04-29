@@ -38,12 +38,9 @@ oc expose service  openshift-kie-springboot
   NAME           HOST/PORT                                      PATH      SERVICES       PORT      TERMINATION   WILDCARD
   openshift-kie   openshift-kie-my-kafka-project.192.168.99.109.nip.io           openshift-kie   http                    None
   ```
-  
+    
   Your address will be
-  http://quick-drools-my-kafka-project.192.168.99.109.nip.io/rest/hello
-  
-  To see all the env available use the address
-  http://quick-drools-my-kafka-project.192.168.99.109.nip.io/rest/env/all
+  http://quick-drools-myproject.192.168.99.109.nip.io/rest/env/all
   
 ### Remote debug    
     

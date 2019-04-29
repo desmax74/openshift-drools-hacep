@@ -40,10 +40,7 @@ oc expose service  openshift-kie-jdkhttp
   ```
   
   Your address will be
-  http://quick-drools-my-kafka-project.192.168.99.109.nip.io/rest/hello
-  
-  To see all the env available use the address
-  http://quick-drools-my-kafka-project.192.168.99.109.nip.io/rest/env/all
+  http://quick-drools-myproject.192.168.99.109.nip.io/rest/env/all
   
 ### Remote debug    
     
