@@ -47,12 +47,12 @@ oc expose service  openshift-kie-jdkhttp
 #### Using docker hub registry
 ```sh
 docker login --username=<user username>
-docker build -t <user_username>/openshift-kie-springboot:<tag> .  
-docker push <user_username>/openshift-kie-springboot:<tag>
+docker build -t <user_username>/openshift-kie-jdkhttp:<tag> .  
+docker push <user_username>/openshift-kie-jdkhttp:<tag>
 ```
 
 #### Deploy
-With version 0.2 of desmax74/openshift-kie-springboot
+With version 0.3 of desmax74/openshift-kie-jdkhttp
 ```sh
 kubectl create -f kubernetes/debug_pod.yaml
 kubectl create -f kubernetes/deployment_registry.yaml
