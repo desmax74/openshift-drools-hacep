@@ -12,3 +12,6 @@ mvn clean package
 - Quarkus
 - Springboot     (openshift-kie-springboot.jar 52,5 mb)
 - Jdk HttpServer (openshift-kie-jdkhttp.jar 37 mb)
+
+### Client for demos
+- Client module 
