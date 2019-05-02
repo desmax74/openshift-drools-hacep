@@ -33,7 +33,7 @@
 
   <modules>
     <module>u212</module>
-    <module>client-producer</module>
+    <module>client</module>
     <module>springboot</module>
     <module>quarkus</module>
     <module>jdkhttp</module>

@@ -8,7 +8,7 @@
     </layout>
   </appender>
 
-  <logger name="org.kie.u212" level="info">
+  <logger name="org.kie" level="info">
     <appender-ref ref="console"/>
   </logger>
 

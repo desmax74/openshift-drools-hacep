@@ -8,7 +8,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <groupId>org.kie</groupId>
-  <artifactId>openshift-kie-client-producer</artifactId>
+  <artifactId>openshift-kie-client</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 

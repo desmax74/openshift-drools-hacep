@@ -15,17 +15,17 @@
  */
 package org.kie.u212;
 
+
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.kie.u212.model.EventType;
 import org.kie.u212.model.EventWrapper;
 import org.kie.u212.model.StockTickEvent;
-
 public class ClientProducerTest {
 
     public static void main(String[] args) throws Exception {
-        insertBatchEvent(1);
+        insertBatchEvent(10);
     }
 
     private static void insertBatchEvent(int items) {
