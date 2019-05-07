@@ -26,6 +26,7 @@
     <version.javax.ws.rs>2.1.1</version.javax.ws.rs>
     <version.kafka.client>2.1.1</version.kafka.client>
     <version.k8s.client>4.2.1</version.k8s.client>
+    <version.logback.core>1.2.3</version.logback.core>
     <version.org.kie>7.20.0.Final</version.org.kie>
     <version.servlet>4.0.1</version.servlet>
     <version.springboot>2.2.0.M2</version.springboot>
@@ -141,6 +142,17 @@
         <artifactId>javax.ws.rs-api</artifactId>
         <version>${version.javax.ws.rs}</version>
         <scope>compile</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>${version.logback.core}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${version.logback.core}</version>
       </dependency>
 
     </dependencies>

@@ -28,7 +28,7 @@
     <dependency>
       <groupId>org.kie</groupId>
       <artifactId>openshift-kie-u212</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
