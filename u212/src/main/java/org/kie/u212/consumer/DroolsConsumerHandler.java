@@ -73,6 +73,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
             logger.info("Applying snapshot");
             kieSession = infos.getKieSession();
         }
+        //new Thread(kieSession::fireUntilHalt).start();// non serve più-
         clock = kieSession.getSessionClock();
         this.producer = producer;
     }
@@ -116,6 +117,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         stockTickEvent.setTimestamp(record.timestamp());
         clock.advanceTime(stockTickEvent.getTimestamp() - record.timestamp(), TimeUnit.MILLISECONDS);
         kieSession.insert(stockTickEvent);
+        kieSession.fireAllRules();
         return stockTickEvent;
     }
 

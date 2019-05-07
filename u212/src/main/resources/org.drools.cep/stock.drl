@@ -1,10 +1,21 @@
 package org.drools.cep
 
 import org.kie.u212.model.StockTickEvent
+import org.kie.u212.consumer.DroolsExecutor
 
 rule StockAverage when
   $name : String()
   accumulate ( StockTickEvent( company == $name, $p : price ) over window:time(30s), $avg : average( $p ) )
 then
   System.out.println("Average price for " + $name + " is " + $avg);
+end
+
+rule StockLog when
+  $stock:StockTicKetEvent()
+then
+    String result = DroolsExecutor.execute(()->{
+            String id = UUID.randomUUID().toString();
+            System.out.println("Price for " + $stock.getCompany() + " is " + $stock.getPrice() + " id " +id);
+        });
+    return id;
 end

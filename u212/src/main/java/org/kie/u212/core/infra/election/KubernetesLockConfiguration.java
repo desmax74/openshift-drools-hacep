@@ -21,7 +21,7 @@ import java.util.Map;
 import io.fabric8.kubernetes.client.KubernetesClient;
 
 /**
- * from from org.apache.camel.component.kubernetes.cluster.lock
+ * from org.apache.camel.component.kubernetes.cluster.lock
  * Configuration for Kubernetes Lock.
  */
 public class KubernetesLockConfiguration implements Cloneable {

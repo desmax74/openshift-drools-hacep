@@ -38,6 +38,7 @@ import org.kie.u212.core.infra.SnapshotInfos;
 import org.kie.u212.core.infra.election.Callback;
 import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.utils.ConsumerUtils;
+import org.kie.u212.consumer.DroolsExecutor;
 import org.kie.u212.model.EventWrapper;
 import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
@@ -225,9 +226,10 @@ public class DefaultConsumer<T> implements EventConsumer,
 
     private void updateOnRunningConsumer(State state) {
         if (state.equals(State.LEADER) && !leader) {
-
+            DroolsExecutor.setAsMaster();
             restart(state);
         } else if (state.equals(State.NOT_LEADER) && leader) {
+            DroolsExecutor.setAsSlave();
             restart(state);
         }
     }
