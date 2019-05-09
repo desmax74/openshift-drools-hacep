@@ -114,12 +114,16 @@ public class ConsumerUtils {
                 eventWrapper.setKey(record.key());
                 eventWrapper.setOffset(record.offset());
                 eventWrapper.setTimestamp(record.timestamp());
-                Map map = (Map) record.value().getDomainEvent();
-                StockTickEvent ticket = ConverterUtil.fromMap(map);
-                ticket.setTimestamp(record.timestamp());
-                Date date = new Date(record.timestamp());
-                logger.info("Timestamp Date last offset:{}", date);
-                eventWrapper.setDomainEvent(ticket);
+                if(record.value() != null) {
+                    Map map = (Map) record.value().getDomainEvent();
+                    StockTickEvent ticket = ConverterUtil.fromMap(map);
+                    ticket.setTimestamp(record.timestamp());
+                    Date date = new Date(record.timestamp());
+                    logger.info("Timestamp Date last offset:{}", date);
+                    eventWrapper.setDomainEvent(ticket);
+                }else{
+                    logger.info("no Event Wrapper");
+                }
             }
         } catch (Exception ex) {
             logger.error(ex.getMessage(),

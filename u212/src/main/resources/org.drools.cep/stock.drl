@@ -11,11 +11,11 @@ then
 end
 
 rule StockLog when
-  $stock:StockTicKetEvent()
+  $stock:StockTickEvent()
 then
-    String result = DroolsExecutor.execute(()->{
-            String id = UUID.randomUUID().toString();
-            System.out.println("Price for " + $stock.getCompany() + " is " + $stock.getPrice() + " id " +id);
-        });
-    return id;
+    DroolsExecutor.getInstance().execute( () -> {
+        String id = UUID.randomUUID().toString();
+        System.out.println("Price for " + $stock.getCompany() + " is " + $stock.getPrice() + " id " +id);
+        return id;
+    });
 end

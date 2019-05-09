@@ -16,6 +16,10 @@
 package org.kie.u212.model;
 
 import java.io.Serializable;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
 
 public class EventWrapper<T> implements Serializable {
 
@@ -24,6 +28,7 @@ public class EventWrapper<T> implements Serializable {
     private long offset, longValueToStore;
     private EventType eventType;
     private long timestamp;
+    private List<Object> sideEffects;
 
     public EventWrapper() {
     }
@@ -36,6 +41,19 @@ public class EventWrapper<T> implements Serializable {
         this.offset = offset;
         this.key = key;
         this.eventType = eventType;
+        this.sideEffects = new ArrayList<>();
+    }
+
+    public EventWrapper(T domainEvent,
+                        String key,
+                        long offset,
+                        EventType eventType,
+                        List<Object> sideEffects) {
+        this.domainEvent = domainEvent;
+        this.offset = offset;
+        this.key = key;
+        this.eventType = eventType;
+        this.sideEffects = sideEffects;
     }
 
     public EventWrapper(T domainEvent,
@@ -48,6 +66,7 @@ public class EventWrapper<T> implements Serializable {
         this.key = key;
         this.eventType = eventType;
         this.longValueToStore = valueToStore;
+        this.sideEffects = new ArrayList<>();
     }
 
     public long getTimestamp() {
@@ -98,6 +117,8 @@ public class EventWrapper<T> implements Serializable {
         this.longValueToStore = longValueToStore;
     }
 
+    public List<Object> getSideEffects() { return sideEffects; }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("EventWrapper{");
@@ -112,6 +133,11 @@ public class EventWrapper<T> implements Serializable {
         }
         if(longValueToStore != 0l) {
             sb.append(", longValueToStore=").append(longValueToStore);
+        }
+        if(sideEffects != null && !sideEffects.isEmpty()){
+            sb.append("\n").append(sideEffects);
+        }else{
+            sb.append(", No side effects\n");
         }
         sb.append('}');
         return sb.toString();

@@ -15,7 +15,11 @@
  */
 package org.kie.u212.consumer;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -73,7 +77,6 @@ public class DroolsConsumerHandler implements ConsumerHandler {
             logger.info("Applying snapshot");
             kieSession = infos.getKieSession();
         }
-        //new Thread(kieSession::fireUntilHalt).start();// non serve più-
         clock = kieSession.getSessionClock();
         this.producer = producer;
     }
@@ -102,7 +105,15 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         switch (wr.getEventType()) {
             case APP:
                 StockTickEvent stock = process(record);
-                EventWrapper newEventWrapper = new EventWrapper(stock, wr.getKey(), 0l, EventType.APP);
+                Queue<Object> results = DroolsExecutor.getInstance().getAndReset();
+                EventWrapper newEventWrapper;
+                if(results.isEmpty()){
+                   newEventWrapper = new EventWrapper(stock, wr.getKey(), 0l, EventType.APP);
+                }else{
+                    List<Object> items = new ArrayList<>();
+                    items.add(results.poll());
+                   newEventWrapper = new EventWrapper(stock, wr.getKey(), 0l, EventType.APP, items);
+                }
                 producer.produceSync(new ProducerRecord<>(Config.CONTROL_TOPIC, wr.getKey(), newEventWrapper));
                 break;
             default:
@@ -122,6 +133,19 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     }
 
     private long processAsASlave(ConsumerRecord record) {
+        EventWrapper wr = (EventWrapper) record.value();
+        logger.info("wrapper on a slave:{}", wr);
+        Map map = (Map) wr.getDomainEvent();
+        List<Object> sideEffects = (List<Object>) map.get("sideEffects");
+        if(sideEffects != null) {
+            Queue queue = new ArrayDeque();
+            for(Object sideEffect : sideEffects){
+                queue.add(sideEffect);
+            }
+            DroolsExecutor.getInstance().setResult(queue);
+        }else{
+            logger.info("side effects null");
+        }
         StockTickEvent stock = process(record);
         return 0l;
     }

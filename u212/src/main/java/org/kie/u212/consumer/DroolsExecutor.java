@@ -16,17 +16,23 @@
 
 package org.kie.u212.consumer;
 
+import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public abstract class DroolsExecutor {
+
+    private static final Logger logger = LoggerFactory.getLogger(DroolsExecutor.class);
 
     private static boolean isMaster;
 
     protected Queue<Object> executionResults = new ArrayDeque<>();
 
-    static DroolsExecutor getInstance() {
+    public static DroolsExecutor getInstance() {
         return isMaster ? Master.INSTANCE : Slave.INSTANCE;
     }
 
@@ -93,7 +99,7 @@ public abstract class DroolsExecutor {
         }
     }
 
-    private static class EmptyResult {
+    private static class EmptyResult implements Serializable {
         private static final EmptyResult INSTANCE = new EmptyResult();
     }
 }

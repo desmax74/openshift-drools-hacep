@@ -243,19 +243,23 @@ public class DefaultConsumer<T> implements EventConsumer,
     private void enableConsumeAndStartLoop(State state) {
         if (state.equals(State.LEADER) && !leader) {
             leader = true;
+            DroolsExecutor.setAsMaster();
             stopLeaderProcessing();// we starts to processing only when the last key readed on bootstrap is reached
         } else if (state.equals(State.NOT_LEADER) && leader) {
             leader = false;
+            DroolsExecutor.setAsSlave();
             startProcessingNotLeader();
             startPollingEvents();
             stopPollingControl();
         } else if (state.equals(State.NOT_LEADER) && !leader) {
             leader = false;
+            DroolsExecutor.setAsSlave();
             startProcessingNotLeader();
             stopPollingEvents();
             startPollingControl();
         } else if (state.equals(State.BECOMING_LEADER) && !leader) {
             leader = true;
+            DroolsExecutor.setAsMaster();
             stopLeaderProcessing();
         }
 
