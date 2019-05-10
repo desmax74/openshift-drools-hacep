@@ -15,9 +15,6 @@
  */
 package org.kie.u212.consumer;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
@@ -82,21 +79,22 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     }
 
     @Override
-    public void process(ConsumerRecord record, State state, EventConsumer consumer) {
+    public void process(ConsumerRecord record, State state, EventConsumer consumer, Queue<Object> sideEffects) {
         if (state.equals(State.LEADER)) {
             processAsMaster(record);
         } else {
-            processAsASlave(record);
+            processAsASlave(record, sideEffects);
         }
     }
 
     @Override
     public void processWithSnapshot(ConsumerRecord record,
                                     State currentState,
-                                    EventConsumer consumer) {
+                                    EventConsumer consumer,
+                                    Queue<Object> sideEffects) {
         logger.info("SNAPSHOT !!!");
         snapshooter.serialize(kieSession, record.key().toString(), record.offset());
-        process(record, currentState, consumer);
+        process(record, currentState, consumer, sideEffects);
     }
 
 
@@ -110,9 +108,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
                 if(results.isEmpty()){
                    newEventWrapper = new EventWrapper(stock, wr.getKey(), 0l, EventType.APP);
                 }else{
-                    List<Object> items = new ArrayList<>();
-                    items.add(results.poll());
-                   newEventWrapper = new EventWrapper(stock, wr.getKey(), 0l, EventType.APP, items);
+                   newEventWrapper = new EventWrapper(stock, wr.getKey(), 0l, EventType.APP, results);
                 }
                 producer.produceSync(new ProducerRecord<>(Config.CONTROL_TOPIC, wr.getKey(), newEventWrapper));
                 break;
@@ -132,19 +128,9 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         return stockTickEvent;
     }
 
-    private long processAsASlave(ConsumerRecord record) {
-        EventWrapper wr = (EventWrapper) record.value();
-        logger.info("wrapper on a slave:{}", wr);
-        Map map = (Map) wr.getDomainEvent();
-        List<Object> sideEffects = (List<Object>) map.get("sideEffects");
+    private long processAsASlave(ConsumerRecord record, Queue<Object> sideEffects) {
         if(sideEffects != null) {
-            Queue queue = new ArrayDeque();
-            for(Object sideEffect : sideEffects){
-                queue.add(sideEffect);
-            }
-            DroolsExecutor.getInstance().setResult(queue);
-        }else{
-            logger.info("side effects null");
+            DroolsExecutor.getInstance().setResult(sideEffects);
         }
         StockTickEvent stock = process(record);
         return 0l;

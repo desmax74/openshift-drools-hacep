@@ -15,6 +15,8 @@
  */
 package org.kie.u212.consumer;
 
+import java.util.Queue;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.kie.u212.core.infra.consumer.ConsumerHandler;
 import org.kie.u212.core.infra.consumer.EventConsumer;
@@ -29,14 +31,14 @@ public class EmptyConsumerHandler implements ConsumerHandler {
     @Override
     public void process(ConsumerRecord record,
                         State state,
-                        EventConsumer eventConsumer) {
+                        EventConsumer eventConsumer, Queue<Object> sideEffects) {
         logger.info("Process event:{} with state{}", record, state);
     }
 
     @Override
     public void processWithSnapshot(ConsumerRecord record,
                                     State currentState,
-                                    EventConsumer consumer) {
+                                    EventConsumer consumer,  Queue<Object> sideEffects) {
         logger.info("Process event with snapshot:{} with state{}", record, currentState);
     }
 }

@@ -15,6 +15,8 @@
  */
 package org.kie.u212.core.infra.consumer;
 
+import java.util.Queue;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.kie.u212.core.infra.election.State;
 
@@ -22,9 +24,11 @@ public interface ConsumerHandler {
 
     void process(ConsumerRecord record,
                  State currentState,
-                 EventConsumer consumer);
+                 EventConsumer consumer,
+                 Queue<Object> sideEffects);
 
     void processWithSnapshot(ConsumerRecord record,
                  State currentState,
-                 EventConsumer consumer);
+                 EventConsumer consumer,
+                 Queue<Object> sideEffects);
 }

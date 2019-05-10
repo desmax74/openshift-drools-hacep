@@ -69,7 +69,6 @@ public class SessionSnapShooter<T> {
     }
 
     public void serialize(KieSession kSession, String lastInsertedEventkey, long lastInsertedEventOffset) {
-        //logger.info("I'm serializing session ! lastInsertedEventkey:{} lastInsertedEventOffset:{}", lastInsertedEventkey, lastInsertedEventOffset);
         KieMarshallers marshallers = KieServices.get().getMarshallers();
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             marshallers.newMarshaller(kSession.getKieBase()).marshall(out, kSession);
