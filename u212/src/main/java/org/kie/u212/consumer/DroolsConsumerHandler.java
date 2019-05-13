@@ -130,6 +130,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
 
     private long processAsASlave(ConsumerRecord record, Queue<Object> sideEffects) {
         if(sideEffects != null) {
+            logger.info("sideEffectOnSlave:{}", sideEffects);
             DroolsExecutor.getInstance().setResult(sideEffects);
         }
         StockTickEvent stock = process(record);
