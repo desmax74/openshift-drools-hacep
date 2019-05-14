@@ -17,36 +17,37 @@ package org.kie.u212;
 
 
 import java.util.Properties;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.kie.u212.model.EventType;
-import org.kie.u212.model.EventWrapper;
 import org.kie.u212.model.StockTickEvent;
 import org.kie.u212.producer.ClientProducer;
 
 public class ClientProducerTest {
 
-    public static void main(String[] args) throws Exception {
-        insertBatchEvent(4);
+    public static void main(String[] args) {
+        insertBatchEvent(2);
     }
 
     private static void insertBatchEvent(int items) {
 
-        ClientProducer producer = new ClientProducer(new Properties());
+        Properties props = Config.getStatic();
+        props.put("bootstrap.servers","my-cluster-kafka-bootstrap-my-kafka-project.<ip>.nip.io:443");
+        props.put("security.protocol","SSL");
+        props.put("ssl.keystore.location","/<path>/openshift-drools-hacep/client/src/main/resources/keystore.jks");
+        props.put("ssl.keystore.password","password");
+        props.put("ssl.truststore.location","/<path>/openshift-drools-hacep/client/src/main/resources/keystore.jks");
+        props.put("ssl.truststore.password","password");
+        
+        ClientProducer producer = new ClientProducer(props);
         producer.start();
         for (int i = 0; i < items; i++) {
             StockTickEvent eventA = new StockTickEvent("RHT",
                                                        ThreadLocalRandom.current().nextLong(80,
                                                                                             100));
-
-            EventWrapper wr = new EventWrapper(eventA,
-                                               UUID.randomUUID().toString(),
-                                               0l,
-                                               EventType.APP);
-            producer.insertSync(wr,
-                              true);
+            producer.insertSync(eventA, true);
         }
         producer.stop();
     }
+
+
 }
