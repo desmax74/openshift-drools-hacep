@@ -16,21 +16,25 @@
 package org.kie.u212;
 
 
+import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.kie.u212.model.EventType;
 import org.kie.u212.model.EventWrapper;
 import org.kie.u212.model.StockTickEvent;
+import org.kie.u212.producer.ClientProducer;
+
 public class ClientProducerTest {
 
     public static void main(String[] args) throws Exception {
-        insertBatchEvent(10);
+        insertBatchEvent(4);
     }
 
     private static void insertBatchEvent(int items) {
-        Client client = new Client(Config.EVENTS_TOPIC);
-        client.start();
+
+        ClientProducer producer = new ClientProducer(new Properties());
+        producer.start();
         for (int i = 0; i < items; i++) {
             StockTickEvent eventA = new StockTickEvent("RHT",
                                                        ThreadLocalRandom.current().nextLong(80,
@@ -40,9 +44,9 @@ public class ClientProducerTest {
                                                UUID.randomUUID().toString(),
                                                0l,
                                                EventType.APP);
-            client.insertSync(wr,
+            producer.insertSync(wr,
                               true);
         }
-        client.close();
+        producer.stop();
     }
 }

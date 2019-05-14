@@ -134,8 +134,6 @@ public class EventWrapper<T> implements Serializable {
         }
         if(sideEffects != null && !sideEffects.isEmpty()){
             sb.append(", sideEffects=").append("\n").append(sideEffects);
-        }else{
-            sb.append(", No side effects\n");
         }
         sb.append('}');
         return sb.toString();
