@@ -50,7 +50,7 @@ public class Sender {
     producer.start(configuration != null ? configuration : ClientUtils.getConfiguration(ClientUtils.PRODUCER_CONF));
   }
 
-  public void close() {
+  public void stop() {
     logger.info("Closing client producer");
     producer.stop();
   }

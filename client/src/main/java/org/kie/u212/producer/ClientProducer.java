@@ -30,7 +30,7 @@ public class ClientProducer {
     }
 
     public void stop(){
-        sender.close();
+        sender.stop();
     }
 
     public String insertSync(Object obj, boolean logInsert) {
