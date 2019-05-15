@@ -29,7 +29,7 @@
     <version.logback.core>1.2.3</version.logback.core>
     <version.org.kie>7.21.0.Final</version.org.kie>
     <version.servlet>4.0.1</version.servlet>
-    <version.springboot>2.2.0.M2</version.springboot>
+    <version.springboot>2.2.0.M3</version.springboot>
   </properties>
 
   <modules>
