@@ -15,17 +15,15 @@
  */
 package org.kie.u212.producer;
 
+import java.io.Closeable;
 import java.util.Properties;
 
-public class ClientProducer {
+public class ClientProducer implements Closeable {
 
     private Sender sender;
 
     public ClientProducer(Properties configuration) {
         sender = new Sender(configuration);
-    }
-
-    public void start(){
         sender.start();
     }
 
@@ -33,8 +31,12 @@ public class ClientProducer {
         sender.stop();
     }
 
-    public String insertSync(Object obj, boolean logInsert) {
-        return sender.insertSync(obj, logInsert);
+    public void insertSync(Object obj, boolean logInsert) {
+        sender.insertSync(obj, logInsert);
     }
 
+    @Override
+    public void close() {
+        sender.stop();
+    }
 }

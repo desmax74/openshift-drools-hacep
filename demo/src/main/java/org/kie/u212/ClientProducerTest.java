@@ -15,7 +15,6 @@
  */
 package org.kie.u212;
 
-
 import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -25,29 +24,29 @@ import org.kie.u212.producer.ClientProducer;
 public class ClientProducerTest {
 
     public static void main(String[] args) {
-        insertBatchEvent(2);
+        insertBatchEvent(1);
     }
 
     private static void insertBatchEvent(int items) {
-
         Properties props = Config.getStatic();
-        props.put("bootstrap.servers","my-cluster-kafka-bootstrap-my-kafka-project.<ip>.nip.io:443");
-        props.put("security.protocol","SSL");
-        props.put("ssl.keystore.location","/<path>/openshift-drools-hacep/client/src/main/resources/keystore.jks");
-        props.put("ssl.keystore.password","password");
-        props.put("ssl.truststore.location","/<path>/openshift-drools-hacep/client/src/main/resources/keystore.jks");
-        props.put("ssl.truststore.password","password");
-        
+        props.put("bootstrap.servers", "my-cluster-kafka-bootstrap-my-kafka-project.<ip>.nip.io:443");
+        props.put("security.protocol", "SSL");
+        props.put("ssl.keystore.location", "/<path>/openshift-drools-hacep/client/src/main/resources/keystore.jks");
+        props.put("ssl.keystore.password", "password");
+        props.put("ssl.truststore.location", "/<path>/openshift-drools-hacep/client/src/main/resources/keystore.jks");
+        props.put("ssl.truststore.password", "password");
+
         ClientProducer producer = new ClientProducer(props);
-        producer.start();
-        for (int i = 0; i < items; i++) {
-            StockTickEvent eventA = new StockTickEvent("RHT",
-                                                       ThreadLocalRandom.current().nextLong(80,
-                                                                                            100));
-            producer.insertSync(eventA, true);
+        try {
+            for (int i = 0; i < items; i++) {
+                StockTickEvent eventA = new StockTickEvent("RHT",
+                                                           ThreadLocalRandom.current().nextLong(80,
+                                                                                                100));
+                producer.insertSync(eventA,
+                                    true);
+            }
+        } finally {
+            producer.stop();
         }
-        producer.stop();
     }
-
-
 }
