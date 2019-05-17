@@ -12,7 +12,7 @@ https://github.com/desmax74/openshift-handbook/blob/master/fedora/kafka.md
 
 #### Build Container on docker
 ```sh
-docker build -t quickstarter/openshift-kie-thorntail:latest .
+docker build -t quickstarter/openshift-kie-quarkus:latest .
 docker images | grep openshift-kie
 ```
 

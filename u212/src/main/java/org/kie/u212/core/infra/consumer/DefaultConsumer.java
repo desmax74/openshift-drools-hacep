@@ -34,8 +34,10 @@ import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.kie.u212.Config;
+import org.kie.u212.consumer.DroolsConsumerHandler;
 import org.kie.u212.consumer.DroolsExecutor;
 import org.kie.u212.core.infra.OffsetManager;
+import org.kie.u212.core.infra.SessionSnapShooter;
 import org.kie.u212.core.infra.SnapshotInfos;
 import org.kie.u212.core.infra.election.Callback;
 import org.kie.u212.core.infra.election.State;
@@ -70,6 +72,7 @@ public class DefaultConsumer<T> implements EventConsumer,
     private AtomicInteger counter = new AtomicInteger(0);
     private SnapshotInfos snapshotInfos;
     private Queue<Object> sideEffects;
+    private SessionSnapShooter snapShooter;
 
     public DefaultConsumer(Restarter externalContainer) {
         this.externalContainer = externalContainer;
@@ -78,6 +81,7 @@ public class DefaultConsumer<T> implements EventConsumer,
 
     public void createConsumer(ConsumerHandler consumerHandler) {
         this.consumerHandle = consumerHandler;
+        snapShooter = ((DroolsConsumerHandler)consumerHandle).getSnapshooter();
         kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
         if (!leader) {
             kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
@@ -88,6 +92,7 @@ public class DefaultConsumer<T> implements EventConsumer,
                                SnapshotInfos infos) {
         this.snapshotInfos = infos;
         this.consumerHandle = consumerHandler;
+        snapShooter = ((DroolsConsumerHandler)consumerHandle).getSnapshooter();
         kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
         if (!leader) {
             kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
@@ -96,7 +101,9 @@ public class DefaultConsumer<T> implements EventConsumer,
 
     public void restartConsumer() {
         logger.info("Restart Consumers");
+        snapshotInfos = snapShooter.deserializeEventWrapper();
         kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
+        assign(null);
         if (!leader) {
             kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
         } else {
@@ -422,7 +429,7 @@ public class DefaultConsumer<T> implements EventConsumer,
                                    this,
                                    sideEffects);
             saveOffset(record, kafkaConsumer);
-            logger.info("change topic");
+            logger.info("change topic, switch to consume control");
         } else if (processingNotLeader) {
             consumerHandle.process(record,
                                    currentState,
@@ -446,7 +453,7 @@ public class DefaultConsumer<T> implements EventConsumer,
             stopPollingControl();
             startPollingEvents();
             startProcessingNotLeader();
-            logger.info("change topic");
+            logger.info("change topic, switch to consume events");
         }
         if (processingKey == null) { // empty topic
             processingKey = record.key();

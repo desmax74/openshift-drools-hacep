@@ -136,4 +136,8 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         StockTickEvent stock = process(record);
         return 0l;
     }
+
+    public SessionSnapShooter getSnapshooter(){
+        return snapshooter;
+    }
 }
