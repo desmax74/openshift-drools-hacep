@@ -49,6 +49,19 @@
       <artifactId>kubernetes-client</artifactId>
       <version>${version.k8s.client}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>openshift-kie-test</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka_2.12</artifactId>
+      <version>${version.kafka.client}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
