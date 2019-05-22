@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie;
+package org.kie.u212;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -23,8 +23,9 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Test;
-import org.kie.test.kafka.KafkaKieServerTest;
+import org.kie.KafkaKieServerTest;
 
 import static org.junit.Assert.*;
 
@@ -34,28 +35,31 @@ public class KafkaTest {
 
 
     @Test
-    public void producerTest() throws IOException {
+    public void basicTest() throws IOException {
+        String topic = "test";
         kafkaServerTest = new KafkaKieServerTest();
         kafkaServerTest.startServer();
-        kafkaServerTest.createTopic("test");
+        kafkaServerTest.createTopic(topic);
 
-        KafkaProducer<Integer, byte[]> producer = kafkaServerTest.getProducer();
-        KafkaConsumer<Integer, byte[]> consumer = kafkaServerTest.getConsumer();
-        kafkaServerTest.sendMsg(producer);
+        KafkaProducer<String, byte[]> producer = kafkaServerTest.getProducer();
+        KafkaConsumer<String, byte[]> consumer = kafkaServerTest.getConsumer();
+        ProducerRecord data = new ProducerRecord("test", "42", "test-message".getBytes(StandardCharsets.UTF_8));
+        kafkaServerTest.sendSingleMsg(producer, data);
 
         // consume msg
-        ConsumerRecords<Integer, byte[]> records = consumer.poll(5000);
+        ConsumerRecords<String, byte[]> records = consumer.poll(5000);
 
         assertEquals(1, records.count());
-        Iterator<ConsumerRecord<Integer, byte[]>> recordIterator = records.iterator();
-        ConsumerRecord<Integer, byte[]> record = recordIterator.next();
+        Iterator<ConsumerRecord<String, byte[]>> recordIterator = records.iterator();
+        ConsumerRecord<String, byte[]> record = recordIterator.next();
 
-        System.out.printf("offset = %d, key = %s, value = %s", record.offset(), record.key(), record.value());
+        //System.out.printf("offset = %d, key = %s, value = %s", record.offset(), record.key(), record.value());
 
         //assertions
-        assertEquals(42, (int) record.key());
+        assertEquals("42", record.key());
         assertEquals("test-message", new String(record.value(), StandardCharsets.UTF_8));
 
+        kafkaServerTest.deleteTopic(topic);
         kafkaServerTest.shutdownServer();
     }
 

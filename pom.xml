@@ -41,7 +41,7 @@
     <module>springboot</module>
     <module>quarkus</module>
     <module>jdkhttp</module>
-    <module>test</module>
+    <module>integration</module>
   </modules>
 
   <dependencyManagement>
