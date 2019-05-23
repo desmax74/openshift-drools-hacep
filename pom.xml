@@ -19,7 +19,8 @@
     <rest.assured>3.3.0</rest.assured>
     <surefire.forkCount>1</surefire.forkCount>
     <surefire.version>2.22.0</surefire.version>
-    <version.com.fasterxml.jackson>2.9.8</version.com.fasterxml.jackson>
+    <version.com.fasterxml.jackson>2.9.9</version.com.fasterxml.jackson>
+    <version.commons.codec>1.12</version.commons.codec>
     <version.drools>7.21.0.Final</version.drools>
     <version.javax.cdi>2.0.SP1</version.javax.cdi>
     <version.javax.el>3.0.1-b08</version.javax.el>
@@ -159,6 +160,12 @@
         <version>${version.logback.core}</version>
       </dependency>
 
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>${version.commons.codec}</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

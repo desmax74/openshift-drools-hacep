@@ -15,10 +15,12 @@
  */
 package org.kie.u212;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+
+import java.nio.charset.Charset;
+
 import java.util.Iterator;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -57,35 +59,29 @@ public class KafkaTest {
 
 
     @Test
-    public void basicTest() throws IOException {
-        kafkaServerTest = new KafkaKieServerTest();
-        kafkaServerTest.startServer();
-        kafkaServerTest.createTopic(TEST_TOPIC);
+    public void basicTest() throws Exception {
 
         KafkaProducer<String, byte[]> producer = kafkaServerTest.getByteArrayProducer();
         KafkaConsumer<String, byte[]> consumer = kafkaServerTest.getByteArrayConsumer(TEST_TOPIC);
+        Base64 base64 = new Base64();
+        ;
+        ProducerRecord data = new ProducerRecord(TEST_TOPIC, "42", Base64.encodeBase64("test-message".getBytes(Charset.forName("UTF-8"))));
 
-        ProducerRecord data = new ProducerRecord(TEST_TOPIC, "42", "test-message".getBytes(StandardCharsets.UTF_8));
         kafkaLogger.warn(data.toString());
         kafkaServerTest.sendSingleMsg(producer, data);
 
-        // consume msg
         ConsumerRecords<String, byte[]> records = consumer.poll(5000);
-
         assertEquals(1, records.count());
         Iterator<ConsumerRecord<String, byte[]>> recordIterator = records.iterator();
         ConsumerRecord<String, byte[]> record = recordIterator.next();
 
-        //assertions
         assertEquals("42", record.key());
-        assertEquals("test-message", new String(record.value(), StandardCharsets.UTF_8));
+        assertEquals("test-message", new String(Base64.decodeBase64(record.value())));
 
-        kafkaServerTest.deleteTopic(TEST_TOPIC);
-        kafkaServerTest.shutdownServer();
     }
 
     @Test
-    public void testKafkaLoggerTest() {
+    public void testKafkaLoggerWithStringTest() {
         KafkaConsumer<String, String> consumerKafkaLogger = kafkaServerTest.getStringConsumer(TEST_KAFKA_LOGGER_TOPIC);
         kafkaLogger.warn("test-message");
         ConsumerRecords<String, String> records = consumerKafkaLogger.poll(5000);
@@ -96,6 +92,5 @@ public class KafkaTest {
         assertEquals(record.topic(), TEST_KAFKA_LOGGER_TOPIC);
         assertEquals(record.value(), "test-message\n");
     }
-
 
 }

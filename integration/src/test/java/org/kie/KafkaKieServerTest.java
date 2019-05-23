@@ -17,6 +17,7 @@ package org.kie;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,21 +43,20 @@ import org.apache.kafka.common.utils.Time;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class KafkaKieServerTest<K,V> implements AutoCloseable{
+public class KafkaKieServerTest<K, V> implements AutoCloseable {
 
     private static final String ZOOKEPER_HOST = "127.0.0.1";
     private static final String BROKER_HOST = "127.0.0.1";
     private static final String BROKER_PORT = "9092";
-
-    private  KafkaServer kafkaServer;
+    private final static Logger log = LoggerFactory.getLogger(KafkaKieServerTest.class);
+    private KafkaServer kafkaServer;
     private ZkUtils zkUtils;
     private ZkClient zkClient;
     private EmbeddedZookeeper zkServer;
-    private String tmpDir ;
-    private final static Logger log = LoggerFactory.getLogger(KafkaKieServerTest.class);
+    private String tmpDir;
 
-    public  KafkaServer startServer() throws IOException{
-        tmpDir = Files.createTempDirectory("kafka-").toAbsolutePath().toString();
+    public KafkaServer startServer() throws IOException {
+        tmpDir = Files.createTempDirectory("kafkatest-").toAbsolutePath().toString();
         zkServer = new EmbeddedZookeeper();
         String zkConnect = ZOOKEPER_HOST + ":" + zkServer.port();
         zkClient = new ZkClient(zkConnect, 30000, 30000, ZKStringSerializer$.MODULE$);
@@ -66,26 +66,43 @@ public class KafkaKieServerTest<K,V> implements AutoCloseable{
         brokerProps.setProperty("zookeeper.connect", zkConnect);
         brokerProps.setProperty("broker.id", "0");
         brokerProps.setProperty("log.dirs", tmpDir);
-        brokerProps.setProperty("listeners", "PLAINTEXT://" + BROKER_HOST +":" + BROKER_PORT);
-        brokerProps.setProperty("offsets.topic.replication.factor" , "1");
+        brokerProps.setProperty("listeners", "PLAINTEXT://" + BROKER_HOST + ":" + BROKER_PORT);
+        brokerProps.setProperty("offsets.topic.replication.factor", "1");
         KafkaConfig config = new KafkaConfig(brokerProps);
         Time mock = new SystemTime();
-        kafkaServer = TestUtils.createServer(config, mock);
+        kafkaServer = TestUtils.createServer(config,
+                                             mock);
         return kafkaServer;
     }
 
-    public void shutdownServer(){
+    public void shutdownServer() {
+        log.info("Shutdown kafka server");
         kafkaServer.shutdown();
         zkClient.close();
         zkServer.shutdown();
+        Path tmp = Paths.get(tmpDir);
         try {
-            log.info("delete folder:{}", tmpDir);
-            Files.walk(Paths.get(tmpDir)).
+            Files.walk(tmp).
                     sorted(Comparator.reverseOrder()).
                     map(Path::toFile).
                     forEach(File::delete);
-        }catch (Exception e){
-            log.error(e.getMessage(), e);
+        } catch (Exception e) {
+            log.error(e.getMessage(),
+                      e);
+        }
+        //clean previous kafkatest- dirs
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(tmp.getParent())) {
+            for (Path path : directoryStream) {
+                if (path.toString().startsWith("kafkatest-")) {
+                    Files.walk(path).
+                            sorted(Comparator.reverseOrder()).
+                            map(Path::toFile).
+                            forEach(File::delete);
+                }
+            }
+        } catch (IOException e) {
+            log.error(e.getMessage(),
+                      e);
         }
     }
 
@@ -94,80 +111,70 @@ public class KafkaKieServerTest<K,V> implements AutoCloseable{
         shutdownServer();
     }
 
-    public void sendSingleMsg(KafkaProducer<K,V> producer, ProducerRecord<K,V> data) {
-         producer.send(data);
+    public void sendSingleMsg(KafkaProducer<K, V> producer,
+                              ProducerRecord<K, V> data) {
+        producer.send(data);
         producer.close();
     }
 
-    public void sendMsgs(KafkaProducer<K,V> producer, List<ProducerRecord<K, V>> items) {
-        for(ProducerRecord<K,V> item: items){
+    public void sendMsgs(KafkaProducer<K, V> producer,
+                         List<ProducerRecord<K, V>> items) {
+        for (ProducerRecord<K, V> item : items) {
             producer.send(item);
         }
         producer.close();
     }
 
-    private Properties getConsumerConfig(){
+    private Properties getConsumerConfig() {
         Properties consumerProps = new Properties();
         consumerProps.setProperty("bootstrap.servers", BROKER_HOST + ":" + BROKER_PORT);
         consumerProps.setProperty("group.id", "group0");
         consumerProps.setProperty("client.id", "consumer0");
         consumerProps.put("auto.offset.reset", "earliest");
+        consumerProps.setProperty("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         return consumerProps;
     }
 
-    private Properties getProducerConfig(){
-        Properties consumerProps = new Properties();
-        consumerProps.setProperty("bootstrap.servers", BROKER_HOST + ":" + BROKER_PORT);
-        consumerProps.setProperty("group.id", "group0");
-        consumerProps.setProperty("client.id", "consumer0");
-        consumerProps.put("auto.offset.reset", "earliest");
-        return consumerProps;
+    private Properties getProducerConfig() {
+        Properties producerProps = new Properties();
+        producerProps.setProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        producerProps.setProperty("bootstrap.servers", BROKER_HOST + ":" + BROKER_PORT);
+        return producerProps;
     }
-
-
 
     public void createTopic(String topic) {
         AdminUtils.createTopic(zkUtils, topic, 1, 1, new Properties(), RackAwareMode.Disabled$.MODULE$);
     }
 
-    public void deleteTopic(String topic){
+    public void deleteTopic(String topic) {
         AdminUtils.deleteTopic(zkUtils, topic);
     }
 
-    public KafkaConsumer<K,V> getStringConsumer(String topic) {
-        // setup consumer
+    public KafkaConsumer<K, V> getStringConsumer(String topic) {
         Properties consumerProps = getConsumerConfig();
-        consumerProps.setProperty("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
         consumerProps.setProperty("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        KafkaConsumer<K,V> consumer = new KafkaConsumer<>(consumerProps);
+        KafkaConsumer<K, V> consumer = new KafkaConsumer<>(consumerProps);
         consumer.subscribe(Arrays.asList(topic));
         return consumer;
     }
 
-    public KafkaConsumer<K,V> getByteArrayConsumer(String topic) {
-        // setup consumer
+    public KafkaConsumer<K, V> getByteArrayConsumer(String topic) {
         Properties consumerProps = getConsumerConfig();
-        consumerProps.setProperty("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
         consumerProps.setProperty("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
-        KafkaConsumer<K,V> consumer = new KafkaConsumer<>(consumerProps);
+        KafkaConsumer<K, V> consumer = new KafkaConsumer<>(consumerProps);
         consumer.subscribe(Arrays.asList(topic));
         return consumer;
     }
 
-    public KafkaProducer<K,V> getByteArrayProducer() {
-        Properties producerProps = new Properties();
-        producerProps.setProperty("bootstrap.servers", BROKER_HOST + ":" + BROKER_PORT);
-        producerProps.setProperty("key.serializer","org.apache.kafka.common.serialization.StringSerializer");
+    public KafkaProducer<K, V> getByteArrayProducer() {
+        Properties producerProps = getProducerConfig();
         producerProps.setProperty("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
         return new KafkaProducer<>(producerProps);
     }
 
-    public KafkaProducer<K,V> getStringProducer() {
-        Properties producerProps = new Properties();
-        producerProps.setProperty("bootstrap.servers", BROKER_HOST + ":" + BROKER_PORT);
-        producerProps.setProperty("key.serializer","org.apache.kafka.common.serialization.StringSerializer");
+    public KafkaProducer<K, V> getStringProducer() {
+        Properties producerProps = getProducerConfig();
         producerProps.setProperty("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         return new KafkaProducer<>(producerProps);
     }
-
 }
