@@ -30,8 +30,9 @@
     <level value="error" />
     <appender-ref ref="console" />
   </logger>
+  <!-- Used with warn level for test -->
   <logger name="org.kie.u212.kafkaLogger">
-    <level value="info" />
+    <level value="warn" />
     <appender-ref ref="kafkaAppender" />
   </logger>
   <root>

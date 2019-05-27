@@ -59,12 +59,10 @@ public class KafkaTest {
 
 
     @Test
-    public void basicTest() throws Exception {
-
+    public void basicTest() {
         KafkaProducer<String, byte[]> producer = kafkaServerTest.getByteArrayProducer();
         KafkaConsumer<String, byte[]> consumer = kafkaServerTest.getByteArrayConsumer(TEST_TOPIC);
-        Base64 base64 = new Base64();
-        ;
+
         ProducerRecord data = new ProducerRecord(TEST_TOPIC, "42", Base64.encodeBase64("test-message".getBytes(Charset.forName("UTF-8"))));
 
         kafkaLogger.warn(data.toString());

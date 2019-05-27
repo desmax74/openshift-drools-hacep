@@ -13,6 +13,12 @@
   <packaging>jar</packaging>
 
   <dependencies>
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>openshift-kie-u212</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
     <!-- log -->
     <dependency>
       <groupId>org.slf4j</groupId>

@@ -2,6 +2,7 @@ package org.drools.cep
 
 import org.kie.u212.model.StockTickEvent
 import org.kie.u212.consumer.DroolsExecutor
+import java.util.UUID
 
 rule StockAverage when
   $name : String()
