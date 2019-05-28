@@ -44,7 +44,7 @@ public class Config {
     private static final String SNAPSHOT_CONSUMER_CONF = "snapshot_consumer.properties";
     private static final String SNAPSHOT_PRODUCER_CONF = "snapshot_producer.properties";
 
-    public static String getBotStrapServers() {
+    public static String getBootStrapServers() {
         StringBuilder sb = new StringBuilder();
         sb.append(Config.BROKER_URL).append(":9092");
         //append("my-cluster-kafka-bootstrap.my-kafka-project.svc:9092");//plain
@@ -60,6 +60,7 @@ public class Config {
         if(consumerConf == null){
             consumerConf = getDefaultConfigFromProps(CONSUMER_CONF);
         }
+        logConfig(consumerConf);
         return consumerConf;
     }
 
@@ -67,6 +68,7 @@ public class Config {
         if(producerConf == null){
             producerConf = getDefaultConfigFromProps(PRODUCER_CONF);
         }
+        logConfig(producerConf);
         return producerConf;
     }
 
@@ -74,6 +76,7 @@ public class Config {
         if(snapshotConsumerConf == null){
             snapshotConsumerConf = getDefaultConfigFromProps(SNAPSHOT_CONSUMER_CONF);
         }
+        logConfig(snapshotConsumerConf);
         return snapshotConsumerConf;
     }
 
@@ -81,6 +84,7 @@ public class Config {
         if(snapshotProducerConf == null){
             snapshotProducerConf = getDefaultConfigFromProps(SNAPSHOT_PRODUCER_CONF);
         }
+        logConfig(snapshotProducerConf);
         return snapshotProducerConf;
     }
 
@@ -89,7 +93,7 @@ public class Config {
             config = new Properties();
             config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
             config.put("value.serializer", "org.kie.u212.serializer.EventJsonSerializer");
-            config.put("bootstrap.servers", getBotStrapServers());
+            config.put("bootstrap.servers", getBootStrapServers());
             config.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
             config.put("value.deserializer", "org.kie.u212.producer.EventJsonDeserializer");
             config.put("max.poll.interval.ms", "10000");//time to discover the new consumer after a changetopic default 5 min 300000
@@ -97,16 +101,13 @@ public class Config {
             config.put("enable.auto.commit", "false");
             config.put("metadata.max.age.ms", "10000");
             config.put("iteration.between.snapshot", "10");
-            //config.setProperty("enable.auto.commit", String.valueOf(true));
         }
-        //logConfig(props);
         return config;
     }
 
 
 
-    public static Properties getDefaultConfigFromProps(String fileName) {//@TODO
-
+    public static Properties getDefaultConfigFromProps(String fileName) {
             Properties config = new Properties();
             InputStream in = null;
             try {
@@ -123,7 +124,7 @@ public class Config {
             }
 
         if(config.get("bootstrap.servers")== null){
-            config.put("bootstrap.servers", getBotStrapServers());
+            config.put("bootstrap.servers", getBootStrapServers());
         }
         return config;
     }

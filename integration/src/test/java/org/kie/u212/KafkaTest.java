@@ -29,7 +29,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.kie.KafkaKieServerTest;
+import org.kie.KafkaUtilTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,14 +37,14 @@ import static org.junit.Assert.*;
 
 public class KafkaTest {
 
-    private  KafkaKieServerTest kafkaServerTest;
+    private KafkaUtilTest kafkaServerTest;
     private Logger kafkaLogger = LoggerFactory.getLogger("test.kafkaLogger");
     private final  String TEST_KAFKA_LOGGER_TOPIC = "testevents";
     private final  String TEST_TOPIC = "test";
 
     @Before
     public  void setUp() throws Exception{
-        kafkaServerTest = new KafkaKieServerTest();
+        kafkaServerTest = new KafkaUtilTest();
         kafkaServerTest.startServer();
         kafkaServerTest.createTopic(TEST_KAFKA_LOGGER_TOPIC);
         kafkaServerTest.createTopic(TEST_TOPIC);

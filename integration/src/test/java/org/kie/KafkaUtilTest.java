@@ -21,10 +21,13 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import kafka.admin.AdminUtils;
 import kafka.admin.RackAwareMode;
@@ -35,20 +38,25 @@ import kafka.utils.ZKStringSerializer$;
 import kafka.utils.ZkUtils;
 import kafka.zk.EmbeddedZookeeper;
 import org.I0Itec.zkclient.ZkClient;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.PartitionInfo;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.SystemTime;
 import org.apache.kafka.common.utils.Time;
+import org.kie.u212.model.EventWrapper;
+import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class KafkaKieServerTest<K, V> implements AutoCloseable {
+public class KafkaUtilTest<K, V> implements AutoCloseable {
 
     private static final String ZOOKEPER_HOST = "127.0.0.1";
     private static final String BROKER_HOST = "127.0.0.1";
     private static final String BROKER_PORT = "9092";
-    private final static Logger log = LoggerFactory.getLogger(KafkaKieServerTest.class);
+    private final static Logger log = LoggerFactory.getLogger(KafkaUtilTest.class);
     private KafkaServer kafkaServer;
     private ZkUtils zkUtils;
     private ZkClient zkClient;
@@ -177,4 +185,22 @@ public class KafkaKieServerTest<K, V> implements AutoCloseable {
         producerProps.setProperty("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         return new KafkaProducer<>(producerProps);
     }
+
+
+    public KafkaConsumer getConsumer(String key, String topic, Properties props) {
+        KafkaConsumer consumer = new KafkaConsumer(props);
+        List<PartitionInfo> infos = consumer.partitionsFor(topic);
+        List<TopicPartition> partitions = new ArrayList();
+        if (infos != null) {
+            for (PartitionInfo partition : infos) {
+                partitions.add(new TopicPartition(partition.topic(), partition.partition()));
+            }
+        }
+        consumer.assign(partitions);
+        Set<TopicPartition> assignments = consumer.assignment();
+        assignments.forEach(topicPartition -> consumer.seekToBeginning(assignments));
+        return consumer;
+
+    }
+
 }
