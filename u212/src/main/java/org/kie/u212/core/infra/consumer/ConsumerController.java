@@ -21,12 +21,14 @@ public class ConsumerController {
 
     private Restarter restarter;
 
+    private Thread t;
+
     public ConsumerController(Restarter bag) {
         this.restarter = bag;
     }
 
     public void consumeEvents() {
-        Thread t = new Thread(
+        t = new Thread(
                 new ConsumerThread(
                         Config.DEFAULT_POLL_TIMEOUT_MS,
                         Config.LOOP_DURATION,
@@ -34,5 +36,16 @@ public class ConsumerController {
                         Config.SUBSCRIBE_MODE,
                         restarter));
         t.start();
+    }
+
+    public void stopConsumeEvents(){
+        restarter.getConsumer().stop();
+        if(t != null){
+            try {
+                t.join();
+            }catch (InterruptedException ex){
+                throw new RuntimeException(ex);
+            }
+        }
     }
 }

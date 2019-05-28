@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LeaderTest {
+
     private KafkaKieServerTest kafkaServerTest;
     private Logger kafkaLogger = LoggerFactory.getLogger("org.kie.u212.kafkaLogger");
     private final  String TEST_KAFKA_LOGGER_TOPIC = "testevents";
@@ -18,7 +19,7 @@ public class LeaderTest {
 
 
     @Before
-    public  void setUp() throws Exception{
+    public void setUp() throws Exception{
         kafkaServerTest = new KafkaKieServerTest();
         kafkaServerTest.startServer();
         kafkaServerTest.createTopic(TEST_KAFKA_LOGGER_TOPIC);
@@ -31,8 +32,7 @@ public class LeaderTest {
     }
 
     @After
-    public  void tearDown(){
-        System.out.println("tearDown");
+    public void tearDown(){
         try {
             Bootstrap.stopEngine();
         }catch (ConcurrentModificationException ex){ }
@@ -43,6 +43,5 @@ public class LeaderTest {
         kafkaServerTest.deleteTopic(Config.SNAPSHOT_TOPIC);
         kafkaServerTest.shutdownServer();
     }
-
 
 }

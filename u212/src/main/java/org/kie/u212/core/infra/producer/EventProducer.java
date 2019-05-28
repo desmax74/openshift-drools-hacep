@@ -44,6 +44,7 @@ public class EventProducer<T> extends AbstractProducer<String, T> implements Pro
 
     public void stop() {
         if (producer != null) {
+            producer.flush();
             producer.close();
         }
     }

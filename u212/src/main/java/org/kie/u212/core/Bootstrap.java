@@ -23,10 +23,8 @@ import org.kie.u212.core.infra.SessionSnapShooter;
 import org.kie.u212.core.infra.SnapshotInfos;
 import org.kie.u212.core.infra.consumer.ConsumerController;
 import org.kie.u212.core.infra.consumer.Restarter;
-import org.kie.u212.core.infra.election.KubernetesLockConfiguration;
 import org.kie.u212.core.infra.election.LeaderElection;
 import org.kie.u212.core.infra.producer.EventProducer;
-import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +35,7 @@ public class Bootstrap {
 
     private static final Logger logger = LoggerFactory.getLogger(Bootstrap.class);
     private static ConsumerController consumerController;
-    private static EventProducer<StockTickEvent> eventProducer;
+    private static EventProducer<?> eventProducer;
     private static Restarter restarter;
     private static SessionSnapShooter snaptshooter;
 
@@ -51,6 +49,7 @@ public class Bootstrap {
     }
 
     public static void stopEngine() {
+        logger.info("Stop engine");
         LeaderElection leadership = CoreKube.getLeaderElection();
         try {
             leadership.stop();
@@ -58,6 +57,7 @@ public class Bootstrap {
             logger.error(e.getMessage(),
                          e);
         }
+
         if (restarter != null) {
             restarter.getConsumer().stop();
         }
@@ -65,7 +65,17 @@ public class Bootstrap {
             eventProducer.stop();
         }
         snaptshooter.close();
+        consumerController.stopConsumeEvents();
+        consumerController = null;
+        eventProducer = null;
+        restarter = null;
+        snaptshooter = null;
     }
+
+    public static Restarter getRestarter(){
+        return restarter;
+    }
+
 
     private static void leaderElection() {
         //KubernetesLockConfiguration configuration = CoreKube.getKubernetesLockConfiguration();

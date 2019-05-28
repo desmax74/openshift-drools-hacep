@@ -112,11 +112,13 @@ public class DefaultConsumer<T> implements EventConsumer,
     }
 
     public void stop() {
-        kafkaConsumer.close();
-        if (kafkaSecondaryConsumer != null) {
-            kafkaSecondaryConsumer.close();
-        }
         stopConsume();
+        stopPollingControl();
+        stopPollingEvents();
+        kafkaConsumer.wakeup();
+        if (kafkaSecondaryConsumer != null) {
+            kafkaSecondaryConsumer.wakeup();
+        }
     }
 
     public void updateStatus(State state) {
@@ -218,6 +220,7 @@ public class DefaultConsumer<T> implements EventConsumer,
         } finally {
             try {
                 kafkaConsumer.commitSync();
+                kafkaSecondaryConsumer.commitSync();
                 if (logger.isDebugEnabled()) {
                     for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : offsetsEvents.entrySet()) {
                         logger.debug("Consumer partition %s - lastOffset %s\n",

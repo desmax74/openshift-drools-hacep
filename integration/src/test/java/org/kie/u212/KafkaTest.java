@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
 public class KafkaTest {
 
     private  KafkaKieServerTest kafkaServerTest;
-    private Logger kafkaLogger = LoggerFactory.getLogger("org.kie.u212.kafkaLogger");
+    private Logger kafkaLogger = LoggerFactory.getLogger("test.kafkaLogger");
     private final  String TEST_KAFKA_LOGGER_TOPIC = "testevents";
     private final  String TEST_TOPIC = "test";
 

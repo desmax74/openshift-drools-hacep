@@ -20,18 +20,18 @@
   </appender>
   <logger name="I0Itec.zkclient">
     <level value="error" />
-    <appender-ref ref="console" />
   </logger>
   <logger name="org.apache.zookeeper">
     <level value="error" />
-    <appender-ref ref="console" />
   </logger>
   <logger name="org.apache.kafka">
     <level value="error" />
-    <appender-ref ref="console" />
+  </logger>
+  <logger name="org.kie.u212">
+    <level value="info" />
   </logger>
   <!-- Used with warn level for test -->
-  <logger name="org.kie.u212.kafkaLogger">
+  <logger name="test.kafkaLogger">
     <level value="warn" />
     <appender-ref ref="kafkaAppender" />
   </logger>

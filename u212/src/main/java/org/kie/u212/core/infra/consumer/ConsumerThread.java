@@ -41,4 +41,6 @@ public class ConsumerThread implements Runnable {
                                     duration,
                                     commitSync);
     }
+
+
 }

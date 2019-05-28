@@ -32,7 +32,6 @@ public class ReplicaTest {
 
     @After
     public  void tearDown(){
-        System.out.println("tearDown");
         try {
             Bootstrap.stopEngine();
         }catch (ConcurrentModificationException ex){ }
@@ -42,6 +41,5 @@ public class ReplicaTest {
         kafkaServerTest.deleteTopic(Config.CONTROL_TOPIC);
         kafkaServerTest.shutdownServer();
     }
-
 
 }
