@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie;
+package org.kie.u212.kafka;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,9 +25,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import kafka.admin.AdminUtils;
 import kafka.admin.RackAwareMode;
@@ -38,7 +38,6 @@ import kafka.utils.ZKStringSerializer$;
 import kafka.utils.ZkUtils;
 import kafka.zk.EmbeddedZookeeper;
 import org.I0Itec.zkclient.ZkClient;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -46,8 +45,9 @@ import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.SystemTime;
 import org.apache.kafka.common.utils.Time;
-import org.kie.u212.model.EventWrapper;
+import org.kie.u212.Config;
 import org.kie.u212.model.StockTickEvent;
+import org.kie.u212.producer.ClientProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -201,6 +201,19 @@ public class KafkaUtilTest<K, V> implements AutoCloseable {
         assignments.forEach(topicPartition -> consumer.seekToBeginning(assignments));
         return consumer;
 
+    }
+
+    public void insertBatchStockTicketEvent(int items) {
+        Properties props = Config.getProducerConfig();
+        ClientProducer producer = new ClientProducer(props);
+        try {
+            for (int i = 0; i < items; i++) {
+                StockTickEvent eventA = new StockTickEvent("RHT", ThreadLocalRandom.current().nextLong(80, 100));
+                producer.insertSync(eventA, true);
+            }
+        } finally {
+            producer.stop();
+        }
     }
 
 }

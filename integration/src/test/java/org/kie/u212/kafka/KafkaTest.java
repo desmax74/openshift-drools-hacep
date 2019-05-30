@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212;
+package org.kie.u212.kafka;
 
 
 import java.nio.charset.Charset;
@@ -29,7 +29,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.kie.KafkaUtilTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +37,8 @@ import static org.junit.Assert.*;
 public class KafkaTest {
 
     private KafkaUtilTest kafkaServerTest;
-    private Logger kafkaLogger = LoggerFactory.getLogger("test.kafkaLogger");
-    private final  String TEST_KAFKA_LOGGER_TOPIC = "testevents";
+    private Logger kafkaLogger = LoggerFactory.getLogger("org.kie.u212.kafka.KafkaTest");
+    private final  String TEST_KAFKA_LOGGER_TOPIC = "TestEvents";
     private final  String TEST_TOPIC = "test";
 
     @Before
@@ -79,6 +78,7 @@ public class KafkaTest {
     }
 
     @Test
+    //@Ignore
     public void testKafkaLoggerWithStringTest() {
         KafkaConsumer<String, String> consumerKafkaLogger = kafkaServerTest.getStringConsumer(TEST_KAFKA_LOGGER_TOPIC);
         kafkaLogger.warn("test-message");
