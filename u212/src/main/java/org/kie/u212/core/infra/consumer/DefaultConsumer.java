@@ -262,12 +262,10 @@ public class DefaultConsumer<T> implements EventConsumer,
 
     private void enableConsumeAndStartLoop(State state) {
         if (state.equals(State.LEADER) && !leader) {
-            System.out.println("0");
             leader = true;
             DroolsExecutor.setAsMaster();
             stopLeaderProcessing();// we starts to processing only when the last key readed on bootstrap is reached
         } else if (state.equals(State.NOT_LEADER) && leader) {
-            System.out.println("1");
             leader = false;
             kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
             DroolsExecutor.setAsSlave();
@@ -275,7 +273,6 @@ public class DefaultConsumer<T> implements EventConsumer,
             startPollingEvents();
             stopPollingControl();
         } else if (state.equals(State.NOT_LEADER) && !leader) {
-            System.out.println("2");
             leader = false;
             kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
             DroolsExecutor.setAsSlave();
@@ -283,7 +280,6 @@ public class DefaultConsumer<T> implements EventConsumer,
             stopPollingEvents();
             startPollingControl();
         } else if (state.equals(State.BECOMING_LEADER) && !leader) {
-            System.out.println("3");
             leader = true;
             DroolsExecutor.setAsMaster();
             stopLeaderProcessing();
