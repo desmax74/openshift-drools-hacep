@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.kafka;
+package org.kie.u212;
 
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
@@ -24,7 +24,6 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.kie.u212.Config;
 import org.kie.u212.core.Bootstrap;
 import org.kie.u212.core.infra.election.State;
 import org.kie.u212.model.EventType;
@@ -39,8 +38,8 @@ public class PodTest {
 
     private KafkaUtilTest kafkaServerTest;
     private Logger logger = LoggerFactory.getLogger(PodTest.class);
-    private Logger kafkaLogger = LoggerFactory.getLogger("test.kafkaLogger");
-    private final  String TEST_KAFKA_LOGGER_TOPIC = "TestEvents";
+    private Logger kafkaLogger = LoggerFactory.getLogger("org.u212");
+    private final  String TEST_KAFKA_LOGGER_TOPIC = "logs";
     private final  String TEST_TOPIC = "test";
 
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.kafka;
+package org.kie.u212;
 
 
 import java.nio.charset.Charset;
@@ -37,8 +37,8 @@ import static org.junit.Assert.*;
 public class KafkaTest {
 
     private KafkaUtilTest kafkaServerTest;
-    private Logger kafkaLogger = LoggerFactory.getLogger("org.kie.u212.kafka.KafkaTest");
-    private final  String TEST_KAFKA_LOGGER_TOPIC = "TestEvents";
+    private Logger kafkaLogger = LoggerFactory.getLogger("org.u212");
+    private final  String TEST_KAFKA_LOGGER_TOPIC = "logs";
     private final  String TEST_TOPIC = "test";
 
     @Before
@@ -63,8 +63,6 @@ public class KafkaTest {
         KafkaConsumer<String, byte[]> consumer = kafkaServerTest.getByteArrayConsumer(TEST_TOPIC);
 
         ProducerRecord data = new ProducerRecord(TEST_TOPIC, "42", Base64.encodeBase64("test-message".getBytes(Charset.forName("UTF-8"))));
-
-        kafkaLogger.warn(data.toString());
         kafkaServerTest.sendSingleMsg(producer, data);
 
         ConsumerRecords<String, byte[]> records = consumer.poll(5000);
@@ -78,7 +76,6 @@ public class KafkaTest {
     }
 
     @Test
-    //@Ignore
     public void testKafkaLoggerWithStringTest() {
         KafkaConsumer<String, String> consumerKafkaLogger = kafkaServerTest.getStringConsumer(TEST_KAFKA_LOGGER_TOPIC);
         kafkaLogger.warn("test-message");
@@ -88,7 +85,7 @@ public class KafkaTest {
         ConsumerRecord<String, String> record = recordIterator.next();
         assertNotNull(record);
         assertEquals(record.topic(), TEST_KAFKA_LOGGER_TOPIC);
-        assertEquals(record.value(), "test-message\n");
+        assertEquals(record.value(), "test-message");
     }
 
 }

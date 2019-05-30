@@ -21,7 +21,7 @@
     <surefire.version>2.22.0</surefire.version>
     <version.com.fasterxml.jackson>2.9.9</version.com.fasterxml.jackson>
     <version.commons.codec>1.12</version.commons.codec>
-    <version.drools>7.21.0.Final</version.drools>
+    <version.drools>7.22.0.Final</version.drools>
     <version.javax.cdi>2.0.SP1</version.javax.cdi>
     <version.javax.el>3.0.1-b08</version.javax.el>
     <version.javax.ws.rs>2.1.1</version.javax.ws.rs>
@@ -29,9 +29,10 @@
     <version.kafka.client>2.1.1</version.kafka.client>
     <version.k8s.client>4.2.1</version.k8s.client>
     <version.logback.core>1.2.3</version.logback.core>
-    <version.org.kie>7.21.0.Final</version.org.kie>
+    <version.org.kie>7.22.0.Final</version.org.kie>
     <version.servlet>4.0.1</version.servlet>
     <version.slf4j>1.7.26</version.slf4j>
+    <version.logback.kafka.appender>0.2.0-RC2</version.logback.kafka.appender>
     <version.springboot>2.2.0.M3</version.springboot>
   </properties>
 
@@ -149,6 +150,13 @@
         <scope>compile</scope>
       </dependency>
 
+      <!-- Logs-->
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${version.slf4j}</version>
+      </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-core</artifactId>
@@ -158,6 +166,14 @@
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
         <version>${version.logback.core}</version>
+        <scope>runtime</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>com.github.danielwegener</groupId>
+        <artifactId>logback-kafka-appender</artifactId>
+        <version>${version.logback.kafka.appender}</version>
+        <scope>test</scope>
       </dependency>
 
       <dependency>

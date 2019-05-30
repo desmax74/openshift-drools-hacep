@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.kafka;
+package org.kie.u212;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +45,6 @@ import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.SystemTime;
 import org.apache.kafka.common.utils.Time;
-import org.kie.u212.Config;
 import org.kie.u212.model.StockTickEvent;
 import org.kie.u212.producer.ClientProducer;
 import org.slf4j.Logger;
