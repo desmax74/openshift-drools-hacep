@@ -16,6 +16,7 @@
 package org.kie.u212.core.infra.consumer;
 
 import org.kie.u212.core.infra.election.Callback;
+import org.kie.u212.core.infra.utils.Printer;
 
 /***
  * Purpose of this class is to set a new consumer
@@ -26,13 +27,15 @@ public class Restarter {
 
     private DefaultConsumer consumer;
     private InfraCallback callback;
+    private Printer printer;
 
-    public Restarter() {
+    public Restarter(Printer printer) {
         callback = new InfraCallback();
+        this.printer = printer;
     }
 
     public void createDroolsConsumer() {
-        consumer = new DefaultConsumer(this);
+        consumer = new DefaultConsumer(this, printer);
         callback.setConsumer(consumer);
     }
 

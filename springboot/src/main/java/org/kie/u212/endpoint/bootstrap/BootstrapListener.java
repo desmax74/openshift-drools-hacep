@@ -20,6 +20,7 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import org.kie.u212.core.Bootstrap;
+import org.kie.u212.core.infra.utils.PrinterLogImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,7 @@ public class BootstrapListener implements ServletContextListener {
     }
 
     private void initServices() {
-        Bootstrap.startEngine();
+        Bootstrap.startEngine(new PrinterLogImpl());
         logger.info("Core system started");
     }
 

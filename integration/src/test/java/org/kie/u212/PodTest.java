@@ -17,6 +17,7 @@ package org.kie.u212;
 
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -26,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kie.u212.core.Bootstrap;
 import org.kie.u212.core.infra.election.State;
+import org.kie.u212.core.infra.utils.PrinterLogImpl;
 import org.kie.u212.model.EventType;
 import org.kie.u212.model.EventWrapper;
 import org.kie.u212.model.StockTickEvent;
@@ -38,7 +40,6 @@ public class PodTest {
 
     private KafkaUtilTest kafkaServerTest;
     private Logger logger = LoggerFactory.getLogger(PodTest.class);
-    private Logger kafkaLogger = LoggerFactory.getLogger("org.u212");
     private final  String TEST_KAFKA_LOGGER_TOPIC = "logs";
     private final  String TEST_TOPIC = "test";
 
@@ -47,13 +48,11 @@ public class PodTest {
     public void setUp() throws Exception{
         kafkaServerTest = new KafkaUtilTest();
         kafkaServerTest.startServer();
-        //kafkaServerTest.createTopic(TEST_KAFKA_LOGGER_TOPIC);
+        kafkaServerTest.createTopic(TEST_KAFKA_LOGGER_TOPIC);
         kafkaServerTest.createTopic(TEST_TOPIC);
         kafkaServerTest.createTopic(Config.EVENTS_TOPIC);
         kafkaServerTest.createTopic(Config.CONTROL_TOPIC);
         kafkaServerTest.createTopic(Config.SNAPSHOT_TOPIC);
-        Bootstrap.startEngine();
-
     }
 
     @After
@@ -62,7 +61,7 @@ public class PodTest {
             Bootstrap.stopEngine();
         }catch (ConcurrentModificationException ex){ }
         kafkaServerTest.deleteTopic(TEST_TOPIC);
-        //kafkaServerTest.deleteTopic(TEST_KAFKA_LOGGER_TOPIC);
+        kafkaServerTest.deleteTopic(TEST_KAFKA_LOGGER_TOPIC);
         kafkaServerTest.deleteTopic(Config.EVENTS_TOPIC);
         kafkaServerTest.deleteTopic(Config.CONTROL_TOPIC);
         kafkaServerTest.deleteTopic(Config.SNAPSHOT_TOPIC);
@@ -71,6 +70,7 @@ public class PodTest {
 
     @Test
     public void processOneSentMessageAsLeader() {
+        Bootstrap.startEngine(new PrinterLogImpl());
         Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
         KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("", Config.EVENTS_TOPIC, Config.getConsumerConfig());
         KafkaConsumer controlConsumer = kafkaServerTest.getConsumer("",Config.CONTROL_TOPIC, Config.getConsumerConfig());
@@ -85,8 +85,8 @@ public class PodTest {
             assertEquals(eventsRecord.value().getOffset(),0);
             assertEquals(eventsRecord.value().getEventType(), EventType.APP);
             assertEquals(eventsRecord.value().getSideEffects().size(), 0);
-            EventWrapper<StockTickEvent> ew = (EventWrapper<StockTickEvent>) eventsRecord.value().getDomainEvent();
-            StockTickEvent eventsTicket = ew.getDomainEvent();
+            Map map = (Map) eventsRecord.value().getDomainEvent();
+            StockTickEvent eventsTicket = ConverterUtil.fromMap(map);
             assertEquals(eventsTicket.getCompany(), "RHT");
 
             //CONTROL TOPIC
@@ -94,13 +94,13 @@ public class PodTest {
             assertEquals(1, controlRecords.count());
             Iterator<ConsumerRecord<String, EventWrapper>> controlRecordIterator = controlRecords.iterator();
             ConsumerRecord<String, EventWrapper> controlRecord = controlRecordIterator.next();
-            assertEquals(controlRecord.topic(), Config.EVENTS_TOPIC);
+            assertEquals(controlRecord.topic(), Config.CONTROL_TOPIC);
             assertEquals(controlRecord.value().getOffset(),0);
             assertEquals(controlRecord.value().getEventType(), EventType.APP);
-            assertEquals(controlRecord.value().getSideEffects().size(), 0);
+            assertTrue(!controlRecord.value().getSideEffects().isEmpty());
 
-            EventWrapper<StockTickEvent> cew = (EventWrapper<StockTickEvent>) controlRecord.value().getDomainEvent();
-            StockTickEvent controlTicket = cew.getDomainEvent();
+            Map mapControl = (Map) controlRecord.value().getDomainEvent();
+            StockTickEvent controlTicket = ConverterUtil.fromMap(mapControl);
 
             //Same msg content on Events topic and control topics
             assertEquals(controlRecord.key(), eventsRecord.key());
@@ -117,6 +117,7 @@ public class PodTest {
 
     @Test
     public void processMessagesAsLeaderAndCreateSnapshot() {
+        Bootstrap.startEngine(new PrinterLogImpl());
         Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
         KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("",Config.EVENTS_TOPIC, Config.getConsumerConfig());
         KafkaConsumer snapshotConsumer = kafkaServerTest.getConsumer("",Config.SNAPSHOT_TOPIC, Config.getSnapshotConsumerConfig());
@@ -139,8 +140,9 @@ public class PodTest {
     }
 
     @Test
-    public void processOneSentMessageAsReplica() {
-        Bootstrap.getRestarter().getCallback().updateStatus(State.NOT_LEADER);
+    public void processOneSentMessageAsLeaderAndThenReplica() {
+        Bootstrap.startEngine(new PrinterKafkaImpl());
+        Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
         KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("", Config.EVENTS_TOPIC, Config.getConsumerConfig());
         KafkaConsumer controlConsumer = kafkaServerTest.getConsumer("",Config.CONTROL_TOPIC, Config.getConsumerConfig());
         kafkaServerTest.insertBatchStockTicketEvent(1);
@@ -154,8 +156,8 @@ public class PodTest {
             assertEquals(eventsRecord.value().getOffset(),0);
             assertEquals(eventsRecord.value().getEventType(), EventType.APP);
             assertEquals(eventsRecord.value().getSideEffects().size(), 0);
-            EventWrapper<StockTickEvent> ew = (EventWrapper<StockTickEvent>) eventsRecord.value().getDomainEvent();
-            StockTickEvent eventsTicket = ew.getDomainEvent();
+            Map map = (Map) eventsRecord.value().getDomainEvent();
+            StockTickEvent eventsTicket = ConverterUtil.fromMap(map);
             assertEquals(eventsTicket.getCompany(), "RHT");
 
             //CONTROL TOPIC
@@ -163,18 +165,30 @@ public class PodTest {
             assertEquals(1, controlRecords.count());
             Iterator<ConsumerRecord<String, EventWrapper>> controlRecordIterator = controlRecords.iterator();
             ConsumerRecord<String, EventWrapper> controlRecord = controlRecordIterator.next();
-            assertEquals(controlRecord.topic(), Config.EVENTS_TOPIC);
+            assertEquals(controlRecord.topic(), Config.CONTROL_TOPIC);
             assertEquals(controlRecord.value().getOffset(),0);
             assertEquals(controlRecord.value().getEventType(), EventType.APP);
-            assertEquals(controlRecord.value().getSideEffects().size(), 0);
+            assertTrue(!controlRecord.value().getSideEffects().isEmpty());
 
-            EventWrapper<StockTickEvent> cew = (EventWrapper<StockTickEvent>) controlRecord.value().getDomainEvent();
-            StockTickEvent controlTicket = cew.getDomainEvent();
+            //EventWrapper<StockTickEvent> cew = (EventWrapper<StockTickEvent>) controlRecord.value().getDomainEvent();
+            //StockTickEvent controlTicket = cew.getDomainEvent();
+            Map mapControl = (Map) controlRecord.value().getDomainEvent();
+            StockTickEvent controlTicket = ConverterUtil.fromMap(mapControl);
 
             //Same msg content on Events topic and control topics
             assertEquals(controlRecord.key(), eventsRecord.key());
             assertEquals(controlTicket.getCompany(), eventsTicket.getCompany());
             assertTrue(controlTicket.getPrice() == eventsTicket.getPrice());
+
+            //no more msg to consume as a leader
+            eventsRecords = eventsConsumer.poll(5000);
+            assertEquals(0, eventsRecords.count());
+            controlRecords = controlConsumer.poll(5000);
+            assertEquals(0, controlRecords.count());
+
+            // SWITCH AS a REPLICA
+            Bootstrap.getRestarter().getCallback().updateStatus(State.NOT_LEADER);
+            //@TODO with kafka logger
 
         }catch (Exception ex){
             logger.error(ex.getMessage(), ex);

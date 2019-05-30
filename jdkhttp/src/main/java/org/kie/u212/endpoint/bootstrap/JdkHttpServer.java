@@ -24,6 +24,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.kie.u212.core.Bootstrap;
+import org.kie.u212.core.infra.utils.PrinterLogImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,7 @@ public class JdkHttpServer {
         server.createContext("/health", new HealthHandler());
         server.createContext("/env/all", new EnvHandler());
         try {
-            Bootstrap.startEngine();
+            Bootstrap.startEngine(new PrinterLogImpl());
             logger.info("Core system started");
         }finally {
            // Bootstrap.stopEngine();

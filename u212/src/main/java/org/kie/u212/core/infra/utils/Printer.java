@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212;
+package org.kie.u212.core.infra.utils;
 
-import java.util.Map;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import org.kie.u212.model.StockTickEvent;
+public interface Printer {
 
-public class ConverterUtil {
+    void prettyPrinter(ConsumerRecord consumerRecord, boolean processed);
 
-    public static StockTickEvent fromMap(Map map){
-        StockTickEvent stockTickEvent = new StockTickEvent();
-        stockTickEvent.setCompany(map.get("company").toString());
-        stockTickEvent.setPrice((Double) map.get("price"));
-        return stockTickEvent;
-    }
+    void printOffset(String topic);
+
 }

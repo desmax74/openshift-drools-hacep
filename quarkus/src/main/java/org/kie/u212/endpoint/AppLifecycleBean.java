@@ -21,12 +21,13 @@ import javax.enterprise.event.Observes;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
 import org.kie.u212.core.Bootstrap;
+import org.kie.u212.core.infra.utils.PrinterLogImpl;
 
 @ApplicationScoped
 public class AppLifecycleBean {
 
     void onStart(@Observes StartupEvent ev) {
-        Bootstrap.startEngine();
+        Bootstrap.startEngine(new PrinterLogImpl());
     }
 
     void onStop(@Observes ShutdownEvent ev) {

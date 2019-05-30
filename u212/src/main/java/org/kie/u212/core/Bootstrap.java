@@ -25,6 +25,7 @@ import org.kie.u212.core.infra.consumer.ConsumerController;
 import org.kie.u212.core.infra.consumer.Restarter;
 import org.kie.u212.core.infra.election.LeaderElection;
 import org.kie.u212.core.infra.producer.EventProducer;
+import org.kie.u212.core.infra.utils.Printer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,11 +40,11 @@ public class Bootstrap {
     private static Restarter restarter;
     private static SessionSnapShooter snaptshooter;
 
-    public static void startEngine() {
+    public static void startEngine(Printer printer) {
         //order matter
         leaderElection();
         startProducer();
-        startConsumers();
+        startConsumers(printer);
         addMasterElectionCallbacks();
         logger.info("CONFIGURE on start engine:{}", Config.getDefaultConfig());
     }
@@ -95,10 +96,10 @@ public class Bootstrap {
         eventProducer.start(Config.getProducerConfig());
     }
 
-    private static void startConsumers() {
+    private static void startConsumers(Printer printer) {
         snaptshooter = new SessionSnapShooter<>();
         SnapshotInfos infos = snaptshooter.deserializeEventWrapper();
-        restarter = new Restarter();
+        restarter = new Restarter(printer);
         restarter.createDroolsConsumer();
         logger.info("start consumer with:{}", infos);
         if (infos.getKeyDuringSnaphot() != null) {

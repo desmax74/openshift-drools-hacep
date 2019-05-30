@@ -42,6 +42,7 @@ import org.kie.u212.core.infra.SnapshotInfos;
 import org.kie.u212.core.infra.election.Callback;
 import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.utils.ConsumerUtils;
+import org.kie.u212.core.infra.utils.Printer;
 import org.kie.u212.model.EventWrapper;
 import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
@@ -73,10 +74,12 @@ public class DefaultConsumer<T> implements EventConsumer,
     private SnapshotInfos snapshotInfos;
     private Queue<Object> sideEffects;
     private SessionSnapShooter snapShooter;
+    private Printer printer;
 
-    public DefaultConsumer(Restarter externalContainer) {
+    public DefaultConsumer(Restarter externalContainer, Printer printer) {
         this.externalContainer = externalContainer;
         iterationBetweenSnapshot = Integer.valueOf(Config.getDefaultConfig().getProperty(Config.ITERATION_BETWEEN_SNAPSHOT));
+        this.printer = printer;
     }
 
     public void createConsumer(ConsumerHandler consumerHandler) {
@@ -217,6 +220,7 @@ public class DefaultConsumer<T> implements EventConsumer,
                 consume(size);
             }
         } catch (WakeupException e) {
+            //nothind to do
         } finally {
             try {
                 kafkaConsumer.commitSync();
@@ -229,7 +233,10 @@ public class DefaultConsumer<T> implements EventConsumer,
                     }
                 }
                 OffsetManager.store(offsetsEvents);
-            } finally {
+            }catch (WakeupException e) {
+               // logger.error(e.getMessage(), e);
+            }finally
+             {
                 logger.info("Closing kafkaConsumer on the loop");
                 kafkaConsumer.close();
                 kafkaSecondaryConsumer.close();
@@ -255,22 +262,28 @@ public class DefaultConsumer<T> implements EventConsumer,
 
     private void enableConsumeAndStartLoop(State state) {
         if (state.equals(State.LEADER) && !leader) {
+            System.out.println("0");
             leader = true;
             DroolsExecutor.setAsMaster();
             stopLeaderProcessing();// we starts to processing only when the last key readed on bootstrap is reached
         } else if (state.equals(State.NOT_LEADER) && leader) {
+            System.out.println("1");
             leader = false;
+            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
             DroolsExecutor.setAsSlave();
             startProcessingNotLeader();
             startPollingEvents();
             stopPollingControl();
         } else if (state.equals(State.NOT_LEADER) && !leader) {
+            System.out.println("2");
             leader = false;
+            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
             DroolsExecutor.setAsSlave();
             startProcessingNotLeader();
             stopPollingEvents();
             startPollingControl();
         } else if (state.equals(State.BECOMING_LEADER) && !leader) {
+            System.out.println("3");
             leader = true;
             DroolsExecutor.setAsMaster();
             stopLeaderProcessing();
@@ -326,7 +339,7 @@ public class DefaultConsumer<T> implements EventConsumer,
 
     private void processLeader(ConsumerRecord<String, T> record,
                                AtomicInteger counter) {
-        ConsumerUtils.prettyPrinter(record,
+        printer.prettyPrinter(record,
                                     processingLeader);
         if (record.key().equals(processingKey)) {
             startProcessingLeader();
@@ -422,7 +435,7 @@ public class DefaultConsumer<T> implements EventConsumer,
     }
 
     private void processEventsAsANonLeader(ConsumerRecord<String, T> record) {
-        ConsumerUtils.prettyPrinter(record, processingNotLeader);
+        printer.prettyPrinter(record, processingNotLeader);
         if (record.key().equals(processingKey)) {
             stopPollingEvents();
             startPollingControl();
@@ -443,7 +456,7 @@ public class DefaultConsumer<T> implements EventConsumer,
     }
 
     private void processControlAsANonLeader(ConsumerRecord<String, T> record) {
-        ConsumerUtils.prettyPrinter(record,
+        printer.prettyPrinter(record,
                                     false);
         if (record.offset() == processingKeyOffset + 1 || record.offset() == 0) {
             if (record.offset() > 0) {

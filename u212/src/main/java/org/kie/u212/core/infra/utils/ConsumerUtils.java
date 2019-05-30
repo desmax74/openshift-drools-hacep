@@ -43,42 +43,21 @@ public class ConsumerUtils {
 
     private static Logger logger = LoggerFactory.getLogger(ConsumerUtils.class);
 
-    public static void prettyPrinter(ConsumerRecord consumerRecord, boolean processed) {
-        if (consumerRecord != null && logger.isInfoEnabled()) {
-            logger.info("Processed:{} - Topic: {} - Partition: {} - Offset: {} - Value: {}\n",
-                        processed,
-                        consumerRecord.topic(),
-                        consumerRecord.partition(),
-                        consumerRecord.offset(),
-                        consumerRecord.value());
-        }
+    public static EventWrapper getLastEvent(String topic) {
+        return getLastEvent(topic, Config.getConsumerConfig());
     }
 
-    public static void printOffset(String topic) {
-        Map<TopicPartition, Long> offsets = getOffsets(topic);
-        for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
-            logger.info("Topic:{} offset:{}",
-                        entry.getKey(),
-                        entry.getValue());
-        }
-    }
-
-    public static Map<TopicPartition, Long> getOffsets(String topic) {
+    public Map<TopicPartition, Long> getOffsets(String topic) {
         KafkaConsumer consumer = new KafkaConsumer(Config.getConsumerConfig());
         consumer.subscribe(Arrays.asList(topic));
         List<PartitionInfo> infos = consumer.partitionsFor(topic);
         List<TopicPartition> tps = new ArrayList<>();
         for (PartitionInfo info : infos) {
-            tps.add(new TopicPartition(topic,
-                                       info.partition()));
+            tps.add(new TopicPartition(topic, info.partition()));
         }
         Map<TopicPartition, Long> offsets = consumer.endOffsets(tps);
         consumer.close();
         return offsets;
-    }
-
-    public static EventWrapper getLastEvent(String topic) {
-        return getLastEvent(topic, Config.getConsumerConfig());
     }
 
     public static EventWrapper getLastEvent(String topic, Properties properties) {
