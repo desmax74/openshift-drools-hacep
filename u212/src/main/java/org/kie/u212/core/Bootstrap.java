@@ -16,6 +16,7 @@
 package org.kie.u212.core;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 import org.kie.u212.Config;
 import org.kie.u212.consumer.DroolsConsumerHandler;
@@ -39,9 +40,14 @@ public class Bootstrap {
     private static EventProducer<?> eventProducer;
     private static Restarter restarter;
     private static SessionSnapShooter snaptshooter;
+    private static String namespace;
+    private static CoreKube coreKube;
+    public static final String DEFAULT_NAMESPACE = "default";
 
-    public static void startEngine(Printer printer) {
+    public static void startEngine(Printer printer, String nameSpace) {
         //order matter
+        namespace = getNameSpace(nameSpace);
+        coreKube = new CoreKube(nameSpace);
         leaderElection();
         startProducer();
         startConsumers(printer);
@@ -51,7 +57,7 @@ public class Bootstrap {
 
     public static void stopEngine() {
         logger.info("Stop engine");
-        LeaderElection leadership = CoreKube.getLeaderElection();
+        LeaderElection leadership = coreKube.getLeaderElection();
         try {
             leadership.stop();
         } catch (Exception e) {
@@ -83,7 +89,7 @@ public class Bootstrap {
         //@TODO configure from env the namespace
         //KubernetesClient client = Core.getKubeClient();
         //client.events().inNamespace("my-kafka-project").watch(WatcherFactory.createModifiedLogWatcher(configuration.getPodName()));
-        LeaderElection leadership = CoreKube.getLeaderElection();
+        LeaderElection leadership = coreKube.getLeaderElection();
         try {
             leadership.start();
         } catch (Exception e) {
@@ -112,6 +118,19 @@ public class Bootstrap {
     }
 
     private static void addMasterElectionCallbacks() {
-        CoreKube.getLeaderElection().addCallbacks(Arrays.asList(restarter.getCallback(), eventProducer));
+        coreKube.getLeaderElection().addCallbacks(Arrays.asList(restarter.getCallback(), eventProducer));
+    }
+
+    private static String getNameSpace(String fallbackName){
+        String envNameSpace = System.getenv("NAMESPACE");
+        if(envNameSpace == null){
+            if(fallbackName != null && !fallbackName.isEmpty()){
+                return fallbackName;
+            }else {
+                return UUID.randomUUID().toString();
+            }
+        }else{
+            return envNameSpace;
+        }
     }
 }

@@ -26,20 +26,25 @@ import org.slf4j.LoggerFactory;
 public class CoreKube {
 
     private static final Logger logger = LoggerFactory.getLogger(CoreKube.class);
-    private static KubernetesClient kubernetesClient = new DefaultKubernetesClient();
-    private static KubernetesLockConfiguration configuration = createKubeConfiguration();
-    private static LeaderElection leadership = new LeaderElectionImpl(kubernetesClient,
-                                                                      configuration);
+    private KubernetesClient kubernetesClient ;
+    private KubernetesLockConfiguration configuration;
+    private LeaderElection leadership;
 
-    public static KubernetesClient getKubeClient() {
+    public CoreKube(String namespace){
+        kubernetesClient = new DefaultKubernetesClient();
+        configuration = createKubeConfiguration(namespace);
+        leadership = new LeaderElectionImpl(kubernetesClient,configuration);
+    }
+
+    public KubernetesClient getKubeClient() {
         return kubernetesClient;
     }
 
-    public static KubernetesLockConfiguration getKubernetesLockConfiguration() {
+    public KubernetesLockConfiguration getKubernetesLockConfiguration() {
         return configuration;
     }
 
-    private static KubernetesLockConfiguration createKubeConfiguration() {
+    private KubernetesLockConfiguration createKubeConfiguration(String namespace) {
         String podName = System.getenv("POD_NAME");
         if (podName == null) {
             podName = System.getenv("HOSTNAME");
@@ -47,12 +52,12 @@ public class CoreKube {
         if (logger.isInfoEnabled()) {
             logger.info("PodName: {}", podName);
         }
-        KubernetesLockConfiguration configuration = new KubernetesLockConfiguration();
+        KubernetesLockConfiguration configuration = new KubernetesLockConfiguration(namespace);
         configuration.setPodName(podName);
         return configuration;
     }
 
-    public static LeaderElection getLeaderElection() {
+    public LeaderElection getLeaderElection() {
         return leadership;
     }
 }

@@ -70,7 +70,7 @@ public class PodTest {
 
     @Test
     public void processOneSentMessageAsLeader() {
-        Bootstrap.startEngine(new PrinterLogImpl());
+        Bootstrap.startEngine(new PrinterLogImpl(), Bootstrap.DEFAULT_NAMESPACE);
         Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
         KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("", Config.EVENTS_TOPIC, Config.getConsumerConfig());
         KafkaConsumer controlConsumer = kafkaServerTest.getConsumer("",Config.CONTROL_TOPIC, Config.getConsumerConfig());
@@ -117,7 +117,7 @@ public class PodTest {
 
     @Test
     public void processMessagesAsLeaderAndCreateSnapshot() {
-        Bootstrap.startEngine(new PrinterLogImpl());
+        Bootstrap.startEngine(new PrinterLogImpl(), Bootstrap.DEFAULT_NAMESPACE);
         Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
         KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("",Config.EVENTS_TOPIC, Config.getConsumerConfig());
         KafkaConsumer snapshotConsumer = kafkaServerTest.getConsumer("",Config.SNAPSHOT_TOPIC, Config.getSnapshotConsumerConfig());
@@ -141,7 +141,7 @@ public class PodTest {
 
     @Test
     public void processOneSentMessageAsLeaderAndThenReplica() {
-        Bootstrap.startEngine(new PrinterKafkaImpl());
+        Bootstrap.startEngine(new PrinterKafkaImpl(), Bootstrap.DEFAULT_NAMESPACE);
         Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
         KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("", Config.EVENTS_TOPIC, Config.getConsumerConfig());
         KafkaConsumer controlConsumer = kafkaServerTest.getConsumer("",Config.CONTROL_TOPIC, Config.getConsumerConfig());

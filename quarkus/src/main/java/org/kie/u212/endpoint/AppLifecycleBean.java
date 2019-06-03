@@ -27,7 +27,7 @@ import org.kie.u212.core.infra.utils.PrinterLogImpl;
 public class AppLifecycleBean {
 
     void onStart(@Observes StartupEvent ev) {
-        Bootstrap.startEngine(new PrinterLogImpl());
+        Bootstrap.startEngine(new PrinterLogImpl(), Bootstrap.DEFAULT_NAMESPACE);
     }
 
     void onStop(@Observes ShutdownEvent ev) {

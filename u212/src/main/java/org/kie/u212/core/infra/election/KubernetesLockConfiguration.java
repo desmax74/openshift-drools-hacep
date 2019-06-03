@@ -41,7 +41,7 @@ public class KubernetesLockConfiguration implements Cloneable {
     /**
      * Name of the ConfigMap used for locking.
      */
-    private String configMapName = DEFAULT_CONFIGMAP_NAME;
+    private String configMapName ;
 
     /**
      * Name of the lock group (or namespace according to the Camel cluster convention) within the chosen ConfigMap.
@@ -79,7 +79,8 @@ public class KubernetesLockConfiguration implements Cloneable {
      */
     private long retryPeriodMillis = DEFAULT_RETRY_PERIOD_MILLIS;
 
-    public KubernetesLockConfiguration() {
+    public KubernetesLockConfiguration(String namespace) {
+        configMapName = namespace + "-"+ DEFAULT_CONFIGMAP_NAME;
     }
 
     public String getKubernetesResourcesNamespaceOrDefault(KubernetesClient kubernetesClient) {
