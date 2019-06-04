@@ -24,6 +24,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.kie.u212.ClientUtils;
 import org.kie.u212.Config;
+import org.kie.u212.EnvConfig;
 import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.core.infra.utils.RecordMetadataUtil;
 import org.kie.u212.model.EventType;
@@ -35,10 +36,11 @@ public class Sender {
 
   private static Logger logger = LoggerFactory.getLogger(ClientProducer.class);
   private EventProducer producer;
-  private final String topic = Config.EVENTS_TOPIC;
   private Properties configuration;
+  private EnvConfig envConfig;
 
-  public Sender(Properties configuration){
+  public Sender(Properties configuration, EnvConfig envConfig){
+    this.envConfig = envConfig;
     producer = new EventProducer();
     if(configuration != null && !configuration.isEmpty()) {
       this.configuration = configuration;
@@ -57,7 +59,7 @@ public class Sender {
 
   public String insertSync(Object obj, boolean logInsert) {
     EventWrapper event = wrapObject(obj);
-    RecordMetadata lastRecord = producer.produceSync(new ProducerRecord<>(topic, event.getKey(), event));
+    RecordMetadata lastRecord = producer.produceSync(new ProducerRecord<>(envConfig.getEventsTopicName(), event.getKey(), event));
     if (logInsert) {
       RecordMetadataUtil.logRecord(lastRecord);
     }
@@ -67,7 +69,7 @@ public class Sender {
   public void insertAsync(Object obj,
                           Callback callback) {
     EventWrapper event = wrapObject(obj);
-    producer.produceAsync(new ProducerRecord<>(topic,
+    producer.produceAsync(new ProducerRecord<>(envConfig.getEventsTopicName(),
                                                event.getKey(),
                                                event),
                           callback);
@@ -75,7 +77,7 @@ public class Sender {
 
   public Future<RecordMetadata> insertFireAndForget(Object obj) {
     EventWrapper event = (EventWrapper) obj;
-    return producer.produceFireAndForget(new ProducerRecord<>(topic,
+    return producer.produceFireAndForget(new ProducerRecord<>(envConfig.getEventsTopicName(),
                                                               event.getKey(),
                                                               event));
   }

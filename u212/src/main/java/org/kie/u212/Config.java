@@ -25,9 +25,11 @@ import org.slf4j.LoggerFactory;
 
 public class Config {
 
-    public static final String CONTROL_TOPIC = "control";
-    public static final String EVENTS_TOPIC = "events";
-    public static final String SNAPSHOT_TOPIC = "snapshot";
+    public static final String NAMESPACE = "namespace";
+    public static final String DEFAULT_NAMESPACE = "default";
+    public static final String DEFAULT_CONTROL_TOPIC = "control";
+    public static final String DEFAULT_EVENTS_TOPIC = "events";
+    public static final String DEFAULT_SNAPSHOT_TOPIC = "snapshot";
     public static final String ITERATION_BETWEEN_SNAPSHOT = "iteration.between.snapshot";
     public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST";
     public static final String BROKER_URL = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST);

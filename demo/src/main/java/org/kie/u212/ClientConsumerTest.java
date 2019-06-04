@@ -40,8 +40,9 @@ public class ClientConsumerTest {
 
     public static void main(String[] args) {
         Properties props = ClientUtils.getConfiguration(ClientUtils.CONSUMER_CONF);
-        EventWrapper wrapper = ConsumerUtils.getLastEvent(Config.CONTROL_TOPIC, ClientUtils.getConfiguration(ClientUtils.CONSUMER_CONF));
-        processAllEventsFromBegin(wrapper.getKey(), Config.CONTROL_TOPIC, props);
+        EnvConfig envConfig = EnvConfig.getDefaultEnvConfig();
+        EventWrapper wrapper = ConsumerUtils.getLastEvent(envConfig.getControlTopicName(), ClientUtils.getConfiguration(ClientUtils.CONSUMER_CONF));
+        processAllEventsFromBegin(wrapper.getKey(), envConfig.getControlTopicName(), props);
     }
 
 

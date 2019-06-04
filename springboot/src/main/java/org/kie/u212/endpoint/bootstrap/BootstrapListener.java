@@ -15,10 +15,13 @@
  */
 package org.kie.u212.endpoint.bootstrap;
 
+import java.util.Optional;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+import org.kie.u212.Config;
+import org.kie.u212.EnvConfig;
 import org.kie.u212.core.Bootstrap;
 import org.kie.u212.core.infra.utils.PrinterLogImpl;
 import org.slf4j.Logger;
@@ -34,7 +37,7 @@ public class BootstrapListener implements ServletContextListener {
     }
 
     private void initServices() {
-        Bootstrap.startEngine(new PrinterLogImpl(), Bootstrap.DEFAULT_NAMESPACE);
+        Bootstrap.startEngine(new PrinterLogImpl(), EnvConfig.getDefaultEnvConfig());
         logger.info("Core system started");
     }
 

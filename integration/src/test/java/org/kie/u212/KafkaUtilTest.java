@@ -202,9 +202,9 @@ public class KafkaUtilTest<K, V> implements AutoCloseable {
 
     }
 
-    public void insertBatchStockTicketEvent(int items) {
+    public void insertBatchStockTicketEvent(int items, EnvConfig envConfig) {
         Properties props = Config.getProducerConfig();
-        ClientProducer producer = new ClientProducer(props);
+        ClientProducer producer = new ClientProducer(props, envConfig);
         try {
             for (int i = 0; i < items; i++) {
                 StockTickEvent eventA = new StockTickEvent("RHT", ThreadLocalRandom.current().nextLong(80, 100));

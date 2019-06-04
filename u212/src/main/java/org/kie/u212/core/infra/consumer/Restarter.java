@@ -15,6 +15,7 @@
  */
 package org.kie.u212.core.infra.consumer;
 
+import org.kie.u212.EnvConfig;
 import org.kie.u212.core.infra.election.Callback;
 import org.kie.u212.core.infra.utils.Printer;
 
@@ -34,8 +35,8 @@ public class Restarter {
         this.printer = printer;
     }
 
-    public void createDroolsConsumer() {
-        consumer = new DefaultConsumer(this, printer);
+    public void createDroolsConsumer(EnvConfig envConfig) {
+        consumer = new DefaultConsumer(this, printer, envConfig);
         callback.setConsumer(consumer);
     }
 

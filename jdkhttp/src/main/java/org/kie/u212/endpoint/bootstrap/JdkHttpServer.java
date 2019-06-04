@@ -23,6 +23,8 @@ import java.util.Map;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import org.kie.u212.Config;
+import org.kie.u212.EnvConfig;
 import org.kie.u212.core.Bootstrap;
 import org.kie.u212.core.infra.utils.PrinterLogImpl;
 import org.slf4j.Logger;
@@ -38,7 +40,7 @@ public class JdkHttpServer {
         server.createContext("/health", new HealthHandler());
         server.createContext("/env/all", new EnvHandler());
         try {
-            Bootstrap.startEngine(new PrinterLogImpl(), Bootstrap.DEFAULT_NAMESPACE);
+            Bootstrap.startEngine(new PrinterLogImpl(), EnvConfig.getDefaultEnvConfig());
             logger.info("Core system started");
         }finally {
            // Bootstrap.stopEngine();

@@ -34,6 +34,7 @@ import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.kie.u212.Config;
+import org.kie.u212.EnvConfig;
 import org.kie.u212.consumer.DroolsConsumerHandler;
 import org.kie.u212.consumer.DroolsExecutor;
 import org.kie.u212.core.infra.OffsetManager;
@@ -75,8 +76,10 @@ public class DefaultConsumer<T> implements EventConsumer,
     private Queue<Object> sideEffects;
     private SessionSnapShooter snapShooter;
     private Printer printer;
+    private EnvConfig config;
 
-    public DefaultConsumer(Restarter externalContainer, Printer printer) {
+    public DefaultConsumer(Restarter externalContainer, Printer printer, EnvConfig config) {
+        this.config = config;
         this.externalContainer = externalContainer;
         iterationBetweenSnapshot = Integer.valueOf(Config.getDefaultConfig().getProperty(Config.ITERATION_BETWEEN_SNAPSHOT));
         this.printer = printer;
@@ -144,16 +147,16 @@ public class DefaultConsumer<T> implements EventConsumer,
 
     private void assignAsALeader(List partitions) {
         assignConsumer(kafkaConsumer,
-                       Config.EVENTS_TOPIC,
+                       config.getEventsTopicName(),
                        partitions);
     }
 
     private void assignNotLeader(List partitions) {
         assignConsumer(kafkaConsumer,
-                       Config.EVENTS_TOPIC,
+                       config.getEventsTopicName(),
                        partitions);
         assignConsumer(kafkaSecondaryConsumer,
-                       Config.CONTROL_TOPIC,
+                       config.getControlTopicName(),
                        partitions);
     }
 
@@ -290,7 +293,7 @@ public class DefaultConsumer<T> implements EventConsumer,
     }
 
     private void setLastProcessedKey() {
-        EventWrapper<StockTickEvent> lastWrapper = ConsumerUtils.getLastEvent(Config.CONTROL_TOPIC);
+        EventWrapper<StockTickEvent> lastWrapper = ConsumerUtils.getLastEvent(config.getControlTopicName());
         settingsOnAEmptyControlTopic(lastWrapper);
         processingKey = lastWrapper.getKey();
         processingKeyOffset = lastWrapper.getOffset();

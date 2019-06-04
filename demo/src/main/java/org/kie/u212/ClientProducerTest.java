@@ -28,6 +28,7 @@ public class ClientProducerTest {
     }
 
     private static void insertBatchEvent(int items) {
+        EnvConfig envConfig = EnvConfig.getDefaultEnvConfig();
         Properties props = Config.getStatic();
         props.put("bootstrap.servers", "my-cluster-kafka-bootstrap-my-kafka-project.<ip>.nip.io:443");
         props.put("security.protocol", "SSL");
@@ -36,7 +37,7 @@ public class ClientProducerTest {
         props.put("ssl.truststore.location", "/<path>/openshift-drools-hacep/client/src/main/resources/keystore.jks");
         props.put("ssl.truststore.password", "password");
 
-        ClientProducer producer = new ClientProducer(props);
+        ClientProducer producer = new ClientProducer(props, envConfig);
         try {
             for (int i = 0; i < items; i++) {
                 StockTickEvent eventA = new StockTickEvent("RHT",

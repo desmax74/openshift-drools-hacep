@@ -18,12 +18,14 @@ package org.kie.u212.producer;
 import java.io.Closeable;
 import java.util.Properties;
 
+import org.kie.u212.EnvConfig;
+
 public class ClientProducer implements Closeable {
 
     private Sender sender;
 
-    public ClientProducer(Properties configuration) {
-        sender = new Sender(configuration);
+    public ClientProducer(Properties configuration, EnvConfig envConfig) {
+        sender = new Sender(configuration, envConfig);
         sender.start();
     }
 

@@ -27,6 +27,7 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.time.SessionPseudoClock;
 import org.kie.u212.Config;
 import org.kie.u212.ConverterUtil;
+import org.kie.u212.EnvConfig;
 import org.kie.u212.core.infra.SnapshotInfos;
 import org.kie.u212.core.infra.consumer.ConsumerHandler;
 import org.kie.u212.core.infra.consumer.EventConsumer;
@@ -49,8 +50,10 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private Producer producer;
     private SessionSnapShooter snapshooter;
     private SnapshotInfos snapshotInfos;
+    private EnvConfig config;
 
-    public DroolsConsumerHandler(EventProducer producer, SessionSnapShooter snapshooter) {
+    public DroolsConsumerHandler(EventProducer producer, SessionSnapShooter snapshooter, EnvConfig config) {
+        this.config = config;
         this.snapshooter = snapshooter;
         KieServices srv = KieServices.get();
         if(srv != null) {
@@ -64,7 +67,8 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         }
     }
 
-    public DroolsConsumerHandler(EventProducer producer, SessionSnapShooter snapshooter, SnapshotInfos infos) {
+    public DroolsConsumerHandler(EventProducer producer, SessionSnapShooter snapshooter, SnapshotInfos infos, EnvConfig config) {
+        this.config = config;
         this.snapshotInfos = infos;
         this.snapshooter = snapshooter;
         if(snapshotInfos.getKieSession() == null) {
@@ -110,7 +114,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
                 }else{
                    newEventWrapper = new EventWrapper(stock, wr.getKey(), 0l, EventType.APP, results);
                 }
-                producer.produceSync(new ProducerRecord<>(Config.CONTROL_TOPIC, wr.getKey(), newEventWrapper));
+                producer.produceSync(new ProducerRecord<>(config.getControlTopicName(), wr.getKey(), newEventWrapper));
                 break;
             default:
                 logger.info("Event type not handled:{}", wr.getEventType());

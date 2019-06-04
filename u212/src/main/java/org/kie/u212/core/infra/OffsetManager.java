@@ -106,12 +106,12 @@ public class OffsetManager {
         }
     }
 
-    public void saveOffset(String topic,
+    /*public void saveOffset(String topic,
                            Map<TopicPartition, Long> newOffset) {
-        if (topic.equals(Config.EVENTS_TOPIC)) {
+        if (topic.equals(Config.DEFAULT_EVENTS_TOPIC)) {
             saveControlTopic(newOffset);
         } else {
             saveEventsTopic(newOffset);
         }
-    }
+    }*/
 }

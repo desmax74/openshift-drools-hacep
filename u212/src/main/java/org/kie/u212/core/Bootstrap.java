@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import org.kie.u212.Config;
+import org.kie.u212.EnvConfig;
 import org.kie.u212.consumer.DroolsConsumerHandler;
 import org.kie.u212.core.infra.SessionSnapShooter;
 import org.kie.u212.core.infra.SnapshotInfos;
@@ -40,17 +41,14 @@ public class Bootstrap {
     private static EventProducer<?> eventProducer;
     private static Restarter restarter;
     private static SessionSnapShooter snaptshooter;
-    private static String namespace;
     private static CoreKube coreKube;
-    public static final String DEFAULT_NAMESPACE = "default";
 
-    public static void startEngine(Printer printer, String nameSpace) {
+    public static void startEngine(Printer printer, EnvConfig envConfig) {
         //order matter
-        namespace = getNameSpace(nameSpace);
-        coreKube = new CoreKube(nameSpace);
+        coreKube = new CoreKube(envConfig.getNamespace());
         leaderElection();
-        startProducer();
-        startConsumers(printer);
+        startProducer(envConfig);
+        startConsumers(printer, envConfig);
         addMasterElectionCallbacks();
         logger.info("CONFIGURE on start engine:{}", Config.getDefaultConfig());
     }
@@ -97,21 +95,22 @@ public class Bootstrap {
         }
     }
 
-    private static void startProducer() {
+    private static void startProducer(EnvConfig envConfig) {
         eventProducer = new EventProducer<>();
         eventProducer.start(Config.getProducerConfig());
     }
 
-    private static void startConsumers(Printer printer) {
-        snaptshooter = new SessionSnapShooter<>();
+    private static void startConsumers(Printer printer,
+                                       EnvConfig envConfig) {
+        snaptshooter = new SessionSnapShooter<>(envConfig);
         SnapshotInfos infos = snaptshooter.deserializeEventWrapper();
         restarter = new Restarter(printer);
-        restarter.createDroolsConsumer();
+        restarter.createDroolsConsumer(envConfig);
         logger.info("start consumer with:{}", infos);
         if (infos.getKeyDuringSnaphot() != null) {
-            restarter.getConsumer().createConsumer(new DroolsConsumerHandler(eventProducer, snaptshooter, infos), infos);
+            restarter.getConsumer().createConsumer(new DroolsConsumerHandler(eventProducer, snaptshooter, infos, envConfig), infos);
         } else {
-            restarter.getConsumer().createConsumer(new DroolsConsumerHandler(eventProducer, snaptshooter));
+            restarter.getConsumer().createConsumer(new DroolsConsumerHandler(eventProducer, snaptshooter, envConfig));
         }
         consumerController = new ConsumerController(restarter);
         consumerController.consumeEvents();
@@ -121,16 +120,4 @@ public class Bootstrap {
         coreKube.getLeaderElection().addCallbacks(Arrays.asList(restarter.getCallback(), eventProducer));
     }
 
-    private static String getNameSpace(String fallbackName){
-        String envNameSpace = System.getenv("NAMESPACE");
-        if(envNameSpace == null){
-            if(fallbackName != null && !fallbackName.isEmpty()){
-                return fallbackName;
-            }else {
-                return UUID.randomUUID().toString();
-            }
-        }else{
-            return envNameSpace;
-        }
-    }
 }

@@ -20,6 +20,8 @@ import javax.enterprise.event.Observes;
 
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
+import org.kie.u212.Config;
+import org.kie.u212.EnvConfig;
 import org.kie.u212.core.Bootstrap;
 import org.kie.u212.core.infra.utils.PrinterLogImpl;
 
@@ -27,7 +29,7 @@ import org.kie.u212.core.infra.utils.PrinterLogImpl;
 public class AppLifecycleBean {
 
     void onStart(@Observes StartupEvent ev) {
-        Bootstrap.startEngine(new PrinterLogImpl(), Bootstrap.DEFAULT_NAMESPACE);
+        Bootstrap.startEngine(new PrinterLogImpl(), EnvConfig.getDefaultEnvConfig());
     }
 
     void onStop(@Observes ShutdownEvent ev) {

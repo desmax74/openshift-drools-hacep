@@ -42,17 +42,19 @@ public class PodTest {
     private Logger logger = LoggerFactory.getLogger(PodTest.class);
     private final  String TEST_KAFKA_LOGGER_TOPIC = "logs";
     private final  String TEST_TOPIC = "test";
+    private EnvConfig config;
 
 
     @Before
     public void setUp() throws Exception{
+        config= EnvConfig.getDefaultEnvConfig();
         kafkaServerTest = new KafkaUtilTest();
         kafkaServerTest.startServer();
         kafkaServerTest.createTopic(TEST_KAFKA_LOGGER_TOPIC);
         kafkaServerTest.createTopic(TEST_TOPIC);
-        kafkaServerTest.createTopic(Config.EVENTS_TOPIC);
-        kafkaServerTest.createTopic(Config.CONTROL_TOPIC);
-        kafkaServerTest.createTopic(Config.SNAPSHOT_TOPIC);
+        kafkaServerTest.createTopic(config.getEventsTopicName());
+        kafkaServerTest.createTopic(config.getControlTopicName());
+        kafkaServerTest.createTopic(config.getSnapshotTopicName());
     }
 
     @After
@@ -62,26 +64,26 @@ public class PodTest {
         }catch (ConcurrentModificationException ex){ }
         kafkaServerTest.deleteTopic(TEST_TOPIC);
         kafkaServerTest.deleteTopic(TEST_KAFKA_LOGGER_TOPIC);
-        kafkaServerTest.deleteTopic(Config.EVENTS_TOPIC);
-        kafkaServerTest.deleteTopic(Config.CONTROL_TOPIC);
-        kafkaServerTest.deleteTopic(Config.SNAPSHOT_TOPIC);
+        kafkaServerTest.deleteTopic(config.getEventsTopicName());
+        kafkaServerTest.deleteTopic(config.getControlTopicName());
+        kafkaServerTest.deleteTopic(config.getSnapshotTopicName());
         kafkaServerTest.shutdownServer();
     }
 
     @Test
     public void processOneSentMessageAsLeader() {
-        Bootstrap.startEngine(new PrinterLogImpl(), Bootstrap.DEFAULT_NAMESPACE);
+        Bootstrap.startEngine(new PrinterLogImpl(), config);
         Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
-        KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("", Config.EVENTS_TOPIC, Config.getConsumerConfig());
-        KafkaConsumer controlConsumer = kafkaServerTest.getConsumer("",Config.CONTROL_TOPIC, Config.getConsumerConfig());
-        kafkaServerTest.insertBatchStockTicketEvent(1);
+        KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("", config.getEventsTopicName(), Config.getConsumerConfig());
+        KafkaConsumer controlConsumer = kafkaServerTest.getConsumer("",config.getControlTopicName(), Config.getConsumerConfig());
+        kafkaServerTest.insertBatchStockTicketEvent(1, config);
         try {
             //EVENTS TOPIC
             ConsumerRecords eventsRecords = eventsConsumer.poll(5000);
             assertEquals(1, eventsRecords.count());
             Iterator<ConsumerRecord<String, EventWrapper>> eventsRecordIterator = eventsRecords.iterator();
             ConsumerRecord<String, EventWrapper> eventsRecord = eventsRecordIterator.next();
-            assertEquals(eventsRecord.topic(), Config.EVENTS_TOPIC);
+            assertEquals(eventsRecord.topic(), config.getEventsTopicName());
             assertEquals(eventsRecord.value().getOffset(),0);
             assertEquals(eventsRecord.value().getEventType(), EventType.APP);
             assertEquals(eventsRecord.value().getSideEffects().size(), 0);
@@ -94,7 +96,7 @@ public class PodTest {
             assertEquals(1, controlRecords.count());
             Iterator<ConsumerRecord<String, EventWrapper>> controlRecordIterator = controlRecords.iterator();
             ConsumerRecord<String, EventWrapper> controlRecord = controlRecordIterator.next();
-            assertEquals(controlRecord.topic(), Config.CONTROL_TOPIC);
+            assertEquals(controlRecord.topic(), config.getControlTopicName());
             assertEquals(controlRecord.value().getOffset(),0);
             assertEquals(controlRecord.value().getEventType(), EventType.APP);
             assertTrue(!controlRecord.value().getSideEffects().isEmpty());
@@ -117,11 +119,11 @@ public class PodTest {
 
     @Test
     public void processMessagesAsLeaderAndCreateSnapshot() {
-        Bootstrap.startEngine(new PrinterLogImpl(), Bootstrap.DEFAULT_NAMESPACE);
+        Bootstrap.startEngine(new PrinterLogImpl(), config);
         Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
-        KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("",Config.EVENTS_TOPIC, Config.getConsumerConfig());
-        KafkaConsumer snapshotConsumer = kafkaServerTest.getConsumer("",Config.SNAPSHOT_TOPIC, Config.getSnapshotConsumerConfig());
-        kafkaServerTest.insertBatchStockTicketEvent(10);
+        KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("", config.getEventsTopicName(), Config.getConsumerConfig());
+        KafkaConsumer snapshotConsumer = kafkaServerTest.getConsumer("",config.getSnapshotTopicName(), Config.getSnapshotConsumerConfig());
+        kafkaServerTest.insertBatchStockTicketEvent(10, config);
         try {
             //EVENTS TOPIC
             ConsumerRecords eventsRecords = eventsConsumer.poll(5000);
@@ -141,18 +143,18 @@ public class PodTest {
 
     @Test
     public void processOneSentMessageAsLeaderAndThenReplica() {
-        Bootstrap.startEngine(new PrinterKafkaImpl(), Bootstrap.DEFAULT_NAMESPACE);
+        Bootstrap.startEngine(new PrinterKafkaImpl(), config);
         Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
-        KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("", Config.EVENTS_TOPIC, Config.getConsumerConfig());
-        KafkaConsumer controlConsumer = kafkaServerTest.getConsumer("",Config.CONTROL_TOPIC, Config.getConsumerConfig());
-        kafkaServerTest.insertBatchStockTicketEvent(1);
+        KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("", config.getEventsTopicName(), Config.getConsumerConfig());
+        KafkaConsumer controlConsumer = kafkaServerTest.getConsumer("", config.getControlTopicName(), Config.getConsumerConfig());
+        kafkaServerTest.insertBatchStockTicketEvent(1, config);
         try {
             //EVENTS TOPIC
             ConsumerRecords eventsRecords = eventsConsumer.poll(5000);
             assertEquals(1, eventsRecords.count());
             Iterator<ConsumerRecord<String, EventWrapper>> eventsRecordIterator = eventsRecords.iterator();
             ConsumerRecord<String, EventWrapper> eventsRecord = eventsRecordIterator.next();
-            assertEquals(eventsRecord.topic(), Config.EVENTS_TOPIC);
+            assertEquals(eventsRecord.topic(),  config.getEventsTopicName());
             assertEquals(eventsRecord.value().getOffset(),0);
             assertEquals(eventsRecord.value().getEventType(), EventType.APP);
             assertEquals(eventsRecord.value().getSideEffects().size(), 0);
@@ -165,7 +167,7 @@ public class PodTest {
             assertEquals(1, controlRecords.count());
             Iterator<ConsumerRecord<String, EventWrapper>> controlRecordIterator = controlRecords.iterator();
             ConsumerRecord<String, EventWrapper> controlRecord = controlRecordIterator.next();
-            assertEquals(controlRecord.topic(), Config.CONTROL_TOPIC);
+            assertEquals(controlRecord.topic(), config.getControlTopicName());
             assertEquals(controlRecord.value().getOffset(),0);
             assertEquals(controlRecord.value().getEventType(), EventType.APP);
             assertTrue(!controlRecord.value().getSideEffects().isEmpty());

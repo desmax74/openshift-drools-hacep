@@ -33,7 +33,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
-import org.drools.core.SessionConfigurationImpl;
 import org.kie.api.KieServices;
 import org.kie.api.marshalling.KieMarshallers;
 import org.kie.api.runtime.KieContainer;
@@ -41,6 +40,7 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.KieSessionConfiguration;
 import org.kie.api.runtime.conf.ClockTypeOption;
 import org.kie.u212.Config;
+import org.kie.u212.EnvConfig;
 import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.core.infra.utils.RecordMetadataUtil;
 import org.kie.u212.model.EventType;
@@ -55,8 +55,10 @@ public class SessionSnapShooter<T> {
     private EventProducer<Byte[]> producer;
     private KafkaConsumer<String, Byte[]> consumer;
     private KieContainer kieContainer;
+    private EnvConfig envConfig;
 
-    public SessionSnapShooter() {
+    public SessionSnapShooter(EnvConfig envConfig) {
+        this.envConfig = envConfig;
         KieServices srv = KieServices.get();
         if(srv != null){
             kieContainer = srv.newKieClasspathContainer();
@@ -79,7 +81,7 @@ public class SessionSnapShooter<T> {
                                                     0l,
                                                     EventType.SNAPSHOT,
                                                     lastInsertedEventOffset);
-            RecordMetadata metadata = producer.produceSync(new ProducerRecord(Config.SNAPSHOT_TOPIC, key, serializeEventWrapper(wrapper)));
+            RecordMetadata metadata = producer.produceSync(new ProducerRecord(envConfig.getSnapshotTopicName(), key, serializeEventWrapper(wrapper)));
             RecordMetadataUtil.logRecord(metadata);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
@@ -143,7 +145,7 @@ public class SessionSnapShooter<T> {
 
     private void configConsumer() {
         consumer = new KafkaConsumer(Config.getSnapshotConsumerConfig());
-        List<PartitionInfo> partitionsInfo = consumer.partitionsFor(Config.SNAPSHOT_TOPIC);
+        List<PartitionInfo> partitionsInfo = consumer.partitionsFor(envConfig.getSnapshotTopicName());
         List<TopicPartition> partitions = null;
         Collection<TopicPartition> partitionCollection = new ArrayList<>();
 
