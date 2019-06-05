@@ -19,52 +19,28 @@ import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-public class EventWrapper<T> implements Serializable {
+public class ControlMessage implements Serializable {
 
-    private T domainEvent;
     private String key;
-    private long offset, longValueToStore;
-    private EventType eventType;
+    private long offset;
     private long timestamp;
     private Queue<Object> sideEffects;
 
-    public EventWrapper() {
+    public ControlMessage() {
     }
 
-    public EventWrapper(T domainEvent,
-                        String key,
-                        long offset,
-                        EventType eventType) {
-        this.domainEvent = domainEvent;
+    public ControlMessage( String key,
+                           long offset) {
         this.offset = offset;
         this.key = key;
-        this.eventType = eventType;
         this.sideEffects = new ArrayDeque<>();
     }
 
-    public EventWrapper(T domainEvent,
-                        String key,
-                        long offset,
-                        EventType eventType,
-                        Queue<Object> sideEffects) {
-        this.domainEvent = domainEvent;
+    public ControlMessage( String key,
+                           Queue<Object> sideEffects) {
         this.offset = offset;
         this.key = key;
-        this.eventType = eventType;
         this.sideEffects = sideEffects;
-    }
-
-    public EventWrapper(T domainEvent,
-                        String key,
-                        long offset,
-                        EventType eventType,
-                        long valueToStore) {
-        this.domainEvent = domainEvent;
-        this.offset = offset;
-        this.key = key;
-        this.eventType = eventType;
-        this.longValueToStore = valueToStore;
-        this.sideEffects = new ArrayDeque<>();
     }
 
     public long getTimestamp() {
@@ -79,14 +55,6 @@ public class EventWrapper<T> implements Serializable {
         this.key = key;
     }
 
-    public T getDomainEvent() {
-        return domainEvent;
-    }
-
-    public void setDomainEvent(T domainEvent) {
-        this.domainEvent = domainEvent;
-    }
-
     public String getKey() {
         return key;
     }
@@ -99,38 +67,17 @@ public class EventWrapper<T> implements Serializable {
         this.offset = offset;
     }
 
-    public EventType getEventType() {
-        return eventType;
-    }
-
-    public void setEventType(EventType eventType) {
-        this.eventType = eventType;
-    }
-
-    public long getLongValueToStore() {
-        return longValueToStore;
-    }
-
-    public void setLongValueToStore(long longValueToStore) {
-        this.longValueToStore = longValueToStore;
-    }
-
     public Queue<Object> getSideEffects() { return sideEffects; }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("EventWrapper{");
-        sb.append("domainEvent=").append(domainEvent);
+        final StringBuilder sb = new StringBuilder("ControlMessage{");
         sb.append(", key='").append(key).append('\'');
         if(offset != 0l) {
             sb.append(", offset=").append(offset);
         }
-        sb.append(", eventType=").append(eventType);
         if(timestamp != 0l) {
             sb.append(", timestamp=").append(timestamp);
-        }
-        if(longValueToStore != 0l) {
-            sb.append(", longValueToStore=").append(longValueToStore);
         }
         if(sideEffects != null && !sideEffects.isEmpty()){
             sb.append(", sideEffects=").append("\n").append(sideEffects);

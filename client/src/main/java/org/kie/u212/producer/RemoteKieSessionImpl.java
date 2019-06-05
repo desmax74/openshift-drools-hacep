@@ -18,27 +18,27 @@ package org.kie.u212.producer;
 import java.io.Closeable;
 import java.util.Properties;
 
+import org.drools.core.rule.EntryPointId;
+import org.kie.remote.RemoteEntryPoint;
+import org.kie.remote.RemoteKieSession;
 import org.kie.u212.EnvConfig;
 
-public class ClientProducer implements Closeable {
+public class RemoteKieSessionImpl extends RemoteEntryPointImpl implements Closeable, RemoteKieSession {
 
-    private Sender sender;
+    public static final String DEFAULT_ENTRY_POINT = EntryPointId.DEFAULT.getEntryPointId();
 
-    public ClientProducer(Properties configuration, EnvConfig envConfig) {
-        sender = new Sender(configuration, envConfig);
+    public RemoteKieSessionImpl( Properties configuration, EnvConfig envConfig ) {
+        super(new Sender(configuration, envConfig), DEFAULT_ENTRY_POINT);
         sender.start();
-    }
-
-    public void stop(){
-        sender.stop();
-    }
-
-    public void insertSync(Object obj, boolean logInsert) {
-        sender.insertSync(obj, logInsert);
     }
 
     @Override
     public void close() {
         sender.stop();
+    }
+
+    @Override
+    public RemoteEntryPoint getEntryPoint( String name ) {
+        return new RemoteEntryPointImpl(sender, name);
     }
 }

@@ -44,6 +44,7 @@
     <module>quarkus</module>
     <module>jdkhttp</module>
     <module>integration</module>
+      <module>kie-remote</module>
   </modules>
 
   <dependencyManagement>

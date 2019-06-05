@@ -102,7 +102,7 @@ public class Bootstrap {
 
     private static void startConsumers(Printer printer,
                                        EnvConfig envConfig) {
-        snaptshooter = new SessionSnapShooter<>(envConfig);
+        snaptshooter = new SessionSnapShooter(envConfig);
         SnapshotInfos infos = snaptshooter.deserializeEventWrapper();
         restarter = new Restarter(printer);
         restarter.createDroolsConsumer(envConfig);

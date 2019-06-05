@@ -20,11 +20,11 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Deserializer;
-import org.kie.u212.model.EventWrapper;
+import org.kie.u212.model.ControlMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EventDeserializer implements Deserializer<EventWrapper> {
+public class EventDeserializer implements Deserializer<ControlMessage> {
 
     private Logger logger = LoggerFactory.getLogger(EventDeserializer.class);
     private ObjectMapper objectMapper;
@@ -35,9 +35,9 @@ public class EventDeserializer implements Deserializer<EventWrapper> {
     }
 
     @Override
-    public EventWrapper deserialize(String s, byte[] data) {
+    public ControlMessage deserialize( String s, byte[] data) {
         try {
-            return objectMapper.readValue(data, EventWrapper.class);
+            return objectMapper.readValue(data, ControlMessage.class);
         } catch (IOException e) {
             logger.error(e.getMessage(),
                          e);

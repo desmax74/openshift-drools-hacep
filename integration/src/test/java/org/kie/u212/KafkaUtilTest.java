@@ -46,7 +46,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.SystemTime;
 import org.apache.kafka.common.utils.Time;
 import org.kie.u212.model.StockTickEvent;
-import org.kie.u212.producer.ClientProducer;
+import org.kie.u212.producer.RemoteKieSessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -204,14 +204,11 @@ public class KafkaUtilTest<K, V> implements AutoCloseable {
 
     public void insertBatchStockTicketEvent(int items, EnvConfig envConfig) {
         Properties props = Config.getProducerConfig();
-        ClientProducer producer = new ClientProducer(props, envConfig);
-        try {
+        try (RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props, envConfig)) {
             for (int i = 0; i < items; i++) {
                 StockTickEvent eventA = new StockTickEvent("RHT", ThreadLocalRandom.current().nextLong(80, 100));
-                producer.insertSync(eventA, true);
+                producer.insert(eventA);
             }
-        } finally {
-            producer.stop();
         }
     }
 
