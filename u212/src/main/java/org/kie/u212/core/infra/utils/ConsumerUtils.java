@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -31,10 +30,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.kie.u212.Config;
-import org.kie.u212.ConverterUtil;
-import org.kie.u212.model.EventType;
-import org.kie.u212.model.EventWrapper;
-import org.kie.u212.model.StockTickEvent;
+import org.kie.u212.model.ControlMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +39,7 @@ public class ConsumerUtils {
 
     private static Logger logger = LoggerFactory.getLogger(ConsumerUtils.class);
 
-    public static EventWrapper getLastEvent(String topic) {
+    public static ControlMessage getLastEvent( String topic) {
         return getLastEvent(topic, Config.getConsumerConfig());
     }
 
@@ -60,7 +56,7 @@ public class ConsumerUtils {
         return offsets;
     }
 
-    public static EventWrapper getLastEvent(String topic, Properties properties) {
+    public static ControlMessage getLastEvent( String topic, Properties properties) {
         KafkaConsumer consumer = new KafkaConsumer(properties);
         List<PartitionInfo> infos = consumer.partitionsFor(topic);
         List<TopicPartition> partitions = new ArrayList<>();
@@ -84,25 +80,12 @@ public class ConsumerUtils {
             consumer.seek(part, lastOffset - 1);
         }
 
-        EventWrapper eventWrapper = new EventWrapper();
+        ControlMessage lastMessage = new ControlMessage();
         try {
             ConsumerRecords records = consumer.poll(Duration.of(Config.DEFAULT_POLL_TIMEOUT_MS, ChronoUnit.MILLIS));
             for (Object item : records) {
-                ConsumerRecord<String, EventWrapper> record = (ConsumerRecord<String, EventWrapper>) item;
-                eventWrapper.setEventType(EventType.APP);
-                eventWrapper.setKey(record.key());
-                eventWrapper.setOffset(record.offset());
-                eventWrapper.setTimestamp(record.timestamp());
-                if(record.value() != null) {
-                    Map map = (Map) record.value().getDomainEvent();
-                    StockTickEvent ticket = ConverterUtil.fromMap(map);
-                    ticket.setTimestamp(record.timestamp());
-                    Date date = new Date(record.timestamp());
-                    logger.info("Timestamp Date last offset:{}", date);
-                    eventWrapper.setDomainEvent(ticket);
-                }else{
-                    logger.info("no Event Wrapper");
-                }
+                ConsumerRecord<String, ControlMessage> record = (ConsumerRecord<String, ControlMessage>) item;
+                lastMessage = record.value();
             }
         } catch (Exception ex) {
             logger.error(ex.getMessage(),
@@ -110,6 +93,6 @@ public class ConsumerUtils {
         } finally {
             consumer.close();
         }
-        return eventWrapper;
+        return lastMessage;
     }
 }

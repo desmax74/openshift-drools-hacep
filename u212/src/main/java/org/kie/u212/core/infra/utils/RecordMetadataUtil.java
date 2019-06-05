@@ -23,7 +23,7 @@ public class RecordMetadataUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordMetadataUtil.class);
 
-    public static void logRecord(RecordMetadata recordMetadata) {
+    public static RecordMetadata logRecord(RecordMetadata recordMetadata) {
         if (recordMetadata != null && logger.isInfoEnabled()) {
             logger.info("Topic: {} - Partition: {} - Offset: {} - TimeStamp: {}\n",
                         recordMetadata.topic(),
@@ -31,5 +31,7 @@ public class RecordMetadataUtil {
                         recordMetadata.offset(),
                         recordMetadata.timestamp());
         }
+
+        return recordMetadata;
     }
 }

@@ -19,7 +19,7 @@ import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.kie.u212.model.StockTickEvent;
-import org.kie.u212.producer.ClientProducer;
+import org.kie.u212.producer.RemoteKieSessionImpl;
 
 public class ClientProducerTest {
 
@@ -37,17 +37,13 @@ public class ClientProducerTest {
         props.put("ssl.truststore.location", "/<path>/openshift-drools-hacep/client/src/main/resources/keystore.jks");
         props.put("ssl.truststore.password", "password");
 
-        ClientProducer producer = new ClientProducer(props, envConfig);
-        try {
+        try (RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props, envConfig)) {
             for (int i = 0; i < items; i++) {
                 StockTickEvent eventA = new StockTickEvent("RHT",
                                                            ThreadLocalRandom.current().nextLong(80,
                                                                                                 100));
-                producer.insertSync(eventA,
-                                    true);
+                producer.insert(eventA);
             }
-        } finally {
-            producer.stop();
         }
     }
 }

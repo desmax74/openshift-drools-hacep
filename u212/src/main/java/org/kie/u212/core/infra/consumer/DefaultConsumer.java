@@ -44,8 +44,7 @@ import org.kie.u212.core.infra.election.Callback;
 import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.utils.ConsumerUtils;
 import org.kie.u212.core.infra.utils.Printer;
-import org.kie.u212.model.EventWrapper;
-import org.kie.u212.model.StockTickEvent;
+import org.kie.u212.model.ControlMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -293,13 +292,13 @@ public class DefaultConsumer<T> implements EventConsumer,
     }
 
     private void setLastProcessedKey() {
-        EventWrapper<StockTickEvent> lastWrapper = ConsumerUtils.getLastEvent(config.getControlTopicName());
+        ControlMessage lastWrapper = ConsumerUtils.getLastEvent(config.getControlTopicName());
         settingsOnAEmptyControlTopic(lastWrapper);
         processingKey = lastWrapper.getKey();
         processingKeyOffset = lastWrapper.getOffset();
     }
 
-    private void settingsOnAEmptyControlTopic(EventWrapper<StockTickEvent> lastWrapper) {
+    private void settingsOnAEmptyControlTopic( ControlMessage lastWrapper) {
         if (lastWrapper.getKey() == null) {// completely empty or restart of ephemeral already used
             if (leader) {
                 startProcessingLeader();
@@ -461,7 +460,7 @@ public class DefaultConsumer<T> implements EventConsumer,
             if (record.offset() > 0) {
                 processingKey = record.key();
                 processingKeyOffset = record.offset();
-                EventWrapper wr = (EventWrapper) record.value();
+                ControlMessage wr = ( ControlMessage ) record.value();
                 sideEffects = wr.getSideEffects();
             }
 
