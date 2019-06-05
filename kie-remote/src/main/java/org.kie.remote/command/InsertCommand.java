@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2005 JBoss Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,30 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.producer;
 
-import java.io.Closeable;
-import java.util.Properties;
+package org.kie.remote.command;
 
-public class ClientProducer implements Closeable {
+import org.kie.remote.RemoteFactHandle;
 
-    private Sender sender;
+public class InsertCommand extends WorkingMemoryActionCommand {
 
-    public ClientProducer(Properties configuration) {
-        sender = new Sender(configuration);
-        sender.start();
-    }
+    /* Empty constructor for serialization */
+    public InsertCommand() { }
 
-    public void stop(){
-        sender.stop();
-    }
-
-    public void insertSync(Object obj, boolean logInsert) {
-        sender.insertSync(obj, logInsert);
+    public InsertCommand( RemoteFactHandle factHandle, String entryPoint ) {
+        super(factHandle, entryPoint);
     }
 
     @Override
-    public void close() {
-        sender.stop();
+    public String toString() {
+        return "Insert of " + getFactHandle() + " into entry-point " + getEntryPoint();
     }
 }

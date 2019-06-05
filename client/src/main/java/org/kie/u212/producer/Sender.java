@@ -22,18 +22,19 @@ import java.util.concurrent.Future;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.kie.remote.RemoteCommand;
 import org.kie.u212.ClientUtils;
 import org.kie.u212.Config;
 import org.kie.u212.core.infra.producer.EventProducer;
-import org.kie.u212.core.infra.utils.RecordMetadataUtil;
-import org.kie.u212.model.EventType;
-import org.kie.u212.model.EventWrapper;
+import org.kie.u212.model.ControlMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.kie.u212.core.infra.utils.RecordMetadataUtil.logRecord;
+
 public class Sender {
 
-  private static Logger logger = LoggerFactory.getLogger(ClientProducer.class);
+  private static Logger logger = LoggerFactory.getLogger( RemoteKieSessionImpl.class);
   private EventProducer producer;
   private final String topic = Config.EVENTS_TOPIC;
   private Properties configuration;
@@ -55,18 +56,15 @@ public class Sender {
     producer.stop();
   }
 
-  public String insertSync(Object obj, boolean logInsert) {
-    EventWrapper event = wrapObject(obj);
-    RecordMetadata lastRecord = producer.produceSync(new ProducerRecord<>(topic, event.getKey(), event));
-    if (logInsert) {
-      RecordMetadataUtil.logRecord(lastRecord);
-    }
-    return lastRecord.toString();
+  public RecordMetadata sendCommand( RemoteCommand command ) {
+    RecordMetadata lastRecord = producer.produceSync(new ProducerRecord<>(topic, command.getId(), command));
+    return logRecord(lastRecord);
   }
 
+  // TODO is this useful? I think we should remove it
   public void insertAsync(Object obj,
                           Callback callback) {
-    EventWrapper event = wrapObject(obj);
+    ControlMessage event = wrapObject(obj);
     producer.produceAsync(new ProducerRecord<>(topic,
                                                event.getKey(),
                                                event),
@@ -74,17 +72,14 @@ public class Sender {
   }
 
   public Future<RecordMetadata> insertFireAndForget(Object obj) {
-    EventWrapper event = (EventWrapper) obj;
+    ControlMessage event = ( ControlMessage ) obj;
     return producer.produceFireAndForget(new ProducerRecord<>(topic,
                                                               event.getKey(),
                                                               event));
   }
 
-  private EventWrapper wrapObject(Object obj){
-    EventWrapper event = new EventWrapper(obj,
-                                          UUID.randomUUID().toString(),
-                                          0l,
-                                          EventType.APP);
+  private ControlMessage wrapObject( Object obj){
+    ControlMessage event = new ControlMessage(UUID.randomUUID().toString(), 0l);
     return  event;
   }
 }
