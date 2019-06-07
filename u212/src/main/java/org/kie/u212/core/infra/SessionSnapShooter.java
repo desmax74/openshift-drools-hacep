@@ -41,6 +41,7 @@ import org.kie.api.runtime.conf.ClockTypeOption;
 import org.kie.api.runtime.rule.FactHandle;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.u212.Config;
+import org.kie.u212.ConverterUtil;
 import org.kie.u212.EnvConfig;
 import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.core.infra.utils.RecordMetadataUtil;
@@ -52,8 +53,8 @@ public class SessionSnapShooter {
 
     private final String key = "LAST-SNAPSHOT";
     private final Logger logger = LoggerFactory.getLogger(SessionSnapShooter.class);
-    private EventProducer<Byte[]> producer;
-    private KafkaConsumer<String, Byte[]> consumer;
+    private EventProducer<byte[]> producer;
+    private KafkaConsumer<String, byte[]> consumer;
     private KieContainer kieContainer;
     private EnvConfig envConfig;
 
@@ -77,27 +78,27 @@ public class SessionSnapShooter {
             /* We are storing the last inserted key and offset together with the session's bytes */
             byte[] bytes = out.toByteArray();
             SnapshotMessage message = new SnapshotMessage( bytes, fhMap, lastInsertedEventkey, lastInsertedEventOffset);
-            RecordMetadata metadata = producer.produceSync(new ProducerRecord(envConfig.getSnapshotTopicName(), key, message));
+            RecordMetadata metadata = producer.produceSync(new ProducerRecord(envConfig.getSnapshotTopicName(), key,
+                                                                              ConverterUtil.serializeObj(message)));
             RecordMetadataUtil.logRecord(metadata);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
     }
 
-    public SnapshotInfos deserializeEventWrapper() {
+    public SnapshotInfos deserialize() {
         KieServices srv = KieServices.get();
         if(srv != null) {
             KieMarshallers marshallers = KieServices.get().getMarshallers();
             KieSession kSession = null;
-            ConsumerRecords<String, Byte[]> records = consumer.poll(Duration.of(Integer.valueOf(Config.DEFAULT_POLL_TIMEOUT_MS),
+            ConsumerRecords<String, byte[]> records = consumer.poll(Duration.of(Integer.valueOf(Config.DEFAULT_POLL_TIMEOUT_MS),
                                                                                 ChronoUnit.MILLIS));
-            SnapshotMessage message = null;
+            SnapshotMessage snapshotMsg = null;
             for (ConsumerRecord record : records) {
-                //logger.info("snapshot record:{}", record);
-                message = (SnapshotMessage) record.value();
+                snapshotMsg = ConverterUtil.deSerializeObjInto((byte[])record.value(), SnapshotMessage.class);
             }
-            if (message != null) {
-                try (ByteArrayInputStream in = new ByteArrayInputStream(message.getSerializedSession())) {
+            if (snapshotMsg != null) {
+                try (ByteArrayInputStream in = new ByteArrayInputStream(snapshotMsg.getSerializedSession())) {
                     KieSessionConfiguration conf = KieServices.get().newKieSessionConfiguration();
                     conf.setOption(ClockTypeOption.get("pseudo"));
                     kSession = marshallers.newMarshaller(kieContainer.getKieBase()).unmarshall(in, conf, null);
@@ -106,8 +107,8 @@ public class SessionSnapShooter {
                                  e);
                 }
                 return new SnapshotInfos(kSession,
-                                         message.getLastInsertedEventkey(),
-                                         message.getLastInsertedEventOffset());
+                                         snapshotMsg.getLastInsertedEventkey(),
+                                         snapshotMsg.getLastInsertedEventOffset());
             }
             return new SnapshotInfos();
         }else{

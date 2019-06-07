@@ -106,7 +106,7 @@ public class DefaultConsumer<T> implements EventConsumer,
 
     public void restartConsumer() {
         logger.info("Restart Consumers");
-        snapshotInfos = snapShooter.deserializeEventWrapper();
+        snapshotInfos = snapShooter.deserialize();
         kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
         assign(null);
         if (!leader) {

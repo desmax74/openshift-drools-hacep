@@ -30,6 +30,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.kie.u212.Config;
+import org.kie.u212.ConverterUtil;
 import org.kie.u212.model.ControlMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,8 +85,8 @@ public class ConsumerUtils {
         try {
             ConsumerRecords records = consumer.poll(Duration.of(Config.DEFAULT_POLL_TIMEOUT_MS, ChronoUnit.MILLIS));
             for (Object item : records) {
-                ConsumerRecord<String, ControlMessage> record = (ConsumerRecord<String, ControlMessage>) item;
-                lastMessage = record.value();
+                ConsumerRecord<String, byte[]> record = (ConsumerRecord<String, byte[]>) item;
+                lastMessage = ConverterUtil.deSerializeObjInto(record.value(), ControlMessage.class);
             }
         } catch (Exception ex) {
             logger.error(ex.getMessage(),

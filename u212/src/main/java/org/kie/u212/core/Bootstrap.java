@@ -16,7 +16,6 @@
 package org.kie.u212.core;
 
 import java.util.Arrays;
-import java.util.UUID;
 
 import org.kie.u212.Config;
 import org.kie.u212.EnvConfig;
@@ -103,7 +102,7 @@ public class Bootstrap {
     private static void startConsumers(Printer printer,
                                        EnvConfig envConfig) {
         snaptshooter = new SessionSnapShooter(envConfig);
-        SnapshotInfos infos = snaptshooter.deserializeEventWrapper();
+        SnapshotInfos infos = snaptshooter.deserialize();
         restarter = new Restarter(printer);
         restarter.createDroolsConsumer(envConfig);
         logger.info("start consumer with:{}", infos);

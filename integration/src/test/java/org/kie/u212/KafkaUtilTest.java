@@ -199,15 +199,15 @@ public class KafkaUtilTest<K, V> implements AutoCloseable {
         Set<TopicPartition> assignments = consumer.assignment();
         assignments.forEach(topicPartition -> consumer.seekToBeginning(assignments));
         return consumer;
-
     }
+
 
     public void insertBatchStockTicketEvent(int items, EnvConfig envConfig) {
         Properties props = Config.getProducerConfig();
         try (RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props, envConfig)) {
             for (int i = 0; i < items; i++) {
-                StockTickEvent eventA = new StockTickEvent("RHT", ThreadLocalRandom.current().nextLong(80, 100));
-                producer.insert(eventA);
+                StockTickEvent ticket = new StockTickEvent("RHT", ThreadLocalRandom.current().nextLong(80, 100));
+                producer.insert(ticket);
             }
         }
     }

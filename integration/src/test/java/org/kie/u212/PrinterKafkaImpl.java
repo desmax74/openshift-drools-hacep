@@ -41,7 +41,7 @@ public class PrinterKafkaImpl implements Printer {
                         consumerRecord.topic(),
                         consumerRecord.partition(),
                         consumerRecord.offset(),
-                        consumerRecord.value());
+                             !(consumerRecord.value() instanceof byte[]) ? consumerRecord.value() : "bytes[]");
         }
 
     }

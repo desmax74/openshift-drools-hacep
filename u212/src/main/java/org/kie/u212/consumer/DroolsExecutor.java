@@ -40,7 +40,9 @@ public abstract class DroolsExecutor {
         isMaster = true;
     }
 
-    public static void setAsSlave() { isMaster = false; }
+    public static void setAsSlave() {
+        isMaster = false;
+    }
 
     public abstract void execute( Runnable f );
 

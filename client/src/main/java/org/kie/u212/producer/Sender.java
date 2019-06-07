@@ -24,6 +24,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.kie.remote.RemoteCommand;
 import org.kie.u212.ClientUtils;
+import org.kie.u212.ConverterUtil;
 import org.kie.u212.EnvConfig;
 import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.model.ControlMessage;
@@ -58,7 +59,9 @@ public class Sender {
   }
 
   public RecordMetadata sendCommand( RemoteCommand command ) {
-    RecordMetadata lastRecord = producer.produceSync(new ProducerRecord<>(envConfig.getEventsTopicName(), command.getId(), command));
+
+    RecordMetadata lastRecord = producer.produceSync(new ProducerRecord<>(envConfig.getEventsTopicName(), command.getId(),
+                                                                          ConverterUtil.serializeObj(command)));
     return logRecord(lastRecord);
   }
 

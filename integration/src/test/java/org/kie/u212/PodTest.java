@@ -24,15 +24,18 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.kie.remote.RemoteCommand;
+import org.kie.remote.RemoteFactHandle;
+import org.kie.remote.command.InsertCommand;
 import org.kie.u212.core.Bootstrap;
 import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.utils.PrinterLogImpl;
 import org.kie.u212.model.ControlMessage;
+import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class PodTest {
 
@@ -79,31 +82,25 @@ public class PodTest {
             //EVENTS TOPIC
             ConsumerRecords eventsRecords = eventsConsumer.poll(5000);
             assertEquals(1, eventsRecords.count());
-            Iterator<ConsumerRecord<String, ControlMessage>> eventsRecordIterator = eventsRecords.iterator();
-            ConsumerRecord<String, ControlMessage> eventsRecord = eventsRecordIterator.next();
+            Iterator<ConsumerRecord<String, byte[]>> eventsRecordIterator = eventsRecords.iterator();
+            ConsumerRecord<String, byte[]> eventsRecord = eventsRecordIterator.next();
             assertEquals(eventsRecord.topic(), config.getEventsTopicName());
-            assertEquals(eventsRecord.value().getOffset(),0);
-            assertEquals(eventsRecord.value().getSideEffects().size(), 0);
-//            Map map = (Map) eventsRecord.value().getDomainEvent();
-//            StockTickEvent eventsTicket = ConverterUtil.fromMap(map);
-//            assertEquals(eventsTicket.getCompany(), "RHT");
+            RemoteCommand remoteCommand = ConverterUtil.deSerializeObjInto(eventsRecord.value(), RemoteCommand.class);
+            assertEquals(eventsRecord.offset(),0);
+            assertNotNull(remoteCommand.getId());
 
             //CONTROL TOPIC
             ConsumerRecords controlRecords = controlConsumer.poll(5000);
             assertEquals(1, controlRecords.count());
-            Iterator<ConsumerRecord<String, ControlMessage>> controlRecordIterator = controlRecords.iterator();
-            ConsumerRecord<String, ControlMessage> controlRecord = controlRecordIterator.next();
+            Iterator<ConsumerRecord<String, byte[]>> controlRecordIterator = controlRecords.iterator();
+            ConsumerRecord<String, byte[]> controlRecord = controlRecordIterator.next();
+            ControlMessage controlMessage= ConverterUtil.deSerializeObjInto(controlRecord.value(), ControlMessage.class);
             assertEquals(controlRecord.topic(), config.getControlTopicName());
-            assertEquals(controlRecord.value().getOffset(),0);
-            assertTrue(!controlRecord.value().getSideEffects().isEmpty());
-
-//            Map mapControl = (Map) controlRecord.value().getDomainEvent();
-//            StockTickEvent controlTicket = ConverterUtil.fromMap(mapControl);
+            assertEquals(controlRecord.offset(),0);
+            assertTrue(!controlMessage.getSideEffects().isEmpty());
 
             //Same msg content on Events topic and control topics
-//            assertEquals(controlRecord.key(), eventsRecord.key());
-//            assertEquals(controlTicket.getCompany(), eventsTicket.getCompany());
-//            assertTrue(controlTicket.getPrice() == eventsTicket.getPrice());
+            assertEquals(controlRecord.key(), eventsRecord.key());
 
         }catch (Exception ex){
             logger.error(ex.getMessage(), ex);
@@ -137,6 +134,7 @@ public class PodTest {
         }
     }
 
+
     @Test
     public void processOneSentMessageAsLeaderAndThenReplica() {
         Bootstrap.startEngine(new PrinterKafkaImpl(), config);
@@ -145,36 +143,39 @@ public class PodTest {
         KafkaConsumer controlConsumer = kafkaServerTest.getConsumer("", config.getControlTopicName(), Config.getConsumerConfig());
         kafkaServerTest.insertBatchStockTicketEvent(1, config);
         try {
+
             //EVENTS TOPIC
             ConsumerRecords eventsRecords = eventsConsumer.poll(5000);
             assertEquals(1, eventsRecords.count());
-            Iterator<ConsumerRecord<String, ControlMessage>> eventsRecordIterator = eventsRecords.iterator();
-            ConsumerRecord<String, ControlMessage> eventsRecord = eventsRecordIterator.next();
+            Iterator<ConsumerRecord<String, byte[]>> eventsRecordIterator = eventsRecords.iterator();
+            ConsumerRecord<String, byte[]> eventsRecord = eventsRecordIterator.next();
             assertEquals(eventsRecord.topic(), config.getEventsTopicName());
-            assertEquals(eventsRecord.value().getOffset(),0);
-            assertEquals(eventsRecord.value().getSideEffects().size(), 0);
-//            Map map = (Map) eventsRecord.value().getDomainEvent();
-//            StockTickEvent eventsTicket = ConverterUtil.fromMap(map);
-//            assertEquals(eventsTicket.getCompany(), "RHT");
+            RemoteCommand remoteCommand = ConverterUtil.deSerializeObjInto(eventsRecord.value(), RemoteCommand.class);
+            assertEquals(eventsRecord.offset(),0);
+            assertNotNull(remoteCommand.getId());
+            InsertCommand insertCommand = (InsertCommand)remoteCommand;
+            assertEquals(insertCommand.getEntryPoint(), "DEFAULT");
+            assertNotNull(insertCommand.getId());
+            assertNotNull(insertCommand.getFactHandle());
+            RemoteFactHandle remoteFactHandle = insertCommand.getFactHandle();
+            StockTickEvent eventsTicket = (StockTickEvent) remoteFactHandle.getObject();
+            assertEquals(eventsTicket.getCompany(), "RHT");
+
 
             //CONTROL TOPIC
             ConsumerRecords controlRecords = controlConsumer.poll(5000);
             assertEquals(1, controlRecords.count());
-            Iterator<ConsumerRecord<String, ControlMessage>> controlRecordIterator = controlRecords.iterator();
-            ConsumerRecord<String, ControlMessage> controlRecord = controlRecordIterator.next();
+            Iterator<ConsumerRecord<String, byte[]>> controlRecordIterator = controlRecords.iterator();
+            ConsumerRecord<String, byte[]> controlRecord = controlRecordIterator.next();
             assertEquals(controlRecord.topic(), config.getControlTopicName());
-            assertEquals(controlRecord.value().getOffset(),0);
-            assertTrue(!controlRecord.value().getSideEffects().isEmpty());
+            ControlMessage controlMessage = ConverterUtil.deSerializeObjInto(controlRecord.value(), ControlMessage.class);
+            assertEquals(controlRecord.offset(),0);
+            assertTrue(!controlMessage.getSideEffects().isEmpty());
 
-            //ControlMessage<StockTickEvent> cew = (ControlMessage<StockTickEvent>) controlRecord.value().getDomainEvent();
-            //StockTickEvent controlTicket = cew.getDomainEvent();
-//            Map mapControl = (Map) controlRecord.value().getDomainEvent();
-//            StockTickEvent controlTicket = ConverterUtil.fromMap(mapControl);
 
             //Same msg content on Events topic and control topics
             assertEquals(controlRecord.key(), eventsRecord.key());
-//            assertEquals(controlTicket.getCompany(), eventsTicket.getCompany());
-//            assertTrue(controlTicket.getPrice() == eventsTicket.getPrice());
+
 
             //no more msg to consume as a leader
             eventsRecords = eventsConsumer.poll(5000);

@@ -30,6 +30,7 @@ import org.kie.remote.RemoteCommand;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.command.DeleteCommand;
 import org.kie.remote.command.InsertCommand;
+import org.kie.u212.ConverterUtil;
 import org.kie.u212.EnvConfig;
 import org.kie.u212.core.infra.SessionSnapShooter;
 import org.kie.u212.core.infra.SnapshotInfos;
@@ -96,14 +97,14 @@ public class DroolsConsumerHandler implements ConsumerHandler {
 
     @Override
     public void process(ConsumerRecord record, State state, EventConsumer consumer, Queue<Object> sideEffects) {
-        RemoteCommand command = (RemoteCommand) record.value();
+        RemoteCommand command  = ConverterUtil.deSerializeObjInto((byte[])record.value(), RemoteCommand.class);
         processCommand( command );
         kieSession.fireAllRules();
 
         if (state.equals(State.LEADER)) {
             Queue<Object> results = DroolsExecutor.getInstance().getAndReset();
             ControlMessage newControlMessage = new ControlMessage(command.getId(), results);
-            producer.produceSync(new ProducerRecord<>(config.getControlTopicName(), command.getId(), newControlMessage ));
+            producer.produceSync(new ProducerRecord<>(config.getControlTopicName(), command.getId(), ConverterUtil.serializeObj(newControlMessage)));
         }
     }
 

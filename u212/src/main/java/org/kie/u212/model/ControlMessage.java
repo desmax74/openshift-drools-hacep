@@ -19,6 +19,8 @@ import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
+import org.kie.remote.RemoteCommand;
+
 public class ControlMessage implements Serializable {
 
     private String key;
@@ -38,10 +40,10 @@ public class ControlMessage implements Serializable {
 
     public ControlMessage( String key,
                            Queue<Object> sideEffects) {
-        this.offset = offset;
         this.key = key;
         this.sideEffects = sideEffects;
     }
+
 
     public long getTimestamp() {
         return timestamp;
