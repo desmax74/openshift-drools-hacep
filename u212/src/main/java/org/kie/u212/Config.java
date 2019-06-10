@@ -94,10 +94,10 @@ public class Config {
         if(config == null) {
             config = new Properties();
             config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-            config.put("value.serializer", "org.kie.u212.serializer.EventJsonSerializer");
+            config.put("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
             config.put("bootstrap.servers", getBootStrapServers());
             config.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-            config.put("value.deserializer", "org.kie.u212.producer.EventJsonDeserializer");
+            config.put("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
             config.put("max.poll.interval.ms", "10000");//time to discover the new consumer after a changetopic default 5 min 300000
             config.put("batch.size", "16384");
             config.put("enable.auto.commit", "false");
