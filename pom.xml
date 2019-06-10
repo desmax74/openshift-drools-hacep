@@ -15,13 +15,11 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.version>1.0-SNAPSHOT</project.version>
-    <quarkus.version>0.16.1</quarkus.version>
-    <rest.assured>3.3.0</rest.assured>
     <surefire.forkCount>1</surefire.forkCount>
     <surefire.version>2.22.0</surefire.version>
     <version.com.fasterxml.jackson>2.9.9</version.com.fasterxml.jackson>
     <version.commons.codec>1.12</version.commons.codec>
-    <version.drools>7.22.0.Final</version.drools>
+    <version.drools>7.24.0-SNAPSHOT</version.drools>
     <version.javax.cdi>2.0.SP1</version.javax.cdi>
     <version.javax.el>3.0.1-b08</version.javax.el>
     <version.javax.ws.rs>2.1.1</version.javax.ws.rs>
@@ -30,6 +28,7 @@
     <version.k8s.client>4.2.1</version.k8s.client>
     <version.logback.core>1.2.3</version.logback.core>
     <version.org.kie>7.22.0.Final</version.org.kie>
+    <version.quarkus>0.16.1</version.quarkus>
     <version.servlet>4.0.1</version.servlet>
     <version.slf4j>1.7.26</version.slf4j>
     <version.logback.kafka.appender>0.2.0-RC2</version.logback.kafka.appender>
@@ -37,6 +36,7 @@
   </properties>
 
   <modules>
+    <module>kie-remote</module>
     <module>u212</module>
     <module>client</module>
     <module>demo</module>
@@ -44,7 +44,6 @@
     <module>quarkus</module>
     <module>jdkhttp</module>
     <module>integration</module>
-    <module>kie-remote</module>
   </modules>
 
   <dependencyManagement>
@@ -81,24 +80,24 @@
       <dependency>
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-bom</artifactId>
-        <version>${quarkus.version}</version>
+        <version>${version.quarkus}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-resteasy</artifactId>
-        <version>${quarkus.version}</version>
+        <version>${version.quarkus}</version>
       </dependency>
       <dependency>
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-arc</artifactId>
-        <version>${quarkus.version}</version>
+        <version>${version.quarkus}</version>
       </dependency>
       <dependency>
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-arc-runtime</artifactId>
-        <version>${quarkus.version}</version>
+        <version>${version.quarkus}</version>
       </dependency>
 
       <!-- fabric8 -->

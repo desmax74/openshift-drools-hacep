@@ -19,8 +19,6 @@ import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-import org.kie.remote.RemoteCommand;
-
 public class ControlMessage implements Serializable {
 
     private String key;
