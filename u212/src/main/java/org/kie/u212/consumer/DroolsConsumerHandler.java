@@ -30,6 +30,8 @@ import org.kie.remote.RemoteCommand;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.command.DeleteCommand;
 import org.kie.remote.command.InsertCommand;
+import org.kie.remote.command.Visitable;
+import org.kie.remote.command.Visitor;
 import org.kie.u212.ConverterUtil;
 import org.kie.u212.EnvConfig;
 import org.kie.u212.core.infra.SessionSnapShooter;
@@ -43,7 +45,8 @@ import org.kie.u212.model.ControlMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DroolsConsumerHandler implements ConsumerHandler {
+public class DroolsConsumerHandler implements ConsumerHandler,
+                                              Visitor {
 
     private static final Logger logger = LoggerFactory.getLogger(DroolsConsumerHandler.class);
     private KieSession kieSession;
@@ -109,19 +112,22 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     }
 
     private void processCommand( RemoteCommand command ) {
+        Visitable visitable = (Visitable)command;
+        visitable.accept(this);
+    }
 
-        if (command instanceof InsertCommand ) {
-            InsertCommand insert = ( InsertCommand ) command;
-            RemoteFactHandle remoteFH = insert.getFactHandle();
-            FactHandle fh = kieSession.getEntryPoint( insert.getEntryPoint() ).insert( remoteFH.getObject() );
-            fhMap.put( remoteFH, fh );
-        } else if (command instanceof DeleteCommand ) {
-            DeleteCommand delete = ( DeleteCommand ) command;
-            RemoteFactHandle remoteFH = delete.getFactHandle();
-            kieSession.getEntryPoint( delete.getEntryPoint() ).delete( fhMap.get(remoteFH) );
-        } else {
-            throw new UnsupportedOperationException( "Unkonwn command: " + command );
-        }
+    @Override
+    public void visit(InsertCommand command) {
+        RemoteFactHandle remoteFH = command.getFactHandle();
+        FactHandle fh = kieSession.getEntryPoint(command.getEntryPoint() ).insert(remoteFH.getObject() );
+        fhMap.put( remoteFH, fh );
+    }
+
+
+    @Override
+    public void visit(DeleteCommand command) {
+        RemoteFactHandle remoteFH = command.getFactHandle();
+        kieSession.getEntryPoint( command.getEntryPoint() ).delete( fhMap.get(remoteFH) );
     }
 
     @Override
@@ -138,4 +144,6 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     public SessionSnapShooter getSnapshooter(){
         return snapshooter;
     }
+
+
 }

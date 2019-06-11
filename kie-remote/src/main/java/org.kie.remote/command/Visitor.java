@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Red Hat
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.kie.remote.command;
 
-import org.kie.remote.RemoteFactHandle;
+public interface Visitor {
 
-public class InsertCommand extends WorkingMemoryActionCommand implements Visitable {
+    void visit(InsertCommand command);
 
-    /* Empty constructor for serialization */
-    public InsertCommand() { }
-
-    public InsertCommand(RemoteFactHandle factHandle, String entryPoint ) {
-        super(factHandle, entryPoint);
-    }
-
-    @Override
-    public void accept(Visitor visitor) { visitor.visit(this); }
-
-    @Override
-    public String toString() {
-        return "Insert of " + getFactHandle() + " into entry-point " + getEntryPoint();
-    }
-
+    void visit(DeleteCommand command);
 
 }

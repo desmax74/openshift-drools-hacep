@@ -43,14 +43,14 @@ public class RemoteEntryPointImpl implements RemoteEntryPoint {
     @Override
     public RemoteFactHandle insert(Object obj) {
         RemoteFactHandle factHandle = new RemoteFactHandleImpl( obj );
-        InsertCommand command = new InsertCommand( factHandle, entryPoint );
+        InsertCommand command = new InsertCommand(factHandle, entryPoint );
         sender.sendCommand(command);
         return factHandle;
     }
 
     @Override
     public void delete( RemoteFactHandle handle ) {
-        DeleteCommand command = new DeleteCommand( handle, entryPoint );
+        DeleteCommand command = new DeleteCommand(handle, entryPoint );
         sender.sendCommand(command);
     }
 

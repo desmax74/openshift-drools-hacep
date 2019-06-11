@@ -18,17 +18,23 @@ package org.kie.remote.command;
 
 import org.kie.remote.RemoteFactHandle;
 
-public class DeleteCommand extends WorkingMemoryActionCommand {
+public class DeleteCommand extends WorkingMemoryActionCommand implements Visitable {
 
     /* Empty constructor for serialization */
     public DeleteCommand() { }
 
-    public DeleteCommand( RemoteFactHandle factHandle, String entryPoint ) {
+    public DeleteCommand(RemoteFactHandle factHandle, String entryPoint ) {
         super(factHandle, entryPoint);
     }
+
+    @Override
+    public void accept(Visitor visitor) { visitor.visit(this); }
 
     @Override
     public String toString() {
         return "Delete of " + getFactHandle() + " from entry-point " + getEntryPoint();
     }
+
+
+
 }
