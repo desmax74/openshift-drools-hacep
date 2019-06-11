@@ -34,6 +34,7 @@ import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.kie.u212.Config;
+import org.kie.u212.ConverterUtil;
 import org.kie.u212.EnvConfig;
 import org.kie.u212.consumer.DroolsConsumerHandler;
 import org.kie.u212.consumer.DroolsExecutor;
@@ -460,7 +461,7 @@ public class DefaultConsumer<T> implements EventConsumer,
             if (record.offset() > 0) {
                 processingKey = record.key();
                 processingKeyOffset = record.offset();
-                ControlMessage wr = ( ControlMessage ) record.value();
+                ControlMessage wr = ConverterUtil.deSerializeObjInto((byte[])record.value(), ControlMessage.class);
                 sideEffects = wr.getSideEffects();
             }
 
@@ -480,8 +481,7 @@ public class DefaultConsumer<T> implements EventConsumer,
     private void saveOffset(ConsumerRecord<String, T> record,
                             Consumer<String, T> kafkaSecondaryConsumer) {
         Map map = new HashMap();
-        map.put(new TopicPartition(record.topic(),
-                                   record.partition()),
+        map.put(new TopicPartition(record.topic(), record.partition()),
                 new OffsetAndMetadata(record.offset() + 1));
         kafkaSecondaryConsumer.commitSync(map);
     }

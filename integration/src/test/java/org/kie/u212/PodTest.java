@@ -31,6 +31,7 @@ import org.kie.u212.core.Bootstrap;
 import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.utils.PrinterLogImpl;
 import org.kie.u212.model.ControlMessage;
+import org.kie.u212.model.SnapshotMessage;
 import org.kie.u212.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,6 +126,13 @@ public class PodTest {
             //SNAPSHOT TOPIC
             ConsumerRecords snapshotRecords = snapshotConsumer.poll(5000);
             assertEquals(1, snapshotRecords.count());
+            ConsumerRecord record = (ConsumerRecord) snapshotRecords.iterator().next();
+            SnapshotMessage snapshot = ConverterUtil.deSerializeObjInto((byte[])record.value(),
+                                              SnapshotMessage.class);
+            assertTrue(snapshot.getLastInsertedEventOffset() > 0);
+            assertFalse(snapshot.getFhMap().isEmpty());
+            assertTrue(snapshot.getFhMap().size()== 9);
+            assertNotNull(snapshot.getLastInsertedEventkey());
 
         }catch (Exception ex){
             logger.error(ex.getMessage(), ex);

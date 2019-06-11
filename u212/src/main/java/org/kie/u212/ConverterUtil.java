@@ -30,6 +30,7 @@ import org.kie.remote.command.DeleteCommand;
 import org.kie.remote.command.InsertCommand;
 import org.kie.remote.command.WorkingMemoryActionCommand;
 import org.kie.u212.model.ControlMessage;
+import org.kie.u212.model.SnapshotMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +48,7 @@ public class ConverterUtil {
         managedTypes.add(DeleteCommand.class);
         managedTypes.add(AbstractCommand.class);
         managedTypes.add(WorkingMemoryActionCommand.class);
+        managedTypes.add(SnapshotMessage.class);
         return managedTypes;
     }
 
@@ -88,8 +90,7 @@ public class ConverterUtil {
                 ObjectInput in = new ObjectInputStream(bis);
                 msg = in.readObject();
             } catch (Exception e) {
-                logger.error(e.getMessage(),
-                             e);
+                logger.error(e.getMessage(), e);
             }
             return type.cast(msg);
         } else {
