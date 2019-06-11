@@ -1,5 +1,5 @@
-# Client event producer
-Example from the root of the client-producer:
+# Client configuration
+Example from the root of the client module:
 Generate a keystore and use "password" as a password
 ```sh
 keytool -genkeypair -keyalg RSA -keystore keystore.jks
