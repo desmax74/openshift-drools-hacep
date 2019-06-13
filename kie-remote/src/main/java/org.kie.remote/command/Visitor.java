@@ -21,4 +21,8 @@ public interface Visitor {
 
     void visit(DeleteCommand command);
 
+    void visit(UpdateCommand command);
+
+    void visit(ListObjectsCommand command);
+
 }

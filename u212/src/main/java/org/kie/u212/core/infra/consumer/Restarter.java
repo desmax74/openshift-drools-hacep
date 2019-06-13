@@ -16,6 +16,7 @@
 package org.kie.u212.core.infra.consumer;
 
 import org.kie.u212.EnvConfig;
+import org.kie.u212.core.KieSessionHolder;
 import org.kie.u212.core.infra.election.Callback;
 import org.kie.u212.core.infra.utils.Printer;
 
@@ -29,10 +30,12 @@ public class Restarter {
     private DefaultConsumer consumer;
     private InfraCallback callback;
     private Printer printer;
+    private KieSessionHolder kieSessionHolder;
 
-    public Restarter(Printer printer) {
+    public Restarter(Printer printer, KieSessionHolder kieSessionHolder) {
         callback = new InfraCallback();
         this.printer = printer;
+        this.kieSessionHolder = kieSessionHolder;
     }
 
     public void createDroolsConsumer(EnvConfig envConfig) {
@@ -43,6 +46,10 @@ public class Restarter {
 
     public DefaultConsumer getConsumer() {
         return consumer;
+    }
+
+    public KieSessionHolder getKieSessionHolder() {
+        return kieSessionHolder;
     }
 
     public void setConsumer(DefaultConsumer consumer) {

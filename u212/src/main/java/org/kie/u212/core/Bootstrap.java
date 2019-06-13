@@ -39,11 +39,13 @@ public class Bootstrap {
     private static ConsumerController consumerController;
     private static EventProducer<?> eventProducer;
     private static Restarter restarter;
-    private static SessionSnapShooter snaptshooter;
+    private static SessionSnapShooter snapshooter;
     private static CoreKube coreKube;
+    private static KieSessionHolder kieSessionHolder;
 
     public static void startEngine(Printer printer, EnvConfig envConfig) {
         //order matter
+        kieSessionHolder = new KieSessionHolder();
         coreKube = new CoreKube(envConfig.getNamespace());
         leaderElection();
         startProducer(envConfig);
@@ -54,6 +56,7 @@ public class Bootstrap {
 
     public static void stopEngine() {
         logger.info("Stop engine");
+
         LeaderElection leadership = coreKube.getLeaderElection();
         try {
             leadership.stop();
@@ -61,19 +64,19 @@ public class Bootstrap {
             logger.error(e.getMessage(),
                          e);
         }
-
+       kieSessionHolder.dispose();
         if (restarter != null) {
             restarter.getConsumer().stop();
         }
         if (eventProducer != null) {
             eventProducer.stop();
         }
-        snaptshooter.close();
+        snapshooter.close();
         consumerController.stopConsumeEvents();
         consumerController = null;
         eventProducer = null;
         restarter = null;
-        snaptshooter = null;
+        snapshooter = null;
     }
 
     public static Restarter getRestarter(){
@@ -101,15 +104,17 @@ public class Bootstrap {
 
     private static void startConsumers(Printer printer,
                                        EnvConfig envConfig) {
-        snaptshooter = new SessionSnapShooter(envConfig);
-        SnapshotInfos infos = snaptshooter.deserialize();
-        restarter = new Restarter(printer);
+        snapshooter = new SessionSnapShooter(envConfig);
+        SnapshotInfos infos = snapshooter.deserialize();
+        restarter = new Restarter(printer, kieSessionHolder);
         restarter.createDroolsConsumer(envConfig);
         logger.info("start consumer with:{}", infos);
         if (infos.getKeyDuringSnaphot() != null) {
-            restarter.getConsumer().createConsumer(new DroolsConsumerHandler(eventProducer, snaptshooter, infos, envConfig), infos);
+            restarter.getConsumer().createConsumer(new DroolsConsumerHandler(eventProducer,
+                                                                             snapshooter, infos, envConfig, restarter.getKieSessionHolder()), infos);
         } else {
-            restarter.getConsumer().createConsumer(new DroolsConsumerHandler(eventProducer, snaptshooter, envConfig));
+            restarter.getConsumer().createConsumer(new DroolsConsumerHandler(eventProducer,
+                                                                             snapshooter, envConfig, restarter.getKieSessionHolder()));
         }
         consumerController = new ConsumerController(restarter);
         consumerController.consumeEvents();

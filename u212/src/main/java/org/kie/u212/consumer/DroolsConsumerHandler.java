@@ -30,10 +30,13 @@ import org.kie.remote.RemoteCommand;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.command.DeleteCommand;
 import org.kie.remote.command.InsertCommand;
+import org.kie.remote.command.ListObjectsCommand;
+import org.kie.remote.command.UpdateCommand;
 import org.kie.remote.command.Visitable;
 import org.kie.remote.command.Visitor;
 import org.kie.u212.ConverterUtil;
 import org.kie.u212.EnvConfig;
+import org.kie.u212.core.KieSessionHolder;
 import org.kie.u212.core.infra.SessionSnapShooter;
 import org.kie.u212.core.infra.SnapshotInfos;
 import org.kie.u212.core.infra.consumer.ConsumerHandler;
@@ -49,42 +52,43 @@ public class DroolsConsumerHandler implements ConsumerHandler,
                                               Visitor {
 
     private static final Logger logger = LoggerFactory.getLogger(DroolsConsumerHandler.class);
-    private KieSession kieSession;
     private SessionPseudoClock clock;
     private Producer producer;
     private SessionSnapShooter snapshooter;
     private SnapshotInfos snapshotInfos;
     private EnvConfig config;
+    private KieSessionHolder kieSessionHolder;
 
     private BidirectionalMap<RemoteFactHandle, FactHandle> fhMap = new BidirectionalMap<>();
 
-    public DroolsConsumerHandler(EventProducer producer, SessionSnapShooter snapshooter, EnvConfig config) {
+    public DroolsConsumerHandler(EventProducer producer, SessionSnapShooter snapshooter, EnvConfig config, KieSessionHolder kieSessionHolder) {
+        this.kieSessionHolder = kieSessionHolder;
         this.config = config;
         this.snapshooter = snapshooter;
         KieServices srv = KieServices.get();
         if (srv != null) {
             KieContainer kieContainer = KieServices.get().newKieClasspathContainer();
             logger.info("Creating new Kie Session");
-            kieSession = initKieSession( kieContainer.newKieSession() );
-            clock = kieSession.getSessionClock();
+            kieSessionHolder.replaceKieSession(initKieSession( kieContainer.newKieSession()));
+            clock = kieSessionHolder.getKieSession().getSessionClock();
             this.producer = producer;
         } else {
             logger.error("KieService is null");
         }
     }
 
-    public DroolsConsumerHandler(EventProducer producer, SessionSnapShooter snapshooter, SnapshotInfos infos, EnvConfig config) {
+    public DroolsConsumerHandler(EventProducer producer, SessionSnapShooter snapshooter, SnapshotInfos infos, EnvConfig config, KieSessionHolder kieSessionHolder) {
         this.config = config;
         this.snapshotInfos = infos;
         this.snapshooter = snapshooter;
         if (snapshotInfos.getKieSession() == null) {
             KieContainer kieContainer = KieServices.get().newKieClasspathContainer();
-            kieSession = initKieSession( kieContainer.newKieSession() );
+            kieSessionHolder.replaceKieSession(initKieSession( kieContainer.newKieSession()));
         } else {
             logger.info("Applying snapshot");
-            kieSession = initKieSession( infos.getKieSession() );
+            kieSessionHolder.replaceKieSession(initKieSession( infos.getKieSession()));
         }
-        clock = kieSession.getSessionClock();
+        clock = kieSessionHolder.getKieSession().getSessionClock();
         this.producer = producer;
     }
 
@@ -102,7 +106,7 @@ public class DroolsConsumerHandler implements ConsumerHandler,
     public void process(ConsumerRecord record, State state, EventConsumer consumer, Queue<Object> sideEffects) {
         RemoteCommand command  = ConverterUtil.deSerializeObjInto((byte[])record.value(), RemoteCommand.class);
         processCommand( command );
-        kieSession.fireAllRules();
+        kieSessionHolder.getKieSession().fireAllRules();
 
         if (state.equals(State.LEADER)) {
             Queue<Object> results = DroolsExecutor.getInstance().getAndReset();
@@ -119,7 +123,7 @@ public class DroolsConsumerHandler implements ConsumerHandler,
     @Override
     public void visit(InsertCommand command) {
         RemoteFactHandle remoteFH = command.getFactHandle();
-        FactHandle fh = kieSession.getEntryPoint(command.getEntryPoint() ).insert(remoteFH.getObject() );
+        FactHandle fh = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint() ).insert(remoteFH.getObject() );
         fhMap.put( remoteFH, fh );
     }
 
@@ -127,7 +131,22 @@ public class DroolsConsumerHandler implements ConsumerHandler,
     @Override
     public void visit(DeleteCommand command) {
         RemoteFactHandle remoteFH = command.getFactHandle();
-        kieSession.getEntryPoint( command.getEntryPoint() ).delete( fhMap.get(remoteFH) );
+        kieSessionHolder.getKieSession().getEntryPoint( command.getEntryPoint() ).delete( fhMap.get(remoteFH) );
+    }
+
+    @Override
+    public void visit(UpdateCommand command) {
+        RemoteFactHandle remoteFH = command.getFactHandle();
+        FactHandle factHandle = fhMap.get(remoteFH);
+        kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint() ).update(factHandle, command.getObject());
+    }
+
+    @Override
+    public void visit(ListObjectsCommand command) {
+        //@TODO is possible retrieve object of the working memeory ?
+        RemoteFactHandle remoteFH = command.getFactHandle();
+        FactHandle factHandle = fhMap.get(remoteFH);
+        kieSessionHolder.getKieSession().getObjects();
     }
 
     @Override
@@ -137,7 +156,7 @@ public class DroolsConsumerHandler implements ConsumerHandler,
                                     Queue<Object> sideEffects) {
         logger.info("SNAPSHOT !!!");
         // TODO add fhMap to snapshot image
-        snapshooter.serialize(kieSession, fhMap, record.key().toString(), record.offset());
+        snapshooter.serialize(kieSessionHolder.getKieSession(), fhMap, record.key().toString(), record.offset());
         process(record, currentState, consumer, sideEffects);
     }
 
