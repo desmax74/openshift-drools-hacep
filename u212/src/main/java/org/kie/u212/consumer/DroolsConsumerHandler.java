@@ -29,6 +29,7 @@ import org.kie.api.time.SessionPseudoClock;
 import org.kie.remote.RemoteCommand;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.command.DeleteCommand;
+import org.kie.remote.command.FactCountCommand;
 import org.kie.remote.command.InsertCommand;
 import org.kie.remote.command.ListObjectsCommand;
 import org.kie.remote.command.UpdateCommand;
@@ -45,6 +46,7 @@ import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.core.infra.producer.Producer;
 import org.kie.u212.model.ControlMessage;
+import org.kie.u212.model.FactCountMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,10 +145,15 @@ public class DroolsConsumerHandler implements ConsumerHandler,
 
     @Override
     public void visit(ListObjectsCommand command) {
-        //@TODO is possible retrieve object of the working memeory ?
-        RemoteFactHandle remoteFH = command.getFactHandle();
+        /*RemoteFactHandle remoteFH = command.getFactHandle();
         FactHandle factHandle = fhMap.get(remoteFH);
-        kieSessionHolder.getKieSession().getObjects();
+        kieSessionHolder.getKieSession().getObjects();*/
+    }
+
+    @Override
+    public void visit(FactCountCommand command) {
+        FactCountMessage msg = new FactCountMessage(command.getFactHandle().getId(), kieSessionHolder.getKieSession().getFactCount());
+        producer.produceFireAndForget(new ProducerRecord(config.getKieSessionInfosTopicName(), command.getFactHandle().getId(), ConverterUtil.serializeObj(msg)));
     }
 
     @Override

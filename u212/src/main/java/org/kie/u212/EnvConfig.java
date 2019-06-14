@@ -23,20 +23,20 @@ public final class EnvConfig {
     private String eventsTopicName;
     private String controlTopicName;
     private String snapshotTopicName;
+    private String kieSessionInfosTopicName;
 
     public static EnvConfig getDefaultEnvConfig(){
         return anEnvConfig().
                 withNamespace(Optional.ofNullable(System.getenv(Config.NAMESPACE)).orElse(Config.DEFAULT_NAMESPACE)).
                 withControlTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_CONTROL_TOPIC)).orElse(Config.DEFAULT_CONTROL_TOPIC)).
                 withEventsTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_EVENTS_TOPIC)).orElse(Config.DEFAULT_EVENTS_TOPIC)).
-                withSnapshotTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_SNAPSHOT_TOPIC)).orElse(Config.DEFAULT_SNAPSHOT_TOPIC)).build();
+                withSnapshotTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_SNAPSHOT_TOPIC)).orElse(Config.DEFAULT_SNAPSHOT_TOPIC)).
+                withKieSessionInfosTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_KIE_SESSION_INFOS_TOPIC)).orElse(Config.DEFAULT_KIE_SESSION_INFOS_TOPIC)).build();
     }
 
     private EnvConfig() { }
 
-    public static EnvConfig anEnvConfig() {
-        return new EnvConfig();
-    }
+    public static EnvConfig anEnvConfig() { return new EnvConfig(); }
 
     public EnvConfig withNamespace(String namespace) {
         this.namespace = namespace;
@@ -58,29 +58,29 @@ public final class EnvConfig {
         return this;
     }
 
+    public EnvConfig withKieSessionInfosTopicName(String kieSessionInfosTopicName) {
+        this.kieSessionInfosTopicName = kieSessionInfosTopicName;
+        return this;
+    }
+
     public EnvConfig build() {
         EnvConfig envConfig = new EnvConfig();
         envConfig.eventsTopicName = this.eventsTopicName;
         envConfig.namespace = this.namespace;
         envConfig.controlTopicName = this.controlTopicName;
         envConfig.snapshotTopicName = this.snapshotTopicName;
+        envConfig.kieSessionInfosTopicName = this.kieSessionInfosTopicName;
         return envConfig;
     }
 
-    public String getNamespace() {
-        return namespace;
-    }
+    public String getNamespace() { return namespace; }
 
-    public String getEventsTopicName() {
-        return eventsTopicName;
-    }
+    public String getEventsTopicName() { return eventsTopicName; }
 
-    public String getControlTopicName() {
-        return controlTopicName;
-    }
+    public String getControlTopicName() { return controlTopicName; }
 
-    public String getSnapshotTopicName() {
-        return snapshotTopicName;
-    }
+    public String getSnapshotTopicName() { return snapshotTopicName; }
+
+    public String getKieSessionInfosTopicName() { return kieSessionInfosTopicName; }
 }
 

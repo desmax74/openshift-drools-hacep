@@ -28,8 +28,10 @@ import org.kie.remote.RemoteCommand;
 import org.kie.remote.command.AbstractCommand;
 import org.kie.remote.command.DeleteCommand;
 import org.kie.remote.command.InsertCommand;
+import org.kie.remote.command.ListObjectsCommand;
 import org.kie.remote.command.WorkingMemoryActionCommand;
 import org.kie.u212.model.ControlMessage;
+import org.kie.u212.model.FactCountMessage;
 import org.kie.u212.model.SnapshotMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,13 +44,19 @@ public class ConverterUtil {
 
     private static List<Class> initMagedTypes() {
         List<Class> managedTypes = new ArrayList<>();
+
         managedTypes.add(ControlMessage.class);
+        managedTypes.add(SnapshotMessage.class);
+        managedTypes.add(FactCountMessage.class);
+
         managedTypes.add(RemoteCommand.class);
         managedTypes.add(InsertCommand.class);
         managedTypes.add(DeleteCommand.class);
+        managedTypes.add(FactCountMessage.class);
+        managedTypes.add(ListObjectsCommand.class);
         managedTypes.add(AbstractCommand.class);
         managedTypes.add(WorkingMemoryActionCommand.class);
-        managedTypes.add(SnapshotMessage.class);
+
         return managedTypes;
     }
 

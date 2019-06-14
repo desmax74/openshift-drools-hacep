@@ -28,7 +28,9 @@ public class RemoteFactHandleImpl implements RemoteFactHandle {
     private Object object;
 
     /* Empty constructor for serialization */
-    public RemoteFactHandleImpl() { }
+    public RemoteFactHandleImpl() {
+        this.id = UUID.randomUUID().toString();
+    }
 
     public RemoteFactHandleImpl( Object object ) {
         this.id = UUID.randomUUID().toString();

@@ -17,12 +17,12 @@ package org.kie.remote.command;
 
 import org.kie.remote.RemoteFactHandle;
 
-public class ListObjectsCommand extends WorkingMemoryActionCommand implements Visitable {
+public class FactCountCommand extends WorkingMemoryActionCommand implements Visitable {
 
     /* Empty constructor for serialization */
-    public ListObjectsCommand() { }
+    public FactCountCommand() { }
 
-    public ListObjectsCommand(RemoteFactHandle factHandle, String entryPoint) {
+    public FactCountCommand(RemoteFactHandle factHandle, String entryPoint) {
         super(factHandle, entryPoint);
     }
 
@@ -31,9 +31,8 @@ public class ListObjectsCommand extends WorkingMemoryActionCommand implements Vi
 
     @Override
     public String toString() {
-        return "Update of " + getFactHandle() + " from entry-point " + getEntryPoint();
+        return "Fact count of " + getFactHandle() + " from entry-point " + getEntryPoint();
     }
 
-
-
 }
+

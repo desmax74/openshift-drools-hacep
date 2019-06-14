@@ -25,4 +25,6 @@ public interface Visitor {
 
     void visit(ListObjectsCommand command);
 
+    void visit(FactCountCommand command);
+
 }

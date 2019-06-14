@@ -29,13 +29,7 @@ public class ClientProducerTest {
 
     private static void insertBatchEvent(int items) {
         EnvConfig envConfig = EnvConfig.getDefaultEnvConfig();
-        Properties props = Config.getStatic();
-        props.put("bootstrap.servers", "my-cluster-kafka-bootstrap-my-kafka-project.<ip>.nip.io:443");
-        props.put("security.protocol", "SSL");
-        props.put("ssl.keystore.location", "/<path>/openshift-drools-hacep/client/src/main/resources/keystore.jks");
-        props.put("ssl.keystore.password", "password");
-        props.put("ssl.truststore.location", "/<path>/openshift-drools-hacep/client/src/main/resources/keystore.jks");
-        props.put("ssl.truststore.password", "password");
+        Properties props = getProperties();
 
         try (RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props, envConfig)) {
             for (int i = 0; i < items; i++) {
@@ -45,5 +39,16 @@ public class ClientProducerTest {
                 producer.insert(eventA);
             }
         }
+    }
+
+    private static Properties getProperties() {
+        Properties props = Config.getStatic();
+        props.put("bootstrap.servers", "my-cluster-kafka-bootstrap-my-kafka-project.<ip>.nip.io:443");
+        props.put("security.protocol", "SSL");
+        props.put("ssl.keystore.location", "/<path>/openshift-drools-hacep/client/src/main/resources/keystore.jks");
+        props.put("ssl.keystore.password", "password");
+        props.put("ssl.truststore.location", "/<path>/openshift-drools-hacep/client/src/main/resources/keystore.jks");
+        props.put("ssl.truststore.password", "password");
+        return props;
     }
 }

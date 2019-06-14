@@ -21,18 +21,24 @@ import java.util.function.Predicate;
 import org.kie.remote.RemoteEntryPoint;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.command.DeleteCommand;
+import org.kie.remote.command.FactCountCommand;
 import org.kie.remote.command.InsertCommand;
+import org.kie.remote.command.UpdateCommand;
 import org.kie.remote.impl.RemoteFactHandleImpl;
+import org.kie.u212.consumer.Listener;
+import org.kie.u212.model.FactCountMessage;
 
 public class RemoteEntryPointImpl implements RemoteEntryPoint {
 
     protected final Sender sender;
+    protected final Listener listener;
 
     private final String entryPoint;
 
-    public RemoteEntryPointImpl( Sender sender, String entryPoint ) {
+    public RemoteEntryPointImpl(Sender sender, String entryPoint ) {
         this.sender = sender;
         this.entryPoint = entryPoint;
+        this.listener = new Listener();
     }
 
     @Override
@@ -56,8 +62,8 @@ public class RemoteEntryPointImpl implements RemoteEntryPoint {
 
     @Override
     public void update( RemoteFactHandle handle, Object object ) {
-        throw new UnsupportedOperationException( "org.kie.u212.producer.RemoteKieSessionImpl.update -> TODO" );
-
+        UpdateCommand command = new UpdateCommand(handle, object, entryPoint);
+        sender.sendCommand(command);
     }
 
     @Override
@@ -74,7 +80,9 @@ public class RemoteEntryPointImpl implements RemoteEntryPoint {
 
     @Override
     public long getFactCount() {
-        throw new UnsupportedOperationException( "org.kie.u212.producer.RemoteKieSessionImpl.getFactCount -> TODO" );
-
+        RemoteFactHandle factHandle = new RemoteFactHandleImpl();
+        FactCountCommand command = new FactCountCommand(factHandle, entryPoint );
+        sender.sendCommand(command);
+        return listener.getFactCount(factHandle).getFactCount();
     }
 }

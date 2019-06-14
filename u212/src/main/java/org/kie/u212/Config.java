@@ -30,6 +30,7 @@ public class Config {
     public static final String DEFAULT_CONTROL_TOPIC = "control";
     public static final String DEFAULT_EVENTS_TOPIC = "events";
     public static final String DEFAULT_SNAPSHOT_TOPIC = "snapshot";
+    public static final String DEFAULT_KIE_SESSION_INFOS_TOPIC = "kiesessioninfos";
     public static final String ITERATION_BETWEEN_SNAPSHOT = "iteration.between.snapshot";
     public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST";
     public static final String BROKER_URL = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST);

@@ -17,6 +17,8 @@ package org.kie.u212;
 
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.Properties;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -33,6 +35,7 @@ import org.kie.u212.core.infra.utils.PrinterLogImpl;
 import org.kie.u212.model.ControlMessage;
 import org.kie.u212.model.SnapshotMessage;
 import org.kie.u212.model.StockTickEvent;
+import org.kie.u212.producer.RemoteKieSessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +60,7 @@ public class PodTest {
         kafkaServerTest.createTopic(config.getEventsTopicName());
         kafkaServerTest.createTopic(config.getControlTopicName());
         kafkaServerTest.createTopic(config.getSnapshotTopicName());
+        kafkaServerTest.createTopic(config.getKieSessionInfosTopicName());
     }
 
     @After
@@ -69,11 +73,12 @@ public class PodTest {
         kafkaServerTest.deleteTopic(config.getEventsTopicName());
         kafkaServerTest.deleteTopic(config.getControlTopicName());
         kafkaServerTest.deleteTopic(config.getSnapshotTopicName());
+        kafkaServerTest.deleteTopic(config.getKieSessionInfosTopicName());
         kafkaServerTest.shutdownServer();
     }
 
     @Test
-    public void processOneSentMessageAsLeader() {
+    public void processOneSentMessageAsLeaderTest() {
         Bootstrap.startEngine(new PrinterLogImpl(), config);
         Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
         KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("", config.getEventsTopicName(), Config.getConsumerConfig());
@@ -112,7 +117,7 @@ public class PodTest {
     }
 
     @Test
-    public void processMessagesAsLeaderAndCreateSnapshot() {
+    public void processMessagesAsLeaderAndCreateSnapshotTest() {
         Bootstrap.startEngine(new PrinterLogImpl(), config);
         Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
         KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("", config.getEventsTopicName(), Config.getConsumerConfig());
@@ -144,7 +149,7 @@ public class PodTest {
 
 
     @Test
-    public void processOneSentMessageAsLeaderAndThenReplica() {
+    public void processOneSentMessageAsLeaderAndThenReplicaTest() {
         Bootstrap.startEngine(new PrinterKafkaImpl(), config);
         Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
         KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("", config.getEventsTopicName(), Config.getConsumerConfig());
@@ -200,6 +205,18 @@ public class PodTest {
         } finally {
             eventsConsumer.close();
             controlConsumer.close();
+        }
+    }
+
+
+    @Test
+    public void getFactCountTest() {
+        Bootstrap.startEngine(new PrinterLogImpl(), config);
+        Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
+        kafkaServerTest.insertBatchStockTicketEvent(7, config);
+        try (RemoteKieSessionImpl client = new RemoteKieSessionImpl(Config.getProducerConfig(), config)) {
+            long factCount = client.getFactCount();
+            assertTrue(factCount == 7);
         }
     }
 
