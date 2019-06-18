@@ -17,14 +17,14 @@ package org.kie.remote.command;
 
 public interface Visitor {
 
-    void visit(InsertCommand command);
+    void visit(InsertCommand command, boolean execute);
 
-    void visit(DeleteCommand command);
+    void visit(DeleteCommand command, boolean execute);
 
-    void visit(UpdateCommand command);
+    void visit(UpdateCommand command, boolean execute);
 
-    void visit(ListObjectsCommand command);
+    void visit(ListObjectsCommand command, boolean execute);
 
-    void visit(FactCountCommand command);
+    void visit(FactCountCommand command, boolean execute);
 
 }

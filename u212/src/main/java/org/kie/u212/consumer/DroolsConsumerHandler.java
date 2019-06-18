@@ -107,8 +107,7 @@ public class DroolsConsumerHandler implements ConsumerHandler,
     @Override
     public void process(ConsumerRecord record, State state, EventConsumer consumer, Queue<Object> sideEffects) {
         RemoteCommand command  = ConverterUtil.deSerializeObjInto((byte[])record.value(), RemoteCommand.class);
-        processCommand( command );
-        kieSessionHolder.getKieSession().fireAllRules();
+        processCommand( command, state );
 
         if (state.equals(State.LEADER)) {
             Queue<Object> results = DroolsExecutor.getInstance().getAndReset();
@@ -117,43 +116,58 @@ public class DroolsConsumerHandler implements ConsumerHandler,
         }
     }
 
-    private void processCommand( RemoteCommand command ) {
-        Visitable visitable = (Visitable)command;
-        visitable.accept(this);
+    private void processCommand( RemoteCommand command, State state ) {
+            boolean execute = state.equals(State.LEADER) || command.isPermittedForReplicas();
+            Visitable visitable = (Visitable) command;
+            visitable.accept(this, execute);
+
     }
 
     @Override
-    public void visit(InsertCommand command) {
-        RemoteFactHandle remoteFH = command.getFactHandle();
-        FactHandle fh = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint() ).insert(remoteFH.getObject() );
-        fhMap.put( remoteFH, fh );
+    public void visit(InsertCommand command, boolean execute) {
+        if(execute) {
+            RemoteFactHandle remoteFH = command.getFactHandle();
+            FactHandle fh = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).insert(remoteFH.getObject());
+            fhMap.put(remoteFH, fh);
+            kieSessionHolder.getKieSession().fireAllRules();
+        }
     }
 
 
     @Override
-    public void visit(DeleteCommand command) {
-        RemoteFactHandle remoteFH = command.getFactHandle();
-        kieSessionHolder.getKieSession().getEntryPoint( command.getEntryPoint() ).delete( fhMap.get(remoteFH) );
+    public void visit(DeleteCommand command, boolean execute) {
+        if(execute) {
+            RemoteFactHandle remoteFH = command.getFactHandle();
+            kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).delete(fhMap.get(remoteFH));
+            kieSessionHolder.getKieSession().fireAllRules();
+        }
     }
 
     @Override
-    public void visit(UpdateCommand command) {
-        RemoteFactHandle remoteFH = command.getFactHandle();
-        FactHandle factHandle = fhMap.get(remoteFH);
-        kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint() ).update(factHandle, command.getObject());
+    public void visit(UpdateCommand command, boolean execute) {
+        if(execute) {
+            RemoteFactHandle remoteFH = command.getFactHandle();
+            FactHandle factHandle = fhMap.get(remoteFH);
+            kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).update(factHandle, command.getObject());
+            kieSessionHolder.getKieSession().fireAllRules();
+        }
     }
 
     @Override
-    public void visit(ListObjectsCommand command) {
-        /*RemoteFactHandle remoteFH = command.getFactHandle();
-        FactHandle factHandle = fhMap.get(remoteFH);
-        kieSessionHolder.getKieSession().getObjects();*/
+    public void visit(ListObjectsCommand command, boolean execute) {
+        if(execute) {
+
+        }
     }
 
     @Override
-    public void visit(FactCountCommand command) {
-        FactCountMessage msg = new FactCountMessage(command.getFactHandle().getId(), kieSessionHolder.getKieSession().getFactCount());
-        producer.produceFireAndForget(new ProducerRecord(config.getKieSessionInfosTopicName(), command.getFactHandle().getId(), ConverterUtil.serializeObj(msg)));
+    public void visit(FactCountCommand command, boolean execute) {
+        if(execute) {
+            FactCountMessage msg = new FactCountMessage(command.getFactHandle().getId(), kieSessionHolder.getKieSession().getFactCount());
+            producer.produceFireAndForget(new ProducerRecord(config.getKieSessionInfosTopicName(),
+                                                             command.getFactHandle().getId(),
+                                                             ConverterUtil.serializeObj(msg)));
+        }
     }
 
     @Override

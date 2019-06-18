@@ -21,24 +21,21 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Predicate;
 
-import org.kie.remote.RemoteEntryPoint;
+import org.kie.remote.RemoteCepEntryPoint;
 import org.kie.remote.RemoteFactHandle;
-import org.kie.remote.command.DeleteCommand;
 import org.kie.remote.command.FactCountCommand;
 import org.kie.remote.command.InsertCommand;
-import org.kie.remote.command.UpdateCommand;
 import org.kie.remote.impl.RemoteFactHandleImpl;
 import org.kie.u212.consumer.Listener;
-import org.kie.u212.model.FactCountMessage;
 
-public class RemoteEntryPointImpl implements RemoteEntryPoint {
+public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
 
     protected final Sender sender;
     protected final Listener listener;
     private ExecutorService executor;
     private final String entryPoint;
 
-    public RemoteEntryPointImpl(Sender sender, String entryPoint ) {
+    public RemoteCepEntryPointImpl(Sender sender, String entryPoint ) {
         this.sender = sender;
         this.entryPoint = entryPoint;
         this.listener = new Listener();
@@ -51,35 +48,20 @@ public class RemoteEntryPointImpl implements RemoteEntryPoint {
     }
 
     @Override
-    public RemoteFactHandle insert(Object obj) {
-        RemoteFactHandle factHandle = new RemoteFactHandleImpl( obj );
+    public void insert(Object object) {
+        RemoteFactHandle factHandle = new RemoteFactHandleImpl(object );
         InsertCommand command = new InsertCommand(factHandle, entryPoint );
-        sender.sendCommand(command);
-        return factHandle;
-    }
-
-    @Override
-    public void delete( RemoteFactHandle handle ) {
-        DeleteCommand command = new DeleteCommand(handle, entryPoint );
-        sender.sendCommand(command);
-    }
-
-    @Override
-    public void update( RemoteFactHandle handle, Object object ) {
-        UpdateCommand command = new UpdateCommand(handle, object, entryPoint);
         sender.sendCommand(command);
     }
 
     @Override
     public CompletableFuture<Collection<? extends Object>> getObjects() {
-        throw new UnsupportedOperationException( "org.kie.u212.producer.RemoteKieSessionImpl.getObjects -> TODO" );
-
+        return null;
     }
 
     @Override
-    public CompletableFuture<Collection<? extends Object>> getObjects( Predicate<Object> filter ) {
-        throw new UnsupportedOperationException( "org.kie.u212.producer.RemoteKieSessionImpl.getObjects -> TODO" );
-
+    public CompletableFuture<Collection<? extends Object>> getObjects(Predicate<Object> filter) {
+        return null;
     }
 
     @Override

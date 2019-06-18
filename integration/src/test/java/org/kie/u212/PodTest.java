@@ -18,7 +18,9 @@ package org.kie.u212;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -134,9 +136,11 @@ public class PodTest {
             ConsumerRecord record = (ConsumerRecord) snapshotRecords.iterator().next();
             SnapshotMessage snapshot = ConverterUtil.deSerializeObjInto((byte[])record.value(),
                                               SnapshotMessage.class);
+            assertNotNull(snapshot);
             assertTrue(snapshot.getLastInsertedEventOffset() > 0);
-            assertFalse(snapshot.getFhMap().isEmpty());
-            assertTrue(snapshot.getFhMap().size()== 9);
+            assertFalse(snapshot.getFhMapKeys().isEmpty());
+            assertNotNull(snapshot.getLastInsertedEventkey());
+            assertTrue(snapshot.getFhMapKeys().size()== 9);
             assertNotNull(snapshot.getLastInsertedEventkey());
 
         }catch (Exception ex){
@@ -210,13 +214,13 @@ public class PodTest {
 
 
     @Test
-    public void getFactCountTest() {
+    public void getFactCountTest() throws Exception{
         Bootstrap.startEngine(new PrinterLogImpl(), config);
         Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
         kafkaServerTest.insertBatchStockTicketEvent(7, config);
         try (RemoteKieSessionImpl client = new RemoteKieSessionImpl(Config.getProducerConfig(), config)) {
-            long factCount = client.getFactCount();
-            assertTrue(factCount == 7);
+            CompletableFuture<Long> factCount = client.getFactCount();
+            assertTrue(factCount.get(1, TimeUnit.SECONDS) == 7);
         }
     }
 

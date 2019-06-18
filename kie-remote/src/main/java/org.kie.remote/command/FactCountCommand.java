@@ -27,7 +27,10 @@ public class FactCountCommand extends WorkingMemoryActionCommand implements Visi
     }
 
     @Override
-    public void accept(Visitor visitor) { visitor.visit(this); }
+    public void accept(Visitor visitor, boolean execute) { visitor.visit(this, execute); }
+
+    @Override
+    public boolean isPermittedForReplicas() { return false; }
 
     @Override
     public String toString() {

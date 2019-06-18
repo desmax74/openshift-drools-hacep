@@ -80,8 +80,7 @@ public class ConverterUtil {
     public static Object deSerializeObj(byte[] bytez) {
         Object msg = null;
         try {
-            ByteArrayInputStream bis = new ByteArrayInputStream(bytez);
-            ObjectInput in = new ObjectInputStream(bis);
+            ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(bytez));
             msg = in.readObject();
         } catch (Exception e) {
             logger.error(e.getMessage(),
@@ -94,8 +93,7 @@ public class ConverterUtil {
         if (managedTypes.contains(type)) {
             Object msg = null;
             try {
-                ByteArrayInputStream bis = new ByteArrayInputStream(bytez);
-                ObjectInput in = new ObjectInputStream(bis);
+                ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(bytez));
                 msg = in.readObject();
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);

@@ -21,6 +21,7 @@ import org.kie.remote.RemoteFactHandle;
 public class UpdateCommand extends WorkingMemoryActionCommand implements Visitable {
 
     private Object object;
+
     /* Empty constructor for serialization */
     public UpdateCommand() { }
 
@@ -34,7 +35,10 @@ public class UpdateCommand extends WorkingMemoryActionCommand implements Visitab
     }
 
     @Override
-    public void accept(Visitor visitor) { visitor.visit(this); }
+    public void accept(Visitor visitor, boolean execute) { visitor.visit(this, execute); }
+
+    @Override
+    public boolean isPermittedForReplicas() { return true; }
 
     @Override
     public String toString() {

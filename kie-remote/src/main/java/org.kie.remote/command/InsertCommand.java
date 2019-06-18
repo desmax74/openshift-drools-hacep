@@ -28,7 +28,10 @@ public class InsertCommand extends WorkingMemoryActionCommand implements Visitab
     }
 
     @Override
-    public void accept(Visitor visitor) { visitor.visit(this); }
+    public void accept(Visitor visitor, boolean execute) { visitor.visit(this, execute); }
+
+    @Override
+    public boolean isPermittedForReplicas() { return true; }
 
     @Override
     public String toString() {

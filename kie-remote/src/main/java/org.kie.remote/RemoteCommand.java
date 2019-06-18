@@ -19,5 +19,8 @@ package org.kie.remote;
 import java.io.Serializable;
 
 public interface RemoteCommand extends Serializable {
+
     String getId();
+
+    boolean isPermittedForReplicas();
 }
