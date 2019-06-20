@@ -10,5 +10,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>kie-remote</artifactId>
+  <dependencies>
+    <dependency>
+      <groupId>org.drools</groupId>
+      <artifactId>drools-core</artifactId>
+      <version>${version.drools}</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
 
 </project>

@@ -16,7 +16,7 @@
 package org.kie.u212.core.infra.election;
 
 public enum State {
-    NOT_LEADER,
+    REPLICA,
     BECOMING_LEADER,
     LEADER
 }

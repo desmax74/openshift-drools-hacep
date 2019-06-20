@@ -32,7 +32,7 @@
     <version.servlet>4.0.1</version.servlet>
     <version.slf4j>1.7.26</version.slf4j>
     <version.logback.kafka.appender>0.2.0-RC2</version.logback.kafka.appender>
-    <version.springboot>2.2.0.M3</version.springboot>
+    <version.springboot>2.2.0.M4</version.springboot>
   </properties>
 
   <modules>

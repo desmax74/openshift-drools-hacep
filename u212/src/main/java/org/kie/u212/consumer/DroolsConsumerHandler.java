@@ -15,15 +15,20 @@
  */
 package org.kie.u212.consumer;
 
+import java.util.Collection;
+import java.util.Optional;
 import java.util.Queue;
+import java.util.function.Predicate;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.kie.api.KieServices;
 import org.kie.api.event.rule.DefaultRuleRuntimeEventListener;
 import org.kie.api.event.rule.ObjectDeletedEvent;
+import org.kie.api.runtime.ClassObjectFilter;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.ObjectFilter;
 import org.kie.api.runtime.rule.FactHandle;
 import org.kie.api.time.SessionPseudoClock;
 import org.kie.remote.RemoteCommand;
@@ -47,6 +52,7 @@ import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.core.infra.producer.Producer;
 import org.kie.u212.model.ControlMessage;
 import org.kie.u212.model.FactCountMessage;
+import org.kie.u212.model.ListKieSessionObjectMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,7 +162,9 @@ public class DroolsConsumerHandler implements ConsumerHandler,
     @Override
     public void visit(ListObjectsCommand command, boolean execute) {
         if(execute) {
-
+            Collection<? extends Object> objects = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).getObjects(command.getFilter());
+            ListKieSessionObjectMessage msg = new ListKieSessionObjectMessage(command.getFactHandle().getId(), objects);
+            producer.produceSync(new ProducerRecord<>(config.getKieSessionInfosTopicName(), command.getFactHandle().getId(), ConverterUtil.serializeObj(msg)));
         }
     }
 

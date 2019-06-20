@@ -78,7 +78,7 @@ public class EventProducer<T> extends AbstractProducer<String, T> implements Pro
     public void updateStatus(State state) {
         if (state.equals(State.LEADER) && !leader) {
             leader = true;
-        } else if (state.equals(State.NOT_LEADER) && leader) {
+        } else if (state.equals(State.REPLICA) && leader) {
             leader = false;
         }
     }

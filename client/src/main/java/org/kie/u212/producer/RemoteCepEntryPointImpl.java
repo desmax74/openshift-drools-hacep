@@ -16,15 +16,18 @@
 package org.kie.u212.producer;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Predicate;
 
+import org.kie.api.runtime.ObjectFilter;
 import org.kie.remote.RemoteCepEntryPoint;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.command.FactCountCommand;
 import org.kie.remote.command.InsertCommand;
+import org.kie.remote.command.ListObjectsCommand;
 import org.kie.remote.impl.RemoteFactHandleImpl;
 import org.kie.u212.consumer.Listener;
 
@@ -34,11 +37,13 @@ public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
     protected final Listener listener;
     private ExecutorService executor;
     private final String entryPoint;
+    private Map<String, Object> requestsStore;
 
     public RemoteCepEntryPointImpl(Sender sender, String entryPoint ) {
         this.sender = sender;
         this.entryPoint = entryPoint;
-        this.listener = new Listener();
+        requestsStore = new ConcurrentHashMap<>();
+        this.listener = new Listener(requestsStore);
         this.executor = Executors.newCachedThreadPool();
     }
 
@@ -56,19 +61,31 @@ public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
 
     @Override
     public CompletableFuture<Collection<? extends Object>> getObjects() {
-        return null;
+        RemoteFactHandle factHandle = new RemoteFactHandleImpl();
+        requestsStore.put(factHandle.getId(), new Object());
+        ListObjectsCommand command = new ListObjectsCommand(factHandle, entryPoint);
+        sender.sendCommand(command);
+        listener.retrieveAndStoreObjects(factHandle);
+        return CompletableFuture.supplyAsync(() -> ((Collection<? extends Object>)requestsStore.get(factHandle.getId())), executor);
     }
 
     @Override
-    public CompletableFuture<Collection<? extends Object>> getObjects(Predicate<Object> filter) {
-        return null;
+    public CompletableFuture<Collection<? extends Object>> getObjects(ObjectFilter filter) {
+        RemoteFactHandle factHandle = new RemoteFactHandleImpl();
+        requestsStore.put(factHandle.getId(), new Object());
+        ListObjectsCommand command = new ListObjectsCommand(factHandle, entryPoint, filter);
+        sender.sendCommand(command);
+        listener.retrieveAndStoreObjectsFiltered(factHandle);
+        return CompletableFuture.supplyAsync(() -> ((Collection<? extends Object>)requestsStore.get(factHandle.getId())), executor);
     }
 
     @Override
     public CompletableFuture<Long> getFactCount() {
         RemoteFactHandle factHandle = new RemoteFactHandleImpl();
+        requestsStore.put(factHandle.getId(), new Object());
         FactCountCommand command = new FactCountCommand(factHandle, entryPoint );
         sender.sendCommand(command);
-        return CompletableFuture.supplyAsync(() -> (listener.getFactCount(factHandle).getFactCount()), executor);
+        listener.retrieveAndStoreFactCount(factHandle);
+        return CompletableFuture.supplyAsync(() -> ((Long)requestsStore.get(factHandle.getId())), executor);
     }
 }

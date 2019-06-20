@@ -15,15 +15,27 @@
  */
 package org.kie.remote.command;
 
+import org.kie.api.runtime.ObjectFilter;
 import org.kie.remote.RemoteFactHandle;
 
 public class ListObjectsCommand extends WorkingMemoryActionCommand implements Visitable {
+
+    private ObjectFilter filter;
 
     /* Empty constructor for serialization */
     public ListObjectsCommand() { }
 
     public ListObjectsCommand(RemoteFactHandle factHandle, String entryPoint) {
         super(factHandle, entryPoint);
+    }
+
+    public ListObjectsCommand(RemoteFactHandle factHandle, String entryPoint, ObjectFilter filter) {
+        super(factHandle, entryPoint);
+        this.filter = filter;
+    }
+
+    public ObjectFilter getFilter(){
+        return filter;
     }
 
     @Override

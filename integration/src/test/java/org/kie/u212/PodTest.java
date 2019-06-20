@@ -15,11 +15,10 @@
  */
 package org.kie.u212;
 
+import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
-import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -201,7 +200,7 @@ public class PodTest {
             assertEquals(0, controlRecords.count());
 
             // SWITCH AS a REPLICA
-            Bootstrap.getRestarter().getCallback().updateStatus(State.NOT_LEADER);
+            Bootstrap.getRestarter().getCallback().updateStatus(State.REPLICA);
             //@TODO with kafka logger
 
         }catch (Exception ex){
@@ -223,6 +222,30 @@ public class PodTest {
             assertTrue(factCount.get(1, TimeUnit.SECONDS) == 7);
         }
     }
+
+    @Test
+    public void getFactCountAsReplicaTest() throws Exception{
+        Bootstrap.startEngine(new PrinterLogImpl(), config);
+        Bootstrap.getRestarter().getCallback().updateStatus(State.REPLICA);
+        kafkaServerTest.insertBatchStockTicketEvent(7, config);
+        try (RemoteKieSessionImpl client = new RemoteKieSessionImpl(Config.getProducerConfig(), config)) {
+            CompletableFuture<Long> factCount = client.getFactCount();
+            assertTrue(factCount.get(2, TimeUnit.SECONDS) == 0);
+        }
+    }
+
+    @Test
+    public void getObjectAsLeaderTest() throws Exception{
+        Bootstrap.startEngine(new PrinterLogImpl(), config);
+        Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
+        kafkaServerTest.insertBatchStockTicketEvent(7, config);
+        try (RemoteKieSessionImpl client = new RemoteKieSessionImpl(Config.getProducerConfig(), config)) {
+            CompletableFuture<Collection<? extends Object>> objects = client.getObjects();
+            assertTrue(objects.get(1, TimeUnit.SECONDS).size() == 7);
+        }
+    }
+
+
 
 
 }

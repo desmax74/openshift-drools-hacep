@@ -251,7 +251,7 @@ public class DefaultConsumer<T> implements EventConsumer,
         if (state.equals(State.LEADER) && !leader) {
             DroolsExecutor.setAsMaster();
             restart(state);
-        } else if (state.equals(State.NOT_LEADER) && leader) {
+        } else if (state.equals(State.REPLICA) && leader) {
             DroolsExecutor.setAsSlave();
             restart(state);
         }
@@ -268,14 +268,14 @@ public class DefaultConsumer<T> implements EventConsumer,
             leader = true;
             DroolsExecutor.setAsMaster();
             stopLeaderProcessing();// we starts to processing only when the last key readed on bootstrap is reached
-        } else if (state.equals(State.NOT_LEADER) && leader) {
+        } else if (state.equals(State.REPLICA) && leader) {
             leader = false;
             kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
             DroolsExecutor.setAsSlave();
             startProcessingNotLeader();
             startPollingEvents();
             stopPollingControl();
-        } else if (state.equals(State.NOT_LEADER) && !leader) {
+        } else if (state.equals(State.REPLICA) && !leader) {
             leader = false;
             kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
             DroolsExecutor.setAsSlave();

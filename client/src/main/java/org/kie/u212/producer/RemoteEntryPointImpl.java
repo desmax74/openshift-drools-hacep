@@ -16,7 +16,9 @@
 package org.kie.u212.producer;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Predicate;
@@ -29,7 +31,6 @@ import org.kie.remote.command.InsertCommand;
 import org.kie.remote.command.UpdateCommand;
 import org.kie.remote.impl.RemoteFactHandleImpl;
 import org.kie.u212.consumer.Listener;
-import org.kie.u212.model.FactCountMessage;
 
 public class RemoteEntryPointImpl implements RemoteEntryPoint {
 
@@ -37,11 +38,13 @@ public class RemoteEntryPointImpl implements RemoteEntryPoint {
     protected final Listener listener;
     private ExecutorService executor;
     private final String entryPoint;
+    private Map<String, Object> requestsStore;
 
     public RemoteEntryPointImpl(Sender sender, String entryPoint ) {
         this.sender = sender;
         this.entryPoint = entryPoint;
-        this.listener = new Listener();
+        requestsStore = new ConcurrentHashMap<>();
+        this.listener = new Listener(requestsStore);
         this.executor = Executors.newCachedThreadPool();
     }
 
@@ -87,6 +90,7 @@ public class RemoteEntryPointImpl implements RemoteEntryPoint {
         RemoteFactHandle factHandle = new RemoteFactHandleImpl();
         FactCountCommand command = new FactCountCommand(factHandle, entryPoint );
         sender.sendCommand(command);
-        return CompletableFuture.supplyAsync(() -> (listener.getFactCount(factHandle).getFactCount()), executor);
+        listener.retrieveAndStoreFactCount(factHandle);
+        return CompletableFuture.supplyAsync(() -> ((Long)requestsStore.get(factHandle.getId())), executor);
     }
 }

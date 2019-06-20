@@ -42,7 +42,7 @@ public class LeaderElectionImpl implements LeaderElection {
     private static final Logger logger = LoggerFactory.getLogger(LeaderElectionImpl.class);
     private KubernetesClient kubernetesClient;
     private KubernetesLockConfiguration lockConfiguration;
-    private State currentState = State.NOT_LEADER;
+    private State currentState = State.REPLICA;
     private ScheduledExecutorService serializedExecutor;
     private volatile LeaderInfo latestLeaderInfo;
     private volatile ConfigMap latestConfigMap;
@@ -88,7 +88,7 @@ public class LeaderElectionImpl implements LeaderElection {
 
     private void refreshStatus() {
         switch (currentState) {
-            case NOT_LEADER:
+            case REPLICA:
                 refreshStatusNotLeader();
                 break;
             case BECOMING_LEADER:
@@ -224,7 +224,7 @@ public class LeaderElectionImpl implements LeaderElection {
                 logger.debug("{} Current Pod has lost the leadership",
                              logPrefix());
             }
-            this.currentState = State.NOT_LEADER;
+            this.currentState = State.REPLICA;
 
             // restart from scratch to acquire leadership
             this.serializedExecutor.execute(this::refreshStatus);

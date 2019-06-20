@@ -19,10 +19,12 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -37,7 +39,6 @@ import org.kie.u212.model.ControlMessage;
 import org.kie.u212.model.FactCountMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 public class ConsumerUtils {
 
@@ -140,5 +141,14 @@ public class ConsumerUtils {
             consumer.close();
         }
         return lastMessage;
+    }
+
+    public static Collection<? extends Object> getObjects(RemoteFactHandle factHandle, EnvConfig config, Properties properties){
+        return null;
+    }
+
+
+    public static Collection<? extends Object> getObjectsFiltered(RemoteFactHandle factHandle, EnvConfig config, Properties properties){
+        return null;
     }
 }
