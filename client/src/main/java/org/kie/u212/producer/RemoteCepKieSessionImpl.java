@@ -16,7 +16,6 @@
 package org.kie.u212.producer;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.Properties;
 
 import org.drools.core.rule.EntryPointId;
@@ -29,13 +28,12 @@ public class RemoteCepKieSessionImpl extends RemoteCepEntryPointImpl implements 
     public static final String DEFAULT_ENTRY_POINT = EntryPointId.DEFAULT.getEntryPointId();
 
     public RemoteCepKieSessionImpl(Properties configuration, EnvConfig envConfig ) {
-        super(new Sender(configuration, envConfig), DEFAULT_ENTRY_POINT);
+        super(new Sender(configuration), DEFAULT_ENTRY_POINT, envConfig);
         sender.start();
     }
 
-
     @Override
-    public void close() throws IOException {
+    public void close() {
         sender.stop();
     }
 

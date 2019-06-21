@@ -30,6 +30,7 @@ import org.kie.remote.command.FactCountCommand;
 import org.kie.remote.command.InsertCommand;
 import org.kie.remote.command.UpdateCommand;
 import org.kie.remote.impl.RemoteFactHandleImpl;
+import org.kie.u212.EnvConfig;
 import org.kie.u212.consumer.Listener;
 
 public class RemoteEntryPointImpl implements RemoteEntryPoint {
@@ -39,13 +40,24 @@ public class RemoteEntryPointImpl implements RemoteEntryPoint {
     private ExecutorService executor;
     private final String entryPoint;
     private Map<String, Object> requestsStore;
+    private EnvConfig envConfig;
 
-    public RemoteEntryPointImpl(Sender sender, String entryPoint ) {
-        this.sender = sender;
-        this.entryPoint = entryPoint;
+    public RemoteEntryPointImpl(Sender sender, String entryPoint, EnvConfig envConfig) {
         requestsStore = new ConcurrentHashMap<>();
         this.listener = new Listener(requestsStore);
+        this.sender = sender;
+        this.entryPoint = entryPoint;
         this.executor = Executors.newCachedThreadPool();
+        this.envConfig = envConfig;
+
+    }
+
+    public void listen(){
+        listener.listen();
+    }
+
+    public void stop(){
+        listener.stopConsumeEvents();
     }
 
     @Override
@@ -57,20 +69,20 @@ public class RemoteEntryPointImpl implements RemoteEntryPoint {
     public RemoteFactHandle insert(Object obj) {
         RemoteFactHandle factHandle = new RemoteFactHandleImpl( obj );
         InsertCommand command = new InsertCommand(factHandle, entryPoint );
-        sender.sendCommand(command);
+        sender.sendCommand(command, envConfig.getEventsTopicName());
         return factHandle;
     }
 
     @Override
     public void delete( RemoteFactHandle handle ) {
         DeleteCommand command = new DeleteCommand(handle, entryPoint );
-        sender.sendCommand(command);
+        sender.sendCommand(command, envConfig.getEventsTopicName());
     }
 
     @Override
     public void update( RemoteFactHandle handle, Object object ) {
         UpdateCommand command = new UpdateCommand(handle, object, entryPoint);
-        sender.sendCommand(command);
+        sender.sendCommand(command, envConfig.getEventsTopicName());
     }
 
     @Override
@@ -89,8 +101,8 @@ public class RemoteEntryPointImpl implements RemoteEntryPoint {
     public CompletableFuture<Long> getFactCount() {
         RemoteFactHandle factHandle = new RemoteFactHandleImpl();
         FactCountCommand command = new FactCountCommand(factHandle, entryPoint );
-        sender.sendCommand(command);
-        listener.retrieveAndStoreFactCount(factHandle);
+        sender.sendCommand(command, envConfig.getEventsTopicName());
+        listener.retrieveAndStoreFactCount(factHandle, 3);
         return CompletableFuture.supplyAsync(() -> ((Long)requestsStore.get(factHandle.getId())), executor);
     }
 }

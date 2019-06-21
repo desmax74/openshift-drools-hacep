@@ -29,6 +29,7 @@ import org.kie.remote.command.FactCountCommand;
 import org.kie.remote.command.InsertCommand;
 import org.kie.remote.command.ListObjectsCommand;
 import org.kie.remote.impl.RemoteFactHandleImpl;
+import org.kie.u212.EnvConfig;
 import org.kie.u212.consumer.Listener;
 
 public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
@@ -38,13 +39,19 @@ public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
     private ExecutorService executor;
     private final String entryPoint;
     private Map<String, Object> requestsStore;
+    private EnvConfig envConfig;
 
-    public RemoteCepEntryPointImpl(Sender sender, String entryPoint ) {
+    public RemoteCepEntryPointImpl(Sender sender, String entryPoint, EnvConfig envConfig ) {
         this.sender = sender;
         this.entryPoint = entryPoint;
+        this.envConfig = envConfig;
         requestsStore = new ConcurrentHashMap<>();
-        this.listener = new Listener(requestsStore);
-        this.executor = Executors.newCachedThreadPool();
+        listener = new Listener(requestsStore);
+        executor = Executors.newCachedThreadPool();
+    }
+
+    public void listen(){
+        listener.listen();
     }
 
     @Override
@@ -56,7 +63,7 @@ public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
     public void insert(Object object) {
         RemoteFactHandle factHandle = new RemoteFactHandleImpl(object );
         InsertCommand command = new InsertCommand(factHandle, entryPoint );
-        sender.sendCommand(command);
+        sender.sendCommand(command, envConfig.getEventsTopicName());
     }
 
     @Override
@@ -64,7 +71,7 @@ public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
         RemoteFactHandle factHandle = new RemoteFactHandleImpl();
         requestsStore.put(factHandle.getId(), new Object());
         ListObjectsCommand command = new ListObjectsCommand(factHandle, entryPoint);
-        sender.sendCommand(command);
+        sender.sendCommand(command, envConfig.getKieSessionInfosTopicName());
         listener.retrieveAndStoreObjects(factHandle);
         return CompletableFuture.supplyAsync(() -> ((Collection<? extends Object>)requestsStore.get(factHandle.getId())), executor);
     }
@@ -74,7 +81,7 @@ public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
         RemoteFactHandle factHandle = new RemoteFactHandleImpl();
         requestsStore.put(factHandle.getId(), new Object());
         ListObjectsCommand command = new ListObjectsCommand(factHandle, entryPoint, filter);
-        sender.sendCommand(command);
+        sender.sendCommand(command, envConfig.getKieSessionInfosTopicName());
         listener.retrieveAndStoreObjectsFiltered(factHandle);
         return CompletableFuture.supplyAsync(() -> ((Collection<? extends Object>)requestsStore.get(factHandle.getId())), executor);
     }
@@ -84,8 +91,8 @@ public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
         RemoteFactHandle factHandle = new RemoteFactHandleImpl();
         requestsStore.put(factHandle.getId(), new Object());
         FactCountCommand command = new FactCountCommand(factHandle, entryPoint );
-        sender.sendCommand(command);
-        listener.retrieveAndStoreFactCount(factHandle);
+        sender.sendCommand(command, envConfig.getKieSessionInfosTopicName());
+        listener.retrieveAndStoreFactCount(factHandle, 3);
         return CompletableFuture.supplyAsync(() -> ((Long)requestsStore.get(factHandle.getId())), executor);
     }
 }

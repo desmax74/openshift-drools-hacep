@@ -26,9 +26,11 @@ import org.kie.u212.EnvConfig;
 public class RemoteKieSessionImpl extends RemoteEntryPointImpl implements Closeable, RemoteKieSession {
 
     public static final String DEFAULT_ENTRY_POINT = EntryPointId.DEFAULT.getEntryPointId();
+    private EnvConfig envConfig;
 
     public RemoteKieSessionImpl( Properties configuration, EnvConfig envConfig ) {
-        super(new Sender(configuration, envConfig), DEFAULT_ENTRY_POINT);
+        super(new Sender(configuration), DEFAULT_ENTRY_POINT, envConfig);
+        this.envConfig = envConfig;
         sender.start();
     }
 
@@ -39,6 +41,6 @@ public class RemoteKieSessionImpl extends RemoteEntryPointImpl implements Closea
 
     @Override
     public RemoteEntryPoint getEntryPoint( String name ) {
-        return new RemoteEntryPointImpl(sender, name);
+        return new RemoteEntryPointImpl(sender, name, envConfig);
     }
 }
