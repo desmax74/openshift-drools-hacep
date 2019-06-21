@@ -23,21 +23,21 @@ import java.util.concurrent.TimeoutException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.kie.remote.RemoteKieSession;
+import org.kie.remote.RemoteCepKieSession;
 import org.kie.u212.core.Bootstrap;
 import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.utils.PrinterLogImpl;
 import org.kie.u212.model.FactCountMessage;
-import org.kie.u212.producer.RemoteKieSessionImpl;
+import org.kie.u212.producer.RemoteCepKieSessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.*;
 
-public class RemoteKieSessionImplTest {
+public class RemoteCepKieSessionImplTest {
 
     private KafkaUtilTest kafkaServerTest;
-    private Logger logger = LoggerFactory.getLogger(RemoteKieSessionImplTest.class);
+    private Logger logger = LoggerFactory.getLogger(RemoteCepKieSessionImplTest.class);
     private EnvConfig config;
 
     @Before
@@ -71,9 +71,9 @@ public class RemoteKieSessionImplTest {
                               State.LEADER);
         kafkaServerTest.insertBatchStockTicketEvent(7,
                                                     config,
-                                                    RemoteKieSession.class);
-        try (RemoteKieSessionImpl client = new RemoteKieSessionImpl(Config.getProducerConfig(),
-                                                                    config)) {
+                                                    RemoteCepKieSession.class);
+        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig(),
+                                                                          config)) {
             client.listen();
             CompletableFuture<Long> factCountCallBack = new CompletableFuture<>();
             client.getFactCount(factCountCallBack);

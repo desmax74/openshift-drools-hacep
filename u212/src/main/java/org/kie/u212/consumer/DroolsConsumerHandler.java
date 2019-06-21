@@ -16,19 +16,15 @@
 package org.kie.u212.consumer;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Queue;
-import java.util.function.Predicate;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.kie.api.KieServices;
 import org.kie.api.event.rule.DefaultRuleRuntimeEventListener;
 import org.kie.api.event.rule.ObjectDeletedEvent;
-import org.kie.api.runtime.ClassObjectFilter;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.ObjectFilter;
 import org.kie.api.runtime.rule.FactHandle;
 import org.kie.api.time.SessionPseudoClock;
 import org.kie.remote.RemoteCommand;
@@ -123,10 +119,9 @@ public class DroolsConsumerHandler implements ConsumerHandler,
     }
 
     private void processCommand( RemoteCommand command, State state ) {
-            boolean execute = state.equals(State.LEADER) || command.isPermittedForReplicas();
-            Visitable visitable = (Visitable) command;
-            visitable.accept(this, execute);
-
+        boolean execute = state.equals(State.LEADER) || command.isPermittedForReplicas();
+        Visitable visitable = (Visitable) command;
+        visitable.accept(this, execute);
     }
 
     @Override
@@ -172,7 +167,7 @@ public class DroolsConsumerHandler implements ConsumerHandler,
     public void visit(FactCountCommand command, boolean execute) {
         if(execute) {
             FactCountMessage msg = new FactCountMessage(command.getFactHandle().getId(), kieSessionHolder.getKieSession().getFactCount());
-            producer.produceFireAndForget(new ProducerRecord(config.getKieSessionInfosTopicName(),
+            producer.produceSync(new ProducerRecord(config.getKieSessionInfosTopicName(),
                                                              command.getFactHandle().getId(),
                                                              ConverterUtil.serializeObj(msg)));
         }

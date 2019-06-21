@@ -37,22 +37,20 @@ public class PrinterKafkaImpl implements Printer {
                               boolean processed) {
         if (consumerRecord != null && kafkaLogger.isInfoEnabled()) {
             kafkaLogger.info("Processed:{} - Topic: {} - Partition: {} - Offset: {} - Value: {}\n",
-                        processed,
-                        consumerRecord.topic(),
-                        consumerRecord.partition(),
-                        consumerRecord.offset(),
+                             processed,
+                             consumerRecord.topic(),
+                             consumerRecord.partition(),
+                             consumerRecord.offset(),
                              !(consumerRecord.value() instanceof byte[]) ? consumerRecord.value() : "bytes[]");
         }
-
     }
-
 
     public void printOffset(String topic) {
         Map<TopicPartition, Long> offsets = getOffsets(topic);
         for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
             kafkaLogger.info("Topic:{} offset:{}",
-                        entry.getKey(),
-                        entry.getValue());
+                             entry.getKey(),
+                             entry.getValue());
         }
     }
 
@@ -62,7 +60,8 @@ public class PrinterKafkaImpl implements Printer {
         List<PartitionInfo> infos = consumer.partitionsFor(topic);
         List<TopicPartition> tps = new ArrayList<>();
         for (PartitionInfo info : infos) {
-            tps.add(new TopicPartition(topic, info.partition()));
+            tps.add(new TopicPartition(topic,
+                                       info.partition()));
         }
         Map<TopicPartition, Long> offsets = consumer.endOffsets(tps);
         consumer.close();

@@ -45,7 +45,10 @@ import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.SystemTime;
 import org.apache.kafka.common.utils.Time;
+import org.kie.remote.RemoteCepKieSession;
+import org.kie.remote.RemoteKieSession;
 import org.kie.u212.model.StockTickEvent;
+import org.kie.u212.producer.RemoteCepKieSessionImpl;
 import org.kie.u212.producer.RemoteKieSessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,15 +69,24 @@ public class KafkaUtilTest<K, V> implements AutoCloseable {
         tmpDir = Files.createTempDirectory("kafkatest-").toAbsolutePath().toString();
         zkServer = new EmbeddedZookeeper();
         String zkConnect = ZOOKEPER_HOST + ":" + zkServer.port();
-        zkClient = new ZkClient(zkConnect, 30000, 30000, ZKStringSerializer$.MODULE$);
-        zkUtils = ZkUtils.apply(zkClient, false);
+        zkClient = new ZkClient(zkConnect,
+                                30000,
+                                30000,
+                                ZKStringSerializer$.MODULE$);
+        zkUtils = ZkUtils.apply(zkClient,
+                                false);
 
         Properties brokerProps = new Properties();
-        brokerProps.setProperty("zookeeper.connect", zkConnect);
-        brokerProps.setProperty("broker.id", "0");
-        brokerProps.setProperty("log.dirs", tmpDir);
-        brokerProps.setProperty("listeners", "PLAINTEXT://" + BROKER_HOST + ":" + BROKER_PORT);
-        brokerProps.setProperty("offsets.topic.replication.factor", "1");
+        brokerProps.setProperty("zookeeper.connect",
+                                zkConnect);
+        brokerProps.setProperty("broker.id",
+                                "0");
+        brokerProps.setProperty("log.dirs",
+                                tmpDir);
+        brokerProps.setProperty("listeners",
+                                "PLAINTEXT://" + BROKER_HOST + ":" + BROKER_PORT);
+        brokerProps.setProperty("offsets.topic.replication.factor",
+                                "1");
         KafkaConfig config = new KafkaConfig(brokerProps);
         Time mock = new SystemTime();
         kafkaServer = TestUtils.createServer(config,
@@ -134,32 +146,46 @@ public class KafkaUtilTest<K, V> implements AutoCloseable {
 
     private Properties getConsumerConfig() {
         Properties consumerProps = new Properties();
-        consumerProps.setProperty("bootstrap.servers", BROKER_HOST + ":" + BROKER_PORT);
-        consumerProps.setProperty("group.id", "group0");
-        consumerProps.setProperty("client.id", "consumer0");
-        consumerProps.put("auto.offset.reset", "earliest");
-        consumerProps.setProperty("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        consumerProps.setProperty("bootstrap.servers",
+                                  BROKER_HOST + ":" + BROKER_PORT);
+        consumerProps.setProperty("group.id",
+                                  "group0");
+        consumerProps.setProperty("client.id",
+                                  "consumer0");
+        consumerProps.put("auto.offset.reset",
+                          "earliest");
+        consumerProps.setProperty("key.deserializer",
+                                  "org.apache.kafka.common.serialization.StringDeserializer");
         return consumerProps;
     }
 
     private Properties getProducerConfig() {
         Properties producerProps = new Properties();
-        producerProps.setProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        producerProps.setProperty("bootstrap.servers", BROKER_HOST + ":" + BROKER_PORT);
+        producerProps.setProperty("key.serializer",
+                                  "org.apache.kafka.common.serialization.StringSerializer");
+        producerProps.setProperty("bootstrap.servers",
+                                  BROKER_HOST + ":" + BROKER_PORT);
         return producerProps;
     }
 
     public void createTopic(String topic) {
-        AdminUtils.createTopic(zkUtils, topic, 1, 1, new Properties(), RackAwareMode.Disabled$.MODULE$);
+        AdminUtils.createTopic(zkUtils,
+                               topic,
+                               1,
+                               1,
+                               new Properties(),
+                               RackAwareMode.Disabled$.MODULE$);
     }
 
     public void deleteTopic(String topic) {
-        AdminUtils.deleteTopic(zkUtils, topic);
+        AdminUtils.deleteTopic(zkUtils,
+                               topic);
     }
 
     public KafkaConsumer<K, V> getStringConsumer(String topic) {
         Properties consumerProps = getConsumerConfig();
-        consumerProps.setProperty("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        consumerProps.setProperty("value.deserializer",
+                                  "org.apache.kafka.common.serialization.StringDeserializer");
         KafkaConsumer<K, V> consumer = new KafkaConsumer<>(consumerProps);
         consumer.subscribe(Arrays.asList(topic));
         return consumer;
@@ -167,7 +193,8 @@ public class KafkaUtilTest<K, V> implements AutoCloseable {
 
     public KafkaConsumer<K, V> getByteArrayConsumer(String topic) {
         Properties consumerProps = getConsumerConfig();
-        consumerProps.setProperty("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
+        consumerProps.setProperty("value.deserializer",
+                                  "org.apache.kafka.common.serialization.ByteArrayDeserializer");
         KafkaConsumer<K, V> consumer = new KafkaConsumer<>(consumerProps);
         consumer.subscribe(Arrays.asList(topic));
         return consumer;
@@ -175,24 +202,28 @@ public class KafkaUtilTest<K, V> implements AutoCloseable {
 
     public KafkaProducer<K, V> getByteArrayProducer() {
         Properties producerProps = getProducerConfig();
-        producerProps.setProperty("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
+        producerProps.setProperty("value.serializer",
+                                  "org.apache.kafka.common.serialization.ByteArraySerializer");
         return new KafkaProducer<>(producerProps);
     }
 
     public KafkaProducer<K, V> getStringProducer() {
         Properties producerProps = getProducerConfig();
-        producerProps.setProperty("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        producerProps.setProperty("value.serializer",
+                                  "org.apache.kafka.common.serialization.StringSerializer");
         return new KafkaProducer<>(producerProps);
     }
 
-
-    public KafkaConsumer getConsumer(String key, String topic, Properties props) {
+    public KafkaConsumer getConsumer(String key,
+                                     String topic,
+                                     Properties props) {
         KafkaConsumer consumer = new KafkaConsumer(props);
         List<PartitionInfo> infos = consumer.partitionsFor(topic);
         List<TopicPartition> partitions = new ArrayList();
         if (infos != null) {
             for (PartitionInfo partition : infos) {
-                partitions.add(new TopicPartition(partition.topic(), partition.partition()));
+                partitions.add(new TopicPartition(partition.topic(),
+                                                  partition.partition()));
             }
         }
         consumer.assign(partitions);
@@ -201,15 +232,31 @@ public class KafkaUtilTest<K, V> implements AutoCloseable {
         return consumer;
     }
 
-
-    public void insertBatchStockTicketEvent(int items, EnvConfig envConfig) {
+    public void insertBatchStockTicketEvent(int items,
+                                            EnvConfig envConfig,
+                                            Class sessionType) {
         Properties props = Config.getProducerConfig();
-        try (RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props, envConfig)) {
-            for (int i = 0; i < items; i++) {
-                StockTickEvent ticket = new StockTickEvent("RHT", ThreadLocalRandom.current().nextLong(80, 100));
-                producer.insert(ticket);
+        if (sessionType.equals(RemoteKieSession.class)) {
+            try (RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props,
+                                                                          envConfig)) {
+                for (int i = 0; i < items; i++) {
+                    StockTickEvent ticket = new StockTickEvent("RHT",
+                                                               ThreadLocalRandom.current().nextLong(80,
+                                                                                                    100));
+                    producer.insert(ticket);
+                }
+            }
+        }
+        if (sessionType.equals(RemoteCepKieSession.class)) {
+            try (RemoteCepKieSessionImpl producer = new RemoteCepKieSessionImpl(props,
+                                                                                envConfig)) {
+                for (int i = 0; i < items; i++) {
+                    StockTickEvent ticket = new StockTickEvent("RHT",
+                                                               ThreadLocalRandom.current().nextLong(80,
+                                                                                                    100));
+                    producer.insert(ticket);
+                }
             }
         }
     }
-
 }
