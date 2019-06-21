@@ -25,6 +25,7 @@ import org.kie.u212.core.infra.SnapshotInfos;
 import org.kie.u212.core.infra.consumer.ConsumerController;
 import org.kie.u212.core.infra.consumer.Restarter;
 import org.kie.u212.core.infra.election.LeaderElection;
+import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.core.infra.utils.Printer;
 import org.slf4j.Logger;
@@ -47,6 +48,17 @@ public class Bootstrap {
         //order matter
         kieSessionHolder = new KieSessionHolder();
         coreKube = new CoreKube(envConfig.getNamespace());
+        leaderElection();
+        startProducer(envConfig);
+        startConsumers(printer, envConfig);
+        addMasterElectionCallbacks();
+        logger.info("CONFIGURE on start engine:{}", Config.getDefaultConfig());
+    }
+
+    public static void startEngine(Printer printer, EnvConfig envConfig, State initialState) {
+        //order matter
+        kieSessionHolder = new KieSessionHolder();
+        coreKube = new CoreKube(envConfig.getNamespace(), initialState);
         leaderElection();
         startProducer(envConfig);
         startConsumers(printer, envConfig);

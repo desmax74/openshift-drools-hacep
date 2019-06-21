@@ -20,6 +20,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import org.kie.u212.core.infra.election.KubernetesLockConfiguration;
 import org.kie.u212.core.infra.election.LeaderElection;
 import org.kie.u212.core.infra.election.LeaderElectionImpl;
+import org.kie.u212.core.infra.election.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,13 @@ public class CoreKube {
         configuration = createKubeConfiguration(namespace);
         leadership = new LeaderElectionImpl(kubernetesClient,configuration);
     }
+
+    public CoreKube(String namespace, State initialState){
+        kubernetesClient = new DefaultKubernetesClient();
+        configuration = createKubeConfiguration(namespace);
+        leadership = new LeaderElectionImpl(kubernetesClient,configuration, initialState);
+    }
+
 
     public KubernetesClient getKubeClient() {
         return kubernetesClient;

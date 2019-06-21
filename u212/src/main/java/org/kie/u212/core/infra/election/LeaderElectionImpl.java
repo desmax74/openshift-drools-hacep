@@ -56,6 +56,16 @@ public class LeaderElectionImpl implements LeaderElection {
         this.callbacks = new ArrayList<>();
     }
 
+    public LeaderElectionImpl(KubernetesClient kubernetesClient,
+                              KubernetesLockConfiguration lockConfiguration, State initialState) {
+        this.kubernetesClient = kubernetesClient;
+        this.lockConfiguration = lockConfiguration;
+        this.callbacks = new ArrayList<>();
+        currentState = initialState;
+    }
+
+
+
     public void start() {
         if (serializedExecutor == null) {
             logger.debug("{} Starting leadership election...", logPrefix());

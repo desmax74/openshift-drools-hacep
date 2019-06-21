@@ -321,7 +321,7 @@ public class DefaultConsumer<T> implements EventConsumer,
             if (leader) {
                 defaultProcessAsLeader(size);
             } else {
-                defaultProcessAsNotLeader(size);
+                defaultProcessAsAReplica(size);
             }
         }
     }
@@ -362,11 +362,11 @@ public class DefaultConsumer<T> implements EventConsumer,
         }
     }
 
-    private void defaultProcessAsNotLeader(int size) {
+    private void defaultProcessAsAReplica(int size) {
 
         if (pollingEvents) {
             if (eventsBuffer != null && eventsBuffer.size() > 0) { // events previously readed and not processed
-                consumeEventsFromBuffer();
+                consumeEventsFromBufferAsAReplica();
             }
             ConsumerRecords<String, T> records = kafkaConsumer.poll(Duration.of(size,
                                                                                 ChronoUnit.MILLIS));
@@ -374,7 +374,7 @@ public class DefaultConsumer<T> implements EventConsumer,
                 ConsumerRecord<String, T> first = records.iterator().next();
                 eventsBuffer = records.records(new TopicPartition(first.topic(),
                                                                   first.partition()));
-                consumeEventsFromBuffer();
+                consumeEventsFromBufferAsAReplica();
             }
         }
 
@@ -395,7 +395,7 @@ public class DefaultConsumer<T> implements EventConsumer,
         }
     }
 
-    private void consumeEventsFromBuffer() {
+    private void consumeEventsFromBufferAsAReplica() {
         int index = 0;
         int end = eventsBuffer.size();
         for (ConsumerRecord<String, T> record : eventsBuffer) {
