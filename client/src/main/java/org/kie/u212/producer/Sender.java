@@ -25,7 +25,6 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.kie.remote.RemoteCommand;
 import org.kie.u212.ClientUtils;
 import org.kie.u212.ConverterUtil;
-import org.kie.u212.EnvConfig;
 import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.model.ControlMessage;
 import org.slf4j.Logger;
@@ -38,10 +37,8 @@ public class Sender {
   private static Logger logger = LoggerFactory.getLogger( RemoteKieSessionImpl.class);
   private EventProducer producer;
   private Properties configuration;
-  private EnvConfig envConfig;
 
-  public Sender(Properties configuration, EnvConfig envConfig){
-    this.envConfig = envConfig;
+  public Sender(Properties configuration){
     producer = new EventProducer();
     if(configuration != null && !configuration.isEmpty()) {
       this.configuration = configuration;
@@ -49,35 +46,32 @@ public class Sender {
   }
 
   public void start() {
-    logger.info("Start client producer");
     producer.start(configuration != null ? configuration : ClientUtils.getConfiguration(ClientUtils.PRODUCER_CONF));
   }
 
   public void stop() {
-    logger.info("Closing client producer");
     producer.stop();
   }
 
-  public RecordMetadata sendCommand( RemoteCommand command ) {
-
-    RecordMetadata lastRecord = producer.produceSync(new ProducerRecord<>(envConfig.getEventsTopicName(), command.getId(),
+  public RecordMetadata sendCommand( RemoteCommand command, String topicName) {
+    RecordMetadata lastRecord = producer.produceSync(new ProducerRecord<>(topicName, command.getId(),
                                                                           ConverterUtil.serializeObj(command)));
     return logRecord(lastRecord);
   }
 
   // TODO is this useful? I think we should remove it
-  public void insertAsync(Object obj,
+  public void insertAsync(Object obj, String topicName,
                           Callback callback) {
     ControlMessage event = wrapObject(obj);
-    producer.produceAsync(new ProducerRecord<>(envConfig.getEventsTopicName(),
+    producer.produceAsync(new ProducerRecord<>(topicName,
                                                event.getKey(),
                                                event),
                           callback);
   }
 
-  public Future<RecordMetadata> insertFireAndForget(Object obj) {
+  public Future<RecordMetadata> insertFireAndForget(Object obj, String topicName) {
     ControlMessage event = ( ControlMessage ) obj;
-    return producer.produceFireAndForget(new ProducerRecord<>(envConfig.getEventsTopicName(),
+    return producer.produceFireAndForget(new ProducerRecord<>(topicName,
                                                               event.getKey(),
                                                               event));
   }

@@ -19,6 +19,7 @@ import java.io.Closeable;
 import java.util.Properties;
 
 import org.drools.core.rule.EntryPointId;
+import org.kie.remote.RemoteCepEntryPoint;
 import org.kie.remote.RemoteCepKieSession;
 import org.kie.u212.EnvConfig;
 
@@ -26,10 +27,12 @@ public class RemoteCepKieSessionImpl extends RemoteCepEntryPointImpl implements 
                                                                                 RemoteCepKieSession {
 
     public static final String DEFAULT_ENTRY_POINT = EntryPointId.DEFAULT.getEntryPointId();
+    private EnvConfig envConfig;
 
     public RemoteCepKieSessionImpl(Properties configuration, EnvConfig envConfig ) {
         super(new Sender(configuration), DEFAULT_ENTRY_POINT, envConfig);
         sender.start();
+        this.envConfig = envConfig;
     }
 
     @Override
@@ -37,5 +40,9 @@ public class RemoteCepKieSessionImpl extends RemoteCepEntryPointImpl implements 
         sender.stop();
     }
 
+    @Override
+    public RemoteCepEntryPoint getEntryPoint(String name ) {
+        return new RemoteCepEntryPointImpl(sender, name, envConfig);
+    }
 
 }

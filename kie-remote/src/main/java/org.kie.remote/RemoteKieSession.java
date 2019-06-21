@@ -19,5 +19,4 @@ package org.kie.remote;
 public interface RemoteKieSession extends RemoteEntryPoint {
 
     RemoteEntryPoint getEntryPoint(String name);
-
 }

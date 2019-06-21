@@ -15,12 +15,11 @@
  */
 package org.kie.remote;
 
-import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 import org.kie.api.runtime.ObjectFilter;
 
-public interface RemoteCepEntryPoint {
+public interface RemoteCepEntryPoint<T> {
 
     /**
      * @return the String Id of this entry point
@@ -47,19 +46,19 @@ public interface RemoteCepEntryPoint {
      * method is dependent on the WorkingMemory configuration, where it can be configured for <tt>Identity</tt>
      * or for <tt>Equality</tt>.</p>
      *
-     * @return all facts from the current session as a Collection.
+     * @param  callback to read all facts from the current session as a Collection.
      */
-    CompletableFuture<Collection<? extends Object>> getObjects();
+    void getObjects(CompletableFuture<T> callback);
 
     /**
      * @param filter the filter to be applied to the returned collection of facts.
-     * @return all facts from the current session that are accepted by the given <code>ObjectFilter</code>.
+     * @@param  callback to read all facts from the current session that are accepted by the given <code>ObjectFilter</code>.
      */
-    CompletableFuture<Collection<? extends Object>> getObjects(ObjectFilter filter);
+    void getObjects(CompletableFuture<T> callback, ObjectFilter filter);
 
     /**
-     * @return the total number of facts currently in this entry point
+     * @param callback to read the total number of facts currently in this entry point
      */
-    CompletableFuture<Long> getFactCount();
+    void getFactCount(CompletableFuture<T> callback);
 }
 

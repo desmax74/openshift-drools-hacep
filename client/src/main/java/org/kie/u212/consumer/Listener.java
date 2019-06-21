@@ -17,42 +17,37 @@ package org.kie.u212.consumer;
 
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
 
-import org.kie.remote.RemoteFactHandle;
 import org.kie.u212.ClientUtils;
 import org.kie.u212.EnvConfig;
-import org.kie.u212.core.infra.utils.ConsumerUtils;
-import org.kie.u212.model.FactCountMessage;
-import org.kie.u212.producer.RemoteKieSessionImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class Listener {
+public class Listener<T> {
 
-    private static Logger logger = LoggerFactory.getLogger(RemoteKieSessionImpl.class);
     private Properties configuration;
     private EnvConfig envConfig;
-    private Map<String, Object> store;
+    private Map<String, CompletableFuture<T>> store;
+    private Thread t;
 
-    public Listener(Map<String, Object> requestsStore){
+    public Listener(Map<String, CompletableFuture<T>> requestsStore){
         configuration = ClientUtils.getConfiguration(ClientUtils.CONSUMER_CONF);
         envConfig = EnvConfig.getDefaultEnvConfig();
         store = requestsStore;
     }
 
-    public void retrieveAndStoreFactCount(RemoteFactHandle factHandle){
-        FactCountMessage msg  = ConsumerUtils.getFactCount(factHandle, envConfig, configuration);
-        store.put(factHandle.getId(), msg.getFactCount());
+    public void listen(){
+        t = new Thread(new ListenerThread(configuration, envConfig, store));
+        t.start();
     }
 
-    public void retrieveAndStoreObjects(RemoteFactHandle factHandle){
-        Object value  = ConsumerUtils.getObjects(factHandle, envConfig, configuration);
-        store.put(factHandle.getId(), value);
-    }
-
-    public void retrieveAndStoreObjectsFiltered(RemoteFactHandle factHandle){
-        Object value  = ConsumerUtils.getObjectsFiltered(factHandle, envConfig, configuration);
-        store.put(factHandle.getId(), value);
+    public void stopConsumeEvents(){
+        if(t != null){
+            try {
+                t.join();
+            }catch (InterruptedException ex){
+                throw new RuntimeException(ex);
+            }
+        }
     }
 
 }

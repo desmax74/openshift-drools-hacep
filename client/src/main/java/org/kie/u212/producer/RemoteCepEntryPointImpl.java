@@ -15,12 +15,9 @@
  */
 package org.kie.u212.producer;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.kie.api.runtime.ObjectFilter;
 import org.kie.remote.RemoteCepEntryPoint;
@@ -32,11 +29,10 @@ import org.kie.remote.impl.RemoteFactHandleImpl;
 import org.kie.u212.EnvConfig;
 import org.kie.u212.consumer.Listener;
 
-public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
+public class RemoteCepEntryPointImpl<T> implements RemoteCepEntryPoint {
 
     protected final Sender sender;
     protected final Listener listener;
-    private ExecutorService executor;
     private final String entryPoint;
     private Map<String, Object> requestsStore;
     private EnvConfig envConfig;
@@ -47,7 +43,6 @@ public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
         this.envConfig = envConfig;
         requestsStore = new ConcurrentHashMap<>();
         listener = new Listener(requestsStore);
-        executor = Executors.newCachedThreadPool();
     }
 
     public void listen(){
@@ -60,39 +55,34 @@ public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
     }
 
     @Override
+    public void getObjects(CompletableFuture callback) {
+        ListObjectsCommand command = new ListObjectsCommand(createStoreAndGetRemoteFactHandle(callback), entryPoint);
+        sender.sendCommand(command, envConfig.getKieSessionInfosTopicName());
+    }
+
+    @Override
+    public void getObjects(CompletableFuture callback, ObjectFilter filter) {
+        ListObjectsCommand command = new ListObjectsCommand(createStoreAndGetRemoteFactHandle(callback), entryPoint, filter);
+        sender.sendCommand(command, envConfig.getKieSessionInfosTopicName());
+    }
+
+    @Override
+    public void getFactCount(CompletableFuture callback) {
+        FactCountCommand command = new FactCountCommand(createStoreAndGetRemoteFactHandle(callback), entryPoint );
+        sender.sendCommand(command, envConfig.getKieSessionInfosTopicName());
+    }
+
+    @Override
     public void insert(Object object) {
         RemoteFactHandle factHandle = new RemoteFactHandleImpl(object );
         InsertCommand command = new InsertCommand(factHandle, entryPoint );
         sender.sendCommand(command, envConfig.getEventsTopicName());
     }
 
-    @Override
-    public CompletableFuture<Collection<? extends Object>> getObjects() {
+    private RemoteFactHandle createStoreAndGetRemoteFactHandle(CompletableFuture<T> callback){
         RemoteFactHandle factHandle = new RemoteFactHandleImpl();
-        requestsStore.put(factHandle.getId(), new Object());
-        ListObjectsCommand command = new ListObjectsCommand(factHandle, entryPoint);
-        sender.sendCommand(command, envConfig.getKieSessionInfosTopicName());
-        listener.retrieveAndStoreObjects(factHandle);
-        return CompletableFuture.supplyAsync(() -> ((Collection<? extends Object>)requestsStore.get(factHandle.getId())), executor);
+        requestsStore.put(factHandle.getId(), callback);
+        return factHandle;
     }
 
-    @Override
-    public CompletableFuture<Collection<? extends Object>> getObjects(ObjectFilter filter) {
-        RemoteFactHandle factHandle = new RemoteFactHandleImpl();
-        requestsStore.put(factHandle.getId(), new Object());
-        ListObjectsCommand command = new ListObjectsCommand(factHandle, entryPoint, filter);
-        sender.sendCommand(command, envConfig.getKieSessionInfosTopicName());
-        listener.retrieveAndStoreObjectsFiltered(factHandle);
-        return CompletableFuture.supplyAsync(() -> ((Collection<? extends Object>)requestsStore.get(factHandle.getId())), executor);
-    }
-
-    @Override
-    public CompletableFuture<Long> getFactCount() {
-        RemoteFactHandle factHandle = new RemoteFactHandleImpl();
-        requestsStore.put(factHandle.getId(), new Object());
-        FactCountCommand command = new FactCountCommand(factHandle, entryPoint );
-        sender.sendCommand(command, envConfig.getKieSessionInfosTopicName());
-        listener.retrieveAndStoreFactCount(factHandle, 3);
-        return CompletableFuture.supplyAsync(() -> ((Long)requestsStore.get(factHandle.getId())), executor);
-    }
 }

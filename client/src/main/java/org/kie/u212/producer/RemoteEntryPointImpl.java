@@ -15,12 +15,9 @@
  */
 package org.kie.u212.producer;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Predicate;
 
 import org.kie.remote.RemoteEntryPoint;
@@ -33,13 +30,12 @@ import org.kie.remote.impl.RemoteFactHandleImpl;
 import org.kie.u212.EnvConfig;
 import org.kie.u212.consumer.Listener;
 
-public class RemoteEntryPointImpl implements RemoteEntryPoint {
+public class RemoteEntryPointImpl<T> implements RemoteEntryPoint {
 
     protected final Sender sender;
     protected final Listener listener;
-    private ExecutorService executor;
     private final String entryPoint;
-    private Map<String, Object> requestsStore;
+    private Map<String, CompletableFuture<T>> requestsStore;
     private EnvConfig envConfig;
 
     public RemoteEntryPointImpl(Sender sender, String entryPoint, EnvConfig envConfig) {
@@ -47,7 +43,6 @@ public class RemoteEntryPointImpl implements RemoteEntryPoint {
         this.listener = new Listener(requestsStore);
         this.sender = sender;
         this.entryPoint = entryPoint;
-        this.executor = Executors.newCachedThreadPool();
         this.envConfig = envConfig;
 
     }
@@ -86,23 +81,26 @@ public class RemoteEntryPointImpl implements RemoteEntryPoint {
     }
 
     @Override
-    public CompletableFuture<Collection<? extends Object>> getObjects() {
+    public void getObjects(CompletableFuture callback) {
         throw new UnsupportedOperationException( "org.kie.u212.producer.RemoteKieSessionImpl.getObjects -> TODO" );
-
     }
 
     @Override
-    public CompletableFuture<Collection<? extends Object>> getObjects( Predicate<Object> filter ) {
+    public void getObjects(CompletableFuture callback,
+                           Predicate filter) {
         throw new UnsupportedOperationException( "org.kie.u212.producer.RemoteKieSessionImpl.getObjects -> TODO" );
-
     }
 
     @Override
-    public CompletableFuture<Long> getFactCount() {
-        RemoteFactHandle factHandle = new RemoteFactHandleImpl();
-        FactCountCommand command = new FactCountCommand(factHandle, entryPoint );
+    public void getFactCount(CompletableFuture callback) {
+        FactCountCommand command = new FactCountCommand(createStoreAndGetRemoteFactHandle(callback), entryPoint );
         sender.sendCommand(command, envConfig.getEventsTopicName());
-        listener.retrieveAndStoreFactCount(factHandle, 3);
-        return CompletableFuture.supplyAsync(() -> ((Long)requestsStore.get(factHandle.getId())), executor);
     }
+
+    private RemoteFactHandle createStoreAndGetRemoteFactHandle(CompletableFuture<T> callback){
+        RemoteFactHandle factHandle = new RemoteFactHandleImpl();
+        requestsStore.put(factHandle.getId(), callback);
+        return factHandle;
+    }
+
 }
