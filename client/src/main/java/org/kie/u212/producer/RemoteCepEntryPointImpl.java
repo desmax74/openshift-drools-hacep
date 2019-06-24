@@ -57,19 +57,19 @@ public class RemoteCepEntryPointImpl<T> implements RemoteCepEntryPoint {
     @Override
     public void getObjects(CompletableFuture callback) {
         ListObjectsCommand command = new ListObjectsCommand(createStoreAndGetRemoteFactHandle(callback), entryPoint);
-        sender.sendCommand(command, envConfig.getKieSessionInfosTopicName());
+        sender.sendCommand(command, envConfig.getEventsTopicName());
     }
 
     @Override
     public void getObjects(CompletableFuture callback, ObjectFilter filter) {
         ListObjectsCommand command = new ListObjectsCommand(createStoreAndGetRemoteFactHandle(callback), entryPoint, filter);
-        sender.sendCommand(command, envConfig.getKieSessionInfosTopicName());
+        sender.sendCommand(command, envConfig.getEventsTopicName());
     }
 
     @Override
     public void getFactCount(CompletableFuture callback) {
         FactCountCommand command = new FactCountCommand(createStoreAndGetRemoteFactHandle(callback), entryPoint );
-        sender.sendCommand(command, envConfig.getKieSessionInfosTopicName());
+        sender.sendCommand(command, envConfig.getEventsTopicName());
     }
 
     @Override

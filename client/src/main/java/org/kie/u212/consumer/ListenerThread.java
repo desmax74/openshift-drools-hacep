@@ -32,10 +32,15 @@ import org.apache.kafka.common.TopicPartition;
 import org.kie.u212.Config;
 import org.kie.u212.ConverterUtil;
 import org.kie.u212.EnvConfig;
+import org.kie.u212.model.FactCountMessage;
+import org.kie.u212.model.ListKieSessionObjectMessage;
+import org.kie.u212.model.VisitableMessage;
+import org.kie.u212.model.VisitorMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ListenerThread<T> implements Runnable {
+public class ListenerThread<T> implements Runnable,
+                                          VisitorMessage {
 
     private static Logger logger = LoggerFactory.getLogger(ListenerThread.class);
     private Properties configuration;
@@ -82,12 +87,9 @@ public class ListenerThread<T> implements Runnable {
                 ConsumerRecords records = consumer.poll(Duration.of(Config.DEFAULT_POLL_TIMEOUT_MS, ChronoUnit.MILLIS));
                 for (Object item : records) {
                     ConsumerRecord<String, byte[]> record = (ConsumerRecord<String, byte[]>) item;
-                    CompletableFuture<T> completableFuture = store.get(record.key());
-                    if(completableFuture!= null) {
-                        store.get(record.key()).complete((T) ConverterUtil.deSerializeObj(record.value()));
-                    }else {
-                        logger.error("CompletableFuture with key {} not found", record.key());
-                    }
+                    Object msg = ConverterUtil.deSerializeObj(record.value());
+                    VisitableMessage visitable = (VisitableMessage) msg;
+                    visitable.accept(this);
                 }
             }
         } catch (Exception ex) {
@@ -97,5 +99,18 @@ public class ListenerThread<T> implements Runnable {
         }
     }
 
+    @Override
+    public void visit(FactCountMessage msg, String key) {
+        CompletableFuture<T> completableFuture = store.get(msg.getKey());
+        if(completableFuture!= null) {
+            completableFuture.complete((T) msg);
+        }else {
+            logger.error("CompletableFuture with key {} not found", key);
+        }
+    }
 
+    @Override
+    public void visit(ListKieSessionObjectMessage msg, String key) {
+
+    }
 }
