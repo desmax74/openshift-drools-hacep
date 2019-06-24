@@ -13,10 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.u212.consumer;
-
-import org.kie.u212.model.FactCountMessage;
-import org.kie.u212.model.ListKieSessionObjectMessage;
+package org.kie.u212.model;
 
 public interface VisitorMessage {
 

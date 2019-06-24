@@ -34,8 +34,8 @@ import org.kie.remote.command.FactCountCommand;
 import org.kie.remote.command.InsertCommand;
 import org.kie.remote.command.ListObjectsCommand;
 import org.kie.remote.command.UpdateCommand;
-import org.kie.remote.command.Visitable;
-import org.kie.remote.command.Visitor;
+import org.kie.remote.command.VisitableCommand;
+import org.kie.remote.command.VisitorCommand;
 import org.kie.u212.ConverterUtil;
 import org.kie.u212.EnvConfig;
 import org.kie.u212.core.KieSessionHolder;
@@ -53,7 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DroolsConsumerHandler implements ConsumerHandler,
-                                              Visitor {
+                                              VisitorCommand {
 
     private static final Logger logger = LoggerFactory.getLogger(DroolsConsumerHandler.class);
     private SessionPseudoClock clock;
@@ -120,7 +120,7 @@ public class DroolsConsumerHandler implements ConsumerHandler,
 
     private void processCommand( RemoteCommand command, State state ) {
         boolean execute = state.equals(State.LEADER) || command.isPermittedForReplicas();
-        Visitable visitable = (Visitable) command;
+        VisitableCommand visitable = (VisitableCommand) command;
         visitable.accept(this, execute);
     }
 

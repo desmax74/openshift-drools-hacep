@@ -18,7 +18,7 @@ package org.kie.u212.model;
 import java.io.Serializable;
 import java.util.Collection;
 
-public class ListKieSessionObjectMessage implements Serializable {
+public class ListKieSessionObjectMessage implements Serializable, VisitableMessage {
 
     private String key;
     private Collection<? extends Object> objects;
@@ -53,5 +53,10 @@ public class ListKieSessionObjectMessage implements Serializable {
         sb.append(", objects=").append(objects);
         sb.append('}');
         return sb.toString();
+    }
+
+    @Override
+    public void accept(VisitorMessage visitor) {
+        visitor.visit(this, key);
     }
 }
