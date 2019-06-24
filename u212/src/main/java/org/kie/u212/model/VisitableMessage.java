@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.remote.command;
+package org.kie.u212.consumer;
 
-public interface Visitable {
+public interface VisitableMessage {
 
-    void accept(Visitor visitor, boolean execute);
-
+    void accept(VisitorMessage visitor);
 }

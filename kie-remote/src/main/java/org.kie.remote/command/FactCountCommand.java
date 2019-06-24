@@ -17,7 +17,7 @@ package org.kie.remote.command;
 
 import org.kie.remote.RemoteFactHandle;
 
-public class FactCountCommand extends WorkingMemoryActionCommand implements Visitable {
+public class FactCountCommand extends WorkingMemoryActionCommand implements VisitableCommand {
 
     /* Empty constructor for serialization */
     public FactCountCommand() { }
@@ -27,7 +27,7 @@ public class FactCountCommand extends WorkingMemoryActionCommand implements Visi
     }
 
     @Override
-    public void accept(Visitor visitor, boolean execute) { visitor.visit(this, execute); }
+    public void accept(VisitorCommand visitor, boolean execute) { visitor.visit(this, execute); }
 
     @Override
     public boolean isPermittedForReplicas() { return false; }

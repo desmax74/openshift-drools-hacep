@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.remote.command;
+package org.kie.u212.consumer;
 
-public interface Visitor {
+import org.kie.u212.model.FactCountMessage;
+import org.kie.u212.model.ListKieSessionObjectMessage;
 
-    void visit(InsertCommand command, boolean execute);
+public interface VisitorMessage {
 
-    void visit(DeleteCommand command, boolean execute);
+    void visit(FactCountMessage msg, String key);
 
-    void visit(UpdateCommand command, boolean execute);
-
-    void visit(ListObjectsCommand command, boolean execute);
-
-    void visit(FactCountCommand command, boolean execute);
-
+    void visit(ListKieSessionObjectMessage msg, String key);
 }

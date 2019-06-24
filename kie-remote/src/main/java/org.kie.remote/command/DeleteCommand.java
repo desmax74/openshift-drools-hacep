@@ -18,7 +18,7 @@ package org.kie.remote.command;
 
 import org.kie.remote.RemoteFactHandle;
 
-public class DeleteCommand extends WorkingMemoryActionCommand implements Visitable {
+public class DeleteCommand extends WorkingMemoryActionCommand implements VisitableCommand {
 
     /* Empty constructor for serialization */
     public DeleteCommand() { }
@@ -28,7 +28,7 @@ public class DeleteCommand extends WorkingMemoryActionCommand implements Visitab
     }
 
     @Override
-    public void accept(Visitor visitor, boolean execute) { visitor.visit(this, execute); }
+    public void accept(VisitorCommand visitor, boolean execute) { visitor.visit(this, execute); }
 
     @Override
     public boolean isPermittedForReplicas() { return true; }

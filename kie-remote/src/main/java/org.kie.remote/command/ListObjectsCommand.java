@@ -18,7 +18,7 @@ package org.kie.remote.command;
 import org.kie.api.runtime.ObjectFilter;
 import org.kie.remote.RemoteFactHandle;
 
-public class ListObjectsCommand extends WorkingMemoryActionCommand implements Visitable {
+public class ListObjectsCommand extends WorkingMemoryActionCommand implements VisitableCommand {
 
     private ObjectFilter filter;
 
@@ -39,7 +39,7 @@ public class ListObjectsCommand extends WorkingMemoryActionCommand implements Vi
     }
 
     @Override
-    public void accept(Visitor visitor, boolean execute) { visitor.visit(this, execute); }
+    public void accept(VisitorCommand visitor, boolean execute) { visitor.visit(this, execute); }
 
     @Override
     public boolean isPermittedForReplicas() { return false; }
