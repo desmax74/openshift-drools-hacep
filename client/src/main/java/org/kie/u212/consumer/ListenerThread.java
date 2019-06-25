@@ -111,6 +111,11 @@ public class ListenerThread<T> implements Runnable,
 
     @Override
     public void visit(ListKieSessionObjectMessage msg, String key) {
-
+        CompletableFuture<T> completableFuture = store.get(msg.getKey());
+        if(completableFuture!= null) {
+            completableFuture.complete((T) msg);
+        }else {
+            logger.error("CompletableFuture with key {} not found", key);
+        }
     }
 }
