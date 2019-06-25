@@ -15,7 +15,10 @@
  */
 package org.kie.u212.consumer;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -157,8 +160,15 @@ public class DroolsConsumerHandler implements ConsumerHandler,
     @Override
     public void visit(ListObjectsCommand command, boolean execute) {
         if(execute) {
+            // @TODO StatefulKnowledgeSessionImpl$ObjectStoreWrapper isn't serializable going to create a list with serializable items
             Collection<? extends Object> objects = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).getObjects(command.getFilter());
-            ListKieSessionObjectMessage msg = new ListKieSessionObjectMessage(command.getFactHandle().getId(), objects);
+            List serializableItems = new ArrayList<>(objects.size());
+            Iterator<? extends Object> iterator = objects.iterator();
+            while(iterator.hasNext()){
+                Object o = iterator.next();
+                serializableItems.add(o);
+            }
+            ListKieSessionObjectMessage msg = new ListKieSessionObjectMessage(command.getFactHandle().getId(), serializableItems);
             producer.produceSync(new ProducerRecord<>(config.getKieSessionInfosTopicName(), command.getFactHandle().getId(), ConverterUtil.serializeObj(msg)));
         }
     }
