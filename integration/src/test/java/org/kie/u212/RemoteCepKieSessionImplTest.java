@@ -22,12 +22,17 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.kie.api.runtime.ClassObjectFilter;
+import org.kie.api.runtime.ObjectFilter;
 import org.kie.remote.RemoteCepKieSession;
 import org.kie.u212.core.Bootstrap;
 import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.utils.PrinterLogImpl;
 import org.kie.u212.model.FactCountMessage;
+import org.kie.u212.model.ListKieSessionObjectMessage;
+import org.kie.u212.model.StockTickEvent;
 import org.kie.u212.producer.RemoteCepKieSessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,6 +86,54 @@ public class RemoteCepKieSessionImplTest {
                                                          TimeUnit.SECONDS);
             FactCountMessage msg = (FactCountMessage) callbackValue;
             assertTrue(msg.getFactCount() == 7);
+        }
+    }
+
+    @Test
+    public void getListKieSessionObjectsTest() throws Exception {
+        Bootstrap.startEngine(new PrinterLogImpl(),
+                              config,
+                              State.LEADER);
+        kafkaServerTest.insertBatchStockTicketEvent(1,
+                                                    config,
+                                                    RemoteCepKieSession.class);
+        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig(),
+                                                                          config)) {
+            client.listen();
+            CompletableFuture<Long> listKieObjectsCallBack = new CompletableFuture<>();
+            client.getObjects(listKieObjectsCallBack);
+            Object callbackValue = listKieObjectsCallBack.get(15,
+                                                         TimeUnit.SECONDS);
+            ListKieSessionObjectMessage msg = (ListKieSessionObjectMessage) callbackValue;
+            assertTrue(msg.getObjects().size() == 1);
+            Object obj = msg.getObjects().iterator().next();
+            StockTickEvent event = (StockTickEvent) obj;
+            assertTrue(event.getCompany().equals("RHT"));
+        }
+    }
+
+    @Test @Ignore
+    public void getListKieSessionObjectsWithFilterTest() throws Exception {
+        Bootstrap.startEngine(new PrinterLogImpl(),
+                              config,
+                              State.LEADER);
+        kafkaServerTest.insertBatchStockTicketEvent(1,
+                                                    config,
+                                                    RemoteCepKieSession.class);
+        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig(),
+                                                                          config)) {
+            client.listen();
+            CompletableFuture<Long> listKieObjectsCallBack = new CompletableFuture<>();
+            //@TODO ClassObject filter isn't serializable :-(
+            ObjectFilter filter = new ClassObjectFilter(StockTickEvent.class);
+            client.getObjects(listKieObjectsCallBack, filter);
+            Object callbackValue = listKieObjectsCallBack.get(15,
+                                                              TimeUnit.SECONDS);
+            ListKieSessionObjectMessage msg = (ListKieSessionObjectMessage) callbackValue;
+            assertTrue(msg.getObjects().size() == 1);
+            Object obj = msg.getObjects().iterator().next();
+            StockTickEvent event = (StockTickEvent) obj;
+            assertTrue(event.getCompany().equals("RHT"));
         }
     }
 
