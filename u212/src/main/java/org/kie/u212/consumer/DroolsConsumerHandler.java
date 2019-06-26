@@ -117,7 +117,7 @@ public class DroolsConsumerHandler implements ConsumerHandler,
         if (state.equals(State.LEADER)) {
             Queue<Object> results = DroolsExecutor.getInstance().getAndReset();
             ControlMessage newControlMessage = new ControlMessage(command.getId(), results);
-            producer.produceSync(new ProducerRecord<>(config.getControlTopicName(), command.getId(), ConverterUtil.serializeObj(newControlMessage)));
+            producer.produceSync(config.getControlTopicName(), command.getId(), newControlMessage);
         }
     }
 
@@ -169,7 +169,7 @@ public class DroolsConsumerHandler implements ConsumerHandler,
                 serializableItems.add(o);
             }
             ListKieSessionObjectMessage msg = new ListKieSessionObjectMessage(command.getFactHandle().getId(), serializableItems);
-            producer.produceSync(new ProducerRecord<>(config.getKieSessionInfosTopicName(), command.getFactHandle().getId(), ConverterUtil.serializeObj(msg)));
+            producer.produceSync(config.getKieSessionInfosTopicName(), command.getFactHandle().getId(), msg);
         }
     }
 
@@ -177,9 +177,7 @@ public class DroolsConsumerHandler implements ConsumerHandler,
     public void visit(FactCountCommand command, boolean execute) {
         if(execute) {
             FactCountMessage msg = new FactCountMessage(command.getFactHandle().getId(), kieSessionHolder.getKieSession().getFactCount());
-            producer.produceSync(new ProducerRecord(config.getKieSessionInfosTopicName(),
-                                                             command.getFactHandle().getId(),
-                                                             ConverterUtil.serializeObj(msg)));
+            producer.produceSync(config.getKieSessionInfosTopicName(), command.getFactHandle().getId(), msg);
         }
     }
 

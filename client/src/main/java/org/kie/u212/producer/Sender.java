@@ -17,20 +17,14 @@ package org.kie.u212.producer;
 
 import java.util.Properties;
 import java.util.UUID;
-import java.util.concurrent.Future;
 
 import org.apache.kafka.clients.producer.Callback;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.kie.remote.RemoteCommand;
 import org.kie.u212.ClientUtils;
-import org.kie.u212.ConverterUtil;
 import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.model.ControlMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.kie.u212.core.infra.utils.RecordMetadataUtil.logRecord;
 
 public class Sender {
 
@@ -53,27 +47,20 @@ public class Sender {
     producer.stop();
   }
 
-  public RecordMetadata sendCommand( RemoteCommand command, String topicName) {
-    RecordMetadata lastRecord = producer.produceSync(new ProducerRecord<>(topicName, command.getId(),
-                                                                          ConverterUtil.serializeObj(command)));
-    return logRecord(lastRecord);
+  public void sendCommand( RemoteCommand command, String topicName) {
+    producer.produceSync(topicName, command.getId(),command);
   }
 
   // TODO is this useful? I think we should remove it
   public void insertAsync(Object obj, String topicName,
                           Callback callback) {
     ControlMessage event = wrapObject(obj);
-    producer.produceAsync(new ProducerRecord<>(topicName,
-                                               event.getKey(),
-                                               event),
-                          callback);
+    producer.produceAsync(topicName, event.getKey(), event, callback);
   }
 
-  public Future<RecordMetadata> insertFireAndForget(Object obj, String topicName) {
+  public void insertFireAndForget(Object obj, String topicName) {
     ControlMessage event = ( ControlMessage ) obj;
-    return producer.produceFireAndForget(new ProducerRecord<>(topicName,
-                                                              event.getKey(),
-                                                              event));
+    producer.produceFireAndForget(topicName, event.getKey(), event);
   }
 
   private ControlMessage wrapObject( Object obj){

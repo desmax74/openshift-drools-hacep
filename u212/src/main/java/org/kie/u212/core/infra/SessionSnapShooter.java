@@ -78,9 +78,7 @@ public class SessionSnapShooter {
             /* We are storing the last inserted key and offset together with the session's bytes */
             byte[] bytes = out.toByteArray();
             SnapshotMessage message = new SnapshotMessage( bytes, fhMap.keySet(), lastInsertedEventkey, lastInsertedEventOffset);
-            RecordMetadata metadata = producer.produceSync(new ProducerRecord(envConfig.getSnapshotTopicName(), key,
-                                                                              ConverterUtil.serializeObj(message)));
-            RecordMetadataUtil.logRecord(metadata);
+            producer.produceSync(envConfig.getSnapshotTopicName(), key,message);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }

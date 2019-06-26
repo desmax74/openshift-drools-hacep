@@ -37,4 +37,11 @@ public interface Producer<K, V> {
 
     void produceAsync(ProducerRecord<K, V> producerRecord,
                       Callback callback);
+
+    void produceFireAndForget(String topicName, String key, Object object);
+
+    void produceSync(String topicName, String key, Object object);
+
+    void produceAsync(String topicName, String key, Object object,
+                      Callback callback);
 }

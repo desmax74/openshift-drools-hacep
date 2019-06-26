@@ -25,6 +25,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.kie.u212.ConverterUtil;
 import org.kie.u212.core.infra.election.State;
+import org.kie.u212.core.infra.utils.RecordMetadataUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,8 +94,7 @@ public class EventProducer<T> implements Producer<String, T>, org.kie.u212.core.
     }
 
 
-    public void produceAsync(String topicName, String key, Object object,
-                             Callback callback) {
+    public void produceAsync(String topicName, String key, Object object, Callback callback) {
         producer.send(getFreshProducerRecord(topicName, key, object), callback);
     }
 

@@ -86,7 +86,9 @@ public class Bootstrap {
         if(snapshooter != null) {
             snapshooter.close();
         }
-        consumerController.stopConsumeEvents();
+        if(consumerController != null) {
+            consumerController.stopConsumeEvents();
+        }
         consumerController = null;
         eventProducer = null;
         restarter = null;
