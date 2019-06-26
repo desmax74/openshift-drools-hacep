@@ -25,6 +25,16 @@ import org.slf4j.LoggerFactory;
 
 public class Config {
 
+    public static final String BOOTSTRAP_SERVERS_KEY = "bootstrap.servers";
+    public static final String KEY_SERIALIZER_KEY = "key.serializer";
+    public static final String VALUE_SERIALIZER_KEY = "value.serializer";
+    public static final String KEY_DESERIALIZER_KEY = "key.deserializer";
+    public static final String VALUE_DESERIALIZER_KEY = "value.deserializer";
+    public static final String BATCH_SIZE_KEY = "batch.size";
+    public static final String ENABLE_AUTOCOMMIT_KEY = "enable.auto.commit";
+    public static final String MAX_POLL_INTERVALS_MS_KEY = "max.poll.interval.ms";
+    public static final String METADATA_MAX_AGE_MS_KEY ="metadata.max.age.ms";
+    public static final String DEFAULT_KAFKA_PORT ="9092";
     public static final String NAMESPACE = "namespace";
     public static final String DEFAULT_NAMESPACE = "default";
     public static final String DEFAULT_CONTROL_TOPIC = "control";
@@ -32,6 +42,7 @@ public class Config {
     public static final String DEFAULT_SNAPSHOT_TOPIC = "snapshot";
     public static final String DEFAULT_KIE_SESSION_INFOS_TOPIC = "kiesessioninfos";
     public static final String ITERATION_BETWEEN_SNAPSHOT = "iteration.between.snapshot";
+
     public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST";
     public static final String BROKER_URL = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST);
     public static final int DEFAULT_POLL_TIMEOUT_MS = 1000;
@@ -49,7 +60,7 @@ public class Config {
 
     public static String getBootStrapServers() {
         StringBuilder sb = new StringBuilder();
-        sb.append(Config.BROKER_URL).append(":9092");
+        sb.append(Config.BROKER_URL).append(":").append(DEFAULT_KAFKA_PORT);
         //append("my-cluster-kafka-bootstrap.my-kafka-project.svc:9092");//plain
         //.append(",").append("my-cluster-kafka-brokers.my-kafka-project.svc").append(":9093");//tls
         return sb.toString();
@@ -94,16 +105,16 @@ public class Config {
     public static Properties getStatic() {
         if(config == null) {
             config = new Properties();
-            config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-            config.put("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
-            config.put("bootstrap.servers", getBootStrapServers());
-            config.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-            config.put("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
-            config.put("max.poll.interval.ms", "10000");//time to discover the new consumer after a changetopic default 5 min 300000
-            config.put("batch.size", "16384");
-            config.put("enable.auto.commit", "false");
-            config.put("metadata.max.age.ms", "10000");
-            config.put("iteration.between.snapshot", "10");
+            config.put(KEY_SERIALIZER_KEY, "org.apache.kafka.common.serialization.StringSerializer");
+            config.put(VALUE_SERIALIZER_KEY, "org.apache.kafka.common.serialization.ByteArraySerializer");
+            config.put(BOOTSTRAP_SERVERS_KEY, getBootStrapServers());
+            config.put(KEY_DESERIALIZER_KEY, "org.apache.kafka.common.serialization.StringDeserializer");
+            config.put(VALUE_DESERIALIZER_KEY, "org.apache.kafka.common.serialization.ByteArrayDeserializer");
+            config.put(MAX_POLL_INTERVALS_MS_KEY, "10000");//time to discover the new consumer after a changetopic default 5 min 300000
+            config.put(BATCH_SIZE_KEY, "16384");
+            config.put(ENABLE_AUTOCOMMIT_KEY, "false");
+            config.put(METADATA_MAX_AGE_MS_KEY, "10000");
+            config.put(ITERATION_BETWEEN_SNAPSHOT, "10");
         }
         return config;
     }
@@ -126,8 +137,8 @@ public class Config {
                 }
             }
 
-        if(config.get("bootstrap.servers")== null){
-            config.put("bootstrap.servers", getBootStrapServers());
+        if(config.get(BOOTSTRAP_SERVERS_KEY)== null){
+            config.put(BOOTSTRAP_SERVERS_KEY, getBootStrapServers());
         }
         return config;
     }
