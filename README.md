@@ -3,6 +3,8 @@
 ## Installing and Running Kakfa Cluster
 - Kafka Cluster on Openshift
 https://github.com/desmax74/openshift-handbook/blob/master/fedora/kafka.md
+or 
+https://github.com/desmax74/openshift-handbook/blob/master/ubuntu/kafka.md
 
 ```sh
 mvn clean package
