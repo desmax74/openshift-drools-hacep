@@ -16,22 +16,14 @@
 package org.kie.u212.core.infra.producer;
 
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.kie.u212.ConverterUtil;
 import org.kie.u212.core.infra.election.State;
-import org.kie.u212.core.infra.utils.RecordMetadataUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class EventProducer<T> implements Producer<String, T>, org.kie.u212.core.infra.election.Callback {
-
-    private Logger logger = LoggerFactory.getLogger(EventProducer.class);
+public class EventProducer<T> implements Producer, org.kie.u212.core.infra.election.Callback {
 
     protected org.apache.kafka.clients.producer.Producer<String, T> producer;
 
@@ -50,39 +42,12 @@ public class EventProducer<T> implements Producer<String, T>, org.kie.u212.core.
         producer = new KafkaProducer(properties);
     }
 
-    public void start(KafkaProducer<String, T> kafkaProducer) {
-        producer = kafkaProducer;
-    }
-
     public void stop() {
         if (producer != null) {
             producer.flush();
             producer.close();
         }
     }
-
-    public Future<RecordMetadata> produceFireAndForget(ProducerRecord<String, T> producerRecord) {
-        return producer.send(producerRecord);
-    }
-
-
-    public RecordMetadata produceSync(ProducerRecord<String, T> producerRecord) {
-        RecordMetadata recordMetadata = null;
-        try {
-            recordMetadata = producer.send(producerRecord).get();
-        } catch (InterruptedException e) {
-            logger.error("Error in produceSync!", e);
-        } catch (ExecutionException e) {
-            logger.error("Error in produceSync!", e);
-        }
-        return recordMetadata;
-    }
-
-    @Override
-    public void produceAsync(ProducerRecord<String, T> producerRecord, Callback callback) {
-        producer.send(producerRecord, callback);
-    }
-
 
     public void produceFireAndForget(String topicName, String key, Object object) {
         producer.send(getFreshProducerRecord(topicName, key, object));

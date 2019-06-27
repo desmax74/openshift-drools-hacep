@@ -16,32 +16,18 @@
 package org.kie.u212.core.infra.producer;
 
 import java.util.Properties;
-import java.util.concurrent.Future;
 
 import org.apache.kafka.clients.producer.Callback;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 
-public interface Producer<K, V> {
+public interface Producer{
 
     void start(Properties properties);
 
-    void start(KafkaProducer<K, V> kafkaProducer);
-
     void stop();
-
-    Future<RecordMetadata> produceFireAndForget(ProducerRecord<K, V> producerRecord);
-
-    RecordMetadata produceSync(ProducerRecord<K, V> producerRecord);
-
-    void produceAsync(ProducerRecord<K, V> producerRecord,
-                      Callback callback);
 
     void produceFireAndForget(String topicName, String key, Object object);
 
     void produceSync(String topicName, String key, Object object);
 
-    void produceAsync(String topicName, String key, Object object,
-                      Callback callback);
+    void produceAsync(String topicName, String key, Object object, Callback callback);
 }

@@ -109,7 +109,7 @@ public class DroolsConsumerHandler implements ConsumerHandler,
         return kieSession;
     }
 
-    @Override
+
     public void process(ConsumerRecord record, State state, EventConsumer consumer, Queue<Object> sideEffects) {
         RemoteCommand command  = ConverterUtil.deSerializeObjInto((byte[])record.value(), RemoteCommand.class);
         processCommand( command, state );
@@ -119,6 +119,16 @@ public class DroolsConsumerHandler implements ConsumerHandler,
             ControlMessage newControlMessage = new ControlMessage(command.getId(), results);
             producer.produceSync(config.getControlTopicName(), command.getId(), newControlMessage);
         }
+    }
+
+    public void processWithSnapshot(ConsumerRecord record,
+                                    State currentState,
+                                    EventConsumer consumer,
+                                    Queue<Object> sideEffects) {
+        logger.info("SNAPSHOT !!!");
+        // TODO add fhMap to snapshot image
+        snapshooter.serialize(kieSessionHolder.getKieSession(), fhMap, record.key().toString(), record.offset());
+        process(record, currentState, consumer, sideEffects);
     }
 
     private void processCommand( RemoteCommand command, State state ) {
@@ -179,17 +189,6 @@ public class DroolsConsumerHandler implements ConsumerHandler,
             FactCountMessage msg = new FactCountMessage(command.getFactHandle().getId(), kieSessionHolder.getKieSession().getFactCount());
             producer.produceSync(config.getKieSessionInfosTopicName(), command.getFactHandle().getId(), msg);
         }
-    }
-
-    @Override
-    public void processWithSnapshot(ConsumerRecord record,
-                                    State currentState,
-                                    EventConsumer consumer,
-                                    Queue<Object> sideEffects) {
-        logger.info("SNAPSHOT !!!");
-        // TODO add fhMap to snapshot image
-        snapshooter.serialize(kieSessionHolder.getKieSession(), fhMap, record.key().toString(), record.offset());
-        process(record, currentState, consumer, sideEffects);
     }
 
     public SessionSnapShooter getSnapshooter(){
