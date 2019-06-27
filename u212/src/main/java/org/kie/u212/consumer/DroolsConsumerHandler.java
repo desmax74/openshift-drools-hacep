@@ -21,8 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.kie.api.KieServices;
 import org.kie.api.event.rule.DefaultRuleRuntimeEventListener;
 import org.kie.api.event.rule.ObjectDeletedEvent;
@@ -46,6 +44,7 @@ import org.kie.u212.core.infra.SessionSnapShooter;
 import org.kie.u212.core.infra.SnapshotInfos;
 import org.kie.u212.core.infra.consumer.ConsumerHandler;
 import org.kie.u212.core.infra.consumer.EventConsumer;
+import org.kie.u212.core.infra.consumer.ItemToProcess;
 import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.core.infra.producer.Producer;
@@ -110,8 +109,8 @@ public class DroolsConsumerHandler implements ConsumerHandler,
     }
 
 
-    public void process(ConsumerRecord record, State state, EventConsumer consumer, Queue<Object> sideEffects) {
-        RemoteCommand command  = ConverterUtil.deSerializeObjInto((byte[])record.value(), RemoteCommand.class);
+    public void process(ItemToProcess item, State state, EventConsumer consumer, Queue<Object> sideEffects) {
+        RemoteCommand command  = ConverterUtil.deSerializeObjInto((byte[])item.getObject(), RemoteCommand.class);
         processCommand( command, state );
 
         if (state.equals(State.LEADER)) {
@@ -121,14 +120,14 @@ public class DroolsConsumerHandler implements ConsumerHandler,
         }
     }
 
-    public void processWithSnapshot(ConsumerRecord record,
+    public void processWithSnapshot(ItemToProcess item,
                                     State currentState,
                                     EventConsumer consumer,
                                     Queue<Object> sideEffects) {
         logger.info("SNAPSHOT !!!");
         // TODO add fhMap to snapshot image
-        snapshooter.serialize(kieSessionHolder.getKieSession(), fhMap, record.key().toString(), record.offset());
-        process(record, currentState, consumer, sideEffects);
+        snapshooter.serialize(kieSessionHolder.getKieSession(), fhMap, item.getKey(), item.getOffset());
+        process(item, currentState, consumer, sideEffects);
     }
 
     private void processCommand( RemoteCommand command, State state ) {

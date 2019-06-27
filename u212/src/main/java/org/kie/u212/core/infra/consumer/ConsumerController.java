@@ -33,7 +33,6 @@ public class ConsumerController {
                         Config.DEFAULT_POLL_TIMEOUT_MS,
                         Config.LOOP_DURATION,
                         Config.DEFAULT_COMMIT_SYNC,
-                        Config.SUBSCRIBE_MODE,
                         restarter));
         t.start();
     }

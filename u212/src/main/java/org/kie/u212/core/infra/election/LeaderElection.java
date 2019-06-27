@@ -25,7 +25,7 @@ public interface LeaderElection {
 
     boolean amITheLeader();
 
-    void addCallbacks(List<Callback> callbacks);
+    void addCallbacks(List<LeadershipCallback> callbacks);
 
-    boolean removeCallback(Callback callback);
+    boolean removeCallback(LeadershipCallback callback);
 }

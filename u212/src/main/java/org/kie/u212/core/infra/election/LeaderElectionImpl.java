@@ -47,7 +47,7 @@ public class LeaderElectionImpl implements LeaderElection {
     private volatile LeaderInfo latestLeaderInfo;
     private volatile ConfigMap latestConfigMap;
     private volatile Set<String> latestMembers;
-    private List<Callback> callbacks;
+    private List<LeadershipCallback> callbacks;
 
     public LeaderElectionImpl(KubernetesClient kubernetesClient,
                               KubernetesLockConfiguration lockConfiguration) {
@@ -87,12 +87,12 @@ public class LeaderElectionImpl implements LeaderElection {
     }
 
     @Override
-    public void addCallbacks(List<Callback> callbacks) {
+    public void addCallbacks(List<LeadershipCallback> callbacks) {
         this.callbacks.addAll(callbacks);
     }
 
     @Override
-    public boolean removeCallback(Callback callback) {
+    public boolean removeCallback(LeadershipCallback callback) {
         return callbacks.remove(callback);
     }
 
@@ -111,7 +111,7 @@ public class LeaderElectionImpl implements LeaderElection {
                 throw new RuntimeException("Unsupported state " + currentState);
         }
 
-        for (Callback callback : callbacks) {
+        for (LeadershipCallback callback : callbacks) {
             callback.updateStatus(currentState);
         }
     }

@@ -16,15 +16,22 @@
 package org.kie.u212.core.infra.producer;
 
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.kie.u212.ConverterUtil;
+import org.kie.u212.core.infra.election.LeadershipCallback;
 import org.kie.u212.core.infra.election.State;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class EventProducer<T> implements Producer, org.kie.u212.core.infra.election.Callback {
+public class EventProducer<T> implements Producer,
+                                         LeadershipCallback {
 
+    private Logger logger = LoggerFactory.getLogger(EventProducer.class);
     protected org.apache.kafka.clients.producer.Producer<String, T> producer;
 
     private volatile boolean leader = false;
@@ -54,8 +61,16 @@ public class EventProducer<T> implements Producer, org.kie.u212.core.infra.elect
     }
 
 
-    public void produceSync(String topicName, String key, Object object) {
-        producer.send(getFreshProducerRecord(topicName, key, object));
+    public long produceSync(String topicName, String key, Object object) {
+        RecordMetadata recordMetadata = null;
+        try {
+            recordMetadata = producer.send(getFreshProducerRecord(topicName, key, object)).get();
+        } catch (InterruptedException e) {
+            logger.error("Error in produceSync!", e);
+        } catch (ExecutionException e) {
+            logger.error("Error in produceSync!", e);
+        }
+        return  recordMetadata.offset();
     }
 
 

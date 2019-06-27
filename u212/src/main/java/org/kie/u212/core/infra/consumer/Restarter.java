@@ -17,7 +17,7 @@ package org.kie.u212.core.infra.consumer;
 
 import org.kie.u212.EnvConfig;
 import org.kie.u212.core.KieSessionHolder;
-import org.kie.u212.core.infra.election.Callback;
+import org.kie.u212.core.infra.election.LeadershipCallback;
 import org.kie.u212.core.infra.utils.Printer;
 
 /***
@@ -56,7 +56,7 @@ public class Restarter {
         this.consumer = consumer;
     }
 
-    public Callback getCallback() {
+    public LeadershipCallback getCallback() {
         return callback;
     }
 }

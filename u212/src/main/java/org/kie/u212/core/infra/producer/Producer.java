@@ -27,7 +27,7 @@ public interface Producer{
 
     void produceFireAndForget(String topicName, String key, Object object);
 
-    void produceSync(String topicName, String key, Object object);
+    long produceSync(String topicName, String key, Object object);
 
     void produceAsync(String topicName, String key, Object object, Callback callback);
 }

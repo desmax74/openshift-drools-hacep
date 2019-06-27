@@ -20,19 +20,16 @@ public class ConsumerThread implements Runnable {
     private int size;
     private long duration;
     private boolean commitSync;
-    private boolean subscribeMode;
     private Restarter bag;
 
     public ConsumerThread(
             int pollSize,
             long duration,
             boolean commitSync,
-            boolean subscribeMode,
             Restarter bag) {
         this.size = pollSize;
         this.duration = duration;
         this.commitSync = commitSync;
-        this.subscribeMode = subscribeMode;
         this.bag = bag;
     }
 

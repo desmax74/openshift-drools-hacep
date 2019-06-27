@@ -41,7 +41,7 @@ import org.kie.u212.consumer.DroolsExecutor;
 import org.kie.u212.core.infra.OffsetManager;
 import org.kie.u212.core.infra.SessionSnapShooter;
 import org.kie.u212.core.infra.SnapshotInfos;
-import org.kie.u212.core.infra.election.Callback;
+import org.kie.u212.core.infra.election.LeadershipCallback;
 import org.kie.u212.core.infra.election.State;
 import org.kie.u212.core.infra.utils.ConsumerUtils;
 import org.kie.u212.core.infra.utils.Printer;
@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
  * is based on the loop around poll method.
  */
 public class DefaultConsumer<T> implements EventConsumer,
-                                           Callback {
+                                           LeadershipCallback {
 
     private Logger logger = LoggerFactory.getLogger(DefaultConsumer.class);
     private Map<TopicPartition, OffsetAndMetadata> offsetsEvents = new HashMap<>();
@@ -346,12 +346,12 @@ public class DefaultConsumer<T> implements EventConsumer,
             int iteration = counter.incrementAndGet();
             if (iteration == iterationBetweenSnapshot) {
                 counter.set(0);
-                consumerHandle.processWithSnapshot(record,
+                consumerHandle.processWithSnapshot(ItemToProcess.getItemToProcess(record),
                                                    currentState,
                                                    this,
                                                    sideEffects);
             } else {
-                consumerHandle.process(record,
+                consumerHandle.process(ItemToProcess.getItemToProcess(record),
                                        currentState,
                                        this,
                                        sideEffects);
@@ -439,14 +439,14 @@ public class DefaultConsumer<T> implements EventConsumer,
             stopPollingEvents();
             startPollingControl();
             stopProcessingNotLeader();
-            consumerHandle.process(record,
+            consumerHandle.process(ItemToProcess.getItemToProcess(record),
                                    currentState,
                                    this,
                                    sideEffects);
             saveOffset(record, kafkaConsumer);
             logger.info("change topic, switch to consume control");
         } else if (processingNotLeader) {
-            consumerHandle.process(record,
+            consumerHandle.process(ItemToProcess.getItemToProcess(record),
                                    currentState,
                                    this,
                                    sideEffects);

@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 public class Sender {
 
-  private static Logger logger = LoggerFactory.getLogger( RemoteKieSessionImpl.class);
   private EventProducer producer;
   private Properties configuration;
 
@@ -47,13 +46,12 @@ public class Sender {
     producer.stop();
   }
 
-  public void sendCommand( RemoteCommand command, String topicName) {
-    producer.produceSync(topicName, command.getId(),command);
+  public long sendCommand( RemoteCommand command, String topicName) {
+    return producer.produceSync(topicName, command.getId(),command);
   }
 
   // TODO is this useful? I think we should remove it
-  public void insertAsync(Object obj, String topicName,
-                          Callback callback) {
+  public void insertAsync(Object obj, String topicName, Callback callback) {
     ControlMessage event = wrapObject(obj);
     producer.produceAsync(topicName, event.getKey(), event, callback);
   }

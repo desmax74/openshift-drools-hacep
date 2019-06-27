@@ -15,7 +15,7 @@
  */
 package org.kie.u212.core.infra.election;
 
-public interface Callback {
+public interface LeadershipCallback {
 
     void updateStatus(State state);
 }

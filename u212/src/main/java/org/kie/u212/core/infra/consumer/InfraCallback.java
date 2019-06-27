@@ -15,18 +15,17 @@
  */
 package org.kie.u212.core.infra.consumer;
 
-import org.kie.u212.core.infra.election.Callback;
+import org.kie.u212.core.infra.election.LeadershipCallback;
 import org.kie.u212.core.infra.election.State;
 
 /***
  * Callback forwarder from the DroolsBAg
  */
-public class InfraCallback implements Callback {
+public class InfraCallback implements LeadershipCallback {
 
     private DefaultConsumer consumer;
 
-    public InfraCallback() {
-    }
+    public InfraCallback() { }
 
     public void setConsumer(DefaultConsumer newConsumer) {
         this.consumer = newConsumer;
