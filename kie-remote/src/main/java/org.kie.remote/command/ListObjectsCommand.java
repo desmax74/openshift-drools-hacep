@@ -20,7 +20,8 @@ import org.kie.remote.RemoteFactHandle;
 
 public class ListObjectsCommand extends WorkingMemoryActionCommand implements VisitableCommand {
 
-    private ObjectFilter filter;
+    private String namedQuery;
+    private Class clazzType;
 
     /* Empty constructor for serialization */
     public ListObjectsCommand() { }
@@ -29,14 +30,19 @@ public class ListObjectsCommand extends WorkingMemoryActionCommand implements Vi
         super(factHandle, entryPoint);
     }
 
-    public ListObjectsCommand(RemoteFactHandle factHandle, String entryPoint, ObjectFilter filter) {
+    public ListObjectsCommand(RemoteFactHandle factHandle, String entryPoint, String namedQuery) {
         super(factHandle, entryPoint);
-        this.filter = filter;
+        this.namedQuery = namedQuery;
     }
 
-    public ObjectFilter getFilter(){
-        return filter;
+    public ListObjectsCommand(RemoteFactHandle factHandle, String entryPoint, Class clazzType) {
+        super(factHandle, entryPoint);
+        this.clazzType = clazzType;
     }
+
+    public String getNamedQuery() { return namedQuery; }
+
+    public Class getClazzType() { return clazzType; }
 
     @Override
     public void accept(VisitorCommand visitor, boolean execute) { visitor.visit(this, execute); }
@@ -46,9 +52,10 @@ public class ListObjectsCommand extends WorkingMemoryActionCommand implements Vi
 
     @Override
     public String toString() {
-        return "Update of " + getFactHandle() + " from entry-point " + getEntryPoint();
+        final StringBuilder sb = new StringBuilder("ListObjectsCommand{");
+        sb.append(", namedQuery='").append(namedQuery).append('\'');
+        sb.append(", clazzType=").append(clazzType);
+        sb.append('}');
+        return sb.toString();
     }
-
-
-
 }

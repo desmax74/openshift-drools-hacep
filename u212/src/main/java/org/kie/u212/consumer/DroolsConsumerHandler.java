@@ -17,10 +17,13 @@ package org.kie.u212.consumer;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 
+import org.drools.core.ClassObjectFilter;
+import org.drools.core.ObjectFilter;
 import org.kie.api.KieServices;
 import org.kie.api.event.rule.DefaultRuleRuntimeEventListener;
 import org.kie.api.event.rule.ObjectDeletedEvent;
@@ -170,16 +173,32 @@ public class DroolsConsumerHandler implements ConsumerHandler,
     public void visit(ListObjectsCommand command, boolean execute) {
         if(execute) {
             // @TODO StatefulKnowledgeSessionImpl$ObjectStoreWrapper isn't serializable going to create a list with serializable items
-            Collection<? extends Object> objects = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).getObjects(command.getFilter());
-            List serializableItems = new ArrayList<>(objects.size());
-            Iterator<? extends Object> iterator = objects.iterator();
-            while(iterator.hasNext()){
-                Object o = iterator.next();
-                serializableItems.add(o);
-            }
+            List serializableItems = getObjectList(command);
             ListKieSessionObjectMessage msg = new ListKieSessionObjectMessage(command.getFactHandle().getId(), serializableItems);
             producer.produceSync(config.getKieSessionInfosTopicName(), command.getFactHandle().getId(), msg);
         }
+    }
+
+    private List getObjectList(ListObjectsCommand command) {
+        //@TODO refactor
+        Collection<? extends Object> objects = Collections.emptyList();
+        if(command.getClazzType() == null && command.getNamedQuery() == null ){
+            objects = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).getObjects();
+        }else if(command.getClazzType() != null){
+            ObjectFilter filter = ObjectFilterHelper.getObjectFilter(command.getClazzType(), kieSessionHolder.getKieSession());
+            objects = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).getObjects(filter);
+        }else if(command.getNamedQuery() != null){
+            ObjectFilter filter = ObjectFilterHelper.getObjectFilter(command.getNamedQuery(), kieSessionHolder.getKieSession());
+            objects = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).getObjects(filter);
+        }
+        
+        List serializableItems = new ArrayList<>(objects.size());
+        Iterator<? extends Object> iterator = objects.iterator();
+        while(iterator.hasNext()){
+            Object o = iterator.next();
+            serializableItems.add(o);
+        }
+        return serializableItems;
     }
 
     @Override

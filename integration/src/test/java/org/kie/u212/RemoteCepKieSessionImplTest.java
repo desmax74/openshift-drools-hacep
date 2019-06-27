@@ -113,7 +113,7 @@ public class RemoteCepKieSessionImplTest {
     }
 
     @Test @Ignore
-    public void getListKieSessionObjectsWithFilterTest() throws Exception {
+    public void getListKieSessionObjectsWithClassTypeTest() throws Exception {
         Bootstrap.startEngine(new PrinterLogImpl(),
                               config,
                               State.LEADER);
@@ -125,8 +125,31 @@ public class RemoteCepKieSessionImplTest {
             client.listen();
             CompletableFuture<Long> listKieObjectsCallBack = new CompletableFuture<>();
             //@TODO ClassObject filter isn't serializable :-(
-            ObjectFilter filter = new ClassObjectFilter(StockTickEvent.class);
-            client.getObjects(listKieObjectsCallBack, filter);
+            client.getObjects(listKieObjectsCallBack, StockTickEvent.class);
+            Object callbackValue = listKieObjectsCallBack.get(15,
+                                                              TimeUnit.SECONDS);
+            ListKieSessionObjectMessage msg = (ListKieSessionObjectMessage) callbackValue;
+            assertTrue(msg.getObjects().size() == 1);
+            Object obj = msg.getObjects().iterator().next();
+            StockTickEvent event = (StockTickEvent) obj;
+            assertTrue(event.getCompany().equals("RHT"));
+        }
+    }
+
+    @Test @Ignore
+    public void getListKieSessionObjectsWithNamedQueryTest() throws Exception {
+        Bootstrap.startEngine(new PrinterLogImpl(),
+                              config,
+                              State.LEADER);
+        kafkaServerTest.insertBatchStockTicketEvent(1,
+                                                    config,
+                                                    RemoteCepKieSession.class);
+        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig(),
+                                                                          config)) {
+            client.listen();
+            CompletableFuture<Long> listKieObjectsCallBack = new CompletableFuture<>();
+            //@TODO ClassObject filter isn't serializable :-(
+            client.getObjects(listKieObjectsCallBack, "StockTickEvent");
             Object callbackValue = listKieObjectsCallBack.get(15,
                                                               TimeUnit.SECONDS);
             ListKieSessionObjectMessage msg = (ListKieSessionObjectMessage) callbackValue;

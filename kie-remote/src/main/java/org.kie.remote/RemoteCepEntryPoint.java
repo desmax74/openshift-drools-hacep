@@ -17,8 +17,6 @@ package org.kie.remote;
 
 import java.util.concurrent.CompletableFuture;
 
-import org.kie.api.runtime.ObjectFilter;
-
 public interface RemoteCepEntryPoint<T> {
 
     /**
@@ -49,12 +47,6 @@ public interface RemoteCepEntryPoint<T> {
      * @param  callback to read all facts from the current session as a Collection.
      */
     void getObjects(CompletableFuture<T> callback);
-
-    /**
-     * @param filter the filter to be applied to the returned collection of facts.
-     * @@param  callback to read all facts from the current session that are accepted by the given <code>ObjectFilter</code>.
-     */
-    void getObjects(CompletableFuture<T> callback, ObjectFilter filter);
 
 
     /**

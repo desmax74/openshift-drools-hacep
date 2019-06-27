@@ -61,21 +61,17 @@ public class RemoteCepEntryPointImpl<T> implements RemoteCepEntryPoint {
     }
 
     @Override
-    public void getObjects(CompletableFuture callback, ObjectFilter filter) {
-        ListObjectsCommand command = new ListObjectsCommand(createStoreAndGetRemoteFactHandle(callback), entryPoint, filter);
+    public void getObjects(CompletableFuture callback,
+                           Class clazztype) {
+        ListObjectsCommand command = new ListObjectsCommand(createStoreAndGetRemoteFactHandle(callback), entryPoint, clazztype);
         sender.sendCommand(command, envConfig.getEventsTopicName());
     }
 
     @Override
     public void getObjects(CompletableFuture callback,
-                           Class clazztype) {
-        //@TODO
-    }
-
-    @Override
-    public void getObjects(CompletableFuture callback,
                            String namedQuery) {
-        //@TODO
+        ListObjectsCommand command = new ListObjectsCommand(createStoreAndGetRemoteFactHandle(callback), entryPoint, namedQuery);
+        sender.sendCommand(command, envConfig.getEventsTopicName());
     }
 
     @Override
