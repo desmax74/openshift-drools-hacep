@@ -16,15 +16,12 @@
 package org.kie.u212.producer;
 
 import java.util.Properties;
-import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
-import org.apache.kafka.clients.producer.Callback;
 import org.kie.remote.RemoteCommand;
 import org.kie.u212.ClientUtils;
 import org.kie.u212.core.infra.producer.EventProducer;
 import org.kie.u212.model.ControlMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Sender {
 
@@ -51,9 +48,9 @@ public class Sender {
   }
 
   // TODO is this useful? I think we should remove it
-  public void insertAsync(Object obj, String topicName, Callback callback) {
-    ControlMessage event = wrapObject(obj);
-    producer.produceAsync(topicName, event.getKey(), event, callback);
+  public void insertAsync(Object obj, String topicName, CompletableFuture callback) {
+    ControlMessage event = ( ControlMessage ) obj;
+    producer.produceAsync(topicName, event.getKey(), event, new KafkaCallbackTranslator(callback));
   }
 
   public void insertFireAndForget(Object obj, String topicName) {
@@ -61,8 +58,4 @@ public class Sender {
     producer.produceFireAndForget(topicName, event.getKey(), event);
   }
 
-  private ControlMessage wrapObject( Object obj){
-    ControlMessage event = new ControlMessage(UUID.randomUUID().toString(), 0l);
-    return  event;
-  }
 }

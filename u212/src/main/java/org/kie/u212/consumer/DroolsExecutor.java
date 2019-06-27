@@ -21,12 +21,7 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.function.Supplier;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public abstract class DroolsExecutor {
-
-    private static final Logger logger = LoggerFactory.getLogger(DroolsExecutor.class);
 
     private static boolean isMaster;
 
