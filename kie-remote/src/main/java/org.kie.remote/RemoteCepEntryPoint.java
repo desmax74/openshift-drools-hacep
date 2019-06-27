@@ -56,6 +56,20 @@ public interface RemoteCepEntryPoint<T> {
      */
     void getObjects(CompletableFuture<T> callback, ObjectFilter filter);
 
+
+    /**
+     * @param clazztype the filter to be applied to the returned collection of facts.
+     * @@param  callback to read all facts from the current session that are accepted by the given <code>ObjectFilter</code>.
+     */
+    void getObjects(CompletableFuture<T> callback, Class clazztype);
+
+
+    /**
+     * @param namedQuery the filter to be applied to the returned collection of facts.
+     * @@param  callback to read all facts from the current session that are accepted by the given <code>ObjectFilter</code>.
+     */
+    void getObjects(CompletableFuture<T> callback, String namedQuery);
+
     /**
      * @param callback to read the total number of facts currently in this entry point
      */

@@ -67,6 +67,18 @@ public class RemoteCepEntryPointImpl<T> implements RemoteCepEntryPoint {
     }
 
     @Override
+    public void getObjects(CompletableFuture callback,
+                           Class clazztype) {
+        //@TODO
+    }
+
+    @Override
+    public void getObjects(CompletableFuture callback,
+                           String namedQuery) {
+        //@TODO
+    }
+
+    @Override
     public void getFactCount(CompletableFuture callback) {
         FactCountCommand command = new FactCountCommand(createStoreAndGetRemoteFactHandle(callback), entryPoint );
         sender.sendCommand(command, envConfig.getEventsTopicName());
