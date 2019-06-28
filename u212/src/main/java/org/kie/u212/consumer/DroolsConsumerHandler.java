@@ -17,12 +17,10 @@ package org.kie.u212.consumer;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 
-import org.drools.core.ClassObjectFilter;
 import org.drools.core.ObjectFilter;
 import org.kie.api.KieServices;
 import org.kie.api.event.rule.DefaultRuleRuntimeEventListener;
@@ -36,6 +34,8 @@ import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.command.DeleteCommand;
 import org.kie.remote.command.FactCountCommand;
 import org.kie.remote.command.InsertCommand;
+import org.kie.remote.command.ListObjectsCommandClassType;
+import org.kie.remote.command.ListObjectsCommandNamedQuery;
 import org.kie.remote.command.ListObjectsCommand;
 import org.kie.remote.command.UpdateCommand;
 import org.kie.remote.command.VisitableCommand;
@@ -112,6 +112,11 @@ public class DroolsConsumerHandler implements ConsumerHandler,
     }
 
 
+    public SessionSnapShooter getSnapshooter(){
+        return snapshooter;
+    }
+
+
     public void process(ItemToProcess item, State state, EventConsumer consumer, Queue<Object> sideEffects) {
         RemoteCommand command  = ConverterUtil.deSerializeObjInto((byte[])item.getObject(), RemoteCommand.class);
         processCommand( command, state );
@@ -122,6 +127,7 @@ public class DroolsConsumerHandler implements ConsumerHandler,
             producer.produceSync(config.getControlTopicName(), command.getId(), newControlMessage);
         }
     }
+
 
     public void processWithSnapshot(ItemToProcess item,
                                     State currentState,
@@ -138,6 +144,7 @@ public class DroolsConsumerHandler implements ConsumerHandler,
         VisitableCommand visitable = (VisitableCommand) command;
         visitable.accept(this, execute);
     }
+
 
     @Override
     public void visit(InsertCommand command, boolean execute) {
@@ -159,6 +166,7 @@ public class DroolsConsumerHandler implements ConsumerHandler,
         }
     }
 
+
     @Override
     public void visit(UpdateCommand command, boolean execute) {
         if(execute) {
@@ -169,10 +177,10 @@ public class DroolsConsumerHandler implements ConsumerHandler,
         }
     }
 
+
     @Override
     public void visit(ListObjectsCommand command, boolean execute) {
         if(execute) {
-            // @TODO StatefulKnowledgeSessionImpl$ObjectStoreWrapper isn't serializable going to create a list with serializable items
             List serializableItems = getObjectList(command);
             ListKieSessionObjectMessage msg = new ListKieSessionObjectMessage(command.getFactHandle().getId(), serializableItems);
             producer.produceSync(config.getKieSessionInfosTopicName(), command.getFactHandle().getId(), msg);
@@ -180,26 +188,52 @@ public class DroolsConsumerHandler implements ConsumerHandler,
     }
 
     private List getObjectList(ListObjectsCommand command) {
-        //@TODO refactor
-        Collection<? extends Object> objects = Collections.emptyList();
-        if(command.getClazzType() == null && command.getNamedQuery() == null ){
-            objects = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).getObjects();
-        }else if(command.getClazzType() != null){
-            ObjectFilter filter = ObjectFilterHelper.getObjectFilter(command.getClazzType(), kieSessionHolder.getKieSession());
-            objects = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).getObjects(filter);
-        }else if(command.getNamedQuery() != null){
-            ObjectFilter filter = ObjectFilterHelper.getObjectFilter(command.getNamedQuery(), kieSessionHolder.getKieSession());
-            objects = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).getObjects(filter);
+        Collection<? extends Object> objects = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).getObjects();
+        return getListFromSerializableCollection(objects);
+    }
+
+
+    @Override
+    public void visit(ListObjectsCommandClassType command, boolean execute) {
+        if(execute) {
+            List serializableItems = getSerializableItemsByClassType(command);
+            ListKieSessionObjectMessage msg = new ListKieSessionObjectMessage(command.getFactHandle().getId(), serializableItems);
+            producer.produceSync(config.getKieSessionInfosTopicName(), command.getFactHandle().getId(), msg);
         }
-        
+    }
+
+    private List getSerializableItemsByClassType(ListObjectsCommandClassType command) {
+        ObjectFilter filter = ObjectFilterHelper.getObjectFilter(command.getClazzType(), kieSessionHolder.getKieSession());
+        Collection<? extends Object> objects = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).getObjects(filter);
+        return getListFromSerializableCollection(objects);
+    }
+
+    private List getListFromSerializableCollection(Collection<?> objects) {
         List serializableItems = new ArrayList<>(objects.size());
         Iterator<? extends Object> iterator = objects.iterator();
-        while(iterator.hasNext()){
+        while (iterator.hasNext()) {
             Object o = iterator.next();
             serializableItems.add(o);
         }
         return serializableItems;
     }
+
+
+    @Override
+    public void visit(ListObjectsCommandNamedQuery command, boolean execute) {
+        if(execute) {
+            List serializableItems = getSerializableItemsByNamedQuery(command);
+            ListKieSessionObjectMessage msg = new ListKieSessionObjectMessage(command.getFactHandle().getId(), serializableItems);
+            producer.produceSync(config.getKieSessionInfosTopicName(), command.getFactHandle().getId(), msg);
+        }
+    }
+
+    private List getSerializableItemsByNamedQuery(ListObjectsCommandNamedQuery command) {
+        ObjectFilter filter = ObjectFilterHelper.getObjectFilter(command.getNamedQuery(), kieSessionHolder.getKieSession());
+        Collection<? extends Object> objects = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).getObjects(filter);
+        return getListFromSerializableCollection(objects);
+    }
+
 
     @Override
     public void visit(FactCountCommand command, boolean execute) {
@@ -208,10 +242,5 @@ public class DroolsConsumerHandler implements ConsumerHandler,
             producer.produceSync(config.getKieSessionInfosTopicName(), command.getFactHandle().getId(), msg);
         }
     }
-
-    public SessionSnapShooter getSnapshooter(){
-        return snapshooter;
-    }
-
 
 }

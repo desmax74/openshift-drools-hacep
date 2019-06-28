@@ -17,22 +17,25 @@ package org.kie.remote.command;
 
 import org.kie.remote.RemoteFactHandle;
 
-public class FactCountCommand extends WorkingMemoryActionCommand implements VisitableCommand {
+public class ListObjectsCommandClassType extends ListObjectsCommand implements VisitableCommand{
 
-    public FactCountCommand(RemoteFactHandle factHandle, String entryPoint) {
+    private Class clazzType;
+
+    public ListObjectsCommandClassType(RemoteFactHandle factHandle, String entryPoint, Class clazzType) {
         super(factHandle, entryPoint);
+        this.clazzType = clazzType;
     }
+
+    public Class getClazzType() { return clazzType; }
 
     @Override
     public void accept(VisitorCommand visitor, boolean execute) { visitor.visit(this, execute); }
 
     @Override
-    public boolean isPermittedForReplicas() { return false; }
-
-    @Override
     public String toString() {
-        return "Fact count of " + getFactHandle() + " from entry-point " + getEntryPoint();
+        final StringBuilder sb = new StringBuilder("ListObjectCommandClassType{");
+        sb.append("clazzType=").append(clazzType);
+        sb.append('}');
+        return sb.toString();
     }
-
 }
-

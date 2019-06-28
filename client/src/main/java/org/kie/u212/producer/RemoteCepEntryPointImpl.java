@@ -19,11 +19,12 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.kie.api.runtime.ObjectFilter;
 import org.kie.remote.RemoteCepEntryPoint;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.command.FactCountCommand;
 import org.kie.remote.command.InsertCommand;
+import org.kie.remote.command.ListObjectsCommandClassType;
+import org.kie.remote.command.ListObjectsCommandNamedQuery;
 import org.kie.remote.command.ListObjectsCommand;
 import org.kie.remote.impl.RemoteFactHandleImpl;
 import org.kie.u212.EnvConfig;
@@ -63,14 +64,14 @@ public class RemoteCepEntryPointImpl<T> implements RemoteCepEntryPoint {
     @Override
     public void getObjects(CompletableFuture callback,
                            Class clazztype) {
-        ListObjectsCommand command = new ListObjectsCommand(createStoreAndGetRemoteFactHandle(callback), entryPoint, clazztype);
+        ListObjectsCommand command = new ListObjectsCommandClassType(createStoreAndGetRemoteFactHandle(callback), entryPoint, clazztype);
         sender.sendCommand(command, envConfig.getEventsTopicName());
     }
 
     @Override
     public void getObjects(CompletableFuture callback,
                            String namedQuery) {
-        ListObjectsCommand command = new ListObjectsCommand(createStoreAndGetRemoteFactHandle(callback), entryPoint, namedQuery);
+        ListObjectsCommand command = new ListObjectsCommandNamedQuery(createStoreAndGetRemoteFactHandle(callback), entryPoint, namedQuery);
         sender.sendCommand(command, envConfig.getEventsTopicName());
     }
 

@@ -20,9 +20,6 @@ import org.kie.remote.RemoteFactHandle;
 
 public class InsertCommand extends WorkingMemoryActionCommand implements VisitableCommand {
 
-    /* Empty constructor for serialization */
-    public InsertCommand() { }
-
     public InsertCommand(RemoteFactHandle factHandle, String entryPoint ) {
         super(factHandle, entryPoint);
     }

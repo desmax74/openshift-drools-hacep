@@ -20,9 +20,6 @@ import org.kie.remote.RemoteFactHandle;
 
 public class DeleteCommand extends WorkingMemoryActionCommand implements VisitableCommand {
 
-    /* Empty constructor for serialization */
-    public DeleteCommand() { }
-
     public DeleteCommand(RemoteFactHandle factHandle, String entryPoint ) {
         super(factHandle, entryPoint);
     }

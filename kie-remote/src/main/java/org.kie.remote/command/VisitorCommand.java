@@ -25,6 +25,10 @@ public interface VisitorCommand {
 
     void visit(ListObjectsCommand command, boolean execute);
 
+    void visit(ListObjectsCommandClassType command, boolean execute);
+
+    void visit(ListObjectsCommandNamedQuery command, boolean execute);
+
     void visit(FactCountCommand command, boolean execute);
 
 }

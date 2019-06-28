@@ -17,22 +17,25 @@ package org.kie.remote.command;
 
 import org.kie.remote.RemoteFactHandle;
 
-public class FactCountCommand extends WorkingMemoryActionCommand implements VisitableCommand {
+public class ListObjectsCommandNamedQuery extends ListObjectsCommand implements VisitableCommand{
 
-    public FactCountCommand(RemoteFactHandle factHandle, String entryPoint) {
+    private String namedQuery;
+
+    public ListObjectsCommandNamedQuery(RemoteFactHandle factHandle, String entryPoint, String namedQuery) {
         super(factHandle, entryPoint);
+        this.namedQuery = namedQuery;
     }
+
+    public String getNamedQuery() { return namedQuery; }
 
     @Override
     public void accept(VisitorCommand visitor, boolean execute) { visitor.visit(this, execute); }
 
     @Override
-    public boolean isPermittedForReplicas() { return false; }
-
-    @Override
     public String toString() {
-        return "Fact count of " + getFactHandle() + " from entry-point " + getEntryPoint();
+        final StringBuilder sb = new StringBuilder("ListObjectCommandNamedQuery{");
+        sb.append("namedQuery='").append(namedQuery).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
-
 }
-

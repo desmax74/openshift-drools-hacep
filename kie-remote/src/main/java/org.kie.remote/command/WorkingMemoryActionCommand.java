@@ -21,11 +21,9 @@ import java.util.UUID;
 import org.kie.remote.RemoteFactHandle;
 
 public abstract class WorkingMemoryActionCommand extends AbstractCommand {
+
     private RemoteFactHandle factHandle;
     private String entryPoint;
-
-    /* Empty constructor for serialization */
-    public WorkingMemoryActionCommand() { }
 
     public WorkingMemoryActionCommand( RemoteFactHandle factHandle, String entryPoint ) {
         super( UUID.randomUUID().toString() );
