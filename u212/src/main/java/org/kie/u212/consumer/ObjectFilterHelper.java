@@ -16,29 +16,32 @@
 
 package org.kie.u212.consumer;
 
-import org.drools.core.ObjectFilter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import org.drools.core.ClassObjectFilter;
+import org.kie.api.command.Command;
+import org.kie.api.runtime.ExecutionResults;
 import org.kie.api.runtime.KieSession;
+import org.kie.internal.command.CommandFactory;
 
 public class ObjectFilterHelper {
 
-
-    public static ObjectFilter getObjectFilter(String namedQuery, KieSession kieSession){
-        //@TODO
-        return new ObjectFilter() {
-            @Override
-            public boolean accept(Object o) {
-                return false;
-            }
-        };
+    //@TODO WIP
+    public static Collection<? extends Object> getObjectsFilterByNamedQuery(String namedQuery, KieSession kieSession){
+        List<Object> result = new ArrayList<>();
+        List<Command> commands = Arrays.asList(CommandFactory.newQuery(namedQuery, namedQuery ));
+        ExecutionResults results = kieSession.execute(CommandFactory.newBatchExecution(commands ));
+        Collection<String> identifiers  = results.getIdentifiers();
+        for(String identifier: identifiers){
+            result.add(results.getValue(identifier));
+        }
+        return result;
     }
 
-    public static ObjectFilter getObjectFilter(Class clazzType, KieSession kieSession){
-        //@TODO
-        return new ObjectFilter() {
-            @Override
-            public boolean accept(Object o) {
-                return false;
-            }
-        };
+    public static Collection<? extends Object> getObjectsFilterByClassType(Class clazzType, KieSession kieSession){
+        return kieSession.getObjects(new ClassObjectFilter(clazzType));
     }
 }

@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.drools.core.ObjectFilter;
 import org.kie.api.runtime.rule.FactHandle;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.command.DeleteCommand;
@@ -111,8 +110,7 @@ public class CommandHandler implements VisitorCommand {
     }
 
     private List getSerializableItemsByClassType(ListObjectsCommandClassType command) {
-        ObjectFilter filter = ObjectFilterHelper.getObjectFilter(command.getClazzType(), kieSessionHolder.getKieSession());
-        Collection<? extends Object> objects = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).getObjects(filter);
+        Collection<? extends Object> objects = ObjectFilterHelper.getObjectsFilterByClassType(command.getClazzType(), kieSessionHolder.getKieSession());
         return getListFromSerializableCollection(objects);
     }
 
@@ -137,8 +135,7 @@ public class CommandHandler implements VisitorCommand {
     }
 
     private List getSerializableItemsByNamedQuery(ListObjectsCommandNamedQuery command) {
-        ObjectFilter filter = ObjectFilterHelper.getObjectFilter(command.getNamedQuery(), kieSessionHolder.getKieSession());
-        Collection<? extends Object> objects = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).getObjects(filter);
+        Collection<? extends Object> objects = ObjectFilterHelper.getObjectsFilterByNamedQuery(command.getNamedQuery(), kieSessionHolder.getKieSession());
         return getListFromSerializableCollection(objects);
     }
 

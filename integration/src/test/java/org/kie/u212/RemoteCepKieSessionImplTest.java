@@ -112,7 +112,7 @@ public class RemoteCepKieSessionImplTest {
         }
     }
 
-    @Test @Ignore
+    @Test
     public void getListKieSessionObjectsWithClassTypeTest() throws Exception {
         Bootstrap.startEngine(new PrinterLogImpl(),
                               config,
@@ -124,10 +124,8 @@ public class RemoteCepKieSessionImplTest {
                                                                           config)) {
             client.listen();
             CompletableFuture<Long> listKieObjectsCallBack = new CompletableFuture<>();
-            //@TODO ClassObject filter isn't serializable :-(
             client.getObjects(listKieObjectsCallBack, StockTickEvent.class);
-            Object callbackValue = listKieObjectsCallBack.get(15,
-                                                              TimeUnit.SECONDS);
+            Object callbackValue = listKieObjectsCallBack.get(15, TimeUnit.SECONDS);
             ListKieSessionObjectMessage msg = (ListKieSessionObjectMessage) callbackValue;
             assertTrue(msg.getObjects().size() == 1);
             Object obj = msg.getObjects().iterator().next();
@@ -148,8 +146,7 @@ public class RemoteCepKieSessionImplTest {
                                                                           config)) {
             client.listen();
             CompletableFuture<Long> listKieObjectsCallBack = new CompletableFuture<>();
-            //@TODO ClassObject filter isn't serializable :-(
-            client.getObjects(listKieObjectsCallBack, "StockTickEvent");
+            client.getObjects(listKieObjectsCallBack, "StockTickEventQuery");
             Object callbackValue = listKieObjectsCallBack.get(15,
                                                               TimeUnit.SECONDS);
             ListKieSessionObjectMessage msg = (ListKieSessionObjectMessage) callbackValue;
