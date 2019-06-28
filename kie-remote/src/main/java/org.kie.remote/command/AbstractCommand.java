@@ -22,9 +22,6 @@ public abstract class AbstractCommand implements RemoteCommand {
 
     private String id;
 
-    /* Empty constructor for serialization */
-    public AbstractCommand() { }
-
     protected AbstractCommand(String id) {
         this.id = id;
     }
