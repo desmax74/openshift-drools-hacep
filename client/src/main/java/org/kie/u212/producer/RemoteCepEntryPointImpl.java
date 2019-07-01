@@ -70,8 +70,8 @@ public class RemoteCepEntryPointImpl<T> implements RemoteCepEntryPoint {
 
     @Override
     public void getObjects(CompletableFuture callback,
-                           String namedQuery) {
-        ListObjectsCommand command = new ListObjectsCommandNamedQuery(createStoreAndGetRemoteFactHandle(callback), entryPoint, namedQuery);
+                           String namedQuery, String objectName, Object[] params) {
+        ListObjectsCommand command = new ListObjectsCommandNamedQuery(createStoreAndGetRemoteFactHandle(callback), entryPoint, namedQuery, objectName, params);
         sender.sendCommand(command, envConfig.getEventsTopicName());
     }
 

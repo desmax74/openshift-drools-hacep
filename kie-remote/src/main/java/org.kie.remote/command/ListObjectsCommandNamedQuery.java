@@ -15,26 +15,45 @@
  */
 package org.kie.remote.command;
 
+import java.util.Arrays;
+
 import org.kie.remote.RemoteFactHandle;
 
 public class ListObjectsCommandNamedQuery extends ListObjectsCommand implements VisitableCommand{
 
     private String namedQuery;
+    private String objectName;
+    private Object[] params;
 
-    public ListObjectsCommandNamedQuery(RemoteFactHandle factHandle, String entryPoint, String namedQuery) {
+    public ListObjectsCommandNamedQuery(RemoteFactHandle factHandle, String entryPoint, String namedQuery,
+                                        String objectName,
+                                        Object[] params) {
         super(factHandle, entryPoint);
         this.namedQuery = namedQuery;
+        this.namedQuery = namedQuery;
+        this.objectName = objectName;
+        this.params = params;
     }
 
     public String getNamedQuery() { return namedQuery; }
+
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public Object[] getParams() {
+        return params;
+    }
 
     @Override
     public void accept(VisitorCommand visitor, boolean execute) { visitor.visit(this, execute); }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ListObjectCommandNamedQuery{");
+        final StringBuilder sb = new StringBuilder("ListObjectsCommandNamedQuery{");
         sb.append("namedQuery='").append(namedQuery).append('\'');
+        sb.append(", objectName='").append(objectName).append('\'');
+        sb.append(", params=").append(Arrays.toString(params));
         sb.append('}');
         return sb.toString();
     }

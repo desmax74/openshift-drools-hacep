@@ -134,7 +134,7 @@ public class RemoteCepKieSessionImplTest {
         }
     }
 
-    @Test @Ignore
+    @Test
     public void getListKieSessionObjectsWithNamedQueryTest() throws Exception {
         Bootstrap.startEngine(new PrinterLogImpl(),
                               config,
@@ -145,11 +145,20 @@ public class RemoteCepKieSessionImplTest {
         try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig(),
                                                                           config)) {
             client.listen();
+
             CompletableFuture<Long> listKieObjectsCallBack = new CompletableFuture<>();
-            client.getObjects(listKieObjectsCallBack, "StockTickEventQuery");
+            client.getObjects(listKieObjectsCallBack, "stockTickEventQuery" , "stock", new Object[]{"IBM"});
             Object callbackValue = listKieObjectsCallBack.get(15,
                                                               TimeUnit.SECONDS);
             ListKieSessionObjectMessage msg = (ListKieSessionObjectMessage) callbackValue;
+            assertTrue(msg.getObjects().size() == 0);
+
+
+            listKieObjectsCallBack = new CompletableFuture<>();
+            client.getObjects(listKieObjectsCallBack, "stockTickEventQuery" , "stock", new Object[]{"RHT"});
+            callbackValue = listKieObjectsCallBack.get(15,
+                                                              TimeUnit.SECONDS);
+            msg = (ListKieSessionObjectMessage) callbackValue;
             assertTrue(msg.getObjects().size() == 1);
             Object obj = msg.getObjects().iterator().next();
             StockTickEvent event = (StockTickEvent) obj;

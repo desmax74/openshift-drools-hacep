@@ -19,26 +19,28 @@ package org.kie.u212.consumer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.drools.core.ClassObjectFilter;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.ExecutionResults;
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.rule.QueryResults;
+import org.kie.api.runtime.rule.QueryResultsRow;
 import org.kie.internal.command.CommandFactory;
 
 public class ObjectFilterHelper {
 
-    //@TODO WIP
-    public static Collection<? extends Object> getObjectsFilterByNamedQuery(String namedQuery, KieSession kieSession){
-        List<Object> result = new ArrayList<>();
-        List<Command> commands = Arrays.asList(CommandFactory.newQuery(namedQuery, namedQuery ));
-        ExecutionResults results = kieSession.execute(CommandFactory.newBatchExecution(commands ));
-        Collection<String> identifiers  = results.getIdentifiers();
-        for(String identifier: identifiers){
-            result.add(results.getValue(identifier));
+    public static Collection<? extends Object> getObjectsFilterByNamedQuery(String namedQuery, String objectName, Object[] params, KieSession kieSession){
+        QueryResults results = kieSession.getQueryResults(namedQuery, params);
+        Iterator<QueryResultsRow> rowsIter = results.iterator();
+        List objects = new ArrayList(results.size());
+        while(rowsIter.hasNext()){
+            QueryResultsRow row = rowsIter.next();
+            objects.add(row.get(objectName));
         }
-        return result;
+        return objects;
     }
 
     public static Collection<? extends Object> getObjectsFilterByClassType(Class clazzType, KieSession kieSession){

@@ -58,9 +58,12 @@ public interface RemoteCepEntryPoint<T> {
 
     /**
      * @param namedQuery the filter to be applied to the returned collection of facts.
-     * @@param  callback to read all facts from the current session that are accepted by the given <code>ObjectFilter</code>.
+     * @@param callback to read all facts from the current session that are accepted by the given <code>ObjectFilter</code>.
+     * @@param namedQuery name of the query to call
+     * @@param objectName name of the object to read from the QueryResultsRow
+     * @@param params for the rule
      */
-    void getObjects(CompletableFuture<T> callback, String namedQuery);
+    void getObjects(CompletableFuture<T> callback, String namedQuery, String objectName, Object[] params);
 
     /**
      * @param callback to read the total number of facts currently in this entry point

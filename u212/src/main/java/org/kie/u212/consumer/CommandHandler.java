@@ -135,7 +135,10 @@ public class CommandHandler implements VisitorCommand {
     }
 
     private List getSerializableItemsByNamedQuery(ListObjectsCommandNamedQuery command) {
-        Collection<? extends Object> objects = ObjectFilterHelper.getObjectsFilterByNamedQuery(command.getNamedQuery(), kieSessionHolder.getKieSession());
+        Collection<? extends Object> objects = ObjectFilterHelper.getObjectsFilterByNamedQuery(command.getNamedQuery(),
+                                                                                               command.getObjectName(),
+                                                                                               command.getParams(),
+                                                                                               kieSessionHolder.getKieSession());
         return getListFromSerializableCollection(objects);
     }
 
