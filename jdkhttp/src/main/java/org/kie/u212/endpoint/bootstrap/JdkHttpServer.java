@@ -23,7 +23,6 @@ import java.util.Map;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import org.kie.u212.Config;
 import org.kie.u212.EnvConfig;
 import org.kie.u212.core.Bootstrap;
 import org.kie.u212.core.infra.utils.PrinterLogImpl;

@@ -82,5 +82,17 @@ public final class EnvConfig {
     public String getSnapshotTopicName() { return snapshotTopicName; }
 
     public String getKieSessionInfosTopicName() { return kieSessionInfosTopicName; }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("EnvConfig{");
+        sb.append("namespace='").append(namespace).append('\'');
+        sb.append(", eventsTopicName='").append(eventsTopicName).append('\'');
+        sb.append(", controlTopicName='").append(controlTopicName).append('\'');
+        sb.append(", snapshotTopicName='").append(snapshotTopicName).append('\'');
+        sb.append(", kieSessionInfosTopicName='").append(kieSessionInfosTopicName).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }
 

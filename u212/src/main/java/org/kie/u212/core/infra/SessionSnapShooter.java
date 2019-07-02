@@ -28,8 +28,6 @@ import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.kie.api.KieServices;
@@ -44,7 +42,6 @@ import org.kie.u212.Config;
 import org.kie.u212.ConverterUtil;
 import org.kie.u212.EnvConfig;
 import org.kie.u212.core.infra.producer.EventProducer;
-import org.kie.u212.core.infra.utils.RecordMetadataUtil;
 import org.kie.u212.model.SnapshotMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,8 +60,6 @@ public class SessionSnapShooter {
         KieServices srv = KieServices.get();
         if(srv != null){
             kieContainer = srv.newKieClasspathContainer();
-            producer = new EventProducer<>();
-            producer.start(Config.getSnapshotProducerConfig());
             configConsumer();
         }else{
             logger.error("KieServices is null");
@@ -72,6 +67,10 @@ public class SessionSnapShooter {
     }
 
     public void serialize( KieSession kSession, Map<RemoteFactHandle, FactHandle> fhMap, String lastInsertedEventkey, long lastInsertedEventOffset) {
+        if(producer == null){
+            producer = new EventProducer<>();
+            producer.start(Config.getSnapshotProducerConfig());
+        }
         KieMarshallers marshallers = KieServices.get().getMarshallers();
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             marshallers.newMarshaller(kSession.getKieBase()).marshall(out, kSession);

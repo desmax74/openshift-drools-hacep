@@ -88,9 +88,9 @@ public class DefaultConsumer<T> implements EventConsumer,
     public void createConsumer(ConsumerHandler consumerHandler) {
         this.consumerHandle = consumerHandler;
         snapShooter = ((DroolsConsumerHandler)consumerHandle).getSnapshooter();
-        kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
+        kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));
         if (!leader) {
-            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
+            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
         }
     }
 
@@ -99,19 +99,19 @@ public class DefaultConsumer<T> implements EventConsumer,
         this.snapshotInfos = infos;
         this.consumerHandle = consumerHandler;
         snapShooter = ((DroolsConsumerHandler)consumerHandle).getSnapshooter();
-        kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
+        kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));
         if (!leader) {
-            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
+            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
         }
     }
 
     public void restartConsumer() {
         logger.info("Restart Consumers");
         snapshotInfos = snapShooter.deserialize();
-        kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
+        kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));
         assign(null);
         if (!leader) {
-            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
+            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
         } else {
             kafkaSecondaryConsumer = null;
         }
@@ -266,18 +266,19 @@ public class DefaultConsumer<T> implements EventConsumer,
     private void enableConsumeAndStartLoop(State state) {
         if (state.equals(State.LEADER) && !leader) {
             leader = true;
+            checkAndStopSecondaryConsumer();
             DroolsExecutor.setAsMaster();
             stopLeaderProcessing();// we starts to processing only when the last key readed on bootstrap is reached
         } else if (state.equals(State.REPLICA) && leader) {
             leader = false;
-            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
+            checksAndStartSecondaryConsumer();
             DroolsExecutor.setAsSlave();
             startProcessingNotLeader();
             startPollingEvents();
             stopPollingControl();
         } else if (state.equals(State.REPLICA) && !leader) {
             leader = false;
-            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig());
+            checksAndStartSecondaryConsumer();
             DroolsExecutor.setAsSlave();
             startProcessingNotLeader();
             stopPollingEvents();
@@ -286,10 +287,24 @@ public class DefaultConsumer<T> implements EventConsumer,
             leader = true;
             DroolsExecutor.setAsMaster();
             stopLeaderProcessing();
+            checkAndStopSecondaryConsumer();
         }
 
         setLastProcessedKey();
         assignAndStartConsume();
+    }
+
+    private void checksAndStartSecondaryConsumer() {
+        if(kafkaSecondaryConsumer == null) {
+            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
+        }
+    }
+
+    private void checkAndStopSecondaryConsumer() {
+        if (kafkaSecondaryConsumer != null) {
+            kafkaSecondaryConsumer.wakeup();
+            kafkaSecondaryConsumer = null;
+        }
     }
 
     private void setLastProcessedKey() {

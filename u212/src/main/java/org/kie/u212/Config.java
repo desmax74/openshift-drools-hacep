@@ -70,11 +70,11 @@ public class Config {
         return getDefaultConfigFromProps(CONF);
     }
 
-    public static Properties getConsumerConfig() {
+    public static Properties getConsumerConfig(String caller) {
         if(consumerConf == null){
             consumerConf = getDefaultConfigFromProps(CONSUMER_CONF);
         }
-        logConfig(consumerConf);
+        logConfig(caller, consumerConf);
         return consumerConf;
     }
 
@@ -82,7 +82,7 @@ public class Config {
         if(producerConf == null){
             producerConf = getDefaultConfigFromProps(PRODUCER_CONF);
         }
-        logConfig(producerConf);
+        logConfig("Producer", producerConf);
         return producerConf;
     }
 
@@ -90,7 +90,7 @@ public class Config {
         if(snapshotConsumerConf == null){
             snapshotConsumerConf = getDefaultConfigFromProps(SNAPSHOT_CONSUMER_CONF);
         }
-        logConfig(snapshotConsumerConf);
+        logConfig("SnapshotConsumer", snapshotConsumerConf);
         return snapshotConsumerConf;
     }
 
@@ -98,7 +98,7 @@ public class Config {
         if(snapshotProducerConf == null){
             snapshotProducerConf = getDefaultConfigFromProps(SNAPSHOT_PRODUCER_CONF);
         }
-        logConfig(snapshotProducerConf);
+        logConfig("SnapshotProducer",snapshotProducerConf);
         return snapshotProducerConf;
     }
 
@@ -143,12 +143,16 @@ public class Config {
         return config;
     }
 
-    private static void logConfig(Properties producerProperties) {
+    private static void logConfig(String subject, Properties producerProperties) {
         if (logger.isInfoEnabled()) {
             StringBuilder sb = new StringBuilder();
+            sb.append("\n");
+            sb.append(subject);
+            sb.append("\n{\n");
             for (Map.Entry<Object, Object> entry : producerProperties.entrySet()) {
-                sb.append(entry.getKey().toString()).append(":").append(entry.getValue()).append("  \n");
+                sb.append(" ").append(entry.getKey().toString()).append(":").append(entry.getValue()).append("  \n");
             }
+            sb.append("\n}\n");
             logger.info(sb.toString());
         }
     }
