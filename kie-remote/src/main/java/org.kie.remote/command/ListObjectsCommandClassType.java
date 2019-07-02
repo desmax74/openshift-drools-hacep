@@ -15,11 +15,16 @@
  */
 package org.kie.remote.command;
 
+import java.io.Serializable;
+
 import org.kie.remote.RemoteFactHandle;
 
-public class ListObjectsCommandClassType extends ListObjectsCommand implements VisitableCommand{
+public class ListObjectsCommandClassType extends ListObjectsCommand implements VisitableCommand,
+                                                                               Serializable {
 
     private Class clazzType;
+
+    public ListObjectsCommandClassType(){}
 
     public ListObjectsCommandClassType(RemoteFactHandle factHandle, String entryPoint, Class clazzType) {
         super(factHandle, entryPoint);

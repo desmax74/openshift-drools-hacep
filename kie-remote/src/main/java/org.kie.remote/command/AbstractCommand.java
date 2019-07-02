@@ -16,11 +16,16 @@
 
 package org.kie.remote.command;
 
+import java.io.Serializable;
+
 import org.kie.remote.RemoteCommand;
 
-public abstract class AbstractCommand implements RemoteCommand {
+public abstract class AbstractCommand implements RemoteCommand,
+                                                 Serializable {
 
     private String id;
+
+    protected AbstractCommand(){}
 
     protected AbstractCommand(String id) {
         this.id = id;

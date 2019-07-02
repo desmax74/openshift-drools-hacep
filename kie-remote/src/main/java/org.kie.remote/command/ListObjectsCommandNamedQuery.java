@@ -15,15 +15,19 @@
  */
 package org.kie.remote.command;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import org.kie.remote.RemoteFactHandle;
 
-public class ListObjectsCommandNamedQuery extends ListObjectsCommand implements VisitableCommand{
+public class ListObjectsCommandNamedQuery extends ListObjectsCommand implements VisitableCommand,
+                                                                                Serializable {
 
     private String namedQuery;
     private String objectName;
     private Object[] params;
+
+    public ListObjectsCommandNamedQuery(){}
 
     public ListObjectsCommandNamedQuery(RemoteFactHandle factHandle, String entryPoint, String namedQuery,
                                         String objectName,
