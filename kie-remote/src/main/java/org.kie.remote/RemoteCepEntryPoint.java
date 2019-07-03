@@ -15,6 +15,7 @@
  */
 package org.kie.remote;
 
+import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 public interface RemoteCepEntryPoint<T> {
@@ -44,30 +45,30 @@ public interface RemoteCepEntryPoint<T> {
      * method is dependent on the WorkingMemory configuration, where it can be configured for <tt>Identity</tt>
      * or for <tt>Equality</tt>.</p>
      *
-     * @param  callback to read all facts from the current session as a Collection.
+     * @@return CompletableFuture of Collection<? extends Object> to read all facts from the current session as a Collection.
      */
-    void getObjects(CompletableFuture<T> callback);
+    CompletableFuture<Collection<? extends Object>> getObjects();
 
 
     /**
      * @param clazztype the filter to be applied to the returned collection of facts.
-     * @@param  callback to read all facts from the current session that are accepted by the given <code>ObjectFilter</code>.
+     * @@return CompletableFuture of Collection<? extends Object> to read all facts from the current session that are accepted by the given <code>ObjectFilter</code>.
      */
-    void getObjects(CompletableFuture<T> callback, Class clazztype);
+    CompletableFuture<Collection<? extends Object>> getObjects(Class clazztype);
 
 
     /**
      * @param namedQuery the filter to be applied to the returned collection of facts.
-     * @@param callback to read all facts from the current session that are accepted by the given <code>ObjectFilter</code>.
      * @@param namedQuery name of the query to call
      * @@param objectName name of the object to read from the QueryResultsRow
      * @@param params for the rule
+     * @@return CompletableFuture of Collection<? extends Object> to read all facts from the current session that are accepted by the given <code>ObjectFilter</code>.
      */
-    void getObjects(CompletableFuture<T> callback, String namedQuery, String objectName, Object[] params);
+    CompletableFuture<Collection<? extends Object>> getObjects(String namedQuery, String objectName, Object[] params);
 
     /**
-     * @param callback to read the total number of facts currently in this entry point
+     * @return a completable future with Long to read the total number of facts currently in this entry point
      */
-    void getFactCount(CompletableFuture<T> callback);
+    CompletableFuture<Long> getFactCount();
 }
 

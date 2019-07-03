@@ -26,17 +26,13 @@ import org.kie.remote.RemoteKieSession;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.core.infra.utils.PrinterLogImpl;
-import org.kie.hacep.model.FactCountMessage;
 import org.kie.hacep.producer.RemoteKieSessionImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.*;
 
 public class RemoteKieSessionImplTest {
 
     private KafkaUtilTest kafkaServerTest;
-    private Logger logger = LoggerFactory.getLogger(RemoteKieSessionImplTest.class);
     private EnvConfig config;
 
     @Before
@@ -74,12 +70,10 @@ public class RemoteKieSessionImplTest {
         try (RemoteKieSessionImpl client = new RemoteKieSessionImpl(Config.getProducerConfig("getFactCountTest"),
                                                                     config)) {
             client.listen();
-            CompletableFuture<Long> factCountCallBack = new CompletableFuture<>();
-            client.getFactCount(factCountCallBack);
-            Object callbackValue = factCountCallBack.get(15,
-                                                         TimeUnit.SECONDS);
-            FactCountMessage msg = (FactCountMessage) callbackValue;
-            assertTrue(msg.getFactCount() == 7);
+            CompletableFuture<Long> factCountCallBack = client.getFactCount();
+            Object callbackValue = factCountCallBack.get(15, TimeUnit.SECONDS);
+            Long factCount = (Long) callbackValue;
+            assertTrue(factCount == 7);
         }
     }
 

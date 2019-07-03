@@ -15,6 +15,7 @@
  */
 package org.kie.hacep.producer;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,29 +57,35 @@ public class RemoteCepEntryPointImpl<T> implements RemoteCepEntryPoint {
     }
 
     @Override
-    public void getObjects(CompletableFuture callback) {
+    public CompletableFuture<Collection<? extends Object>> getObjects() {
+        CompletableFuture callback = new CompletableFuture<>();
         ListObjectsCommand command = new ListObjectsCommand(createStoreAndGetRemoteFactHandle(callback), entryPoint);
         sender.sendCommand(command, envConfig.getEventsTopicName());
+        return callback;
     }
 
     @Override
-    public void getObjects(CompletableFuture callback,
-                           Class clazztype) {
+    public CompletableFuture<Collection<? extends Object>> getObjects(Class clazztype) {
+        CompletableFuture callback = new CompletableFuture<>();
         ListObjectsCommand command = new ListObjectsCommandClassType(createStoreAndGetRemoteFactHandle(callback), entryPoint, clazztype);
         sender.sendCommand(command, envConfig.getEventsTopicName());
+        return callback;
     }
 
     @Override
-    public void getObjects(CompletableFuture callback,
-                           String namedQuery, String objectName, Object[] params) {
+    public CompletableFuture<Collection<? extends Object>> getObjects(String namedQuery, String objectName, Object[] params) {
+        CompletableFuture callback = new CompletableFuture<>();
         ListObjectsCommand command = new ListObjectsCommandNamedQuery(createStoreAndGetRemoteFactHandle(callback), entryPoint, namedQuery, objectName, params);
         sender.sendCommand(command, envConfig.getEventsTopicName());
+        return callback;
     }
 
     @Override
-    public void getFactCount(CompletableFuture callback) {
+    public CompletableFuture<Long> getFactCount() {
+        CompletableFuture callback = new CompletableFuture<>();
         FactCountCommand command = new FactCountCommand(createStoreAndGetRemoteFactHandle(callback), entryPoint );
         sender.sendCommand(command, envConfig.getEventsTopicName());
+        return callback;
     }
 
     @Override

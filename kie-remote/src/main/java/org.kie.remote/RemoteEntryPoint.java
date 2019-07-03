@@ -16,6 +16,7 @@
 
 package org.kie.remote;
 
+import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
@@ -63,18 +64,18 @@ public interface RemoteEntryPoint<T> {
      * method is dependent on the WorkingMemory configuration, where it can be configured for <tt>Identity</tt>
      * or for <tt>Equality</tt>.</p>
      *
-     * @param callback to read all facts from the current session as a Collection.
+     * @@return CompletableFuture of Collection<? extends Object>to read all facts from the current session as a Collection.
      */
-    void getObjects(CompletableFuture<T> callback);
+    CompletableFuture<Collection<? extends Object>> getObjects();
 
     /**
      * @param filter the filter to be applied to the returned collection of facts.
-     * @param callback to read all facts from the current session that are accepted by the given <code>ObjectFilter</code>.
+     * @@return CompletableFuture of Collection<? extends Object> to read all facts from the current session that are accepted by the given <code>ObjectFilter</code>.
      */
-    void getObjects(CompletableFuture<T> callback, Predicate<Object> filter);
+    CompletableFuture<Collection<? extends Object>> getObjects(Predicate<Object> filter);
 
     /**
-     * @param callback to read the total number of facts currently in this entry point
+     * @@return CompletableFuture of Long to read the total number of facts currently in this entry point
      */
-    void getFactCount(CompletableFuture<T> callback);
+    CompletableFuture<Long> getFactCount();
 }

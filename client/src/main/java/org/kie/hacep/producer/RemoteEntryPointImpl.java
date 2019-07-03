@@ -81,20 +81,21 @@ public class RemoteEntryPointImpl<T> implements RemoteEntryPoint {
     }
 
     @Override
-    public void getObjects(CompletableFuture callback) {
+    public CompletableFuture getObjects() {
         throw new UnsupportedOperationException( "org.kie.hacep.producer.RemoteKieSessionImpl.getObjects -> TODO" );
     }
 
     @Override
-    public void getObjects(CompletableFuture callback,
-                           Predicate filter) {
+    public CompletableFuture getObjects(Predicate filter) {
         throw new UnsupportedOperationException( "org.kie.hacep.producer.RemoteKieSessionImpl.getObjects -> TODO" );
     }
 
     @Override
-    public void getFactCount(CompletableFuture callback) {
+    public CompletableFuture<Long> getFactCount() {
+        CompletableFuture callback = new CompletableFuture<>();
         FactCountCommand command = new FactCountCommand(createStoreAndGetRemoteFactHandle(callback), entryPoint );
         sender.sendCommand(command, envConfig.getEventsTopicName());
+        return callback;
     }
 
     private RemoteFactHandle createStoreAndGetRemoteFactHandle(CompletableFuture<T> callback){

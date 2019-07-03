@@ -15,6 +15,7 @@
  */
 package org.kie.hacep;
 
+import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -26,19 +27,14 @@ import org.kie.remote.RemoteCepKieSession;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.core.infra.utils.PrinterLogImpl;
-import org.kie.hacep.model.FactCountMessage;
-import org.kie.hacep.model.ListKieSessionObjectMessage;
 import org.kie.hacep.model.StockTickEvent;
 import org.kie.hacep.producer.RemoteCepKieSessionImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.*;
 
 public class RemoteCepKieSessionImplTest {
 
     private KafkaUtilTest kafkaServerTest;
-    private Logger logger = LoggerFactory.getLogger(RemoteCepKieSessionImplTest.class);
     private EnvConfig config;
 
     @Before
@@ -76,12 +72,10 @@ public class RemoteCepKieSessionImplTest {
         try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("FactCountConsumerTest"),
                                                                           config)) {
             client.listen();
-            CompletableFuture<Long> factCountCallBack = new CompletableFuture<>();
-            client.getFactCount(factCountCallBack);
-            Object callbackValue = factCountCallBack.get(15,
-                                                         TimeUnit.SECONDS);
-            FactCountMessage msg = (FactCountMessage) callbackValue;
-            assertTrue(msg.getFactCount() == 7);
+            CompletableFuture<Long> factCountFuture = client.getFactCount();
+            Object cfutureValue = factCountFuture.get(15, TimeUnit.SECONDS);
+            Long factCount = (Long) cfutureValue;
+            assertTrue(factCount == 7);
         }
     }
 
@@ -96,13 +90,12 @@ public class RemoteCepKieSessionImplTest {
         try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("ListKieSessionObjectsConsumerTest"),
                                                                           config)) {
             client.listen();
-            CompletableFuture<Long> listKieObjectsCallBack = new CompletableFuture<>();
-            client.getObjects(listKieObjectsCallBack);
-            Object callbackValue = listKieObjectsCallBack.get(15,
+            CompletableFuture<Collection<? extends Object>> listKieObjectsFuture = client.getObjects();
+            Object cfutureValue = listKieObjectsFuture.get(15,
                                                          TimeUnit.SECONDS);
-            ListKieSessionObjectMessage msg = (ListKieSessionObjectMessage) callbackValue;
-            assertTrue(msg.getObjects().size() == 1);
-            Object obj = msg.getObjects().iterator().next();
+            Collection<? extends Object> listKieObjects = (Collection<? extends Object>) cfutureValue;
+            assertTrue(listKieObjects.size() == 1);
+            Object obj = listKieObjects.iterator().next();
             StockTickEvent event = (StockTickEvent) obj;
             assertTrue(event.getCompany().equals("RHT"));
         }
@@ -119,12 +112,11 @@ public class RemoteCepKieSessionImplTest {
         try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("ListKieSessionObjectsWithClassTypeTest"),
                                                                           config)) {
             client.listen();
-            CompletableFuture<Long> listKieObjectsCallBack = new CompletableFuture<>();
-            client.getObjects(listKieObjectsCallBack, StockTickEvent.class);
-            Object callbackValue = listKieObjectsCallBack.get(15, TimeUnit.SECONDS);
-            ListKieSessionObjectMessage msg = (ListKieSessionObjectMessage) callbackValue;
-            assertTrue(msg.getObjects().size() == 1);
-            Object obj = msg.getObjects().iterator().next();
+            CompletableFuture<Collection<? extends Object>> listKieObjectsFuture = client.getObjects(StockTickEvent.class);
+            Object cfutureValueValue = listKieObjectsFuture.get(15, TimeUnit.SECONDS);
+            Collection<? extends Object> listKieObjects = (Collection<? extends Object>) cfutureValueValue;
+            assertTrue(listKieObjects.size() == 1);
+            Object obj = listKieObjects.iterator().next();
             StockTickEvent event = (StockTickEvent) obj;
             assertTrue(event.getCompany().equals("RHT"));
         }
@@ -132,9 +124,7 @@ public class RemoteCepKieSessionImplTest {
 
     @Test
     public void getListKieSessionObjectsWithNamedQueryTest() throws Exception {
-        Bootstrap.startEngine(new PrinterLogImpl(),
-                              config,
-                              State.LEADER);
+        Bootstrap.startEngine(new PrinterLogImpl(), config, State.LEADER);
         kafkaServerTest.insertBatchStockTicketEvent(1,
                                                     config,
                                                     RemoteCepKieSession.class);
@@ -142,21 +132,17 @@ public class RemoteCepKieSessionImplTest {
                                                                           config)) {
             client.listen();
 
-            CompletableFuture<Long> listKieObjectsCallBack = new CompletableFuture<>();
-            client.getObjects(listKieObjectsCallBack, "stockTickEventQuery" , "stock", new Object[]{"IBM"});
-            Object callbackValue = listKieObjectsCallBack.get(15,
-                                                              TimeUnit.SECONDS);
-            ListKieSessionObjectMessage msg = (ListKieSessionObjectMessage) callbackValue;
-            assertTrue(msg.getObjects().size() == 0);
+            CompletableFuture<Collection<? extends Object>> listKieObjectsFuture = client.getObjects("stockTickEventQuery" , "stock", new Object[]{"IBM"});
+            Object listKieObjectsValue = listKieObjectsFuture.get(15, TimeUnit.SECONDS);
+            Collection<? extends Object> listKieObjects = (Collection<? extends Object>) listKieObjectsValue;
+            assertTrue(listKieObjects.size() == 0);
 
 
-            listKieObjectsCallBack = new CompletableFuture<>();
-            client.getObjects(listKieObjectsCallBack, "stockTickEventQuery" , "stock", new Object[]{"RHT"});
-            callbackValue = listKieObjectsCallBack.get(15,
-                                                              TimeUnit.SECONDS);
-            msg = (ListKieSessionObjectMessage) callbackValue;
-            assertTrue(msg.getObjects().size() == 1);
-            Object obj = msg.getObjects().iterator().next();
+            listKieObjectsFuture = client.getObjects("stockTickEventQuery" , "stock", new Object[]{"RHT"});
+            listKieObjectsValue = listKieObjectsFuture.get(15, TimeUnit.SECONDS);
+            listKieObjects = (Collection<? extends Object>) listKieObjectsValue;
+            assertTrue(listKieObjects.size() == 1);
+            Object obj = listKieObjects.iterator().next();
             StockTickEvent event = (StockTickEvent) obj;
             assertTrue(event.getCompany().equals("RHT"));
         }

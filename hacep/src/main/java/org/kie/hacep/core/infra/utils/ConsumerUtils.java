@@ -142,12 +142,4 @@ public class ConsumerUtils {
         return lastMessage;
     }
 
-    public static Collection<? extends Object> getObjects(RemoteFactHandle factHandle, EnvConfig config, Properties properties){
-        return null;
-    }
-
-
-    public static Collection<? extends Object> getObjectsFiltered(RemoteFactHandle factHandle, EnvConfig config, Properties properties){
-        return null;
-    }
 }

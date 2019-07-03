@@ -136,13 +136,6 @@ public class KafkaUtilTest<K, V> implements AutoCloseable {
         producer.close();
     }
 
-    public void sendMsgs(KafkaProducer<K, V> producer,
-                         List<ProducerRecord<K, V>> items) {
-        for (ProducerRecord<K, V> item : items) {
-            producer.send(item);
-        }
-        producer.close();
-    }
 
     private Properties getConsumerConfig() {
         Properties consumerProps = new Properties();
