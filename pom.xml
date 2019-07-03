@@ -28,7 +28,6 @@
     <version.k8s.client>4.2.1</version.k8s.client>
     <version.logback.core>1.2.3</version.logback.core>
     <version.org.kie>7.23.0.Final</version.org.kie>
-    <version.quarkus>0.18.0</version.quarkus>
     <version.servlet>4.0.1</version.servlet>
     <version.slf4j>1.7.26</version.slf4j>
     <version.logback.kafka.appender>0.2.0-RC2</version.logback.kafka.appender>
@@ -75,30 +74,6 @@
         <scope>compile</scope>
       </dependency>
 
-      <!-- quarkus -->
-      <dependency>
-        <groupId>io.quarkus</groupId>
-        <artifactId>quarkus-bom</artifactId>
-        <version>${version.quarkus}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>io.quarkus</groupId>
-        <artifactId>quarkus-resteasy</artifactId>
-        <version>${version.quarkus}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.quarkus</groupId>
-        <artifactId>quarkus-arc</artifactId>
-        <version>${version.quarkus}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.quarkus</groupId>
-        <artifactId>quarkus-arc-runtime</artifactId>
-        <version>${version.quarkus}</version>
-      </dependency>
-
       <!-- fabric8 -->
       <dependency>
         <groupId>io.fabric8</groupId>
@@ -128,13 +103,6 @@
       </dependency>
 
       <!-- -->
-      <dependency>
-        <groupId>javax.enterprise</groupId>
-        <artifactId>cdi-api</artifactId>
-        <version>${version.javax.cdi}</version>
-        <scope>compile</scope>
-      </dependency>
-
       <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>javax.servlet-api</artifactId>
@@ -172,13 +140,6 @@
         <groupId>com.github.danielwegener</groupId>
         <artifactId>logback-kafka-appender</artifactId>
         <version>${version.logback.kafka.appender}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>${version.commons.codec}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>

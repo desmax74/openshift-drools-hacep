@@ -40,11 +40,11 @@
       <artifactId>javax.ws.rs-api</artifactId>
       <scope>compile</scope>
     </dependency>
-    <dependency>
+    <!--<dependency>
       <groupId>javax.enterprise</groupId>
       <artifactId>cdi-api</artifactId>
       <scope>compile</scope>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
