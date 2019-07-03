@@ -71,7 +71,7 @@ public class RemoteKieSessionImplTest {
         kafkaServerTest.insertBatchStockTicketEvent(7,
                                                     config,
                                                     RemoteKieSession.class);
-        try (RemoteKieSessionImpl client = new RemoteKieSessionImpl(Config.getProducerConfig(),
+        try (RemoteKieSessionImpl client = new RemoteKieSessionImpl(Config.getProducerConfig("getFactCountTest"),
                                                                     config)) {
             client.listen();
             CompletableFuture<Long> factCountCallBack = new CompletableFuture<>();

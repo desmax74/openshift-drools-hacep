@@ -115,7 +115,7 @@ public class Bootstrap {
 
     private static void startProducer(EnvConfig envConfig) {
         eventProducer = new EventProducer<>();
-        eventProducer.start(Config.getProducerConfig());
+        eventProducer.start(Config.getProducerConfig("EventProducer"));
     }
 
     private static void startConsumers(Printer printer,

@@ -60,6 +60,8 @@ public class SessionSnapShooter {
         KieServices srv = KieServices.get();
         if(srv != null){
             kieContainer = srv.newKieClasspathContainer();
+            producer = new EventProducer<>();
+            producer.start(Config.getSnapshotProducerConfig());
             configConsumer();
         }else{
             logger.error("KieServices is null");
@@ -67,10 +69,6 @@ public class SessionSnapShooter {
     }
 
     public void serialize( KieSession kSession, Map<RemoteFactHandle, FactHandle> fhMap, String lastInsertedEventkey, long lastInsertedEventOffset) {
-        if(producer == null){
-            producer = new EventProducer<>();
-            producer.start(Config.getSnapshotProducerConfig());
-        }
         KieMarshallers marshallers = KieServices.get().getMarshallers();
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             marshallers.newMarshaller(kSession.getKieBase()).marshall(out, kSession);

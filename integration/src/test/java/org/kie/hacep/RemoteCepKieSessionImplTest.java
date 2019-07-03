@@ -73,7 +73,7 @@ public class RemoteCepKieSessionImplTest {
         kafkaServerTest.insertBatchStockTicketEvent(7,
                                                     config,
                                                     RemoteCepKieSession.class);
-        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig(),
+        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("FactCountConsumerTest"),
                                                                           config)) {
             client.listen();
             CompletableFuture<Long> factCountCallBack = new CompletableFuture<>();
@@ -93,7 +93,7 @@ public class RemoteCepKieSessionImplTest {
         kafkaServerTest.insertBatchStockTicketEvent(1,
                                                     config,
                                                     RemoteCepKieSession.class);
-        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig(),
+        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("ListKieSessionObjectsConsumerTest"),
                                                                           config)) {
             client.listen();
             CompletableFuture<Long> listKieObjectsCallBack = new CompletableFuture<>();
@@ -116,7 +116,7 @@ public class RemoteCepKieSessionImplTest {
         kafkaServerTest.insertBatchStockTicketEvent(1,
                                                     config,
                                                     RemoteCepKieSession.class);
-        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig(),
+        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("ListKieSessionObjectsWithClassTypeTest"),
                                                                           config)) {
             client.listen();
             CompletableFuture<Long> listKieObjectsCallBack = new CompletableFuture<>();
@@ -138,7 +138,7 @@ public class RemoteCepKieSessionImplTest {
         kafkaServerTest.insertBatchStockTicketEvent(1,
                                                     config,
                                                     RemoteCepKieSession.class);
-        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig(),
+        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("ListKieSessionObjectsWithNamedQueryTest"),
                                                                           config)) {
             client.listen();
 

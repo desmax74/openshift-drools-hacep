@@ -16,17 +16,16 @@
 
 package org.kie.remote.command;
 
-import java.io.Serializable;
 import java.util.UUID;
 
 import org.kie.remote.RemoteFactHandle;
 
-public abstract class WorkingMemoryActionCommand extends AbstractCommand implements Serializable {
+public abstract class WorkingMemoryActionCommand extends AbstractCommand{
 
     private RemoteFactHandle factHandle;
     private String entryPoint;
 
-    public WorkingMemoryActionCommand(){}
+    public WorkingMemoryActionCommand(){super( UUID.randomUUID().toString() );}
 
     public WorkingMemoryActionCommand( RemoteFactHandle factHandle, String entryPoint ) {
         super( UUID.randomUUID().toString() );

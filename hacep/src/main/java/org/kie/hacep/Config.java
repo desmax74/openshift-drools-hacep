@@ -48,7 +48,6 @@ public class Config {
     public static final int DEFAULT_POLL_TIMEOUT_MS = 1000;
     public static final int LOOP_DURATION = -1;
     public static final boolean DEFAULT_COMMIT_SYNC = true;
-    public static final boolean SUBSCRIBE_MODE = false;
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
     private static Properties config;
     private static Properties consumerConf, producerConf, snapshotConsumerConf, snapshotProducerConf;
@@ -74,15 +73,15 @@ public class Config {
         if(consumerConf == null){
             consumerConf = getDefaultConfigFromProps(CONSUMER_CONF);
         }
-        logConfig(caller, consumerConf);
+        logConfig(caller,consumerConf);
         return consumerConf;
     }
 
-    public static Properties getProducerConfig() {
+    public static Properties getProducerConfig(String caller) {
         if(producerConf == null){
             producerConf = getDefaultConfigFromProps(PRODUCER_CONF);
         }
-        logConfig("Producer", producerConf);
+        logConfig(caller,producerConf);
         return producerConf;
     }
 
@@ -90,7 +89,7 @@ public class Config {
         if(snapshotConsumerConf == null){
             snapshotConsumerConf = getDefaultConfigFromProps(SNAPSHOT_CONSUMER_CONF);
         }
-        logConfig("SnapshotConsumer", snapshotConsumerConf);
+        logConfig("SnapshotConsumer",snapshotConsumerConf);
         return snapshotConsumerConf;
     }
 
@@ -143,7 +142,7 @@ public class Config {
         return config;
     }
 
-    private static void logConfig(String subject, Properties producerProperties) {
+    private static void logConfig(String subject,Properties producerProperties) {
         if (logger.isInfoEnabled()) {
             StringBuilder sb = new StringBuilder();
             sb.append("\n");

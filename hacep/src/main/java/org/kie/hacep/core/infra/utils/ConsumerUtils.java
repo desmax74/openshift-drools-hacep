@@ -18,6 +18,8 @@ package org.kie.hacep.core.infra.utils;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -28,9 +30,12 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
+import org.kie.remote.RemoteFactHandle;
 import org.kie.hacep.Config;
 import org.kie.hacep.ConverterUtil;
+import org.kie.hacep.EnvConfig;
 import org.kie.hacep.model.ControlMessage;
+import org.kie.hacep.model.FactCountMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +44,20 @@ public class ConsumerUtils {
     private static Logger logger = LoggerFactory.getLogger(ConsumerUtils.class);
 
     public static ControlMessage getLastEvent( String topic) {
-        return getLastEvent(topic, Config.getConsumerConfig("LastEventConsumer"));
+        return getLastEvent(topic, Config.getConsumerConfig("LAstEventConsumer"));
+    }
+
+    public Map<TopicPartition, Long> getOffsets(String topic) {
+        KafkaConsumer consumer = new KafkaConsumer(Config.getConsumerConfig("OffsetConsumer"));
+        consumer.subscribe(Arrays.asList(topic));
+        List<PartitionInfo> infos = consumer.partitionsFor(topic);
+        List<TopicPartition> tps = new ArrayList<>();
+        for (PartitionInfo info : infos) {
+            tps.add(new TopicPartition(topic, info.partition()));
+        }
+        Map<TopicPartition, Long> offsets = consumer.endOffsets(tps);
+        consumer.close();
+        return offsets;
     }
 
     public static ControlMessage getLastEvent( String topic, Properties properties) {
@@ -82,4 +100,54 @@ public class ConsumerUtils {
         return lastMessage;
     }
 
+    public static FactCountMessage getFactCount(RemoteFactHandle factHandle, EnvConfig config, Properties properties) {
+        KafkaConsumer consumer = new KafkaConsumer(properties);
+        List<PartitionInfo> infos = consumer.partitionsFor(config.getKieSessionInfosTopicName());
+        List<TopicPartition> partitions = new ArrayList<>();
+        if (infos != null) {
+            for (PartitionInfo partition : infos) {
+                partitions.add(new TopicPartition(config.getKieSessionInfosTopicName(), partition.partition()));
+            }
+        }
+        consumer.assign(partitions);
+
+        Map<TopicPartition, Long> offsets = consumer.endOffsets(partitions);
+        Long lastOffset = 0l;
+        for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
+            lastOffset = entry.getValue();
+        }
+        if(lastOffset == 0){
+            lastOffset = 1l;// this is to start the seek with offset -1 on empty topic
+        }
+        Set<TopicPartition> assignments = consumer.assignment();
+        for (TopicPartition part : assignments) {
+            consumer.seek(part, lastOffset - 1);
+        }
+
+        FactCountMessage lastMessage = new FactCountMessage();
+        try {
+            ConsumerRecords records = consumer.poll(Duration.of(Config.DEFAULT_POLL_TIMEOUT_MS, ChronoUnit.MILLIS));
+            for (Object item : records) {
+                ConsumerRecord<String, byte[]> record = (ConsumerRecord<String, byte[]>) item;
+                if(record.key().equals(factHandle.getId())) {
+                    lastMessage = ConverterUtil.deSerializeObjInto(record.value(), FactCountMessage.class);
+                    break;
+                }
+            }
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+        } finally {
+            consumer.close();
+        }
+        return lastMessage;
+    }
+
+    public static Collection<? extends Object> getObjects(RemoteFactHandle factHandle, EnvConfig config, Properties properties){
+        return null;
+    }
+
+
+    public static Collection<? extends Object> getObjectsFiltered(RemoteFactHandle factHandle, EnvConfig config, Properties properties){
+        return null;
+    }
 }

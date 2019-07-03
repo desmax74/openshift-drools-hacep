@@ -1,7 +1,7 @@
 # U212 Drools
 Core of the Drools HACEP
 
-<img src="./../img/hacep-todaro.jpg" alt="U212 Todaro" data-canonical-src="./../img/hacep-todaro.jpg" height="400" />
+<img src="./../img/u212-todaro.jpg" alt="U212 Todaro" data-canonical-src="./../img/u212-todaro.jpg" height="400" />
 https://en.wikipedia.org/wiki/Type_212_submarine
 
 ## Installing and Running

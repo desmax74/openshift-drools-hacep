@@ -235,7 +235,7 @@ public class KafkaUtilTest<K, V> implements AutoCloseable {
     public void insertBatchStockTicketEvent(int items,
                                             EnvConfig envConfig,
                                             Class sessionType) {
-        Properties props = Config.getProducerConfig();
+        Properties props = Config.getProducerConfig("InsertBactchStockTickets");
         if (sessionType.equals(RemoteKieSession.class)) {
             try (RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props,
                                                                           envConfig)) {

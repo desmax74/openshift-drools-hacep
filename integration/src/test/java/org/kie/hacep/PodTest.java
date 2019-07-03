@@ -82,10 +82,10 @@ public class PodTest {
         Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
         KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("",
                                                                    config.getEventsTopicName(),
-                                                                   Config.getConsumerConfig("EventsConsumer"));
+                                                                   Config.getConsumerConfig("eventsConsumerProcessOneSentMessageAsLeaderTest"));
         KafkaConsumer controlConsumer = kafkaServerTest.getConsumer("",
                                                                     config.getControlTopicName(),
-                                                                    Config.getConsumerConfig("ControlConsumer"));
+                                                                    Config.getConsumerConfig("controlConsumerProcessOneSentMessageAsLeaderTest"));
         kafkaServerTest.insertBatchStockTicketEvent(1,
                                                     config,
                                                     RemoteKieSession.class);
@@ -137,7 +137,7 @@ public class PodTest {
         Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
         KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("",
                                                                    config.getEventsTopicName(),
-                                                                   Config.getConsumerConfig("EventsConsumer"));
+                                                                   Config.getConsumerConfig("eventsConsumerProcessOneSentMessageAsLeaderTest"));
         KafkaConsumer snapshotConsumer = kafkaServerTest.getConsumer("",
                                                                      config.getSnapshotTopicName(),
                                                                      Config.getSnapshotConsumerConfig());
@@ -179,10 +179,10 @@ public class PodTest {
         Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
         KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("",
                                                                    config.getEventsTopicName(),
-                                                                   Config.getConsumerConfig("EventsConsumer"));
+                                                                   Config.getConsumerConfig("eventsConsumerProcessOneSentMessageAsLeaderTest"));
         KafkaConsumer controlConsumer = kafkaServerTest.getConsumer("",
                                                                     config.getControlTopicName(),
-                                                                    Config.getConsumerConfig("ControlConsumer"));
+                                                                    Config.getConsumerConfig("controlConsumerProcessOneSentMessageAsLeaderTest"));
         kafkaServerTest.insertBatchStockTicketEvent(1,
                                                     config,
                                                     RemoteKieSession.class);
