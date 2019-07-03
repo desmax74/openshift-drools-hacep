@@ -2,6 +2,6 @@
 <configuration>
   <include resource="org/springframework/boot/logging/logback/base.xml"/>
   <logger name="org.springframework.web" level="ERROR"/>
-  <logger name="org.kie.u212" level="INFO"/>
+  <logger name="org.kie.hacep" level="INFO"/>
   <logger name="org.apache.kafka" level="WARN"/>
 </configuration>

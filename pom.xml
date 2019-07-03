@@ -37,7 +37,7 @@
 
   <modules>
     <module>kie-remote</module>
-    <module>u212</module>
+    <module>hacep</module>
     <module>client</module>
     <module>demo</module>
     <module>springboot</module>

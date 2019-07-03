@@ -15,7 +15,7 @@
   <dependencies>
     <dependency>
       <groupId>org.kie</groupId>
-      <artifactId>openshift-kie-u212</artifactId>
+      <artifactId>openshift-kie-hacep</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

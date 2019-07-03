@@ -27,7 +27,7 @@
   <dependencies>
     <dependency>
       <groupId>org.kie</groupId>
-      <artifactId>openshift-kie-u212</artifactId>
+      <artifactId>openshift-kie-hacep</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -64,7 +64,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.kie.u212.endpoint.RestApplication</mainClass>
+              <mainClass>org.kie.hacep.endpoint.RestApplication</mainClass>
             </manifest>
           </archive>
         </configuration>

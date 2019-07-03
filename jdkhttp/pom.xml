@@ -15,7 +15,7 @@
   <dependencies>
     <dependency>
       <groupId>org.kie</groupId>
-      <artifactId>openshift-kie-u212</artifactId>
+      <artifactId>openshift-kie-hacep</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -44,7 +44,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.kie.u212.endpoint.bootstrap.JdkHttpServer</mainClass>
+              <mainClass>org.kie.hacep.endpoint.bootstrap.JdkHttpServer</mainClass>
               <addClasspath>true</addClasspath>
             </manifest>
           </archive>

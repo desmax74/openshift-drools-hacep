@@ -18,7 +18,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.kie.u212.endpoint.bootstrap.JdkHttpServer</mainClass>
+              <mainClass>org.kie.hacep.endpoint.bootstrap.JdkHttpServer</mainClass>
               <addClasspath>true</addClasspath>
             </manifest>
           </archive>
@@ -36,7 +36,7 @@
             <configuration>
               <transformers>
                 <transformer>
-                  <mainClass>org.kie.u212.endpoint.bootstrap.JdkHttpServer</mainClass>
+                  <mainClass>org.kie.hacep.endpoint.bootstrap.JdkHttpServer</mainClass>
                 </transformer>
               </transformers>
             </configuration>

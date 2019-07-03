@@ -21,7 +21,7 @@
     </dependency>
     <dependency>
       <groupId>org.kie</groupId>
-      <artifactId>openshift-kie-u212</artifactId>
+      <artifactId>openshift-kie-hacep</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
 
