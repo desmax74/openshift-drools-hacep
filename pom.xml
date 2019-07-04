@@ -38,7 +38,6 @@
     <module>kie-remote</module>
     <module>hacep</module>
     <module>client</module>
-    <module>demo</module>
     <module>springboot</module>
     <module>jdkhttp</module>
     <module>integration</module>

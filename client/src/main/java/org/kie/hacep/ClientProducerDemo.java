@@ -21,7 +21,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.kie.hacep.model.StockTickEvent;
 import org.kie.hacep.producer.RemoteKieSessionImpl;
 
-public class ClientProducerTest {
+public class ClientProducerDemo {
 
     public static void main(String[] args) {
         insertBatchEvent(1);
