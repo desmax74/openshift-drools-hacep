@@ -11,5 +11,5 @@ https://github.com/desmax74/openshift-handbook/blob/master/ubuntu/kafka.md
 - Pods with SpringBoot
 https://github.com/desmax74/openshift-drools-hacep/tree/master/springboot
 
--Pods with JdkHttpServer
+- Pods with JdkHttpServer
 https://github.com/desmax74/openshift-drools-hacep/tree/master/jdkhttp

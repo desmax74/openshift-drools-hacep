@@ -1,9 +1,9 @@
 # Drools 
 
 ## Installing and Running Kakfa Cluster
-- Kafka Cluster on Openshift
+- Kafka Cluster on Openshift on fedora
 https://github.com/desmax74/openshift-handbook/blob/master/fedora/kafka.md
-or 
+- Kafka Cluster on Openshift on ubuntu
 https://github.com/desmax74/openshift-handbook/blob/master/ubuntu/kafka.md
 
 ```sh
