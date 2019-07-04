@@ -64,7 +64,7 @@ public interface RemoteCepEntryPoint<T> {
      * @@param params for the rule
      * @@return CompletableFuture of Collection<? extends Object> to read all facts from the current session that are accepted by the given <code>ObjectFilter</code>.
      */
-    CompletableFuture<Collection<? extends Object>> getObjects(String namedQuery, String objectName, Object[] params);
+    CompletableFuture<Collection<? extends Object>> getObjects(String namedQuery, String objectName, Object... params);
 
     /**
      * @return a completable future with Long to read the total number of facts currently in this entry point

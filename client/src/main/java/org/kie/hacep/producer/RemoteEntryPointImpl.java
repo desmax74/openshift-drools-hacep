@@ -93,15 +93,10 @@ public class RemoteEntryPointImpl<T> implements RemoteEntryPoint {
     @Override
     public CompletableFuture<Long> getFactCount() {
         CompletableFuture callback = new CompletableFuture<>();
-        FactCountCommand command = new FactCountCommand(createStoreAndGetRemoteFactHandle(callback), entryPoint );
+        FactCountCommand command = new FactCountCommand(entryPoint);
+        requestsStore.put(command.getId(), callback);
         sender.sendCommand(command, envConfig.getEventsTopicName());
         return callback;
-    }
-
-    private RemoteFactHandle createStoreAndGetRemoteFactHandle(CompletableFuture<T> callback){
-        RemoteFactHandle factHandle = new RemoteFactHandleImpl();
-        requestsStore.put(factHandle.getId(), callback);
-        return factHandle;
     }
 
 }

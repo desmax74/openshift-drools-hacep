@@ -18,8 +18,6 @@ package org.kie.remote.command;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import org.kie.remote.RemoteFactHandle;
-
 public class ListObjectsCommandNamedQuery extends ListObjectsCommand implements VisitableCommand,
                                                                                 Serializable {
 
@@ -29,10 +27,10 @@ public class ListObjectsCommandNamedQuery extends ListObjectsCommand implements 
 
     public ListObjectsCommandNamedQuery(){}
 
-    public ListObjectsCommandNamedQuery(RemoteFactHandle factHandle, String entryPoint, String namedQuery,
+    public ListObjectsCommandNamedQuery(String entryPoint, String namedQuery,
                                         String objectName,
                                         Object[] params) {
-        super(factHandle, entryPoint);
+        super(entryPoint);
         this.namedQuery = namedQuery;
         this.namedQuery = namedQuery;
         this.objectName = objectName;
@@ -50,7 +48,7 @@ public class ListObjectsCommandNamedQuery extends ListObjectsCommand implements 
     }
 
     @Override
-    public void accept(VisitorCommand visitor, boolean execute) { visitor.visit(this, execute); }
+    public void accept(VisitorCommand visitor) { visitor.visit(this); }
 
     @Override
     public String toString() {

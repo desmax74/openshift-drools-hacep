@@ -127,7 +127,9 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private void processCommand( RemoteCommand command, State state ) {
         boolean execute = state.equals(State.LEADER) || command.isPermittedForReplicas();
         VisitableCommand visitable = (VisitableCommand) command;
-        visitable.accept(commandHandler, execute);
+        if(execute) {
+            visitable.accept(commandHandler);
+        }
     }
 
 

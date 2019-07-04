@@ -17,8 +17,6 @@ package org.kie.remote.command;
 
 import java.io.Serializable;
 
-import org.kie.remote.RemoteFactHandle;
-
 public class ListObjectsCommandClassType extends ListObjectsCommand implements VisitableCommand,
                                                                                Serializable {
 
@@ -26,15 +24,15 @@ public class ListObjectsCommandClassType extends ListObjectsCommand implements V
 
     public ListObjectsCommandClassType(){}
 
-    public ListObjectsCommandClassType(RemoteFactHandle factHandle, String entryPoint, Class clazzType) {
-        super(factHandle, entryPoint);
+    public ListObjectsCommandClassType(String entryPoint, Class clazzType) {
+        super(entryPoint);
         this.clazzType = clazzType;
     }
 
     public Class getClazzType() { return clazzType; }
 
     @Override
-    public void accept(VisitorCommand visitor, boolean execute) { visitor.visit(this, execute); }
+    public void accept(VisitorCommand visitor) { visitor.visit(this); }
 
     @Override
     public String toString() {

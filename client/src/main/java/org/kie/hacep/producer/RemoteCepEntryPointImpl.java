@@ -31,7 +31,7 @@ import org.kie.remote.impl.RemoteFactHandleImpl;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.consumer.Listener;
 
-public class RemoteCepEntryPointImpl<T> implements RemoteCepEntryPoint {
+public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
 
     protected final Sender sender;
     protected final Listener listener;
@@ -59,7 +59,8 @@ public class RemoteCepEntryPointImpl<T> implements RemoteCepEntryPoint {
     @Override
     public CompletableFuture<Collection<? extends Object>> getObjects() {
         CompletableFuture callback = new CompletableFuture<>();
-        ListObjectsCommand command = new ListObjectsCommand(createStoreAndGetRemoteFactHandle(callback), entryPoint);
+        ListObjectsCommand command = new ListObjectsCommand(entryPoint);
+        requestsStore.put(command.getId(), callback);
         sender.sendCommand(command, envConfig.getEventsTopicName());
         return callback;
     }
@@ -67,15 +68,17 @@ public class RemoteCepEntryPointImpl<T> implements RemoteCepEntryPoint {
     @Override
     public CompletableFuture<Collection<? extends Object>> getObjects(Class clazztype) {
         CompletableFuture callback = new CompletableFuture<>();
-        ListObjectsCommand command = new ListObjectsCommandClassType(createStoreAndGetRemoteFactHandle(callback), entryPoint, clazztype);
+        ListObjectsCommand command = new ListObjectsCommandClassType(entryPoint, clazztype);
+        requestsStore.put(command.getId(), callback);
         sender.sendCommand(command, envConfig.getEventsTopicName());
         return callback;
     }
 
     @Override
-    public CompletableFuture<Collection<? extends Object>> getObjects(String namedQuery, String objectName, Object[] params) {
+    public CompletableFuture<Collection<? extends Object>> getObjects(String namedQuery, String objectName, Object... params) {
         CompletableFuture callback = new CompletableFuture<>();
-        ListObjectsCommand command = new ListObjectsCommandNamedQuery(createStoreAndGetRemoteFactHandle(callback), entryPoint, namedQuery, objectName, params);
+        ListObjectsCommand command = new ListObjectsCommandNamedQuery(entryPoint, namedQuery, objectName, params);
+        requestsStore.put(command.getId(), callback);
         sender.sendCommand(command, envConfig.getEventsTopicName());
         return callback;
     }
@@ -83,7 +86,8 @@ public class RemoteCepEntryPointImpl<T> implements RemoteCepEntryPoint {
     @Override
     public CompletableFuture<Long> getFactCount() {
         CompletableFuture callback = new CompletableFuture<>();
-        FactCountCommand command = new FactCountCommand(createStoreAndGetRemoteFactHandle(callback), entryPoint );
+        FactCountCommand command = new FactCountCommand(entryPoint );
+        requestsStore.put(command.getId(), callback);
         sender.sendCommand(command, envConfig.getEventsTopicName());
         return callback;
     }
@@ -93,12 +97,6 @@ public class RemoteCepEntryPointImpl<T> implements RemoteCepEntryPoint {
         RemoteFactHandle factHandle = new RemoteFactHandleImpl(object );
         InsertCommand command = new InsertCommand(factHandle, entryPoint );
         sender.sendCommand(command, envConfig.getEventsTopicName());
-    }
-
-    private RemoteFactHandle createStoreAndGetRemoteFactHandle(CompletableFuture<T> callback){
-        RemoteFactHandle factHandle = new RemoteFactHandleImpl();
-        requestsStore.put(factHandle.getId(), callback);
-        return factHandle;
     }
 
 }

@@ -16,20 +16,25 @@
 package org.kie.remote.command;
 
 import java.io.Serializable;
+import java.util.UUID;
 
-import org.kie.remote.RemoteFactHandle;
-
-public class ListObjectsCommand extends WorkingMemoryActionCommand implements VisitableCommand,
+public class ListObjectsCommand extends AbstractCommand implements VisitableCommand,
                                                                               Serializable {
 
+    protected String entryPoint;
     public ListObjectsCommand(){}
 
-    public ListObjectsCommand(RemoteFactHandle factHandle, String entryPoint) {
-        super(factHandle, entryPoint);
+    public ListObjectsCommand(String entryPoint) {
+        super( UUID.randomUUID().toString());
+        this.entryPoint =entryPoint;
+    }
+
+    public String getEntryPoint(){
+        return entryPoint;
     }
 
     @Override
-    public void accept(VisitorCommand visitor, boolean execute) { visitor.visit(this, execute); }
+    public void accept(VisitorCommand visitor) { visitor.visit(this); }
 
 
     @Override

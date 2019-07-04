@@ -16,27 +16,33 @@
 package org.kie.remote.command;
 
 import java.io.Serializable;
+import java.util.UUID;
 
-import org.kie.remote.RemoteFactHandle;
-
-public class FactCountCommand extends WorkingMemoryActionCommand implements VisitableCommand,
+public class FactCountCommand extends AbstractCommand implements VisitableCommand,
                                                                             Serializable {
+
+    private String entryPoint;
 
     public FactCountCommand(){} {}
 
-    public FactCountCommand(RemoteFactHandle factHandle, String entryPoint) {
-        super(factHandle, entryPoint);
+    public FactCountCommand(String entryPoint) {
+        super(UUID.randomUUID().toString());
+        this.entryPoint = entryPoint;
+    }
+
+    public String getEntryPoint() {
+        return entryPoint;
     }
 
     @Override
-    public void accept(VisitorCommand visitor, boolean execute) { visitor.visit(this, execute); }
+    public void accept(VisitorCommand visitor) { visitor.visit(this); }
 
     @Override
     public boolean isPermittedForReplicas() { return false; }
 
     @Override
     public String toString() {
-        return "Fact count of " + getFactHandle() + " from entry-point " + getEntryPoint();
+        return "Fact count of " + getId() + " from entry-point " + getEntryPoint();
     }
 
 }

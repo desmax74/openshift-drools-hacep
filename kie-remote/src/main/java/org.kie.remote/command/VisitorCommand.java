@@ -17,18 +17,18 @@ package org.kie.remote.command;
 
 public interface VisitorCommand {
 
-    void visit(InsertCommand command, boolean execute);
+    void visit(InsertCommand command);
 
-    void visit(DeleteCommand command, boolean execute);
+    void visit(DeleteCommand command);
 
-    void visit(UpdateCommand command, boolean execute);
+    void visit(UpdateCommand command);
 
-    void visit(ListObjectsCommand command, boolean execute);
+    void visit(ListObjectsCommand command);
 
-    void visit(ListObjectsCommandClassType command, boolean execute);
+    void visit(ListObjectsCommandClassType command);
 
-    void visit(ListObjectsCommandNamedQuery command, boolean execute);
+    void visit(ListObjectsCommandNamedQuery command);
 
-    void visit(FactCountCommand command, boolean execute);
+    void visit(FactCountCommand command);
 
 }

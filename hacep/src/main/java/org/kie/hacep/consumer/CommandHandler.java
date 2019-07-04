@@ -21,6 +21,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.kie.api.runtime.rule.FactHandle;
+import org.kie.hacep.EnvConfig;
+import org.kie.hacep.core.KieSessionHolder;
+import org.kie.hacep.core.infra.producer.Producer;
+import org.kie.hacep.model.FactCountMessage;
+import org.kie.hacep.model.ListKieSessionObjectMessage;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.command.DeleteCommand;
 import org.kie.remote.command.FactCountCommand;
@@ -30,11 +35,6 @@ import org.kie.remote.command.ListObjectsCommandClassType;
 import org.kie.remote.command.ListObjectsCommandNamedQuery;
 import org.kie.remote.command.UpdateCommand;
 import org.kie.remote.command.VisitorCommand;
-import org.kie.hacep.EnvConfig;
-import org.kie.hacep.core.KieSessionHolder;
-import org.kie.hacep.core.infra.producer.Producer;
-import org.kie.hacep.model.FactCountMessage;
-import org.kie.hacep.model.ListKieSessionObjectMessage;
 
 public class CommandHandler implements VisitorCommand {
 
@@ -54,44 +54,38 @@ public class CommandHandler implements VisitorCommand {
     }
 
     @Override
-    public void visit(InsertCommand command, boolean execute) {
-        if(execute) {
-            RemoteFactHandle remoteFH = command.getFactHandle();
-            FactHandle fh = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).insert(remoteFH.getObject());
-            fhMap.put(remoteFH, fh);
-            kieSessionHolder.getKieSession().fireAllRules();
-        }
+    public void visit(InsertCommand command) {
+        RemoteFactHandle remoteFH = command.getFactHandle();
+        FactHandle fh = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).insert(remoteFH.getObject());
+        fhMap.put(remoteFH,
+                  fh);
+        kieSessionHolder.getKieSession().fireAllRules();
     }
 
-
     @Override
-    public void visit(DeleteCommand command, boolean execute) {
-        if(execute) {
-            RemoteFactHandle remoteFH = command.getFactHandle();
-            kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).delete(fhMap.get(remoteFH));
-            kieSessionHolder.getKieSession().fireAllRules();
-        }
+    public void visit(DeleteCommand command) {
+        RemoteFactHandle remoteFH = command.getFactHandle();
+        kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).delete(fhMap.get(remoteFH));
+        kieSessionHolder.getKieSession().fireAllRules();
     }
 
-
     @Override
-    public void visit(UpdateCommand command, boolean execute) {
-        if(execute) {
-            RemoteFactHandle remoteFH = command.getFactHandle();
-            FactHandle factHandle = fhMap.get(remoteFH);
-            kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).update(factHandle, command.getObject());
-            kieSessionHolder.getKieSession().fireAllRules();
-        }
+    public void visit(UpdateCommand command) {
+        RemoteFactHandle remoteFH = command.getFactHandle();
+        FactHandle factHandle = fhMap.get(remoteFH);
+        kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).update(factHandle,
+                                                                                       command.getObject());
+        kieSessionHolder.getKieSession().fireAllRules();
     }
 
-
     @Override
-    public void visit(ListObjectsCommand command, boolean execute) {
-        if(execute) {
-            List serializableItems = getObjectList(command);
-            ListKieSessionObjectMessage msg = new ListKieSessionObjectMessage(command.getFactHandle().getId(), serializableItems);
-            producer.produceSync(config.getKieSessionInfosTopicName(), command.getFactHandle().getId(), msg);
-        }
+    public void visit(ListObjectsCommand command) {
+        List serializableItems = getObjectList(command);
+        ListKieSessionObjectMessage msg = new ListKieSessionObjectMessage(command.getId(),
+                                                                          serializableItems);
+        producer.produceSync(config.getKieSessionInfosTopicName(),
+                             command.getId(),
+                             msg);
     }
 
     private List getObjectList(ListObjectsCommand command) {
@@ -99,18 +93,19 @@ public class CommandHandler implements VisitorCommand {
         return getListFromSerializableCollection(objects);
     }
 
-
     @Override
-    public void visit(ListObjectsCommandClassType command, boolean execute) {
-        if(execute) {
-            List serializableItems = getSerializableItemsByClassType(command);
-            ListKieSessionObjectMessage msg = new ListKieSessionObjectMessage(command.getFactHandle().getId(), serializableItems);
-            producer.produceSync(config.getKieSessionInfosTopicName(), command.getFactHandle().getId(), msg);
-        }
+    public void visit(ListObjectsCommandClassType command) {
+        List serializableItems = getSerializableItemsByClassType(command);
+        ListKieSessionObjectMessage msg = new ListKieSessionObjectMessage(command.getId(),
+                                                                          serializableItems);
+        producer.produceSync(config.getKieSessionInfosTopicName(),
+                             command.getId(),
+                             msg);
     }
 
     private List getSerializableItemsByClassType(ListObjectsCommandClassType command) {
-        Collection<? extends Object> objects = ObjectFilterHelper.getObjectsFilterByClassType(command.getClazzType(), kieSessionHolder.getKieSession());
+        Collection<? extends Object> objects = ObjectFilterHelper.getObjectsFilterByClassType(command.getClazzType(),
+                                                                                              kieSessionHolder.getKieSession());
         return getListFromSerializableCollection(objects);
     }
 
@@ -124,14 +119,14 @@ public class CommandHandler implements VisitorCommand {
         return serializableItems;
     }
 
-
     @Override
-    public void visit(ListObjectsCommandNamedQuery command, boolean execute) {
-        if(execute) {
-            List serializableItems = getSerializableItemsByNamedQuery(command);
-            ListKieSessionObjectMessage msg = new ListKieSessionObjectMessage(command.getFactHandle().getId(), serializableItems);
-            producer.produceSync(config.getKieSessionInfosTopicName(), command.getFactHandle().getId(), msg);
-        }
+    public void visit(ListObjectsCommandNamedQuery command) {
+        List serializableItems = getSerializableItemsByNamedQuery(command);
+        ListKieSessionObjectMessage msg = new ListKieSessionObjectMessage(command.getId(),
+                                                                          serializableItems);
+        producer.produceSync(config.getKieSessionInfosTopicName(),
+                             command.getId(),
+                             msg);
     }
 
     private List getSerializableItemsByNamedQuery(ListObjectsCommandNamedQuery command) {
@@ -142,12 +137,12 @@ public class CommandHandler implements VisitorCommand {
         return getListFromSerializableCollection(objects);
     }
 
-
     @Override
-    public void visit(FactCountCommand command, boolean execute) {
-        if(execute) {
-            FactCountMessage msg = new FactCountMessage(command.getFactHandle().getId(), kieSessionHolder.getKieSession().getFactCount());
-            producer.produceSync(config.getKieSessionInfosTopicName(), command.getFactHandle().getId(), msg);
-        }
+    public void visit(FactCountCommand command) {
+        FactCountMessage msg = new FactCountMessage(command.getId(),
+                                                    kieSessionHolder.getKieSession().getFactCount());
+        producer.produceSync(config.getKieSessionInfosTopicName(),
+                             command.getId(),
+                             msg);
     }
 }
