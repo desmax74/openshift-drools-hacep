@@ -73,8 +73,7 @@ public class RemoteCepKieSessionImplTest {
                                                                           config)) {
             client.listen();
             CompletableFuture<Long> factCountFuture = client.getFactCount();
-            Object cfutureValue = factCountFuture.get(15, TimeUnit.SECONDS);
-            Long factCount = (Long) cfutureValue;
+            Long factCount  = factCountFuture.get(15, TimeUnit.SECONDS);
             assertTrue(factCount == 7);
         }
     }
@@ -91,12 +90,10 @@ public class RemoteCepKieSessionImplTest {
                                                                           config)) {
             client.listen();
             CompletableFuture<Collection<? extends Object>> listKieObjectsFuture = client.getObjects();
-            Object cfutureValue = listKieObjectsFuture.get(15,
+            Collection<? extends Object> listKieObjects = listKieObjectsFuture.get(15,
                                                          TimeUnit.SECONDS);
-            Collection<? extends Object> listKieObjects = (Collection<? extends Object>) cfutureValue;
             assertTrue(listKieObjects.size() == 1);
-            Object obj = listKieObjects.iterator().next();
-            StockTickEvent event = (StockTickEvent) obj;
+            StockTickEvent event = (StockTickEvent) listKieObjects.iterator().next();
             assertTrue(event.getCompany().equals("RHT"));
         }
     }
@@ -113,11 +110,9 @@ public class RemoteCepKieSessionImplTest {
                                                                           config)) {
             client.listen();
             CompletableFuture<Collection<? extends Object>> listKieObjectsFuture = client.getObjects(StockTickEvent.class);
-            Object cfutureValueValue = listKieObjectsFuture.get(15, TimeUnit.SECONDS);
-            Collection<? extends Object> listKieObjects = (Collection<? extends Object>) cfutureValueValue;
+            Collection<? extends Object> listKieObjects = listKieObjectsFuture.get(15, TimeUnit.SECONDS);
             assertTrue(listKieObjects.size() == 1);
-            Object obj = listKieObjects.iterator().next();
-            StockTickEvent event = (StockTickEvent) obj;
+            StockTickEvent event = (StockTickEvent) listKieObjects.iterator().next();
             assertTrue(event.getCompany().equals("RHT"));
         }
     }
@@ -131,19 +126,15 @@ public class RemoteCepKieSessionImplTest {
         try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("ListKieSessionObjectsWithNamedQueryTest"),
                                                                           config)) {
             client.listen();
-
             CompletableFuture<Collection<? extends Object>> listKieObjectsFuture = client.getObjects("stockTickEventQuery" , "stock", new Object[]{"IBM"});
-            Object listKieObjectsValue = listKieObjectsFuture.get(15, TimeUnit.SECONDS);
-            Collection<? extends Object> listKieObjects = (Collection<? extends Object>) listKieObjectsValue;
+            Collection<? extends Object> listKieObjects = listKieObjectsFuture.get(15, TimeUnit.SECONDS);
             assertTrue(listKieObjects.size() == 0);
 
 
             listKieObjectsFuture = client.getObjects("stockTickEventQuery" , "stock", new Object[]{"RHT"});
-            listKieObjectsValue = listKieObjectsFuture.get(15, TimeUnit.SECONDS);
-            listKieObjects = (Collection<? extends Object>) listKieObjectsValue;
+            listKieObjects = listKieObjectsFuture.get(15, TimeUnit.SECONDS);
             assertTrue(listKieObjects.size() == 1);
-            Object obj = listKieObjects.iterator().next();
-            StockTickEvent event = (StockTickEvent) obj;
+            StockTickEvent event = (StockTickEvent)listKieObjects.iterator().next();
             assertTrue(event.getCompany().equals("RHT"));
         }
     }

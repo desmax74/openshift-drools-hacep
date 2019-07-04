@@ -70,9 +70,8 @@ public class RemoteKieSessionImplTest {
         try (RemoteKieSessionImpl client = new RemoteKieSessionImpl(Config.getProducerConfig("getFactCountTest"),
                                                                     config)) {
             client.listen();
-            CompletableFuture<Long> factCountCallBack = client.getFactCount();
-            Object callbackValue = factCountCallBack.get(15, TimeUnit.SECONDS);
-            Long factCount = (Long) callbackValue;
+            CompletableFuture<Long> factCountFuture = client.getFactCount();
+            Long factCount = factCountFuture.get(30, TimeUnit.SECONDS);
             assertTrue(factCount == 7);
         }
     }
