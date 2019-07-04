@@ -47,15 +47,6 @@ public class PrinterLogImpl implements Printer {
     }
 
 
-    public void printOffset(String topic) {
-        Map<TopicPartition, Long> offsets = getOffsets(topic);
-        for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
-            logger.info("Topic:{} offset:{}",
-                        entry.getKey(),
-                        entry.getValue());
-        }
-    }
-
     public Map<TopicPartition, Long> getOffsets(String topic) {
         KafkaConsumer consumer = new KafkaConsumer(Config.getConsumerConfig("OffsetConsumer"));
         consumer.subscribe(Arrays.asList(topic));

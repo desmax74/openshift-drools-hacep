@@ -29,14 +29,13 @@ public class StockTickEvent implements Serializable {
     private double price;
     private long timestamp;
 
-    public StockTickEvent(String company,
-                          double price) {
+    public StockTickEvent(String company, double price) {
         this.company = company;
         this.price = price;
     }
 
-    public StockTickEvent() {
-    }
+    /* Empty constructor for serialization */
+    public StockTickEvent() {}
 
     public String getCompany() {
         return company;

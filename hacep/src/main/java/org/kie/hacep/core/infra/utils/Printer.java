@@ -21,6 +21,4 @@ public interface Printer {
 
     void prettyPrinter(ConsumerRecord consumerRecord, boolean processed);
 
-    void printOffset(String topic);
-
 }

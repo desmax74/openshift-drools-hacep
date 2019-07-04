@@ -43,15 +43,6 @@ public class CoreKube {
         leadership = new LeaderElectionImpl(kubernetesClient,configuration, initialState);
     }
 
-
-    public KubernetesClient getKubeClient() {
-        return kubernetesClient;
-    }
-
-    public KubernetesLockConfiguration getKubernetesLockConfiguration() {
-        return configuration;
-    }
-
     private KubernetesLockConfiguration createKubeConfiguration(String namespace) {
         String podName = System.getenv("POD_NAME");
         if (podName == null) {

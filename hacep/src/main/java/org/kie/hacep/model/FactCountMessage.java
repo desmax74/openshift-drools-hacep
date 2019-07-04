@@ -22,6 +22,7 @@ public class FactCountMessage implements Serializable, VisitableMessage {
     private String key;
     private long factCount;
 
+    /* Empty constructor for serialization */
     public FactCountMessage(){}
 
     public FactCountMessage(String key,

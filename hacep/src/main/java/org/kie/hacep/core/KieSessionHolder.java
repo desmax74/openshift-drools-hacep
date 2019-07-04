@@ -33,19 +33,8 @@ public class KieSessionHolder implements Serializable {
         this.kieSession = newKiession;
     }
 
-    public boolean isReady(){
-        return kieSession != null;
-    }
-
-    public void destroy(){
-        kieSession.destroy();
-    }
-
     public void dispose(){
         kieSession.dispose();
     }
 
-    public void halt(){
-        kieSession.halt();
-    }
 }

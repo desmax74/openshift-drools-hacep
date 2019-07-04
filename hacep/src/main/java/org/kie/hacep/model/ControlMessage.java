@@ -26,22 +26,14 @@ public class ControlMessage implements Serializable {
     private long timestamp;
     private Queue<Object> sideEffects;
 
-    public ControlMessage() {
-    }
-
-    public ControlMessage( String key,
-                           long offset) {
-        this.offset = offset;
-        this.key = key;
-        this.sideEffects = new ArrayDeque<>();
-    }
+    /* Empty constructor for serialization */
+    public ControlMessage() {}
 
     public ControlMessage( String key,
                            Queue<Object> sideEffects) {
         this.key = key;
         this.sideEffects = sideEffects;
     }
-
 
     public long getTimestamp() {
         return timestamp;

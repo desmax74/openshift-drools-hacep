@@ -23,6 +23,7 @@ public class ListKieSessionObjectMessage implements Serializable, VisitableMessa
     private String key;
     private Collection<? extends Object> objects;
 
+    /* Empty constructor for serialization */
     public ListKieSessionObjectMessage(){}
 
     public ListKieSessionObjectMessage(String key, Collection<? extends Object> objects) {
