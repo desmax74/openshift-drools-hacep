@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: extensions/v1
 kind: Deployment
 metadata:
   labels:
@@ -20,7 +20,7 @@ spec:
       containers:
         - env:
           name: openshift-kie-jdkhttp
-          image: desmax74/openshift-kie-jdkhttp:0.3
+          image: desmax74/openshift-kie-jdkhttp:m.4.03
           imagePullPolicy: IfNotPresent
           livenessProbe:
             exec:
