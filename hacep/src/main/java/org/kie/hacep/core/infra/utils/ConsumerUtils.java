@@ -44,7 +44,7 @@ public class ConsumerUtils {
     private static Logger logger = LoggerFactory.getLogger(ConsumerUtils.class);
 
     public static ControlMessage getLastEvent( String topic) {
-        return getLastEvent(topic, Config.getConsumerConfig("LAstEventConsumer"));
+        return getLastEvent(topic, Config.getConsumerConfig("LastEventConsumer"));
     }
 
     public Map<TopicPartition, Long> getOffsets(String topic) {

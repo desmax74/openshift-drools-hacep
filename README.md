@@ -12,6 +12,7 @@ mvn clean package
 ### Deployment
 
 - Springboot     (openshift-kie-springboot.jar 52,5 mb)
+- Thorntail      (openshift-kie-thorntail.jar 111 mb)
 - Jdk HttpServer (openshift-kie-jdkhttp.jar 36,9 mb)
 
 ### Client for demos
