@@ -26,8 +26,6 @@ public interface EventConsumer<K, V> {
     void assign(List<Integer> partitions);
 
 
-    void createConsumer(ConsumerHandler consumerHandler);
-
     void stop();
 
 }

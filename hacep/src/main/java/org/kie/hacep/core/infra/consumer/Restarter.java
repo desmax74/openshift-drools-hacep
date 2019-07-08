@@ -16,7 +16,6 @@
 package org.kie.hacep.core.infra.consumer;
 
 import org.kie.hacep.EnvConfig;
-import org.kie.hacep.core.KieSessionHolder;
 import org.kie.hacep.core.infra.election.LeadershipCallback;
 import org.kie.hacep.core.infra.utils.Printer;
 
@@ -30,12 +29,10 @@ public class Restarter {
     private DefaultConsumer consumer;
     private InfraCallback callback;
     private Printer printer;
-    private KieSessionHolder kieSessionHolder;
 
-    public Restarter(Printer printer, KieSessionHolder kieSessionHolder) {
+    public Restarter(Printer printer) {
         callback = new InfraCallback();
         this.printer = printer;
-        this.kieSessionHolder = kieSessionHolder;
     }
 
     public void createDroolsConsumer(EnvConfig envConfig) {
@@ -43,13 +40,8 @@ public class Restarter {
         callback.setConsumer(consumer);
     }
 
-
     public DefaultConsumer getConsumer() {
         return consumer;
-    }
-
-    public KieSessionHolder getKieSessionHolder() {
-        return kieSessionHolder;
     }
 
     public void setConsumer(DefaultConsumer consumer) {

@@ -17,6 +17,8 @@ package org.kie.hacep.core;
 
 import java.util.Arrays;
 
+import org.kie.api.KieServices;
+import org.kie.api.runtime.KieContainer;
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.consumer.DroolsConsumerHandler;
@@ -121,19 +123,43 @@ public class Bootstrap {
     private static void startConsumers(Printer printer,
                                        EnvConfig envConfig) {
         snapshooter = new SessionSnapShooter(envConfig);
-        SnapshotInfos infos = snapshooter.deserialize();
-        restarter = new Restarter(printer, kieSessionHolder);
+        restarter = new Restarter(printer);
         restarter.createDroolsConsumer(envConfig);
-        logger.info("start consumer with:{}", infos);
-        if (infos.getKeyDuringSnaphot() != null) {
-            restarter.getConsumer().createConsumer(new DroolsConsumerHandler(eventProducer,
-                                                                             snapshooter, infos, envConfig, restarter.getKieSessionHolder()), infos);
+
+        SnapshotInfos infos = snapshooter.deserialize();
+        if (infos != null) {
+            logger.info("start consumer with:{}", infos);
+            initSessionHolder( infos, kieSessionHolder );
         } else {
-            restarter.getConsumer().createConsumer(new DroolsConsumerHandler(eventProducer,
-                                                                             snapshooter, envConfig, restarter.getKieSessionHolder()));
+            createClasspathSession( kieSessionHolder );
         }
+
+        DroolsConsumerHandler handler = new DroolsConsumerHandler(eventProducer, snapshooter, envConfig, kieSessionHolder);
+        restarter.getConsumer().createConsumer(handler, infos);
+
         consumerController = new ConsumerController(restarter);
         consumerController.consumeEvents();
+    }
+
+    private static void createClasspathSession( KieSessionHolder kieSessionHolder ) {
+        KieServices srv = KieServices.get();
+        if (srv != null) {
+            KieContainer kieContainer = KieServices.get().newKieClasspathContainer();
+            logger.info("Creating new Kie Session");
+            kieSessionHolder.init(kieContainer.newKieSession());
+        } else {
+            logger.error("KieService is null");
+        }
+    }
+
+    private static void initSessionHolder(SnapshotInfos infos, KieSessionHolder kieSessionHolder) {
+        if (infos.getKieSession() == null) {
+            KieContainer kieContainer = KieServices.get().newKieClasspathContainer();
+            kieSessionHolder.init(kieContainer.newKieSession());
+        } else {
+            logger.info("Applying snapshot");
+            kieSessionHolder.initFromSnapshot(infos);
+        }
     }
 
     private static void addMasterElectionCallbacks() {

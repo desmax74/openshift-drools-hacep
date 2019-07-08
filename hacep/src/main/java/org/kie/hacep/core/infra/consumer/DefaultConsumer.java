@@ -85,15 +85,6 @@ public class DefaultConsumer<T> implements EventConsumer,
         this.printer = printer;
     }
 
-    public void createConsumer(ConsumerHandler consumerHandler) {
-        this.consumerHandle = consumerHandler;
-        snapShooter = ((DroolsConsumerHandler)consumerHandle).getSnapshooter();
-        kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));
-        if (!leader) {
-            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
-        }
-    }
-
     public void createConsumer(ConsumerHandler consumerHandler,
                                SnapshotInfos infos) {
         this.snapshotInfos = infos;

@@ -15,26 +15,35 @@
  */
 package org.kie.hacep.core;
 
-import java.io.Serializable;
-
 import org.kie.api.runtime.KieSession;
+import org.kie.hacep.consumer.FactHandlesManager;
+import org.kie.hacep.core.infra.SnapshotInfos;
 
-public class KieSessionHolder implements Serializable {
+public class KieSessionHolder {
 
     private KieSession kieSession;
 
-    public KieSessionHolder(){}
+    private FactHandlesManager fhManager;
 
-    public KieSession getKieSession(){
+    public KieSession getKieSession() {
         return kieSession;
     }
 
-    public void replaceKieSession(KieSession newKiession){
-        this.kieSession = newKiession;
+    public void initFromSnapshot(SnapshotInfos infos) {
+        this.kieSession = infos.getKieSession();
+        this.fhManager = infos.getFhManager();
     }
 
-    public void dispose(){
+    public void init(KieSession newKiession) {
+        this.kieSession = newKiession;
+        this.fhManager = new FactHandlesManager(newKiession);
+    }
+
+    public void dispose() {
         kieSession.dispose();
     }
 
+    public FactHandlesManager getFhManager() {
+        return fhManager;
+    }
 }
