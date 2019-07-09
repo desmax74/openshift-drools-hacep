@@ -16,28 +16,24 @@
 
 package org.kie.hacep.model;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
+import org.kie.hacep.consumer.FactHandlesManager;
 import org.kie.remote.RemoteFactHandle;
 
 public class SnapshotMessage implements Serializable {
     private byte[] serializedSession;
-    private transient Set<RemoteFactHandle> keys;
+    private FactHandlesManager fhManager;
     private String lastInsertedEventkey;
     private long lastInsertedEventOffset;
 
     /* Empty constructor for serialization */
     public SnapshotMessage() { }
 
-    public SnapshotMessage(byte[] serializedSession, Set<RemoteFactHandle> fhMapKeys, String lastInsertedEventkey, long lastInsertedEventOffset ) {
+    public SnapshotMessage( byte[] serializedSession, FactHandlesManager fhManager, String lastInsertedEventkey, long lastInsertedEventOffset ) {
         this.serializedSession = serializedSession;
-        this.keys = fhMapKeys;
+        this.fhManager = fhManager;
         this.lastInsertedEventkey = lastInsertedEventkey;
         this.lastInsertedEventOffset = lastInsertedEventOffset;
     }
@@ -50,12 +46,12 @@ public class SnapshotMessage implements Serializable {
         this.serializedSession = serializedSession;
     }
 
-    public Set<RemoteFactHandle> getFhMapKeys() {
-        return keys;
+    public FactHandlesManager getFhManager() {
+        return fhManager;
     }
 
-    public void setFhMapKeys( Set<RemoteFactHandle> fhMapKeys ) {
-        this.keys = fhMapKeys;
+    public Set<RemoteFactHandle> getFhMapKeys() {
+        return fhManager.getFhMapKeys();
     }
 
     public String getLastInsertedEventkey() {
@@ -79,29 +75,10 @@ public class SnapshotMessage implements Serializable {
     public String toString() {
         final StringBuilder sb = new StringBuilder("SnapshotMessage{");
         sb.append("serializedSession=bytes[]");
-        sb.append(", fhMapKeys=").append(keys);
+        sb.append(", fhMapKeys=").append(fhManager);
         sb.append(", lastInsertedEventkey='").append(lastInsertedEventkey).append('\'');
         sb.append(", lastInsertedEventOffset=").append(lastInsertedEventOffset);
         sb.append('}');
         return sb.toString();
-    }
-
-    /* Methods for serialization */
-    private void writeObject(ObjectOutputStream s) throws ClassNotFoundException, IOException {
-        s.defaultWriteObject();
-        s.writeInt(keys.size());
-        Iterator iterator = keys.iterator();
-        while(iterator.hasNext()){
-            s.writeObject(iterator.next());
-        }
-    }
-
-    private void readObject(ObjectInputStream s) throws ClassNotFoundException, IOException{
-        s.defaultReadObject();
-        int keysSize = s.readInt();
-        Set<RemoteFactHandle> a = keys = new HashSet<>(keysSize);
-        for(int i =0; i<keysSize; i++){
-           a.add((RemoteFactHandle) s.readObject());
-        }
     }
 }

@@ -19,11 +19,7 @@ import java.util.Arrays;
 
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
-import org.kie.hacep.consumer.DroolsConsumerHandler;
-import org.kie.hacep.core.infra.SessionSnapShooter;
-import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.consumer.ConsumerController;
-import org.kie.hacep.core.infra.consumer.Restarter;
 import org.kie.hacep.core.infra.election.LeaderElection;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.core.infra.producer.EventProducer;
@@ -37,30 +33,19 @@ import org.slf4j.LoggerFactory;
 public class Bootstrap {
 
     private static final Logger logger = LoggerFactory.getLogger(Bootstrap.class);
-    private static ConsumerController consumerController;
     private static EventProducer<?> eventProducer;
-    private static Restarter restarter;
-    private static SessionSnapShooter snapshooter;
+    private static ConsumerController consumerController;
     private static CoreKube coreKube;
-    private static KieSessionHolder kieSessionHolder;
 
     public static void startEngine(Printer printer, EnvConfig envConfig) {
-        //order matter
-        kieSessionHolder = new KieSessionHolder();
-        coreKube = new CoreKube(envConfig.getNamespace());
-        leaderElection();
-        startProducer(envConfig);
-        startConsumers(printer, envConfig);
-        addMasterElectionCallbacks();
-        logger.info("CONFIGURE on start engine:{}", Config.getDefaultConfig());
+        startEngine(printer, envConfig, null);
     }
 
     public static void startEngine(Printer printer, EnvConfig envConfig, State initialState) {
         //order matter
-        kieSessionHolder = new KieSessionHolder();
         coreKube = new CoreKube(envConfig.getNamespace(), initialState);
         leaderElection();
-        startProducer(envConfig);
+        startProducer();
         startConsumers(printer, envConfig);
         addMasterElectionCallbacks();
         logger.info("CONFIGURE on start engine:{}", Config.getDefaultConfig());
@@ -76,29 +61,20 @@ public class Bootstrap {
             logger.error(e.getMessage(),
                          e);
         }
-       kieSessionHolder.dispose();
-        if (restarter != null) {
-            restarter.getConsumer().stop();
+        if ( consumerController != null) {
+            consumerController.stop();
         }
         if (eventProducer != null) {
             eventProducer.stop();
         }
-        if(snapshooter != null) {
-            snapshooter.close();
-        }
-        if(consumerController != null) {
-            consumerController.stopConsumeEvents();
-        }
-        consumerController = null;
         eventProducer = null;
-        restarter = null;
-        snapshooter = null;
+        consumerController = null;
     }
 
-    public static Restarter getRestarter(){
-        return restarter;
+    // only for tests
+    public static ConsumerController getConsumerController(){
+        return consumerController;
     }
-
 
     private static void leaderElection() {
         //KubernetesLockConfiguration configuration = CoreKube.getKubernetesLockConfiguration();
@@ -113,31 +89,18 @@ public class Bootstrap {
         }
     }
 
-    private static void startProducer(EnvConfig envConfig) {
+    private static void startProducer() {
         eventProducer = new EventProducer<>();
         eventProducer.start(Config.getProducerConfig("EventProducer"));
     }
 
-    private static void startConsumers(Printer printer,
-                                       EnvConfig envConfig) {
-        snapshooter = new SessionSnapShooter(envConfig);
-        SnapshotInfos infos = snapshooter.deserialize();
-        restarter = new Restarter(printer, kieSessionHolder);
-        restarter.createDroolsConsumer(envConfig);
-        logger.info("start consumer with:{}", infos);
-        if (infos.getKeyDuringSnaphot() != null) {
-            restarter.getConsumer().createConsumer(new DroolsConsumerHandler(eventProducer,
-                                                                             snapshooter, infos, envConfig, restarter.getKieSessionHolder()), infos);
-        } else {
-            restarter.getConsumer().createConsumer(new DroolsConsumerHandler(eventProducer,
-                                                                             snapshooter, envConfig, restarter.getKieSessionHolder()));
-        }
-        consumerController = new ConsumerController(restarter);
-        consumerController.consumeEvents();
+    private static void startConsumers(Printer printer, EnvConfig envConfig) {
+        consumerController = new ConsumerController(printer, envConfig, eventProducer);
+        consumerController.start();
     }
 
     private static void addMasterElectionCallbacks() {
-        coreKube.getLeaderElection().addCallbacks(Arrays.asList(restarter.getCallback(), eventProducer));
+        coreKube.getLeaderElection().addCallbacks(Arrays.asList( consumerController.getCallback(), eventProducer));
     }
 
 }

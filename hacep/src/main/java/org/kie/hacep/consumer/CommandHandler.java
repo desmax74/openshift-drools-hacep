@@ -38,16 +38,13 @@ import org.kie.remote.command.VisitorCommand;
 
 public class CommandHandler implements VisitorCommand {
 
-    private BidirectionalMap<RemoteFactHandle, FactHandle> fhMap;
     private KieSessionHolder kieSessionHolder;
     private EnvConfig config;
     private Producer producer;
 
-    public CommandHandler(BidirectionalMap<RemoteFactHandle, FactHandle> fhMap,
-                          KieSessionHolder kieSessionHolder,
+    public CommandHandler(KieSessionHolder kieSessionHolder,
                           EnvConfig config,
                           Producer producer) {
-        this.fhMap = fhMap;
         this.kieSessionHolder = kieSessionHolder;
         this.config = config;
         this.producer = producer;
@@ -57,22 +54,21 @@ public class CommandHandler implements VisitorCommand {
     public void visit(InsertCommand command) {
         RemoteFactHandle remoteFH = command.getFactHandle();
         FactHandle fh = kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).insert(remoteFH.getObject());
-        fhMap.put(remoteFH,
-                  fh);
+        kieSessionHolder.getFhManager().registerHandle( remoteFH, fh);
         kieSessionHolder.getKieSession().fireAllRules();
     }
 
     @Override
     public void visit(DeleteCommand command) {
         RemoteFactHandle remoteFH = command.getFactHandle();
-        kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).delete(fhMap.get(remoteFH));
+        kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).delete(kieSessionHolder.getFhManager().mapRemoteFactHandle(remoteFH));
         kieSessionHolder.getKieSession().fireAllRules();
     }
 
     @Override
     public void visit(UpdateCommand command) {
         RemoteFactHandle remoteFH = command.getFactHandle();
-        FactHandle factHandle = fhMap.get(remoteFH);
+        FactHandle factHandle = kieSessionHolder.getFhManager().mapRemoteFactHandle(remoteFH);
         kieSessionHolder.getKieSession().getEntryPoint(command.getEntryPoint()).update(factHandle,
                                                                                        command.getObject());
         kieSessionHolder.getKieSession().fireAllRules();

@@ -17,7 +17,7 @@ package org.kie.hacep.core.infra.consumer;
 
 import java.util.List;
 
-public interface EventConsumer<K, V> {
+public interface EventConsumer {
 
     void poll(int size,
               long duration,
@@ -25,8 +25,6 @@ public interface EventConsumer<K, V> {
 
     void assign(List<Integer> partitions);
 
-
-    void createConsumer(ConsumerHandler consumerHandler);
 
     void stop();
 

@@ -16,10 +16,16 @@
 package org.kie.hacep.core.infra;
 
 import org.kie.api.runtime.KieSession;
+import org.kie.hacep.consumer.FactHandlesManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SnapshotInfos {
 
+    private static final Logger logger = LoggerFactory.getLogger(SnapshotInfos.class);
+
     private KieSession kieSession;
+    private FactHandlesManager fhManager;
     private String keyDuringSnaphot;
     private long offsetDuringSnapshot;
 
@@ -27,15 +33,21 @@ public class SnapshotInfos {
     }
 
     public SnapshotInfos(KieSession kieSession,
+                         FactHandlesManager fhManager,
                          String keyDuringSnaphot,
                          long offsetDuringSnapshot) {
         this.kieSession = kieSession;
+        this.fhManager = fhManager.initFromKieSession( kieSession );
         this.keyDuringSnaphot = keyDuringSnaphot;
         this.offsetDuringSnapshot = offsetDuringSnapshot;
     }
 
     public KieSession getKieSession() {
         return kieSession;
+    }
+
+    public FactHandlesManager getFhManager() {
+        return fhManager;
     }
 
     public String getKeyDuringSnaphot() {

@@ -16,35 +16,65 @@
 package org.kie.hacep.core.infra.consumer;
 
 import org.kie.hacep.Config;
+import org.kie.hacep.EnvConfig;
+import org.kie.hacep.consumer.DroolsConsumerHandler;
+import org.kie.hacep.core.infra.election.LeadershipCallback;
+import org.kie.hacep.core.infra.producer.EventProducer;
+import org.kie.hacep.core.infra.utils.Printer;
 
+/***
+ * Purpose of this class is to set a new consumer
+ * when a changeTopic in the DroolsConsumer is called without leave
+ * the ConsumerThread's inner loop
+ */
 public class ConsumerController {
 
-    private Restarter restarter;
+    private DefaultConsumer consumer;
+    private InfraCallback callback;
+    private Thread thread;
 
-    private Thread t;
-
-    public ConsumerController(Restarter bag) {
-        this.restarter = bag;
+    public ConsumerController( Printer printer, EnvConfig envConfig, EventProducer<?> eventProducer) {
+        this.callback = new InfraCallback();
+        this.consumer = new DefaultConsumer(printer, envConfig);
+        this.callback.setConsumer(consumer);
+        this.consumer.createConsumer(new DroolsConsumerHandler(eventProducer, envConfig));
     }
 
-    public void consumeEvents() {
-        t = new Thread(
+    public void start() {
+        consumeEvents();
+    }
+
+    public void stop() {
+        consumer.stop();
+        stopConsumeEvents();
+    }
+
+    public DefaultConsumer getConsumer() {
+        return consumer;
+    }
+
+    public LeadershipCallback getCallback() {
+        return callback;
+    }
+
+    private void consumeEvents() {
+        thread = new Thread(
                 new ConsumerThread(
                         Config.DEFAULT_POLL_TIMEOUT_MS,
                         Config.LOOP_DURATION,
                         Config.DEFAULT_COMMIT_SYNC,
-                        restarter));
-        t.start();
+                        this));
+        thread.start();
     }
 
-    public void stopConsumeEvents(){
-        restarter.getConsumer().stop();
-        if(t != null){
+    private void stopConsumeEvents(){
+        if ( thread != null) {
             try {
-                t.join();
+                thread.join();
             }catch (InterruptedException ex){
                 throw new RuntimeException(ex);
             }
         }
     }
+
 }

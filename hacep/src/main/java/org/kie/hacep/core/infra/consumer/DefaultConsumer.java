@@ -59,8 +59,7 @@ public class DefaultConsumer<T> implements EventConsumer,
     private Logger logger = LoggerFactory.getLogger(DefaultConsumer.class);
     private Map<TopicPartition, OffsetAndMetadata> offsetsEvents = new HashMap<>();
     private org.apache.kafka.clients.consumer.Consumer<String, T> kafkaConsumer, kafkaSecondaryConsumer;
-    private ConsumerHandler consumerHandle;
-    private Restarter externalContainer;
+    private DroolsConsumerHandler consumerHandler;
     private volatile State currentState;
     private volatile String processingKey = "";
     private volatile long processingKeyOffset;
@@ -78,34 +77,23 @@ public class DefaultConsumer<T> implements EventConsumer,
     private Printer printer;
     private EnvConfig config;
 
-    public DefaultConsumer(Restarter externalContainer, Printer printer, EnvConfig config) {
+    public DefaultConsumer(Printer printer, EnvConfig config) {
         this.config = config;
-        this.externalContainer = externalContainer;
         iterationBetweenSnapshot = Integer.valueOf(Config.getDefaultConfig().getProperty(Config.ITERATION_BETWEEN_SNAPSHOT));
         this.printer = printer;
     }
 
-    public void createConsumer(ConsumerHandler consumerHandler) {
-        this.consumerHandle = consumerHandler;
-        snapShooter = ((DroolsConsumerHandler)consumerHandle).getSnapshooter();
-        kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));
+    public void createConsumer(DroolsConsumerHandler consumerHandler) {
+        this.consumerHandler = consumerHandler;
+        this.snapshotInfos = consumerHandler.getSnapshotInfos();
+        this.snapShooter = this.consumerHandler.getSnapshooter();
+        this.kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));
         if (!leader) {
-            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
+            this.kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
         }
     }
 
-    public void createConsumer(ConsumerHandler consumerHandler,
-                               SnapshotInfos infos) {
-        this.snapshotInfos = infos;
-        this.consumerHandle = consumerHandler;
-        snapShooter = ((DroolsConsumerHandler)consumerHandle).getSnapshooter();
-        kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));
-        if (!leader) {
-            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
-        }
-    }
-
-    public void restartConsumer() {
+    private void restartConsumer() {
         logger.info("Restart Consumers");
         snapshotInfos = snapShooter.deserialize();
         kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));
@@ -117,6 +105,7 @@ public class DefaultConsumer<T> implements EventConsumer,
         }
     }
 
+    @Override
     public void stop() {
         stopConsume();
         stopPollingControl();
@@ -125,8 +114,10 @@ public class DefaultConsumer<T> implements EventConsumer,
         if (kafkaSecondaryConsumer != null) {
             kafkaSecondaryConsumer.wakeup();
         }
+        consumerHandler.dispose();
     }
 
+    @Override
     public void updateStatus(State state) {
         if (started) {
             updateOnRunningConsumer(state);
@@ -346,12 +337,12 @@ public class DefaultConsumer<T> implements EventConsumer,
             int iteration = counter.incrementAndGet();
             if (iteration == iterationBetweenSnapshot) {
                 counter.set(0);
-                consumerHandle.processWithSnapshot(ItemToProcess.getItemToProcess(record),
+                consumerHandler.processWithSnapshot(ItemToProcess.getItemToProcess(record),
                                                    currentState,
                                                    this,
                                                    sideEffects);
             } else {
-                consumerHandle.process(ItemToProcess.getItemToProcess(record),
+                consumerHandler.process(ItemToProcess.getItemToProcess(record),
                                        currentState,
                                        this,
                                        sideEffects);
@@ -439,14 +430,14 @@ public class DefaultConsumer<T> implements EventConsumer,
             stopPollingEvents();
             startPollingControl();
             stopProcessingNotLeader();
-            consumerHandle.process(ItemToProcess.getItemToProcess(record),
+            consumerHandler.process(ItemToProcess.getItemToProcess(record),
                                    currentState,
                                    this,
                                    sideEffects);
             saveOffset(record, kafkaConsumer);
             logger.info("change topic, switch to consume control");
         } else if (processingNotLeader) {
-            consumerHandle.process(ItemToProcess.getItemToProcess(record),
+            consumerHandler.process(ItemToProcess.getItemToProcess(record),
                                    currentState,
                                    this,
                                    sideEffects);
@@ -480,7 +471,7 @@ public class DefaultConsumer<T> implements EventConsumer,
 
     private void saveOffset(ConsumerRecord<String, T> record,
                             Consumer<String, T> kafkaSecondaryConsumer) {
-        Map map = new HashMap();
+        Map<TopicPartition, OffsetAndMetadata> map = new HashMap<>();
         map.put(new TopicPartition(record.topic(), record.partition()),
                 new OffsetAndMetadata(record.offset() + 1));
         kafkaSecondaryConsumer.commitSync(map);
