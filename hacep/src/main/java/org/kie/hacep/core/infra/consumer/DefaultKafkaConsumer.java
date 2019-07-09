@@ -53,10 +53,9 @@ import org.slf4j.LoggerFactory;
  * The default consumer relies on the Consumer thread and
  * is based on the loop around poll method.
  */
-public class DefaultConsumer<T> implements EventConsumer,
-                                           LeadershipCallback {
+public class DefaultKafkaConsumer<T> implements EventConsumer, LeadershipCallback {
 
-    private Logger logger = LoggerFactory.getLogger(DefaultConsumer.class);
+    private Logger logger = LoggerFactory.getLogger(DefaultKafkaConsumer.class);
     private Map<TopicPartition, OffsetAndMetadata> offsetsEvents = new HashMap<>();
     private org.apache.kafka.clients.consumer.Consumer<String, T> kafkaConsumer, kafkaSecondaryConsumer;
     private DroolsConsumerHandler consumerHandler;
@@ -77,7 +76,7 @@ public class DefaultConsumer<T> implements EventConsumer,
     private Printer printer;
     private EnvConfig config;
 
-    public DefaultConsumer(Printer printer, EnvConfig config) {
+    public DefaultKafkaConsumer(Printer printer, EnvConfig config) {
         this.config = config;
         iterationBetweenSnapshot = Integer.valueOf(Config.getDefaultConfig().getProperty(Config.ITERATION_BETWEEN_SNAPSHOT));
         this.printer = printer;
@@ -85,7 +84,6 @@ public class DefaultConsumer<T> implements EventConsumer,
 
     public void createConsumer(DroolsConsumerHandler consumerHandler) {
         this.consumerHandler = consumerHandler;
-        this.snapshotInfos = consumerHandler.getSnapshotInfos();
         this.snapShooter = this.consumerHandler.getSnapshooter();
         this.kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));
         if (!leader) {
@@ -127,8 +125,7 @@ public class DefaultConsumer<T> implements EventConsumer,
         currentState = state;
     }
 
-    @Override
-    public void assign(List partitions) {
+    private void assign(List partitions) {
         if (leader) {
             assignAsALeader(partitions);
         } else {
@@ -181,10 +178,7 @@ public class DefaultConsumer<T> implements EventConsumer,
         }
     }
 
-    @Override
-    public void poll(int size,
-                     long duration,
-                     boolean commitSync) {
+    public void poll(int durationMillis) {
 
         final Thread mainThread = Thread.currentThread();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -211,7 +205,7 @@ public class DefaultConsumer<T> implements EventConsumer,
 
         try {
             while (true) {
-                consume(size);
+                consume(durationMillis);
             }
         } catch (WakeupException e) {
             //nothind to do
@@ -329,8 +323,7 @@ public class DefaultConsumer<T> implements EventConsumer,
 
     private void processLeader(ConsumerRecord<String, T> record,
                                AtomicInteger counter) {
-        printer.prettyPrinter(record,
-                                    processingLeader);
+        printer.prettyPrinter(record, processingLeader);
         if (record.key().equals(processingKey)) {
             startProcessingLeader();
         } else if (processingLeader) {

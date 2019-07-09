@@ -22,7 +22,7 @@ import org.kie.api.runtime.KieContainer;
 import org.kie.api.time.SessionPseudoClock;
 import org.kie.hacep.ConverterUtil;
 import org.kie.hacep.EnvConfig;
-import org.kie.hacep.core.KieSessionHolder;
+import org.kie.hacep.core.KieSessionContext;
 import org.kie.hacep.core.infra.SessionSnapShooter;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.consumer.ConsumerHandler;
@@ -43,31 +43,23 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private SessionPseudoClock clock;
     private Producer producer;
     private SessionSnapShooter snapshooter;
-    private SnapshotInfos snapshotInfos;
     private EnvConfig config;
-    private KieSessionHolder kieSessionHolder;
+    private KieSessionContext kieSessionContext;
     private CommandHandler commandHandler;
     private SnapshotInfos infos;
 
     public DroolsConsumerHandler(EventProducer producer, EnvConfig envConfig) {
         this.snapshooter = new SessionSnapShooter(envConfig);
         this.infos = snapshooter.deserialize();
-
-        this.kieSessionHolder = createSessionHolder( infos );
-        clock = kieSessionHolder.getKieSession().getSessionClock();
-
+        this.kieSessionContext = createSessionHolder( infos );
+        clock = kieSessionContext.getKieSession().getSessionClock();
         this.config = envConfig;
-        this.snapshooter = snapshooter;
         this.producer = producer;
-        commandHandler = new CommandHandler(kieSessionHolder, config, producer);
+        commandHandler = new CommandHandler(kieSessionContext, config, producer);
     }
 
     public SessionSnapShooter getSnapshooter(){
         return snapshooter;
-    }
-
-    public SnapshotInfos getSnapshotInfos() {
-        return snapshotInfos;
     }
 
     public void process( ItemToProcess item, State state, EventConsumer consumer, Queue<Object> sideEffects) {
@@ -87,13 +79,13 @@ public class DroolsConsumerHandler implements ConsumerHandler {
                                     EventConsumer consumer,
                                     Queue<Object> sideEffects) {
         logger.info("SNAPSHOT !!!");
-        snapshooter.serialize(kieSessionHolder, item.getKey(), item.getOffset());
+        snapshooter.serialize(kieSessionContext, item.getKey(), item.getOffset());
         process(item, currentState, consumer, sideEffects);
     }
 
     @Override
     public void dispose() {
-        kieSessionHolder.getKieSession().dispose();
+        kieSessionContext.getKieSession().dispose();
         snapshooter.close();
     }
 
@@ -105,35 +97,35 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         }
     }
 
-    private KieSessionHolder createSessionHolder( SnapshotInfos infos ) {
-        KieSessionHolder kieSessionHolder = new KieSessionHolder();
+    private KieSessionContext createSessionHolder(SnapshotInfos infos ) {
+        KieSessionContext kieSessionContext = new KieSessionContext();
         if (infos != null) {
             logger.info("start consumer with:{}", infos);
-            initSessionHolder( infos, kieSessionHolder );
+            initSessionHolder( infos, kieSessionContext );
         } else {
-            createClasspathSession( kieSessionHolder );
+            createClasspathSession( kieSessionContext );
         }
-        return kieSessionHolder;
+        return kieSessionContext;
     }
 
-    private void createClasspathSession( KieSessionHolder kieSessionHolder ) {
+    private void createClasspathSession( KieSessionContext kieSessionContext ) {
         KieServices srv = KieServices.get();
         if (srv != null) {
             KieContainer kieContainer = KieServices.get().newKieClasspathContainer();
             logger.info("Creating new Kie Session");
-            kieSessionHolder.init(kieContainer.newKieSession());
+            kieSessionContext.init(kieContainer.newKieSession());
         } else {
             logger.error("KieService is null");
         }
     }
 
-    private void initSessionHolder(SnapshotInfos infos, KieSessionHolder kieSessionHolder) {
+    private void initSessionHolder(SnapshotInfos infos, KieSessionContext kieSessionContext) {
         if (infos.getKieSession() == null) {
             KieContainer kieContainer = KieServices.get().newKieClasspathContainer();
-            kieSessionHolder.init(kieContainer.newKieSession());
+            kieSessionContext.init(kieContainer.newKieSession());
         } else {
             logger.info("Applying snapshot");
-            kieSessionHolder.initFromSnapshot(infos);
+            kieSessionContext.initFromSnapshot(infos);
         }
     }
 }

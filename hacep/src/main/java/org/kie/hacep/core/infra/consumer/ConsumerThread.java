@@ -17,27 +17,15 @@ package org.kie.hacep.core.infra.consumer;
 
 public class ConsumerThread implements Runnable {
 
-    private int size;
-    private long duration;
-    private boolean commitSync;
+    private int durationMillis;
     private ConsumerController bag;
 
-    public ConsumerThread(
-            int pollSize,
-            long duration,
-            boolean commitSync,
-            ConsumerController bag) {
-        this.size = pollSize;
-        this.duration = duration;
-        this.commitSync = commitSync;
+    public ConsumerThread(int durationMillis, ConsumerController bag) {
+        this.durationMillis = durationMillis;
         this.bag = bag;
     }
 
     public void run() {
-        bag.getConsumer().poll(size,
-                                    duration,
-                                    commitSync);
+        bag.getConsumer().poll(durationMillis);
     }
-
-
 }

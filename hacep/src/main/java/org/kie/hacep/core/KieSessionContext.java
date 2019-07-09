@@ -19,7 +19,7 @@ import org.kie.api.runtime.KieSession;
 import org.kie.hacep.consumer.FactHandlesManager;
 import org.kie.hacep.core.infra.SnapshotInfos;
 
-public class KieSessionHolder {
+public class KieSessionContext {
 
     private KieSession kieSession;
 
@@ -37,10 +37,6 @@ public class KieSessionHolder {
     public void init(KieSession newKiession) {
         this.kieSession = newKiession;
         this.fhManager = new FactHandlesManager(newKiession);
-    }
-
-    public void dispose() {
-        kieSession.dispose();
     }
 
     public FactHandlesManager getFhManager() {

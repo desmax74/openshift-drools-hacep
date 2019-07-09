@@ -42,12 +42,11 @@ public class Config {
     public static final String DEFAULT_SNAPSHOT_TOPIC = "snapshot";
     public static final String DEFAULT_KIE_SESSION_INFOS_TOPIC = "kiesessioninfos";
     public static final String ITERATION_BETWEEN_SNAPSHOT = "iteration.between.snapshot";
+    public static final String DEFAULT_PRINTER_TYPE = "printer.type";
 
     public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST";
     public static final String BROKER_URL = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST);
     public static final int DEFAULT_POLL_TIMEOUT_MS = 1000;
-    public static final int LOOP_DURATION = -1;
-    public static final boolean DEFAULT_COMMIT_SYNC = true;
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
     private static Properties config;
     private static Properties consumerConf, producerConf, snapshotConsumerConf, snapshotProducerConf;

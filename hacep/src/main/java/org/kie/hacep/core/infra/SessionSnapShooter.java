@@ -38,7 +38,7 @@ import org.kie.api.runtime.conf.ClockTypeOption;
 import org.kie.hacep.Config;
 import org.kie.hacep.ConverterUtil;
 import org.kie.hacep.EnvConfig;
-import org.kie.hacep.core.KieSessionHolder;
+import org.kie.hacep.core.KieSessionContext;
 import org.kie.hacep.core.infra.producer.EventProducer;
 import org.kie.hacep.model.SnapshotMessage;
 import org.slf4j.Logger;
@@ -66,13 +66,13 @@ public class SessionSnapShooter {
         }
     }
 
-    public void serialize( KieSessionHolder kieSessionHolder, String lastInsertedEventkey, long lastInsertedEventOffset) {
+    public void serialize(KieSessionContext kieSessionContext, String lastInsertedEventkey, long lastInsertedEventOffset) {
         KieMarshallers marshallers = KieServices.get().getMarshallers();
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            marshallers.newMarshaller(kieSessionHolder.getKieSession().getKieBase()).marshall(out, kieSessionHolder.getKieSession());
+            marshallers.newMarshaller(kieSessionContext.getKieSession().getKieBase()).marshall(out, kieSessionContext.getKieSession());
             /* We are storing the last inserted key and offset together with the session's bytes */
             byte[] bytes = out.toByteArray();
-            SnapshotMessage message = new SnapshotMessage( bytes, kieSessionHolder.getFhManager(), lastInsertedEventkey, lastInsertedEventOffset);
+            SnapshotMessage message = new SnapshotMessage( bytes, kieSessionContext.getFhManager(), lastInsertedEventkey, lastInsertedEventOffset);
             producer.produceSync(envConfig.getSnapshotTopicName(), key,message);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);

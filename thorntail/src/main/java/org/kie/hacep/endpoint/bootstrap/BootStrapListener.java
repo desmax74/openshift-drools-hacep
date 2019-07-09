@@ -31,8 +31,7 @@ public class BootStrapListener implements ServletContextListener {
     private Logger logger = LoggerFactory.getLogger(BootStrapListener.class);
 
     public void contextInitialized(ServletContextEvent event) {
-        Bootstrap.startEngine(new PrinterLogImpl(),
-                              EnvConfig.getDefaultEnvConfig());
+        Bootstrap.startEngine(EnvConfig.getDefaultEnvConfig());
         logger.info("Core system started");
     }
 

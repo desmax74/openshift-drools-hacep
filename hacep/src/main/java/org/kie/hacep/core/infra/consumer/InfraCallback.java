@@ -23,11 +23,11 @@ import org.kie.hacep.core.infra.election.State;
  */
 public class InfraCallback implements LeadershipCallback {
 
-    private DefaultConsumer consumer;
+    private DefaultKafkaConsumer consumer;
 
     public InfraCallback() { }
 
-    public void setConsumer(DefaultConsumer newConsumer) {
+    public void setConsumer(DefaultKafkaConsumer newConsumer) {
         this.consumer = newConsumer;
     }
 

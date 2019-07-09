@@ -24,6 +24,7 @@ import org.kie.hacep.core.infra.election.LeaderElection;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.core.infra.producer.EventProducer;
 import org.kie.hacep.core.infra.utils.Printer;
+import org.kie.hacep.core.infra.utils.PrinterLogImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,17 +38,16 @@ public class Bootstrap {
     private static ConsumerController consumerController;
     private static CoreKube coreKube;
 
-    public static void startEngine(Printer printer, EnvConfig envConfig) {
-        startEngine(printer, envConfig, null);
+    public static void startEngine(EnvConfig envConfig) {
+        startEngine(envConfig, null);
     }
 
-    public static void startEngine(Printer printer, EnvConfig envConfig, State initialState) {
+    public static void startEngine(EnvConfig envConfig, State initialState) {
         //order matter
         coreKube = new CoreKube(envConfig.getNamespace(), initialState);
-        leaderElection();
         startProducer();
-        startConsumers(printer, envConfig);
-        addMasterElectionCallbacks();
+        startConsumers(envConfig);
+        leaderElection();
         logger.info("CONFIGURE on start engine:{}", Config.getDefaultConfig());
     }
 
@@ -82,6 +82,7 @@ public class Bootstrap {
         //KubernetesClient client = Core.getKubeClient();
         //client.events().inNamespace("my-kafka-project").watch(WatcherFactory.createModifiedLogWatcher(configuration.getPodName()));
         LeaderElection leadership = coreKube.getLeaderElection();
+        coreKube.getLeaderElection().addCallbacks(Arrays.asList( consumerController.getCallback(), eventProducer));
         try {
             leadership.start();
         } catch (Exception e) {
@@ -94,13 +95,24 @@ public class Bootstrap {
         eventProducer.start(Config.getProducerConfig("EventProducer"));
     }
 
-    private static void startConsumers(Printer printer, EnvConfig envConfig) {
-        consumerController = new ConsumerController(printer, envConfig, eventProducer);
+    private static void startConsumers(EnvConfig envConfig) {
+        consumerController = new ConsumerController(getPrinter(envConfig), envConfig, eventProducer);
         consumerController.start();
     }
 
-    private static void addMasterElectionCallbacks() {
-        coreKube.getLeaderElection().addCallbacks(Arrays.asList( consumerController.getCallback(), eventProducer));
+    private static Printer getPrinter(EnvConfig config){
+        if(config.getPrinterType().equals(PrinterLogImpl.class.getName())){
+            return new PrinterLogImpl();
+        }else{
+            Printer returnInstance;
+            try {
+                returnInstance = (Printer) Class.forName(config.getPrinterType()).newInstance();
+            }catch (Exception ex){
+                logger.error("Printer:{} not found, using PrinterLog", ex.getMessage());
+                return new PrinterLogImpl();
+            }
+            return returnInstance;
+        }
     }
 
 }

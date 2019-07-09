@@ -61,9 +61,7 @@ public class RemoteKieSessionImplTest {
 
     @Test
     public void getFactCountTest() throws Exception {
-        Bootstrap.startEngine(new PrinterLogImpl(),
-                              config,
-                              State.LEADER);
+        Bootstrap.startEngine(config, State.LEADER);
         kafkaServerTest.insertBatchStockTicketEvent(7,
                                                     config,
                                                     RemoteKieSession.class);

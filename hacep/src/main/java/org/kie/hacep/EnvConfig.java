@@ -17,6 +17,8 @@ package org.kie.hacep;
 
 import java.util.Optional;
 
+import org.kie.hacep.core.infra.utils.PrinterLogImpl;
+
 public final class EnvConfig {
 
     private String namespace;
@@ -24,6 +26,7 @@ public final class EnvConfig {
     private String controlTopicName;
     private String snapshotTopicName;
     private String kieSessionInfosTopicName;
+    private String printerType;
 
     public static EnvConfig getDefaultEnvConfig(){
         return anEnvConfig().
@@ -31,7 +34,8 @@ public final class EnvConfig {
                 withControlTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_CONTROL_TOPIC)).orElse(Config.DEFAULT_CONTROL_TOPIC)).
                 withEventsTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_EVENTS_TOPIC)).orElse(Config.DEFAULT_EVENTS_TOPIC)).
                 withSnapshotTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_SNAPSHOT_TOPIC)).orElse(Config.DEFAULT_SNAPSHOT_TOPIC)).
-                withKieSessionInfosTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_KIE_SESSION_INFOS_TOPIC)).orElse(Config.DEFAULT_KIE_SESSION_INFOS_TOPIC)).build();
+                withKieSessionInfosTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_KIE_SESSION_INFOS_TOPIC)).orElse(Config.DEFAULT_KIE_SESSION_INFOS_TOPIC)).
+                withPrinterType(Optional.ofNullable(System.getenv(Config.DEFAULT_PRINTER_TYPE)).orElse(PrinterLogImpl.class.getName())).build();
     }
 
     private EnvConfig() { }
@@ -63,6 +67,11 @@ public final class EnvConfig {
         return this;
     }
 
+    public EnvConfig withPrinterType(String printerType) {
+        this.printerType = printerType;
+        return this;
+    }
+
     public EnvConfig build() {
         EnvConfig envConfig = new EnvConfig();
         envConfig.eventsTopicName = this.eventsTopicName;
@@ -70,6 +79,7 @@ public final class EnvConfig {
         envConfig.controlTopicName = this.controlTopicName;
         envConfig.snapshotTopicName = this.snapshotTopicName;
         envConfig.kieSessionInfosTopicName = this.kieSessionInfosTopicName;
+        envConfig.printerType = this.printerType;
         return envConfig;
     }
 
@@ -83,6 +93,8 @@ public final class EnvConfig {
 
     public String getKieSessionInfosTopicName() { return kieSessionInfosTopicName; }
 
+    public String getPrinterType() { return printerType; }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("EnvConfig{");
@@ -91,6 +103,7 @@ public final class EnvConfig {
         sb.append(", controlTopicName='").append(controlTopicName).append('\'');
         sb.append(", snapshotTopicName='").append(snapshotTopicName).append('\'');
         sb.append(", kieSessionInfosTopicName='").append(kieSessionInfosTopicName).append('\'');
+        sb.append(", printerType='").append(printerType).append('\'');
         sb.append('}');
         return sb.toString();
     }

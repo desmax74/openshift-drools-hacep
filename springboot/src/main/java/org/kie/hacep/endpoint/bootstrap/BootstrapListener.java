@@ -35,7 +35,7 @@ public class BootstrapListener implements ServletContextListener {
     }
 
     private void initServices() {
-        Bootstrap.startEngine(new PrinterLogImpl(), EnvConfig.getDefaultEnvConfig());
+        Bootstrap.startEngine(EnvConfig.getDefaultEnvConfig());
         logger.info("Core system started");
     }
 

@@ -39,7 +39,7 @@ public class JdkHttpServer {
         server.createContext("/health", new HealthHandler());
         server.createContext("/env/all", new EnvHandler());
         try {
-            Bootstrap.startEngine(new PrinterLogImpl(), EnvConfig.getDefaultEnvConfig());
+            Bootstrap.startEngine(EnvConfig.getDefaultEnvConfig());
             logger.info("Core system started");
         }finally {
            // Bootstrap.stopEngine();

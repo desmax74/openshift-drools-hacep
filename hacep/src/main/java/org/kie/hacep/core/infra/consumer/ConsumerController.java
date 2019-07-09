@@ -22,20 +22,15 @@ import org.kie.hacep.core.infra.election.LeadershipCallback;
 import org.kie.hacep.core.infra.producer.EventProducer;
 import org.kie.hacep.core.infra.utils.Printer;
 
-/***
- * Purpose of this class is to set a new consumer
- * when a changeTopic in the DroolsConsumer is called without leave
- * the ConsumerThread's inner loop
- */
 public class ConsumerController {
 
-    private DefaultConsumer consumer;
+    private DefaultKafkaConsumer consumer;
     private InfraCallback callback;
     private Thread thread;
 
     public ConsumerController( Printer printer, EnvConfig envConfig, EventProducer<?> eventProducer) {
         this.callback = new InfraCallback();
-        this.consumer = new DefaultConsumer(printer, envConfig);
+        this.consumer = new DefaultKafkaConsumer(printer, envConfig);
         this.callback.setConsumer(consumer);
         this.consumer.createConsumer(new DroolsConsumerHandler(eventProducer, envConfig));
     }
@@ -49,7 +44,7 @@ public class ConsumerController {
         stopConsumeEvents();
     }
 
-    public DefaultConsumer getConsumer() {
+    public DefaultKafkaConsumer getConsumer() {
         return consumer;
     }
 
@@ -59,11 +54,7 @@ public class ConsumerController {
 
     private void consumeEvents() {
         thread = new Thread(
-                new ConsumerThread(
-                        Config.DEFAULT_POLL_TIMEOUT_MS,
-                        Config.LOOP_DURATION,
-                        Config.DEFAULT_COMMIT_SYNC,
-                        this));
+                new ConsumerThread(Config.DEFAULT_POLL_TIMEOUT_MS, this));
         thread.start();
     }
 

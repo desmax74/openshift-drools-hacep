@@ -15,17 +15,9 @@
  */
 package org.kie.hacep.core.infra.consumer;
 
-import java.util.List;
-
 public interface EventConsumer {
 
-    void poll(int size,
-              long duration,
-              boolean commitSync);
-
-    void assign(List<Integer> partitions);
-
+    void poll(int durationMillis);
 
     void stop();
-
 }
