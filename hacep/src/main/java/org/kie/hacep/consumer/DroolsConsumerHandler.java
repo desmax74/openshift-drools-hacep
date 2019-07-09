@@ -17,6 +17,8 @@ package org.kie.hacep.consumer;
 
 import java.util.Queue;
 
+import org.kie.api.KieServices;
+import org.kie.api.runtime.KieContainer;
 import org.kie.api.time.SessionPseudoClock;
 import org.kie.hacep.ConverterUtil;
 import org.kie.hacep.EnvConfig;
@@ -45,12 +47,17 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private EnvConfig config;
     private KieSessionHolder kieSessionHolder;
     private CommandHandler commandHandler;
+    private SnapshotInfos infos;
 
-    public DroolsConsumerHandler(EventProducer producer, SessionSnapShooter snapshooter, EnvConfig config, KieSessionHolder kieSessionHolder) {
-        this.kieSessionHolder = kieSessionHolder;
-        this.config = config;
-        this.snapshooter = snapshooter;
+    public DroolsConsumerHandler(EventProducer producer, EnvConfig envConfig) {
+        this.snapshooter = new SessionSnapShooter(envConfig);
+        this.infos = snapshooter.deserialize();
+
+        this.kieSessionHolder = createSessionHolder( infos );
         clock = kieSessionHolder.getKieSession().getSessionClock();
+
+        this.config = envConfig;
+        this.snapshooter = snapshooter;
         this.producer = producer;
         commandHandler = new CommandHandler(kieSessionHolder, config, producer);
     }
@@ -59,7 +66,11 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         return snapshooter;
     }
 
-    public void process(ItemToProcess item, State state, EventConsumer consumer, Queue<Object> sideEffects) {
+    public SnapshotInfos getSnapshotInfos() {
+        return snapshotInfos;
+    }
+
+    public void process( ItemToProcess item, State state, EventConsumer consumer, Queue<Object> sideEffects) {
         RemoteCommand command  = ConverterUtil.deSerializeObjInto((byte[])item.getObject(), RemoteCommand.class);
         processCommand( command, state );
 
@@ -76,9 +87,14 @@ public class DroolsConsumerHandler implements ConsumerHandler {
                                     EventConsumer consumer,
                                     Queue<Object> sideEffects) {
         logger.info("SNAPSHOT !!!");
-        // TODO add fhMap to snapshot image
         snapshooter.serialize(kieSessionHolder, item.getKey(), item.getOffset());
         process(item, currentState, consumer, sideEffects);
+    }
+
+    @Override
+    public void dispose() {
+        kieSessionHolder.getKieSession().dispose();
+        snapshooter.close();
     }
 
     private void processCommand( RemoteCommand command, State state ) {
@@ -89,6 +105,35 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         }
     }
 
+    private KieSessionHolder createSessionHolder( SnapshotInfos infos ) {
+        KieSessionHolder kieSessionHolder = new KieSessionHolder();
+        if (infos != null) {
+            logger.info("start consumer with:{}", infos);
+            initSessionHolder( infos, kieSessionHolder );
+        } else {
+            createClasspathSession( kieSessionHolder );
+        }
+        return kieSessionHolder;
+    }
 
+    private void createClasspathSession( KieSessionHolder kieSessionHolder ) {
+        KieServices srv = KieServices.get();
+        if (srv != null) {
+            KieContainer kieContainer = KieServices.get().newKieClasspathContainer();
+            logger.info("Creating new Kie Session");
+            kieSessionHolder.init(kieContainer.newKieSession());
+        } else {
+            logger.error("KieService is null");
+        }
+    }
 
+    private void initSessionHolder(SnapshotInfos infos, KieSessionHolder kieSessionHolder) {
+        if (infos.getKieSession() == null) {
+            KieContainer kieContainer = KieServices.get().newKieClasspathContainer();
+            kieSessionHolder.init(kieContainer.newKieSession());
+        } else {
+            logger.info("Applying snapshot");
+            kieSessionHolder.initFromSnapshot(infos);
+        }
+    }
 }

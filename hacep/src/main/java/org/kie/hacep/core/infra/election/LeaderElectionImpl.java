@@ -49,22 +49,12 @@ public class LeaderElectionImpl implements LeaderElection {
     private volatile Set<String> latestMembers;
     private List<LeadershipCallback> callbacks;
 
-    public LeaderElectionImpl(KubernetesClient kubernetesClient,
-                              KubernetesLockConfiguration lockConfiguration) {
+    public LeaderElectionImpl(KubernetesClient kubernetesClient, KubernetesLockConfiguration lockConfiguration, State initialState) {
         this.kubernetesClient = kubernetesClient;
         this.lockConfiguration = lockConfiguration;
         this.callbacks = new ArrayList<>();
+        this.currentState = initialState;
     }
-
-    public LeaderElectionImpl(KubernetesClient kubernetesClient,
-                              KubernetesLockConfiguration lockConfiguration, State initialState) {
-        this.kubernetesClient = kubernetesClient;
-        this.lockConfiguration = lockConfiguration;
-        this.callbacks = new ArrayList<>();
-        currentState = initialState;
-    }
-
-
 
     public void start() {
         if (serializedExecutor == null) {

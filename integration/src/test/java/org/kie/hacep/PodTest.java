@@ -79,7 +79,7 @@ public class PodTest {
     public void processOneSentMessageAsLeaderTest() {
         Bootstrap.startEngine(new PrinterLogImpl(),
                               config);
-        Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
+        Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
         KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("",
                                                                    config.getEventsTopicName(),
                                                                    Config.getConsumerConfig("eventsConsumerProcessOneSentMessageAsLeaderTest"));
@@ -134,7 +134,7 @@ public class PodTest {
     public void processMessagesAsLeaderAndCreateSnapshotTest() {
         Bootstrap.startEngine(new PrinterLogImpl(),
                               config);
-        Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
+        Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
         KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("",
                                                                    config.getEventsTopicName(),
                                                                    Config.getConsumerConfig("eventsConsumerProcessOneSentMessageAsLeaderTest"));
@@ -176,7 +176,7 @@ public class PodTest {
     public void processOneSentMessageAsLeaderAndThenReplicaTest() {
         Bootstrap.startEngine(new PrinterKafkaImpl(),
                               config);
-        Bootstrap.getRestarter().getCallback().updateStatus(State.LEADER);
+        Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
         KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("",
                                                                    config.getEventsTopicName(),
                                                                    Config.getConsumerConfig("eventsConsumerProcessOneSentMessageAsLeaderTest"));
@@ -238,7 +238,7 @@ public class PodTest {
                          controlRecords.count());
 
             // SWITCH AS a REPLICA
-            Bootstrap.getRestarter().getCallback().updateStatus(State.REPLICA);
+            Bootstrap.getConsumerController().getCallback().updateStatus(State.REPLICA);
             //@TODO with kafka logger
 
         } catch (Exception ex) {

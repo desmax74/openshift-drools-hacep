@@ -30,4 +30,6 @@ public interface ConsumerHandler {
                  State currentState,
                  EventConsumer consumer,
                  Queue<Object> sideEffects);
+
+    void dispose();
 }

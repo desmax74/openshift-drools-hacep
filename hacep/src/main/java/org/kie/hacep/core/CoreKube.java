@@ -31,16 +31,10 @@ public class CoreKube {
     private KubernetesLockConfiguration configuration;
     private LeaderElection leadership;
 
-    public CoreKube(String namespace){
-        kubernetesClient = new DefaultKubernetesClient();
-        configuration = createKubeConfiguration(namespace);
-        leadership = new LeaderElectionImpl(kubernetesClient,configuration);
-    }
-
     public CoreKube(String namespace, State initialState){
         kubernetesClient = new DefaultKubernetesClient();
         configuration = createKubeConfiguration(namespace);
-        leadership = new LeaderElectionImpl(kubernetesClient,configuration, initialState);
+        leadership = new LeaderElectionImpl(kubernetesClient, configuration, initialState);
     }
 
     private KubernetesLockConfiguration createKubeConfiguration(String namespace) {
