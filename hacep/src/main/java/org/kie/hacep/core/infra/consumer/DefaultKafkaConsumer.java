@@ -39,7 +39,7 @@ import org.kie.hacep.EnvConfig;
 import org.kie.hacep.consumer.DroolsConsumerHandler;
 import org.kie.hacep.consumer.DroolsExecutor;
 import org.kie.hacep.core.infra.OffsetManager;
-import org.kie.hacep.core.infra.SessionSnapShooter;
+import org.kie.hacep.core.infra.DeafultSessionSnapShooter;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.election.LeadershipCallback;
 import org.kie.hacep.core.infra.election.State;
@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * The default consumer relies on the Consumer thread and
  * is based on the loop around poll method.
  */
-public class DefaultKafkaConsumer<T> implements EventConsumer, LeadershipCallback {
+public class DefaultKafkaConsumer<T> implements EventConsumerWithStatus, LeadershipCallback {
 
     private Logger logger = LoggerFactory.getLogger(DefaultKafkaConsumer.class);
     private Map<TopicPartition, OffsetAndMetadata> offsetsEvents = new HashMap<>();
@@ -72,7 +72,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer, LeadershipCallbac
     private AtomicInteger counter = new AtomicInteger(0);
     private SnapshotInfos snapshotInfos;
     private Queue<Object> sideEffects;
-    private SessionSnapShooter snapShooter;
+    private DeafultSessionSnapShooter snapShooter;
     private Printer printer;
     private EnvConfig config;
 
@@ -82,8 +82,8 @@ public class DefaultKafkaConsumer<T> implements EventConsumer, LeadershipCallbac
         this.printer = printer;
     }
 
-    public void createConsumer(DroolsConsumerHandler consumerHandler) {
-        this.consumerHandler = consumerHandler;
+    public void createConsumer(ConsumerHandler consumerHandler) {
+        this.consumerHandler = (DroolsConsumerHandler)consumerHandler;
         this.snapShooter = this.consumerHandler.getSnapshooter();
         this.kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));
         if (!leader) {
@@ -112,7 +112,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer, LeadershipCallbac
         if (kafkaSecondaryConsumer != null) {
             kafkaSecondaryConsumer.wakeup();
         }
-        consumerHandler.dispose();
+        consumerHandler.stop();
     }
 
     @Override
@@ -330,15 +330,9 @@ public class DefaultKafkaConsumer<T> implements EventConsumer, LeadershipCallbac
             int iteration = counter.incrementAndGet();
             if (iteration == iterationBetweenSnapshot) {
                 counter.set(0);
-                consumerHandler.processWithSnapshot(ItemToProcess.getItemToProcess(record),
-                                                   currentState,
-                                                   this,
-                                                   sideEffects);
+                consumerHandler.processWithSnapshot(ItemToProcess.getItemToProcess(record), currentState, sideEffects);
             } else {
-                consumerHandler.process(ItemToProcess.getItemToProcess(record),
-                                       currentState,
-                                       this,
-                                       sideEffects);
+                consumerHandler.process(ItemToProcess.getItemToProcess(record), currentState, sideEffects);
             }
             processingKey = record.key();// the new processed became the new processingKey
             saveOffset(record,
@@ -423,17 +417,11 @@ public class DefaultKafkaConsumer<T> implements EventConsumer, LeadershipCallbac
             stopPollingEvents();
             startPollingControl();
             stopProcessingNotLeader();
-            consumerHandler.process(ItemToProcess.getItemToProcess(record),
-                                   currentState,
-                                   this,
-                                   sideEffects);
+            consumerHandler.process(ItemToProcess.getItemToProcess(record), currentState);
             saveOffset(record, kafkaConsumer);
             logger.info("change topic, switch to consume control");
         } else if (processingNotLeader) {
-            consumerHandler.process(ItemToProcess.getItemToProcess(record),
-                                   currentState,
-                                   this,
-                                   sideEffects);
+            consumerHandler.process(ItemToProcess.getItemToProcess(record), currentState);
             saveOffset(record, kafkaConsumer);
         }
     }

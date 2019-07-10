@@ -17,11 +17,7 @@ package org.kie.hacep.core.infra.consumer;
 
 import org.kie.hacep.core.infra.election.State;
 
-public interface ConsumerHandler {
+public interface EventConsumerWithStatus extends EventConsumer {
 
-    void process(ItemToProcess item, State currentState);
-
-    void processWithSnapshot(ItemToProcess item, State currentState);
-
-    void stop();
+    void updateStatus(State state);
 }

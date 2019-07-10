@@ -44,16 +44,16 @@ import org.kie.hacep.model.SnapshotMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SessionSnapShooter {
+public class DeafultSessionSnapShooter implements SessionSnapshooter{
 
     private final String key = "LAST-SNAPSHOT";
-    private final Logger logger = LoggerFactory.getLogger(SessionSnapShooter.class);
+    private final Logger logger = LoggerFactory.getLogger(DeafultSessionSnapShooter.class);
     private EventProducer<byte[]> producer;
     private KafkaConsumer<String, byte[]> consumer;
     private KieContainer kieContainer;
     private EnvConfig envConfig;
 
-    public SessionSnapShooter(EnvConfig envConfig) {
+    public DeafultSessionSnapShooter(EnvConfig envConfig) {
         this.envConfig = envConfig;
         KieServices srv = KieServices.get();
         if(srv != null){
@@ -130,7 +130,7 @@ public class SessionSnapShooter {
         consumer.assignment().forEach(topicPartition -> consumer.seekToBeginning(partitionCollection));
     }
 
-    public void close() {
+    public void stop() {
         producer.stop();
         consumer.close();
     }

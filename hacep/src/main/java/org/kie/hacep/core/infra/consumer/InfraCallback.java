@@ -18,16 +18,13 @@ package org.kie.hacep.core.infra.consumer;
 import org.kie.hacep.core.infra.election.LeadershipCallback;
 import org.kie.hacep.core.infra.election.State;
 
-/***
- * Callback forwarder from the DroolsBAg
- */
 public class InfraCallback implements LeadershipCallback {
 
-    private DefaultKafkaConsumer consumer;
+    private EventConsumerWithStatus consumer;
 
     public InfraCallback() { }
 
-    public void setConsumer(DefaultKafkaConsumer newConsumer) {
+    public void setConsumer(EventConsumerWithStatus newConsumer) {
         this.consumer = newConsumer;
     }
 

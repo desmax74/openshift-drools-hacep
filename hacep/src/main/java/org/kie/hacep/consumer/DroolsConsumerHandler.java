@@ -23,10 +23,9 @@ import org.kie.api.time.SessionPseudoClock;
 import org.kie.hacep.ConverterUtil;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.KieSessionContext;
-import org.kie.hacep.core.infra.SessionSnapShooter;
+import org.kie.hacep.core.infra.DeafultSessionSnapShooter;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.consumer.ConsumerHandler;
-import org.kie.hacep.core.infra.consumer.EventConsumer;
 import org.kie.hacep.core.infra.consumer.ItemToProcess;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.core.infra.producer.EventProducer;
@@ -42,14 +41,14 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private static final Logger logger = LoggerFactory.getLogger(DroolsConsumerHandler.class);
     private SessionPseudoClock clock;
     private Producer producer;
-    private SessionSnapShooter snapshooter;
+    private DeafultSessionSnapShooter snapshooter;
     private EnvConfig config;
     private KieSessionContext kieSessionContext;
     private CommandHandler commandHandler;
     private SnapshotInfos infos;
 
     public DroolsConsumerHandler(EventProducer producer, EnvConfig envConfig) {
-        this.snapshooter = new SessionSnapShooter(envConfig);
+        this.snapshooter = new DeafultSessionSnapShooter(envConfig);
         this.infos = snapshooter.deserialize();
         this.kieSessionContext = createSessionHolder( infos );
         clock = kieSessionContext.getKieSession().getSessionClock();
@@ -58,11 +57,11 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         commandHandler = new CommandHandler(kieSessionContext, config, producer);
     }
 
-    public SessionSnapShooter getSnapshooter(){
+    public DeafultSessionSnapShooter getSnapshooter(){
         return snapshooter;
     }
 
-    public void process( ItemToProcess item, State state, EventConsumer consumer, Queue<Object> sideEffects) {
+    public void process( ItemToProcess item, State state, Queue<Object> sideEffects) {
         RemoteCommand command  = ConverterUtil.deSerializeObjInto((byte[])item.getObject(), RemoteCommand.class);
         processCommand( command, state );
 
@@ -70,23 +69,25 @@ public class DroolsConsumerHandler implements ConsumerHandler {
             Queue<Object> results = DroolsExecutor.getInstance().getAndReset();
             ControlMessage newControlMessage = new ControlMessage(command.getId(), results);
             producer.produceSync(config.getControlTopicName(), command.getId(), newControlMessage);
+        }else{
+            if(sideEffects != null) {
+                DroolsExecutor.getInstance().setResult(sideEffects);
+            }
         }
     }
 
 
     public void processWithSnapshot(ItemToProcess item,
-                                    State currentState,
-                                    EventConsumer consumer,
-                                    Queue<Object> sideEffects) {
+                                    State currentState, Queue<Object> sideEffects) {
         logger.info("SNAPSHOT !!!");
         snapshooter.serialize(kieSessionContext, item.getKey(), item.getOffset());
-        process(item, currentState, consumer, sideEffects);
+        process(item, currentState, sideEffects);
     }
 
     @Override
-    public void dispose() {
+    public void stop() {
         kieSessionContext.getKieSession().dispose();
-        snapshooter.close();
+        snapshooter.stop();
     }
 
     private void processCommand( RemoteCommand command, State state ) {

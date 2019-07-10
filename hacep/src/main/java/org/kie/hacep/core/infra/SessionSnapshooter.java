@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.hacep.core.infra.consumer;
+package org.kie.hacep.core.infra;
 
-import org.kie.hacep.core.infra.election.State;
+import org.kie.hacep.core.KieSessionContext;
 
-public interface ConsumerHandler {
+public interface SessionSnapshooter {
 
-    void process(ItemToProcess item, State currentState);
+    void serialize(KieSessionContext kieSessionContext, String lastInsertedEventkey, long lastInsertedEventOffset);
 
-    void processWithSnapshot(ItemToProcess item, State currentState);
+    SnapshotInfos deserialize();
 
     void stop();
 }
