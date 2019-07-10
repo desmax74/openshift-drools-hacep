@@ -70,7 +70,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
             producer.produceSync(config.getControlTopicName(), command.getId(), newControlMessage);
         }else{
             if(sideEffects != null) {
-                if(logger.isDebugEnabled()) { logger.debug("sideEffectOnSlave:{}", sideEffects); }
+                if(logger.isInfoEnabled()) { logger.info("sideEffectOnSlave:{}", sideEffects); }
                 DroolsExecutor.getInstance().setResult(sideEffects);
             }
             processCommand( command, state );
@@ -79,7 +79,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
 
 
     public void processWithSnapshot(ItemToProcess item, State currentState, Queue<Object> sideEffects) {
-        if (logger.isDebugEnabled()){ logger.debug("SNAPSHOT"); }
+        if (logger.isInfoEnabled()){ logger.info("SNAPSHOT"); }
         snapshooter.serialize(kieSessionContext, item.getKey(), item.getOffset());
         process(item, currentState, sideEffects);
     }
@@ -101,7 +101,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private KieSessionContext createSessionHolder(SnapshotInfos infos ) {
         KieSessionContext kieSessionContext = new KieSessionContext();
         if (infos != null) {
-            logger.info("start consumer with:{}", infos);
+            if(logger.isInfoEnabled()){ logger.info("start consumer with:{}", infos);}
             initSessionHolder( infos, kieSessionContext );
         } else {
             createClasspathSession( kieSessionContext );
@@ -112,7 +112,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private void createClasspathSession( KieSessionContext kieSessionContext ) {
         KieServices srv = KieServices.get();
         if (srv != null) {
-            if (logger.isDebugEnabled()) {logger.debug("Creating new Kie Session");}
+            if (logger.isInfoEnabled()) {logger.info("Creating new Kie Session");}
             KieContainer kieContainer = KieServices.get().newKieClasspathContainer();
             kieSessionContext.init(kieContainer.newKieSession());
         } else {
@@ -125,7 +125,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
             KieContainer kieContainer = KieServices.get().newKieClasspathContainer();
             kieSessionContext.init(kieContainer.newKieSession());
         } else {
-            if(logger.isDebugEnabled()){ logger.info("Applying snapshot");}
+            if(logger.isInfoEnabled()){ logger.info("Applying snapshot");}
             kieSessionContext.initFromSnapshot(infos);
         }
     }

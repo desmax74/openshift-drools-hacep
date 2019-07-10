@@ -77,7 +77,7 @@ public class PodTest {
 
     @Test
     public void processOneSentMessageAsLeaderTest() {
-        Bootstrap.startEngine(config);
+        Bootstrap.startEngine(config, State.LEADER);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
         KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("",
                                                                    config.getEventsTopicName(),
@@ -131,8 +131,7 @@ public class PodTest {
 
     @Test
     public void processMessagesAsLeaderAndCreateSnapshotTest() {
-        Bootstrap.startEngine(config);
-        Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
+        Bootstrap.startEngine(config, State.LEADER);
         KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("",
                                                                    config.getEventsTopicName(),
                                                                    Config.getConsumerConfig("eventsConsumerProcessOneSentMessageAsLeaderTest"));
@@ -172,8 +171,7 @@ public class PodTest {
 
     @Test
     public void processOneSentMessageAsLeaderAndThenReplicaTest() {
-        Bootstrap.startEngine(config);
-        Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
+        Bootstrap.startEngine(config, State.LEADER);
         KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("",
                                                                    config.getEventsTopicName(),
                                                                    Config.getConsumerConfig("eventsConsumerProcessOneSentMessageAsLeaderTest"));
