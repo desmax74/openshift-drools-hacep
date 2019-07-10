@@ -417,11 +417,11 @@ public class DefaultKafkaConsumer<T> implements EventConsumerWithStatus, Leaders
             stopPollingEvents();
             startPollingControl();
             stopProcessingNotLeader();
-            consumerHandler.process(ItemToProcess.getItemToProcess(record), currentState);
+            consumerHandler.process(ItemToProcess.getItemToProcess(record), currentState, sideEffects);
             saveOffset(record, kafkaConsumer);
             logger.info("change topic, switch to consume control");
         } else if (processingNotLeader) {
-            consumerHandler.process(ItemToProcess.getItemToProcess(record), currentState);
+            consumerHandler.process(ItemToProcess.getItemToProcess(record), currentState, sideEffects);
             saveOffset(record, kafkaConsumer);
         }
     }
