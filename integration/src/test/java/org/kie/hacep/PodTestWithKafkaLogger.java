@@ -109,7 +109,7 @@ public class PodTestWithKafkaLogger {
                          "RHT");
 
             //CONTROL TOPIC
-            ConsumerRecords controlRecords = controlConsumer.poll(5000);
+            ConsumerRecords controlRecords = controlConsumer.poll(2000);
             assertEquals(1, controlRecords.count());
             Iterator<ConsumerRecord<String, byte[]>> controlRecordIterator = controlRecords.iterator();
             ConsumerRecord<String, byte[]> controlRecord = controlRecordIterator.next();
@@ -122,9 +122,9 @@ public class PodTestWithKafkaLogger {
             assertEquals(controlRecord.key(), eventsRecord.key());
 
             //no more msg to consume as a leader
-            eventsRecords = eventsConsumer.poll(5000);
+            eventsRecords = eventsConsumer.poll(2000);
             assertEquals(0, eventsRecords.count());
-            controlRecords = controlConsumer.poll(5000);
+            controlRecords = controlConsumer.poll(2000);
             assertEquals(0, controlRecords.count());
 
             // SWITCH AS a REPLICA

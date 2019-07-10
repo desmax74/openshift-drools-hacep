@@ -90,7 +90,7 @@ public class PodTest {
                                                     RemoteKieSession.class);
         try {
             //EVENTS TOPIC
-            ConsumerRecords eventsRecords = eventsConsumer.poll(5000);
+            ConsumerRecords eventsRecords = eventsConsumer.poll(2000);
             assertEquals(1,
                          eventsRecords.count());
             Iterator<ConsumerRecord<String, byte[]>> eventsRecordIterator = eventsRecords.iterator();
@@ -104,7 +104,7 @@ public class PodTest {
             assertNotNull(remoteCommand.getId());
 
             //CONTROL TOPIC
-            ConsumerRecords controlRecords = controlConsumer.poll(5000);
+            ConsumerRecords controlRecords = controlConsumer.poll(2000);
             assertEquals(1,
                          controlRecords.count());
             Iterator<ConsumerRecord<String, byte[]>> controlRecordIterator = controlRecords.iterator();
@@ -143,12 +143,12 @@ public class PodTest {
                                                     RemoteKieSession.class);
         try {
             //EVENTS TOPIC
-            ConsumerRecords eventsRecords = eventsConsumer.poll(5000);
+            ConsumerRecords eventsRecords = eventsConsumer.poll(2000);
             assertEquals(10,
                          eventsRecords.count());
 
             //SNAPSHOT TOPIC
-            ConsumerRecords snapshotRecords = snapshotConsumer.poll(5000);
+            ConsumerRecords snapshotRecords = snapshotConsumer.poll(2000);
             assertEquals(1,
                          snapshotRecords.count());
             ConsumerRecord record = (ConsumerRecord) snapshotRecords.iterator().next();
@@ -184,7 +184,7 @@ public class PodTest {
         try {
 
             //EVENTS TOPIC
-            ConsumerRecords eventsRecords = eventsConsumer.poll(5000);
+            ConsumerRecords eventsRecords = eventsConsumer.poll(2000);
             assertEquals(1,
                          eventsRecords.count());
             Iterator<ConsumerRecord<String, byte[]>> eventsRecordIterator = eventsRecords.iterator();
@@ -207,7 +207,7 @@ public class PodTest {
                          "RHT");
 
             //CONTROL TOPIC
-            ConsumerRecords controlRecords = controlConsumer.poll(5000);
+            ConsumerRecords controlRecords = controlConsumer.poll(2000);
             assertEquals(1,
                          controlRecords.count());
             Iterator<ConsumerRecord<String, byte[]>> controlRecordIterator = controlRecords.iterator();
@@ -225,10 +225,10 @@ public class PodTest {
                          eventsRecord.key());
 
             //no more msg to consume as a leader
-            eventsRecords = eventsConsumer.poll(5000);
+            eventsRecords = eventsConsumer.poll(2000);
             assertEquals(0,
                          eventsRecords.count());
-            controlRecords = controlConsumer.poll(5000);
+            controlRecords = controlConsumer.poll(2000);
             assertEquals(0,
                          controlRecords.count());
 
