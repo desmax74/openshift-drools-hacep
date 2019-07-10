@@ -38,6 +38,7 @@ import org.kie.hacep.ConverterUtil;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.consumer.DroolsConsumerHandler;
 import org.kie.hacep.consumer.DroolsExecutor;
+import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.OffsetManager;
 import org.kie.hacep.core.infra.DeafultSessionSnapShooter;
 import org.kie.hacep.core.infra.SnapshotInfos;
@@ -45,6 +46,7 @@ import org.kie.hacep.core.infra.election.LeadershipCallback;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.core.infra.utils.ConsumerUtils;
 import org.kie.hacep.core.infra.utils.Printer;
+import org.kie.hacep.core.infra.utils.PrinterUtil;
 import org.kie.hacep.model.ControlMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,10 +78,10 @@ public class DefaultKafkaConsumer<T> implements EventConsumerWithStatus, Leaders
     private Printer printer;
     private EnvConfig config;
 
-    public DefaultKafkaConsumer(Printer printer, EnvConfig config) {
+    public DefaultKafkaConsumer(EnvConfig config) {
         this.config = config;
         iterationBetweenSnapshot = Integer.valueOf(Config.getDefaultConfig().getProperty(Config.ITERATION_BETWEEN_SNAPSHOT));
-        this.printer = printer;
+        this.printer = PrinterUtil.getPrinter(config);
     }
 
     public void createConsumer(ConsumerHandler consumerHandler) {
@@ -222,9 +224,8 @@ public class DefaultKafkaConsumer<T> implements EventConsumerWithStatus, Leaders
                 }
                 OffsetManager.store(offsetsEvents);
             }catch (WakeupException e) {
-               // logger.error(e.getMessage(), e);
-            }finally
-             {
+                //nothind to do
+            }finally {
                 logger.info("Closing kafkaConsumer on the loop");
                 kafkaConsumer.close();
                 kafkaSecondaryConsumer.close();

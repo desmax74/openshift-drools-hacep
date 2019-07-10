@@ -96,23 +96,10 @@ public class Bootstrap {
     }
 
     private static void startConsumers(EnvConfig envConfig) {
-        consumerController = new ConsumerController(getPrinter(envConfig), envConfig, eventProducer);
+        consumerController = new ConsumerController(envConfig, eventProducer);
         consumerController.start();
     }
 
-    private static Printer getPrinter(EnvConfig config){
-        if(config.getPrinterType().equals(PrinterLogImpl.class.getName())){
-            return new PrinterLogImpl();
-        }else{
-            Printer returnInstance;
-            try {
-                returnInstance = (Printer) Class.forName(config.getPrinterType()).newInstance();
-            }catch (Exception ex){
-                logger.error("Printer:{} not found, using PrinterLog", ex.getMessage());
-                return new PrinterLogImpl();
-            }
-            return returnInstance;
-        }
-    }
+
 
 }

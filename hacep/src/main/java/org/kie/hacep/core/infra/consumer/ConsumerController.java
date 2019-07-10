@@ -20,7 +20,6 @@ import org.kie.hacep.EnvConfig;
 import org.kie.hacep.consumer.DroolsConsumerHandler;
 import org.kie.hacep.core.infra.election.LeadershipCallback;
 import org.kie.hacep.core.infra.producer.EventProducer;
-import org.kie.hacep.core.infra.utils.Printer;
 
 public class ConsumerController {
 
@@ -28,9 +27,9 @@ public class ConsumerController {
     private InfraCallback callback;
     private Thread thread;
 
-    public ConsumerController( Printer printer, EnvConfig envConfig, EventProducer<?> eventProducer) {
+    public ConsumerController( EnvConfig envConfig, EventProducer<?> eventProducer) {
         this.callback = new InfraCallback();
-        this.consumer = new DefaultKafkaConsumer(printer, envConfig);
+        this.consumer = new DefaultKafkaConsumer(envConfig);
         this.callback.setConsumer(consumer);
         this.consumer.createConsumer(new DroolsConsumerHandler(eventProducer, envConfig));
     }

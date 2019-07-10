@@ -62,19 +62,15 @@ public class KafkaTest {
         ProducerRecord data = new ProducerRecord(TEST_TOPIC,
                                                  "42",
                                                  Base64.encodeBase64("test-message".getBytes(Charset.forName("UTF-8"))));
-        kafkaServerTest.sendSingleMsg(producer,
-                                      data);
+        kafkaServerTest.sendSingleMsg(producer, data);
 
         ConsumerRecords<String, byte[]> records = consumer.poll(5000);
-        assertEquals(1,
-                     records.count());
+        assertEquals(1, records.count());
         Iterator<ConsumerRecord<String, byte[]>> recordIterator = records.iterator();
         ConsumerRecord<String, byte[]> record = recordIterator.next();
 
-        assertEquals("42",
-                     record.key());
-        assertEquals("test-message",
-                     new String(Base64.decodeBase64(record.value())));
+        assertEquals("42", record.key());
+        assertEquals("test-message", new String(Base64.decodeBase64(record.value())));
     }
 
     @Test
@@ -82,8 +78,7 @@ public class KafkaTest {
         KafkaConsumer<String, String> consumerKafkaLogger = kafkaServerTest.getStringConsumer(TEST_KAFKA_LOGGER_TOPIC);
         kafkaLogger.warn("test-message");
         ConsumerRecords<String, String> records = consumerKafkaLogger.poll(5000);
-        assertEquals(1,
-                     records.count());
+        assertEquals(1, records.count());
         Iterator<ConsumerRecord<String, String>> recordIterator = records.iterator();
         ConsumerRecord<String, String> record = recordIterator.next();
         assertNotNull(record);

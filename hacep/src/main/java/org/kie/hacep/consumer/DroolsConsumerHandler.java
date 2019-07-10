@@ -30,6 +30,7 @@ import org.kie.hacep.core.infra.consumer.ItemToProcess;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.core.infra.producer.EventProducer;
 import org.kie.hacep.core.infra.producer.Producer;
+import org.kie.hacep.core.infra.utils.PrinterUtil;
 import org.kie.hacep.model.ControlMessage;
 import org.kie.remote.RemoteCommand;
 import org.kie.remote.command.VisitableCommand;
@@ -39,6 +40,7 @@ import org.slf4j.LoggerFactory;
 public class DroolsConsumerHandler implements ConsumerHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(DroolsConsumerHandler.class);
+    private Logger loggerForTest;
     private SessionPseudoClock clock;
     private Producer producer;
     private DeafultSessionSnapShooter snapshooter;
@@ -53,6 +55,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         this.kieSessionContext = createSessionHolder( infos );
         clock = kieSessionContext.getKieSession().getSessionClock();
         this.config = envConfig;
+        loggerForTest = PrinterUtil.getKafkaLoggerForTest(envConfig);
         this.producer = producer;
         commandHandler = new CommandHandler(kieSessionContext, config, producer);
     }
@@ -68,9 +71,11 @@ public class DroolsConsumerHandler implements ConsumerHandler {
             Queue<Object> results = DroolsExecutor.getInstance().getAndReset();
             ControlMessage newControlMessage = new ControlMessage(command.getId(), results);
             producer.produceSync(config.getControlTopicName(), command.getId(), newControlMessage);
+            if(loggerForTest != null) {loggerForTest.warn("sideEffectOnLeader:{}", sideEffects);}
         }else{
             if(sideEffects != null) {
-                if(logger.isInfoEnabled()) { logger.info("sideEffectOnSlave:{}", sideEffects); }
+                if(logger.isInfoEnabled()) { logger.info("sideEffectOnReplica:{}", sideEffects); }
+                if(loggerForTest != null) {loggerForTest.warn("sideEffectOnReplica:{}", sideEffects);}
                 DroolsExecutor.getInstance().setResult(sideEffects);
             }
             processCommand( command, state );

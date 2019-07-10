@@ -35,8 +35,8 @@ public class PrinterKafkaImpl implements Printer {
     @Override
     public void prettyPrinter(ConsumerRecord consumerRecord,
                               boolean processed) {
-        if (consumerRecord != null && kafkaLogger.isInfoEnabled()) {
-            kafkaLogger.info("Processed:{} - Topic: {} - Partition: {} - Offset: {} - Value: {}\n",
+        if (consumerRecord != null && kafkaLogger.isWarnEnabled()) {
+            kafkaLogger.warn("Processed:{} - Topic: {} - Partition: {} - Offset: {} - Value: {}\n",
                              processed,
                              consumerRecord.topic(),
                              consumerRecord.partition(),
@@ -48,7 +48,7 @@ public class PrinterKafkaImpl implements Printer {
     public void printOffset(String topic) {
         Map<TopicPartition, Long> offsets = getOffsets(topic);
         for (Map.Entry<TopicPartition, Long> entry : offsets.entrySet()) {
-            kafkaLogger.info("Topic:{} offset:{}",
+            kafkaLogger.warn("Topic:{} offset:{}",
                              entry.getKey(),
                              entry.getValue());
         }
