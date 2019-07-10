@@ -63,23 +63,23 @@ public class DroolsConsumerHandler implements ConsumerHandler {
 
     public void process( ItemToProcess item, State state, Queue<Object> sideEffects) {
         RemoteCommand command  = ConverterUtil.deSerializeObjInto((byte[])item.getObject(), RemoteCommand.class);
-        processCommand( command, state );
-
         if (state.equals(State.LEADER)) {
+            processCommand( command, state );
             Queue<Object> results = DroolsExecutor.getInstance().getAndReset();
             ControlMessage newControlMessage = new ControlMessage(command.getId(), results);
             producer.produceSync(config.getControlTopicName(), command.getId(), newControlMessage);
         }else{
             if(sideEffects != null) {
+                if(logger.isDebugEnabled()) { logger.debug("sideEffectOnSlave:{}", sideEffects); }
                 DroolsExecutor.getInstance().setResult(sideEffects);
             }
+            processCommand( command, state );
         }
     }
 
 
-    public void processWithSnapshot(ItemToProcess item,
-                                    State currentState, Queue<Object> sideEffects) {
-        logger.info("SNAPSHOT !!!");
+    public void processWithSnapshot(ItemToProcess item, State currentState, Queue<Object> sideEffects) {
+        if (logger.isDebugEnabled()){ logger.debug("SNAPSHOT"); }
         snapshooter.serialize(kieSessionContext, item.getKey(), item.getOffset());
         process(item, currentState, sideEffects);
     }
@@ -112,8 +112,8 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private void createClasspathSession( KieSessionContext kieSessionContext ) {
         KieServices srv = KieServices.get();
         if (srv != null) {
+            if (logger.isDebugEnabled()) {logger.debug("Creating new Kie Session");}
             KieContainer kieContainer = KieServices.get().newKieClasspathContainer();
-            logger.info("Creating new Kie Session");
             kieSessionContext.init(kieContainer.newKieSession());
         } else {
             logger.error("KieService is null");
@@ -125,7 +125,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
             KieContainer kieContainer = KieServices.get().newKieClasspathContainer();
             kieSessionContext.init(kieContainer.newKieSession());
         } else {
-            logger.info("Applying snapshot");
+            if(logger.isDebugEnabled()){ logger.info("Applying snapshot");}
             kieSessionContext.initFromSnapshot(infos);
         }
     }
