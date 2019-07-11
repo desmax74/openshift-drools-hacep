@@ -22,13 +22,14 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.kie.remote.RemoteKieSession;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
-import org.kie.hacep.core.infra.utils.PrinterLogImpl;
-import org.kie.hacep.producer.RemoteKieSessionImpl;
+import org.kie.remote.Config;
+import org.kie.remote.EnvConfig;
+import org.kie.remote.RemoteKieSession;
+import org.kie.remote.impl.producer.RemoteKieSessionImpl;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 public class RemoteKieSessionImplTest {
 
@@ -65,12 +66,14 @@ public class RemoteKieSessionImplTest {
         kafkaServerTest.insertBatchStockTicketEvent(7,
                                                     config,
                                                     RemoteKieSession.class);
-        try (RemoteKieSessionImpl client = new RemoteKieSessionImpl(Config.getProducerConfig("getFactCountTest"),
+        try (RemoteKieSessionImpl client = new RemoteKieSessionImpl( Config.getProducerConfig("getFactCountTest"),
                                                                     config)) {
             client.listen();
             CompletableFuture<Long> factCountFuture = client.getFactCount();
             Long factCount = factCountFuture.get(30, TimeUnit.SECONDS);
             assertTrue(factCount == 7);
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 

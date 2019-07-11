@@ -17,6 +17,7 @@ package org.kie.hacep;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
+import org.kie.remote.EnvConfig;
 
 public class EnvConfigTest {
 

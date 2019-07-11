@@ -23,9 +23,8 @@ import java.util.Map;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import org.kie.hacep.EnvConfig;
+import org.kie.remote.EnvConfig;
 import org.kie.hacep.core.Bootstrap;
-import org.kie.hacep.core.infra.utils.PrinterLogImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

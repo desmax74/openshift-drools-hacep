@@ -20,22 +20,24 @@ import java.util.Queue;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.time.SessionPseudoClock;
-import org.kie.hacep.ConverterUtil;
-import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.KieSessionContext;
 import org.kie.hacep.core.infra.DeafultSessionSnapShooter;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.consumer.ConsumerHandler;
 import org.kie.hacep.core.infra.consumer.ItemToProcess;
 import org.kie.hacep.core.infra.election.State;
-import org.kie.hacep.core.infra.producer.EventProducer;
-import org.kie.hacep.core.infra.producer.Producer;
-import org.kie.hacep.core.infra.utils.PrinterUtil;
 import org.kie.hacep.model.ControlMessage;
+import org.kie.remote.DroolsExecutor;
+import org.kie.remote.EnvConfig;
 import org.kie.remote.RemoteCommand;
 import org.kie.remote.command.VisitableCommand;
+import org.kie.remote.impl.producer.EventProducer;
+import org.kie.remote.impl.producer.Producer;
+import org.kie.remote.util.PrinterUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.kie.remote.util.SerializationUtil.deserialize;
 
 public class DroolsConsumerHandler implements ConsumerHandler {
 
@@ -67,7 +69,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     }
 
     public void process( ItemToProcess item, State state, Queue<Object> sideEffects) {
-        RemoteCommand command  = ConverterUtil.deSerializeObjInto((byte[])item.getObject(), RemoteCommand.class);
+        RemoteCommand command  = deserialize((byte[])item.getObject());
         if (state.equals(State.LEADER)) {
             processCommand( command, state );
             Queue<Object> results = DroolsExecutor.getInstance().getAndReset();

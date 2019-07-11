@@ -16,10 +16,11 @@
 package org.kie.hacep.model;
 
 import java.io.Serializable;
-import java.util.ArrayDeque;
 import java.util.Queue;
 
-public class ControlMessage implements Serializable {
+import org.kie.remote.Message;
+
+public class ControlMessage implements Serializable, Message {
 
     private String key;
     private long offset;
@@ -49,6 +50,11 @@ public class ControlMessage implements Serializable {
 
     public String getKey() {
         return key;
+    }
+
+    @Override
+    public String getId() {
+        return getKey();
     }
 
     public long getOffset() {

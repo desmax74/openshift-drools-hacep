@@ -10,19 +10,18 @@
   <groupId>org.kie</groupId>
   <artifactId>openshift-kie-hacep</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <packaging>kjar</packaging>
 
   <dependencies>
     <dependency>
       <groupId>org.kie</groupId>
       <artifactId>kie-remote</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.drools</groupId>
-      <artifactId>drools-model-compiler</artifactId>
-      <version>${version.drools}</version>
+      <artifactId>drools-compiler</artifactId>
+      <version>${version.org.kie}</version>
     </dependency>
 
     <dependency>
@@ -61,12 +60,6 @@
       <version>${version.kafka.client}</version>
       <scope>test</scope>
     </dependency>
-      <dependency>
-          <groupId>org.kie</groupId>
-          <artifactId>kie-remote</artifactId>
-          <version>1.0-SNAPSHOT</version>
-          <scope>compile</scope>
-      </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -77,12 +70,6 @@
   <build>
     <finalName>${project.artifactId}</finalName>
     <plugins>
-      <plugin>
-        <groupId>org.kie</groupId>
-        <artifactId>kie-maven-plugin</artifactId>
-        <version>${version.org.kie}</version>
-        <extensions>true</extensions>
-      </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${surefire.version}</version>

@@ -33,23 +33,23 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
-import org.kie.hacep.Config;
-import org.kie.hacep.ConverterUtil;
-import org.kie.hacep.EnvConfig;
 import org.kie.hacep.consumer.DroolsConsumerHandler;
-import org.kie.hacep.consumer.DroolsExecutor;
-import org.kie.hacep.core.Bootstrap;
-import org.kie.hacep.core.infra.OffsetManager;
 import org.kie.hacep.core.infra.DeafultSessionSnapShooter;
+import org.kie.hacep.core.infra.OffsetManager;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.election.LeadershipCallback;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.core.infra.utils.ConsumerUtils;
-import org.kie.hacep.core.infra.utils.Printer;
-import org.kie.hacep.core.infra.utils.PrinterUtil;
 import org.kie.hacep.model.ControlMessage;
+import org.kie.remote.Config;
+import org.kie.remote.DroolsExecutor;
+import org.kie.remote.EnvConfig;
+import org.kie.remote.util.Printer;
+import org.kie.remote.util.PrinterUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.kie.remote.util.SerializationUtil.deserialize;
 
 /**
  * The default consumer relies on the Consumer thread and
@@ -432,7 +432,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumerWithStatus, Leaders
             if (record.offset() > 0) {
                 processingKey = record.key();
                 processingKeyOffset = record.offset();
-                ControlMessage wr = ConverterUtil.deSerializeObjInto((byte[])record.value(), ControlMessage.class);
+                ControlMessage wr = deserialize((byte[])record.value());
                 sideEffects = wr.getSideEffects();
             }
 
