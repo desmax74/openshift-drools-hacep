@@ -47,7 +47,9 @@ public class Bootstrap {
         coreKube = new CoreKube(envConfig.getNamespace(), initialState);
         startProducer();
         startConsumers(envConfig);
-        leaderElection();
+        if(!envConfig.isUnderTest()) {
+            leaderElection();
+        }
         logger.info("CONFIGURE on start engine:{}", Config.getDefaultConfig());
     }
 
@@ -82,7 +84,7 @@ public class Bootstrap {
         //KubernetesClient client = Core.getKubeClient();
         //client.events().inNamespace("my-kafka-project").watch(WatcherFactory.createModifiedLogWatcher(configuration.getPodName()));
         LeaderElection leadership = coreKube.getLeaderElection();
-        coreKube.getLeaderElection().addCallbacks(Arrays.asList( consumerController.getCallback(), eventProducer));
+        coreKube.getLeaderElection().addCallbacks(Arrays.asList( consumerController.getCallback()));
         try {
             leadership.start();
         } catch (Exception e) {

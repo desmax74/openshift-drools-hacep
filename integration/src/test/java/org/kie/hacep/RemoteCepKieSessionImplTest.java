@@ -63,7 +63,8 @@ public class RemoteCepKieSessionImplTest {
 
     @Test
     public void getFactCountTest() throws Exception {
-        Bootstrap.startEngine(config, State.LEADER);
+        Bootstrap.startEngine(config);
+        Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
         kafkaServerTest.insertBatchStockTicketEvent(7,
                                                     config,
                                                     RemoteCepKieSession.class);
@@ -78,7 +79,8 @@ public class RemoteCepKieSessionImplTest {
 
     @Test
     public void getListKieSessionObjectsTest() throws Exception {
-        Bootstrap.startEngine(config, State.LEADER);
+        Bootstrap.startEngine(config);
+        Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
         kafkaServerTest.insertBatchStockTicketEvent(1,
                                                     config,
                                                     RemoteCepKieSession.class);
@@ -96,7 +98,8 @@ public class RemoteCepKieSessionImplTest {
 
     @Test
     public void getListKieSessionObjectsWithClassTypeTest() throws Exception {
-        Bootstrap.startEngine(config, State.LEADER);
+        Bootstrap.startEngine(config);
+        Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
         kafkaServerTest.insertBatchStockTicketEvent(1,
                                                     config,
                                                     RemoteCepKieSession.class);
@@ -113,7 +116,8 @@ public class RemoteCepKieSessionImplTest {
 
     @Test
     public void getListKieSessionObjectsWithNamedQueryTest() throws Exception {
-        Bootstrap.startEngine(config, State.LEADER);
+        Bootstrap.startEngine(config);
+        Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
         kafkaServerTest.insertBatchStockTicketEvent(1,
                                                     config,
                                                     RemoteCepKieSession.class);

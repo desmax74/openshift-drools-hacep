@@ -105,6 +105,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumerWithStatus, Leaders
         }
     }
 
+
     @Override
     public void stop() {
         stopConsume();
@@ -314,11 +315,9 @@ public class DefaultKafkaConsumer<T> implements EventConsumerWithStatus, Leaders
 
     private void defaultProcessAsLeader(int size) {
         startPollingEvents();
-        ConsumerRecords<String, T> records = kafkaConsumer.poll(Duration.of(size,
-                                                                            ChronoUnit.MILLIS));
+        ConsumerRecords<String, T> records = kafkaConsumer.poll(Duration.of(size, ChronoUnit.MILLIS));
         for (ConsumerRecord<String, T> record : records) {
-            processLeader(record,
-                          counter);
+            processLeader(record, counter);
         }
     }
 
@@ -342,7 +341,6 @@ public class DefaultKafkaConsumer<T> implements EventConsumerWithStatus, Leaders
     }
 
     private void defaultProcessAsAReplica(int size) {
-
         if (pollingEvents) {
             if (eventsBuffer != null && eventsBuffer.size() > 0) { // events previously readed and not processed
                 consumeEventsFromBufferAsAReplica();

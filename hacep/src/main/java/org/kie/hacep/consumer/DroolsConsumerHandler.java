@@ -55,9 +55,11 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         this.kieSessionContext = createSessionHolder( infos );
         clock = kieSessionContext.getKieSession().getSessionClock();
         this.config = envConfig;
-        loggerForTest = PrinterUtil.getKafkaLoggerForTest(envConfig);
         this.producer = producer;
         commandHandler = new CommandHandler(kieSessionContext, config, producer);
+        if(config.isUnderTest()){
+            loggerForTest = PrinterUtil.getKafkaLoggerForTest(envConfig);
+        }
     }
 
     public DeafultSessionSnapShooter getSnapshooter(){
@@ -71,13 +73,18 @@ public class DroolsConsumerHandler implements ConsumerHandler {
             Queue<Object> results = DroolsExecutor.getInstance().getAndReset();
             ControlMessage newControlMessage = new ControlMessage(command.getId(), results);
             producer.produceSync(config.getControlTopicName(), command.getId(), newControlMessage);
-            if(loggerForTest != null) {loggerForTest.warn("sideEffectOnLeader:{}", sideEffects);}
+            if(config.isUnderTest()){
+                loggerForTest.warn("sideEffectOnLeader:{}", sideEffects);
+            }
         }else{
             if(sideEffects != null) {
                 if(logger.isInfoEnabled()) { logger.info("sideEffectOnReplica:{}", sideEffects); }
-                if(loggerForTest != null) {loggerForTest.warn("sideEffectOnReplica:{}", sideEffects);}
+                if(config.isUnderTest()){
+                    loggerForTest.warn("sideEffectOnReplica:{}", sideEffects);
+                }
                 DroolsExecutor.getInstance().setResult(sideEffects);
             }
+
             processCommand( command, state );
         }
     }

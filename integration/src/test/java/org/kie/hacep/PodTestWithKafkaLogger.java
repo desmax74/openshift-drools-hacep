@@ -15,7 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
-import org.kie.hacep.core.infra.utils.PrinterLogImpl;
 import org.kie.hacep.model.ControlMessage;
 import org.kie.hacep.model.StockTickEvent;
 import org.kie.remote.RemoteCommand;
@@ -66,18 +65,20 @@ public class PodTestWithKafkaLogger {
 
     private EnvConfig getEnvConfig(){
         return EnvConfig.anEnvConfig().
-                withNamespace(Optional.ofNullable(System.getenv(Config.NAMESPACE)).orElse(Config.DEFAULT_NAMESPACE)).
-                withControlTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_CONTROL_TOPIC)).orElse(Config.DEFAULT_CONTROL_TOPIC)).
-                withEventsTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_EVENTS_TOPIC)).orElse(Config.DEFAULT_EVENTS_TOPIC)).
-                withSnapshotTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_SNAPSHOT_TOPIC)).orElse(Config.DEFAULT_SNAPSHOT_TOPIC)).
-                withKieSessionInfosTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_KIE_SESSION_INFOS_TOPIC)).orElse(Config.DEFAULT_KIE_SESSION_INFOS_TOPIC)).
-                withPrinterType(Optional.ofNullable(PrinterKafkaImpl.class.getName()).orElse(PrinterLogImpl.class.getName())).build();
+                withNamespace(Config.DEFAULT_NAMESPACE).
+                withControlTopicName(Config.DEFAULT_CONTROL_TOPIC).
+                withEventsTopicName(Config.DEFAULT_EVENTS_TOPIC).
+                withSnapshotTopicName(Config.DEFAULT_SNAPSHOT_TOPIC).
+                withKieSessionInfosTopicName(Config.DEFAULT_KIE_SESSION_INFOS_TOPIC).
+                withPrinterType(PrinterKafkaImpl.class.getName()).
+                isUnderTest(Boolean.TRUE.toString()).build();
     }
 
 
     @Test
     public void processOneSentMessageAsLeaderAndThenReplicaTest() {
-        Bootstrap.startEngine(config, State.LEADER);
+        Bootstrap.startEngine(config);
+        Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
         KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("",
                                                                    config.getEventsTopicName(),
                                                                    Config.getConsumerConfig("eventsConsumerProcessOneSentMessageAsLeaderTest"));
@@ -105,11 +106,10 @@ public class PodTestWithKafkaLogger {
             assertNotNull(insertCommand.getFactHandle());
             RemoteFactHandle remoteFactHandle = insertCommand.getFactHandle();
             StockTickEvent eventsTicket = (StockTickEvent) remoteFactHandle.getObject();
-            assertEquals(eventsTicket.getCompany(),
-                         "RHT");
+            assertEquals(eventsTicket.getCompany(), "RHT");
 
             //CONTROL TOPIC
-            ConsumerRecords controlRecords = controlConsumer.poll(2000);
+            ConsumerRecords controlRecords = controlConsumer.poll(5000);
             assertEquals(1, controlRecords.count());
             Iterator<ConsumerRecord<String, byte[]>> controlRecordIterator = controlRecords.iterator();
             ConsumerRecord<String, byte[]> controlRecord = controlRecordIterator.next();
@@ -122,9 +122,9 @@ public class PodTestWithKafkaLogger {
             assertEquals(controlRecord.key(), eventsRecord.key());
 
             //no more msg to consume as a leader
-            eventsRecords = eventsConsumer.poll(2000);
+            eventsRecords = eventsConsumer.poll(5000);
             assertEquals(0, eventsRecords.count());
-            controlRecords = controlConsumer.poll(2000);
+            controlRecords = controlConsumer.poll(5000);
             assertEquals(0, controlRecords.count());
 
             // SWITCH AS a REPLICA

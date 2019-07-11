@@ -39,7 +39,7 @@ public class PrinterUtil {
     }
 
     public static Logger getKafkaLoggerForTest(EnvConfig config){
-        if(!config.getPrinterType().equals(PrinterLogImpl.class.getName())){
+        if(config.isUnderTest() && !config.getPrinterType().equals(PrinterLogImpl.class.getName())){
             return LoggerFactory.getLogger("org.hacep");
         }else {
             return null;

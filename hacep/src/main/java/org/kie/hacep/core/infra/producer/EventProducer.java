@@ -23,27 +23,13 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.kie.hacep.ConverterUtil;
-import org.kie.hacep.core.infra.election.LeadershipCallback;
-import org.kie.hacep.core.infra.election.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EventProducer<T> implements Producer,
-                                         LeadershipCallback {
+public class EventProducer<T> implements Producer {
 
     private Logger logger = LoggerFactory.getLogger(EventProducer.class);
     protected org.apache.kafka.clients.producer.Producer<String, T> producer;
-
-    private volatile boolean leader = false;
-
-    @Override
-    public void updateStatus(State state) {
-        if (state.equals(State.LEADER) && !leader) {
-            leader = true;
-        } else if (state.equals(State.REPLICA) && leader) {
-            leader = false;
-        }
-    }
 
     public void start(Properties properties) {
         producer = new KafkaProducer(properties);

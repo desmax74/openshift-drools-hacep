@@ -27,6 +27,7 @@ public final class EnvConfig {
     private String snapshotTopicName;
     private String kieSessionInfosTopicName;
     private String printerType;
+    private boolean test;
 
     public static EnvConfig getDefaultEnvConfig(){
         return anEnvConfig().
@@ -35,7 +36,8 @@ public final class EnvConfig {
                 withEventsTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_EVENTS_TOPIC)).orElse(Config.DEFAULT_EVENTS_TOPIC)).
                 withSnapshotTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_SNAPSHOT_TOPIC)).orElse(Config.DEFAULT_SNAPSHOT_TOPIC)).
                 withKieSessionInfosTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_KIE_SESSION_INFOS_TOPIC)).orElse(Config.DEFAULT_KIE_SESSION_INFOS_TOPIC)).
-                withPrinterType(Optional.ofNullable(System.getenv(Config.DEFAULT_PRINTER_TYPE)).orElse(PrinterLogImpl.class.getName())).build();
+                withPrinterType(Optional.ofNullable(System.getenv(Config.DEFAULT_PRINTER_TYPE)).orElse(PrinterLogImpl.class.getName())).
+                isUnderTest(Optional.ofNullable(System.getenv(Config.TEST)).orElse(Boolean.FALSE.toString())).build();
     }
 
     private EnvConfig() { }
@@ -72,6 +74,11 @@ public final class EnvConfig {
         return this;
     }
 
+    public EnvConfig isUnderTest(String underTest){
+        this.test = Boolean.valueOf(underTest);
+        return this;
+    }
+
     public EnvConfig build() {
         EnvConfig envConfig = new EnvConfig();
         envConfig.eventsTopicName = this.eventsTopicName;
@@ -80,6 +87,7 @@ public final class EnvConfig {
         envConfig.snapshotTopicName = this.snapshotTopicName;
         envConfig.kieSessionInfosTopicName = this.kieSessionInfosTopicName;
         envConfig.printerType = this.printerType;
+        envConfig.test = this.test;
         return envConfig;
     }
 
@@ -95,6 +103,8 @@ public final class EnvConfig {
 
     public String getPrinterType() { return printerType; }
 
+    public Boolean isUnderTest(){ return test; }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("EnvConfig{");
@@ -104,6 +114,7 @@ public final class EnvConfig {
         sb.append(", snapshotTopicName='").append(snapshotTopicName).append('\'');
         sb.append(", kieSessionInfosTopicName='").append(kieSessionInfosTopicName).append('\'');
         sb.append(", printerType='").append(printerType).append('\'');
+        sb.append(", underTest='").append(test).append('\'');
         sb.append('}');
         return sb.toString();
     }
