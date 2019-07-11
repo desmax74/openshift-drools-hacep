@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -15,17 +14,23 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
-import org.kie.hacep.core.infra.utils.PrinterLogImpl;
 import org.kie.hacep.model.ControlMessage;
-import org.kie.hacep.model.StockTickEvent;
+import org.kie.hacep.sample.kjar.StockTickEvent;
+import org.kie.remote.Config;
+import org.kie.remote.EnvConfig;
 import org.kie.remote.RemoteCommand;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.RemoteKieSession;
 import org.kie.remote.command.InsertCommand;
+import org.kie.remote.util.PrinterLogImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.kie.remote.util.SerializationUtil.deserialize;
 
 public class PodTestWithKafkaLogger {
 
@@ -66,7 +71,7 @@ public class PodTestWithKafkaLogger {
 
     private EnvConfig getEnvConfig(){
         return EnvConfig.anEnvConfig().
-                withNamespace(Optional.ofNullable(System.getenv(Config.NAMESPACE)).orElse(Config.DEFAULT_NAMESPACE)).
+                withNamespace(Optional.ofNullable(System.getenv( Config.NAMESPACE)).orElse(Config.DEFAULT_NAMESPACE)).
                 withControlTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_CONTROL_TOPIC)).orElse(Config.DEFAULT_CONTROL_TOPIC)).
                 withEventsTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_EVENTS_TOPIC)).orElse(Config.DEFAULT_EVENTS_TOPIC)).
                 withSnapshotTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_SNAPSHOT_TOPIC)).orElse(Config.DEFAULT_SNAPSHOT_TOPIC)).
@@ -95,8 +100,7 @@ public class PodTestWithKafkaLogger {
             Iterator<ConsumerRecord<String, byte[]>> eventsRecordIterator = eventsRecords.iterator();
             ConsumerRecord<String, byte[]> eventsRecord = eventsRecordIterator.next();
             assertEquals(eventsRecord.topic(), config.getEventsTopicName());
-            RemoteCommand remoteCommand = ConverterUtil.deSerializeObjInto(eventsRecord.value(),
-                                                                           RemoteCommand.class);
+            RemoteCommand remoteCommand = deserialize(eventsRecord.value());
             assertEquals(eventsRecord.offset(), 0);
             assertNotNull(remoteCommand.getId());
             InsertCommand insertCommand = (InsertCommand) remoteCommand;
@@ -114,7 +118,7 @@ public class PodTestWithKafkaLogger {
             Iterator<ConsumerRecord<String, byte[]>> controlRecordIterator = controlRecords.iterator();
             ConsumerRecord<String, byte[]> controlRecord = controlRecordIterator.next();
             assertEquals(controlRecord.topic(), config.getControlTopicName());
-            ControlMessage controlMessage = ConverterUtil.deSerializeObjInto(controlRecord.value(), ControlMessage.class);
+            ControlMessage controlMessage = deserialize(controlRecord.value());
             assertEquals(controlRecord.offset(), 0);
             assertTrue(!controlMessage.getSideEffects().isEmpty());
 

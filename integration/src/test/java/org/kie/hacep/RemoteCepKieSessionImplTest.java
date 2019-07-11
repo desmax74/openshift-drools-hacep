@@ -23,14 +23,16 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.kie.remote.RemoteCepKieSession;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
-import org.kie.hacep.core.infra.utils.PrinterLogImpl;
-import org.kie.hacep.model.StockTickEvent;
-import org.kie.hacep.producer.RemoteCepKieSessionImpl;
+import org.kie.hacep.sample.kjar.StockTickEvent;
+import org.kie.remote.Config;
+import org.kie.remote.EnvConfig;
+import org.kie.remote.RemoteCepKieSession;
+import org.kie.remote.impl.producer.RemoteCepKieSessionImpl;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class RemoteCepKieSessionImplTest {
 
@@ -67,7 +69,7 @@ public class RemoteCepKieSessionImplTest {
         kafkaServerTest.insertBatchStockTicketEvent(7,
                                                     config,
                                                     RemoteCepKieSession.class);
-        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("FactCountConsumerTest"),
+        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl( Config.getProducerConfig("FactCountConsumerTest"),
                                                                           config)) {
             client.listen();
             CompletableFuture<Long> factCountFuture = client.getFactCount();
@@ -120,17 +122,22 @@ public class RemoteCepKieSessionImplTest {
         try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("ListKieSessionObjectsWithNamedQueryTest"),
                                                                           config)) {
             client.listen();
-            CompletableFuture<Collection<? extends Object>> listKieObjectsFuture = client.getObjects("stockTickEventQuery" , "stock", new Object[]{"IBM"});
-            Collection<? extends Object> listKieObjects = listKieObjectsFuture.get(15, TimeUnit.SECONDS);
-            assertTrue(listKieObjects.size() == 0);
 
+            doQuery( client, "IBM", 0 );
 
-            listKieObjectsFuture = client.getObjects("stockTickEventQuery" , "stock", new Object[]{"RHT"});
-            listKieObjects = listKieObjectsFuture.get(15, TimeUnit.SECONDS);
-            assertTrue(listKieObjects.size() == 1);
+            Collection<?> listKieObjects = doQuery( client, "RHT", 1 );
             StockTickEvent event = (StockTickEvent)listKieObjects.iterator().next();
             assertTrue(event.getCompany().equals("RHT"));
         }
+    }
+
+    private Collection<?> doQuery( RemoteCepKieSessionImpl client, String stockName, int expectedResult) throws InterruptedException, java.util.concurrent.ExecutionException, java.util.concurrent.TimeoutException {
+        CompletableFuture<Collection<?>> listKieObjectsFuture;
+        Collection<?> listKieObjects;
+        listKieObjectsFuture = client.getObjects("stockTickEventQuery" , "stock", stockName);
+        listKieObjects = listKieObjectsFuture.get(15, TimeUnit.SECONDS);
+        assertEquals(expectedResult, listKieObjects.size());
+        return listKieObjects;
     }
 
 }

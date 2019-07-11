@@ -24,20 +24,25 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.kie.hacep.core.Bootstrap;
+import org.kie.hacep.core.infra.election.State;
+import org.kie.hacep.model.ControlMessage;
+import org.kie.hacep.model.SnapshotMessage;
+import org.kie.hacep.sample.kjar.StockTickEvent;
+import org.kie.remote.Config;
+import org.kie.remote.EnvConfig;
 import org.kie.remote.RemoteCommand;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.RemoteKieSession;
 import org.kie.remote.command.InsertCommand;
-import org.kie.hacep.core.Bootstrap;
-import org.kie.hacep.core.infra.election.State;
-import org.kie.hacep.core.infra.utils.PrinterLogImpl;
-import org.kie.hacep.model.ControlMessage;
-import org.kie.hacep.model.SnapshotMessage;
-import org.kie.hacep.model.StockTickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.kie.remote.util.SerializationUtil.deserialize;
 
 public class PodTest {
 
@@ -90,27 +95,25 @@ public class PodTest {
                                                     RemoteKieSession.class);
         try {
             //EVENTS TOPIC
-            ConsumerRecords eventsRecords = eventsConsumer.poll(2000);
+            ConsumerRecords eventsRecords = eventsConsumer.poll(20000);
             assertEquals(1,
                          eventsRecords.count());
             Iterator<ConsumerRecord<String, byte[]>> eventsRecordIterator = eventsRecords.iterator();
             ConsumerRecord<String, byte[]> eventsRecord = eventsRecordIterator.next();
             assertEquals(eventsRecord.topic(),
                          config.getEventsTopicName());
-            RemoteCommand remoteCommand = ConverterUtil.deSerializeObjInto(eventsRecord.value(),
-                                                                           RemoteCommand.class);
+            RemoteCommand remoteCommand = deserialize(eventsRecord.value());
             assertEquals(eventsRecord.offset(),
                          0);
             assertNotNull(remoteCommand.getId());
 
             //CONTROL TOPIC
-            ConsumerRecords controlRecords = controlConsumer.poll(2000);
+            ConsumerRecords controlRecords = controlConsumer.poll(20000);
             assertEquals(1,
                          controlRecords.count());
             Iterator<ConsumerRecord<String, byte[]>> controlRecordIterator = controlRecords.iterator();
             ConsumerRecord<String, byte[]> controlRecord = controlRecordIterator.next();
-            ControlMessage controlMessage = ConverterUtil.deSerializeObjInto(controlRecord.value(),
-                                                                             ControlMessage.class);
+            ControlMessage controlMessage = deserialize(controlRecord.value());
             assertEquals(controlRecord.topic(),
                          config.getControlTopicName());
             assertEquals(controlRecord.offset(),
@@ -143,17 +146,16 @@ public class PodTest {
                                                     RemoteKieSession.class);
         try {
             //EVENTS TOPIC
-            ConsumerRecords eventsRecords = eventsConsumer.poll(2000);
+            ConsumerRecords eventsRecords = eventsConsumer.poll(20000);
             assertEquals(10,
                          eventsRecords.count());
 
             //SNAPSHOT TOPIC
-            ConsumerRecords snapshotRecords = snapshotConsumer.poll(2000);
+            ConsumerRecords snapshotRecords = snapshotConsumer.poll(20000);
             assertEquals(1,
                          snapshotRecords.count());
             ConsumerRecord record = (ConsumerRecord) snapshotRecords.iterator().next();
-            SnapshotMessage snapshot = ConverterUtil.deSerializeObjInto((byte[]) record.value(),
-                                                                        SnapshotMessage.class);
+            SnapshotMessage snapshot = deserialize((byte[]) record.value());
             assertNotNull(snapshot);
             assertTrue(snapshot.getLastInsertedEventOffset() > 0);
             assertFalse(snapshot.getFhMapKeys().isEmpty());
@@ -161,8 +163,7 @@ public class PodTest {
             assertTrue(snapshot.getFhMapKeys().size() == 9);
             assertNotNull(snapshot.getLastInsertedEventkey());
         } catch (Exception ex) {
-            logger.error(ex.getMessage(),
-                         ex);
+            logger.error(ex.getMessage(), ex);
         } finally {
             eventsConsumer.close();
             snapshotConsumer.close();
@@ -184,15 +185,14 @@ public class PodTest {
         try {
 
             //EVENTS TOPIC
-            ConsumerRecords eventsRecords = eventsConsumer.poll(2000);
+            ConsumerRecords eventsRecords = eventsConsumer.poll(20000);
             assertEquals(1,
                          eventsRecords.count());
             Iterator<ConsumerRecord<String, byte[]>> eventsRecordIterator = eventsRecords.iterator();
             ConsumerRecord<String, byte[]> eventsRecord = eventsRecordIterator.next();
             assertEquals(eventsRecord.topic(),
                          config.getEventsTopicName());
-            RemoteCommand remoteCommand = ConverterUtil.deSerializeObjInto(eventsRecord.value(),
-                                                                           RemoteCommand.class);
+            RemoteCommand remoteCommand = deserialize(eventsRecord.value());
             assertEquals(eventsRecord.offset(),
                          0);
             assertNotNull(remoteCommand.getId());
@@ -207,15 +207,14 @@ public class PodTest {
                          "RHT");
 
             //CONTROL TOPIC
-            ConsumerRecords controlRecords = controlConsumer.poll(2000);
+            ConsumerRecords controlRecords = controlConsumer.poll(20000);
             assertEquals(1,
                          controlRecords.count());
             Iterator<ConsumerRecord<String, byte[]>> controlRecordIterator = controlRecords.iterator();
             ConsumerRecord<String, byte[]> controlRecord = controlRecordIterator.next();
             assertEquals(controlRecord.topic(),
                          config.getControlTopicName());
-            ControlMessage controlMessage = ConverterUtil.deSerializeObjInto(controlRecord.value(),
-                                                                             ControlMessage.class);
+            ControlMessage controlMessage = deserialize(controlRecord.value());
             assertEquals(controlRecord.offset(),
                          0);
             assertTrue(!controlMessage.getSideEffects().isEmpty());
@@ -225,10 +224,10 @@ public class PodTest {
                          eventsRecord.key());
 
             //no more msg to consume as a leader
-            eventsRecords = eventsConsumer.poll(2000);
+            eventsRecords = eventsConsumer.poll(20000);
             assertEquals(0,
                          eventsRecords.count());
-            controlRecords = controlConsumer.poll(2000);
+            controlRecords = controlConsumer.poll(20000);
             assertEquals(0,
                          controlRecords.count());
 
@@ -237,8 +236,7 @@ public class PodTest {
             //@TODO with kafka logger
 
         } catch (Exception ex) {
-            logger.error(ex.getMessage(),
-                         ex);
+            logger.error(ex.getMessage(), ex);
         } finally {
             eventsConsumer.close();
             controlConsumer.close();

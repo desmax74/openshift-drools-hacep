@@ -59,9 +59,9 @@ public class KafkaTest {
         KafkaProducer<String, byte[]> producer = kafkaServerTest.getByteArrayProducer();
         KafkaConsumer<String, byte[]> consumer = kafkaServerTest.getByteArrayConsumer(TEST_TOPIC);
 
-        ProducerRecord data = new ProducerRecord(TEST_TOPIC,
-                                                 "42",
-                                                 Base64.encodeBase64("test-message".getBytes(Charset.forName("UTF-8"))));
+        ProducerRecord<String, byte[]> data = new ProducerRecord<>(TEST_TOPIC,
+                                                                 "42",
+                                                                 Base64.encodeBase64("test-message".getBytes(Charset.forName("UTF-8"))));
         kafkaServerTest.sendSingleMsg(producer, data);
 
         ConsumerRecords<String, byte[]> records = consumer.poll(5000);

@@ -17,14 +17,12 @@ package org.kie.hacep.core;
 
 import java.util.Arrays;
 
-import org.kie.hacep.Config;
-import org.kie.hacep.EnvConfig;
+import org.kie.remote.Config;
+import org.kie.remote.EnvConfig;
 import org.kie.hacep.core.infra.consumer.ConsumerController;
 import org.kie.hacep.core.infra.election.LeaderElection;
 import org.kie.hacep.core.infra.election.State;
-import org.kie.hacep.core.infra.producer.EventProducer;
-import org.kie.hacep.core.infra.utils.Printer;
-import org.kie.hacep.core.infra.utils.PrinterLogImpl;
+import org.kie.remote.impl.producer.EventProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +80,7 @@ public class Bootstrap {
         //KubernetesClient client = Core.getKubeClient();
         //client.events().inNamespace("my-kafka-project").watch(WatcherFactory.createModifiedLogWatcher(configuration.getPodName()));
         LeaderElection leadership = coreKube.getLeaderElection();
-        coreKube.getLeaderElection().addCallbacks(Arrays.asList( consumerController.getCallback(), eventProducer));
+        coreKube.getLeaderElection().addCallbacks(Arrays.asList( consumerController.getCallback() ));
         try {
             leadership.start();
         } catch (Exception e) {

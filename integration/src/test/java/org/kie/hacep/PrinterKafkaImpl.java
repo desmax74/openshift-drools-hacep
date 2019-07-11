@@ -24,7 +24,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
-import org.kie.hacep.core.infra.utils.Printer;
+import org.kie.remote.util.Printer;
+import org.kie.remote.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +56,7 @@ public class PrinterKafkaImpl implements Printer {
     }
 
     public Map<TopicPartition, Long> getOffsets(String topic) {
-        KafkaConsumer consumer = new KafkaConsumer(Config.getConsumerConfig("OffsetConsumer"));
+        KafkaConsumer consumer = new KafkaConsumer( Config.getConsumerConfig("OffsetConsumer"));
         consumer.subscribe(Arrays.asList(topic));
         List<PartitionInfo> infos = consumer.partitionsFor(topic);
         List<TopicPartition> tps = new ArrayList<>();

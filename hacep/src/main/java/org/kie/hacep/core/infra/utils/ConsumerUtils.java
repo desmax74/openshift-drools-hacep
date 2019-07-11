@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -31,13 +30,14 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.kie.remote.RemoteFactHandle;
-import org.kie.hacep.Config;
-import org.kie.hacep.ConverterUtil;
-import org.kie.hacep.EnvConfig;
+import org.kie.remote.Config;
+import org.kie.remote.EnvConfig;
 import org.kie.hacep.model.ControlMessage;
-import org.kie.hacep.model.FactCountMessage;
+import org.kie.remote.message.FactCountMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.kie.remote.util.SerializationUtil.deserialize;
 
 public class ConsumerUtils {
 
@@ -89,7 +89,7 @@ public class ConsumerUtils {
             ConsumerRecords records = consumer.poll(Duration.of(Config.DEFAULT_POLL_TIMEOUT_MS, ChronoUnit.MILLIS));
             for (Object item : records) {
                 ConsumerRecord<String, byte[]> record = (ConsumerRecord<String, byte[]>) item;
-                lastMessage = ConverterUtil.deSerializeObjInto(record.value(), ControlMessage.class);
+                lastMessage = deserialize(record.value());
             }
         } catch (Exception ex) {
             logger.error(ex.getMessage(),
@@ -130,7 +130,7 @@ public class ConsumerUtils {
             for (Object item : records) {
                 ConsumerRecord<String, byte[]> record = (ConsumerRecord<String, byte[]>) item;
                 if(record.key().equals(factHandle.getId())) {
-                    lastMessage = ConverterUtil.deSerializeObjInto(record.value(), FactCountMessage.class);
+                    lastMessage = deserialize(record.value());
                     break;
                 }
             }
