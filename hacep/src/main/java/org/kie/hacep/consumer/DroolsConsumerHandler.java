@@ -70,11 +70,11 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         RemoteCommand command  = ConverterUtil.deSerializeObjInto((byte[])item.getObject(), RemoteCommand.class);
         if (state.equals(State.LEADER)) {
             processCommand( command, state );
-            Queue<Object> results = DroolsExecutor.getInstance().getAndReset();
-            ControlMessage newControlMessage = new ControlMessage(command.getId(), results);
+            Queue<Object> sideEffectsResults = DroolsExecutor.getInstance().getAndReset();
+            ControlMessage newControlMessage = new ControlMessage(command.getId(), sideEffectsResults);
             producer.produceSync(config.getControlTopicName(), command.getId(), newControlMessage);
             if(config.isUnderTest()){
-                loggerForTest.warn("sideEffectOnLeader:{}", sideEffects);
+                loggerForTest.warn("sideEffectOnLeader:{}", sideEffectsResults);
             }
         }else{
             if(sideEffects != null) {

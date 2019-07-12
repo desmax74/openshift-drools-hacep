@@ -117,7 +117,9 @@ public class PodTestWithKafkaLogger {
             ControlMessage controlMessage = ConverterUtil.deSerializeObjInto(controlRecord.value(), ControlMessage.class);
             assertEquals(controlRecord.offset(), 0);
             assertTrue(!controlMessage.getSideEffects().isEmpty());
-
+            assertTrue(controlMessage.getSideEffects().size() == 1);
+            String sideEffect = controlMessage.getSideEffects().iterator().next().toString();
+            System.out.println("sideEffect:::::"+sideEffect);
             //Same msg content on Events topic and control topics
             assertEquals(controlRecord.key(), eventsRecord.key());
 
@@ -129,7 +131,8 @@ public class PodTestWithKafkaLogger {
 
             // SWITCH AS a REPLICA
             Bootstrap.getConsumerController().getCallback().updateStatus(State.REPLICA);
-            kafkaServerTest.insertBatchStockTicketEvent(1, config, RemoteKieSession.class);
+            Bootstrap.getConsumerController().getCallback().updateStatus(State.REPLICA);
+            //kafkaServerTest.insertBatchStockTicketEvent(1, config, RemoteKieSession.class);
 
             ConsumerRecords<byte[], String> recordsLog = kafkaLogConsumer.poll(5000);
             Iterator<ConsumerRecord<byte[], String>> recordIterator = recordsLog.iterator();

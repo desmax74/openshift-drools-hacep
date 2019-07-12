@@ -39,12 +39,8 @@ public class Bootstrap {
     private static CoreKube coreKube;
 
     public static void startEngine(EnvConfig envConfig) {
-        startEngine(envConfig, null);
-    }
-
-    public static void startEngine(EnvConfig envConfig, State initialState) {
         //order matter
-        coreKube = new CoreKube(envConfig.getNamespace(), initialState);
+        coreKube = new CoreKube(envConfig.getNamespace(), null);
         startProducer();
         startConsumers(envConfig);
         if(!envConfig.isUnderTest()) {
