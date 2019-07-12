@@ -21,11 +21,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.kie.api.runtime.rule.FactHandle;
-import org.kie.hacep.EnvConfig;
+import org.kie.remote.EnvConfig;
 import org.kie.hacep.core.KieSessionContext;
-import org.kie.hacep.core.infra.producer.Producer;
-import org.kie.hacep.model.FactCountMessage;
-import org.kie.hacep.model.ListKieSessionObjectMessage;
+import org.kie.remote.impl.producer.Producer;
+import org.kie.remote.message.FactCountMessage;
+import org.kie.remote.message.ListKieSessionObjectMessage;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.command.DeleteCommand;
 import org.kie.remote.command.FactCountCommand;

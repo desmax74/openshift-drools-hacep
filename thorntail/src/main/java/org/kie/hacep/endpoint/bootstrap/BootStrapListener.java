@@ -19,9 +19,8 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
-import org.kie.hacep.EnvConfig;
+import org.kie.remote.EnvConfig;
 import org.kie.hacep.core.Bootstrap;
-import org.kie.hacep.core.infra.utils.PrinterLogImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

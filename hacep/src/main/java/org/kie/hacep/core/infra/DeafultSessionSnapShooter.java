@@ -35,12 +35,12 @@ import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.KieSessionConfiguration;
 import org.kie.api.runtime.conf.ClockTypeOption;
-import org.kie.hacep.Config;
-import org.kie.hacep.ConverterUtil;
-import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.KieSessionContext;
-import org.kie.hacep.core.infra.producer.EventProducer;
 import org.kie.hacep.model.SnapshotMessage;
+import org.kie.remote.Config;
+import org.kie.remote.EnvConfig;
+import org.kie.remote.impl.producer.EventProducer;
+import org.kie.remote.util.SerializationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,7 +91,7 @@ public class DeafultSessionSnapShooter implements SessionSnapshooter{
                 bytes = (byte[])record.value();
             }
 
-            SnapshotMessage snapshotMsg = bytes != null ? ConverterUtil.deSerializeObjInto(bytes, SnapshotMessage.class) : null;
+            SnapshotMessage snapshotMsg = bytes != null ? SerializationUtil.deserialize(bytes) : null;
 
             if (snapshotMsg != null) {
                 try (ByteArrayInputStream in = new ByteArrayInputStream(snapshotMsg.getSerializedSession())) {

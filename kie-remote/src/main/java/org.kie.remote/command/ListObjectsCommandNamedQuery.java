@@ -29,7 +29,7 @@ public class ListObjectsCommandNamedQuery extends ListObjectsCommand implements 
 
     public ListObjectsCommandNamedQuery(String entryPoint, String namedQuery,
                                         String objectName,
-                                        Object[] params) {
+                                        Object... params) {
         super(entryPoint);
         this.namedQuery = namedQuery;
         this.namedQuery = namedQuery;

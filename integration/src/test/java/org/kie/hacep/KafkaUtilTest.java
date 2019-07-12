@@ -45,15 +45,17 @@ import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.SystemTime;
 import org.apache.kafka.common.utils.Time;
+import org.kie.hacep.sample.kjar.StockTickEvent;
+import org.kie.remote.Config;
+import org.kie.remote.EnvConfig;
 import org.kie.remote.RemoteCepKieSession;
 import org.kie.remote.RemoteKieSession;
-import org.kie.hacep.model.StockTickEvent;
-import org.kie.hacep.producer.RemoteCepKieSessionImpl;
-import org.kie.hacep.producer.RemoteKieSessionImpl;
+import org.kie.remote.impl.producer.RemoteCepKieSessionImpl;
+import org.kie.remote.impl.producer.RemoteKieSessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class KafkaUtilTest<K, V> implements AutoCloseable {
+public class KafkaUtilTest implements AutoCloseable {
 
     private static final String ZOOKEPER_HOST = "127.0.0.1";
     private static final String BROKER_HOST = "127.0.0.1";
@@ -130,8 +132,8 @@ public class KafkaUtilTest<K, V> implements AutoCloseable {
         shutdownServer();
     }
 
-    public void sendSingleMsg(KafkaProducer<K, V> producer,
-                              ProducerRecord<K, V> data) {
+    public <K, V> void sendSingleMsg(KafkaProducer<K, V> producer,
+                                     ProducerRecord<K, V> data) {
         producer.send(data);
         producer.close();
     }
@@ -175,7 +177,7 @@ public class KafkaUtilTest<K, V> implements AutoCloseable {
                                topic);
     }
 
-    public KafkaConsumer<K, V> getStringConsumer(String topic) {
+    public <K, V> KafkaConsumer<K, V> getStringConsumer(String topic) {
         Properties consumerProps = getConsumerConfig();
         consumerProps.setProperty("value.deserializer",
                                   "org.apache.kafka.common.serialization.StringDeserializer");
@@ -184,7 +186,7 @@ public class KafkaUtilTest<K, V> implements AutoCloseable {
         return consumer;
     }
 
-    public KafkaConsumer<K, V> getByteArrayConsumer(String topic) {
+    public <K, V> KafkaConsumer<K, V> getByteArrayConsumer(String topic) {
         Properties consumerProps = getConsumerConfig();
         consumerProps.setProperty("value.deserializer",
                                   "org.apache.kafka.common.serialization.ByteArrayDeserializer");
@@ -193,14 +195,14 @@ public class KafkaUtilTest<K, V> implements AutoCloseable {
         return consumer;
     }
 
-    public KafkaProducer<K, V> getByteArrayProducer() {
+    public <K, V> KafkaProducer<K, V> getByteArrayProducer() {
         Properties producerProps = getProducerConfig();
         producerProps.setProperty("value.serializer",
                                   "org.apache.kafka.common.serialization.ByteArraySerializer");
         return new KafkaProducer<>(producerProps);
     }
 
-    public KafkaProducer<K, V> getStringProducer() {
+    public <K, V> KafkaProducer<K, V> getStringProducer() {
         Properties producerProps = getProducerConfig();
         producerProps.setProperty("value.serializer",
                                   "org.apache.kafka.common.serialization.StringSerializer");
