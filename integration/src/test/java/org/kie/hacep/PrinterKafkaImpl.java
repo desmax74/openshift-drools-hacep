@@ -24,8 +24,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
-import org.kie.remote.util.Printer;
-import org.kie.remote.Config;
+import org.kie.hacep.util.Printer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

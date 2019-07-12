@@ -26,9 +26,9 @@ import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.sample.kjar.StockTickEvent;
-import org.kie.remote.Config;
-import org.kie.remote.EnvConfig;
+import org.kie.remote.CommonConfig;
 import org.kie.remote.RemoteCepKieSession;
+import org.kie.remote.TopicsConfig;
 import org.kie.remote.impl.producer.RemoteCepKieSessionImpl;
 
 import static org.junit.Assert.assertEquals;
@@ -38,10 +38,12 @@ public class RemoteCepKieSessionImplTest {
 
     private KafkaUtilTest kafkaServerTest;
     private EnvConfig config;
+    private TopicsConfig topicsConfig;
 
     @Before
     public void setUp() throws Exception {
         config = EnvConfig.getDefaultEnvConfig();
+        topicsConfig = TopicsConfig.getDefaultTopicsConfig();
         kafkaServerTest = new KafkaUtilTest();
         kafkaServerTest.startServer();
         kafkaServerTest.createTopic(config.getEventsTopicName());
@@ -68,10 +70,10 @@ public class RemoteCepKieSessionImplTest {
         Bootstrap.startEngine(config);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
         kafkaServerTest.insertBatchStockTicketEvent(7,
-                                                    config,
+                                                    topicsConfig,
                                                     RemoteCepKieSession.class);
         try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl( Config.getProducerConfig("FactCountConsumerTest"),
-                                                                          config)) {
+                                                                           topicsConfig)) {
             client.listen();
             CompletableFuture<Long> factCountFuture = client.getFactCount();
             Long factCount  = factCountFuture.get(15, TimeUnit.SECONDS);
@@ -84,10 +86,10 @@ public class RemoteCepKieSessionImplTest {
         Bootstrap.startEngine(config);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
         kafkaServerTest.insertBatchStockTicketEvent(1,
-                                                    config,
+                                                    topicsConfig,
                                                     RemoteCepKieSession.class);
-        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("ListKieSessionObjectsConsumerTest"),
-                                                                          config)) {
+        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(CommonConfig.getProducerConfig("ListKieSessionObjectsConsumerTest"),
+                                                                          topicsConfig)) {
             client.listen();
             CompletableFuture<Collection<? extends Object>> listKieObjectsFuture = client.getObjects();
             Collection<? extends Object> listKieObjects = listKieObjectsFuture.get(15,
@@ -103,10 +105,10 @@ public class RemoteCepKieSessionImplTest {
         Bootstrap.startEngine(config);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
         kafkaServerTest.insertBatchStockTicketEvent(1,
-                                                    config,
+                                                    topicsConfig,
                                                     RemoteCepKieSession.class);
         try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("ListKieSessionObjectsWithClassTypeTest"),
-                                                                          config)) {
+                                                                          topicsConfig)) {
             client.listen();
             CompletableFuture<Collection<? extends Object>> listKieObjectsFuture = client.getObjects(StockTickEvent.class);
             Collection<? extends Object> listKieObjects = listKieObjectsFuture.get(15, TimeUnit.SECONDS);
@@ -121,10 +123,10 @@ public class RemoteCepKieSessionImplTest {
         Bootstrap.startEngine(config);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
         kafkaServerTest.insertBatchStockTicketEvent(1,
-                                                    config,
+                                                    topicsConfig,
                                                     RemoteCepKieSession.class);
         try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("ListKieSessionObjectsWithNamedQueryTest"),
-                                                                          config)) {
+                                                                          topicsConfig)) {
             client.listen();
 
             doQuery( client, "IBM", 0 );

@@ -19,8 +19,8 @@ import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.kie.hacep.sample.kjar.StockTickEvent;
-import org.kie.remote.Config;
-import org.kie.remote.EnvConfig;
+import org.kie.remote.CommonConfig;
+import org.kie.remote.TopicsConfig;
 import org.kie.remote.impl.producer.RemoteKieSessionImpl;
 
 public class ClientProducerDemo {
@@ -30,7 +30,7 @@ public class ClientProducerDemo {
     }
 
     private static void insertBatchEvent(int items) {
-        EnvConfig envConfig = EnvConfig.getDefaultEnvConfig();
+        TopicsConfig envConfig = TopicsConfig.getDefaultTopicsConfig();
         Properties props = getProperties();
 
         try (RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props, envConfig)) {
@@ -44,7 +44,7 @@ public class ClientProducerDemo {
     }
 
     private static Properties getProperties() {
-        Properties props = Config.getStatic();
+        Properties props = CommonConfig.getStatic();
         props.put("bootstrap.servers", "my-cluster-kafka-bootstrap-my-kafka-project.<ip>.nip.io:443");
         props.put("security.protocol", "SSL");
         props.put("ssl.keystore.location", "/<path>/openshift-drools-hacep/client/src/main/resources/keystore.jks");

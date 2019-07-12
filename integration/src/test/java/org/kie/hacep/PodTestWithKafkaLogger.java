@@ -13,11 +13,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
-import org.kie.hacep.model.ControlMessage;
+import org.kie.hacep.message.ControlMessage;
 import org.kie.hacep.sample.kjar.StockTickEvent;
-import org.kie.remote.Config;
-import org.kie.remote.EnvConfig;
-import org.kie.remote.RemoteCommand;
+import org.kie.remote.CommonConfig;
+import org.kie.remote.TopicsConfig;
+import org.kie.remote.command.RemoteCommand;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.RemoteKieSession;
 import org.kie.remote.command.InsertCommand;
@@ -38,10 +38,12 @@ public class PodTestWithKafkaLogger {
     private Logger logger = LoggerFactory.getLogger(PodTestWithKafkaLogger.class);
     private Logger kafkaLogger = LoggerFactory.getLogger("org.hacep");
     private EnvConfig config;
+    private TopicsConfig topicsConfig;
 
     @Before
     public void setUp() throws Exception {
         config = getEnvConfig();
+        topicsConfig = TopicsConfig.getDefaultTopicsConfig();
         kafkaServerTest = new KafkaUtilTest();
         kafkaServerTest.startServer();
         kafkaServerTest.createTopic(TEST_KAFKA_LOGGER_TOPIC);
@@ -69,11 +71,11 @@ public class PodTestWithKafkaLogger {
 
     private EnvConfig getEnvConfig(){
         return EnvConfig.anEnvConfig().
-                withNamespace(Config.DEFAULT_NAMESPACE).
+                withNamespace(CommonConfig.DEFAULT_NAMESPACE).
                 withControlTopicName(Config.DEFAULT_CONTROL_TOPIC).
-                withEventsTopicName(Config.DEFAULT_EVENTS_TOPIC).
+                withEventsTopicName(CommonConfig.DEFAULT_EVENTS_TOPIC).
                 withSnapshotTopicName(Config.DEFAULT_SNAPSHOT_TOPIC).
-                withKieSessionInfosTopicName(Config.DEFAULT_KIE_SESSION_INFOS_TOPIC).
+                withKieSessionInfosTopicName(CommonConfig.DEFAULT_KIE_SESSION_INFOS_TOPIC).
                 withPrinterType(PrinterKafkaImpl.class.getName()).
                 isUnderTest(Boolean.TRUE.toString()).build();
     }
@@ -91,7 +93,7 @@ public class PodTestWithKafkaLogger {
                                                                     Config.getConsumerConfig("controlConsumerProcessOneSentMessageAsLeaderTest"));
 
         KafkaConsumer<byte[], String> kafkaLogConsumer = kafkaServerTest.getStringConsumer(TEST_KAFKA_LOGGER_TOPIC);
-        kafkaServerTest.insertBatchStockTicketEvent(1, config, RemoteKieSession.class);
+        kafkaServerTest.insertBatchStockTicketEvent(1, topicsConfig, RemoteKieSession.class);
         try {
 
             //EVENTS TOPIC

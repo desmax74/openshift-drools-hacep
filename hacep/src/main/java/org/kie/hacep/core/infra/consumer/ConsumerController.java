@@ -15,8 +15,8 @@
  */
 package org.kie.hacep.core.infra.consumer;
 
-import org.kie.remote.Config;
-import org.kie.remote.EnvConfig;
+import org.kie.hacep.Config;
+import org.kie.hacep.EnvConfig;
 import org.kie.hacep.consumer.DroolsConsumerHandler;
 import org.kie.hacep.core.infra.election.LeadershipCallback;
 import org.kie.remote.impl.producer.EventProducer;

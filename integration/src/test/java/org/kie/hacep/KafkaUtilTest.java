@@ -46,10 +46,9 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.SystemTime;
 import org.apache.kafka.common.utils.Time;
 import org.kie.hacep.sample.kjar.StockTickEvent;
-import org.kie.remote.Config;
-import org.kie.remote.EnvConfig;
 import org.kie.remote.RemoteCepKieSession;
 import org.kie.remote.RemoteKieSession;
+import org.kie.remote.TopicsConfig;
 import org.kie.remote.impl.producer.RemoteCepKieSessionImpl;
 import org.kie.remote.impl.producer.RemoteKieSessionImpl;
 import org.slf4j.Logger;
@@ -228,12 +227,12 @@ public class KafkaUtilTest implements AutoCloseable {
     }
 
     public void insertBatchStockTicketEvent(int items,
-                                            EnvConfig envConfig,
+                                            TopicsConfig topicsConfig,
                                             Class sessionType) {
         Properties props = Config.getProducerConfig("InsertBactchStockTickets");
         if (sessionType.equals(RemoteKieSession.class)) {
             try (RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props,
-                                                                          envConfig)) {
+                                                                          topicsConfig)) {
                 for (int i = 0; i < items; i++) {
                     StockTickEvent ticket = new StockTickEvent("RHT",
                                                                ThreadLocalRandom.current().nextLong(80,
@@ -244,7 +243,7 @@ public class KafkaUtilTest implements AutoCloseable {
         }
         if (sessionType.equals(RemoteCepKieSession.class)) {
             try (RemoteCepKieSessionImpl producer = new RemoteCepKieSessionImpl(props,
-                                                                                envConfig)) {
+                                                                                topicsConfig)) {
                 for (int i = 0; i < items; i++) {
                     StockTickEvent ticket = new StockTickEvent("RHT",
                                                                ThreadLocalRandom.current().nextLong(80,

@@ -24,9 +24,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
-import org.kie.remote.Config;
-import org.kie.remote.EnvConfig;
 import org.kie.remote.RemoteKieSession;
+import org.kie.remote.TopicsConfig;
 import org.kie.remote.impl.producer.RemoteKieSessionImpl;
 
 import static org.junit.Assert.assertTrue;
@@ -34,17 +33,19 @@ import static org.junit.Assert.assertTrue;
 public class RemoteKieSessionImplTest {
 
     private KafkaUtilTest kafkaServerTest;
-    private EnvConfig config;
+    private TopicsConfig topicsConfig;
+    private EnvConfig envConfig;
 
     @Before
     public void setUp() throws Exception {
-        config = EnvConfig.getDefaultEnvConfig();
+        topicsConfig = TopicsConfig.getDefaultTopicsConfig();
+        envConfig = EnvConfig.getDefaultEnvConfig();
         kafkaServerTest = new KafkaUtilTest();
         kafkaServerTest.startServer();
-        kafkaServerTest.createTopic(config.getEventsTopicName());
-        kafkaServerTest.createTopic(config.getControlTopicName());
-        kafkaServerTest.createTopic(config.getSnapshotTopicName());
-        kafkaServerTest.createTopic(config.getKieSessionInfosTopicName());
+        kafkaServerTest.createTopic(topicsConfig.getEventsTopicName());
+        kafkaServerTest.createTopic(topicsConfig.getKieSessionInfosTopicName());
+        kafkaServerTest.createTopic(envConfig.getControlTopicName());
+        kafkaServerTest.createTopic(envConfig.getSnapshotTopicName());
     }
 
     @After
@@ -53,22 +54,23 @@ public class RemoteKieSessionImplTest {
             Bootstrap.stopEngine();
         } catch (ConcurrentModificationException ex) {
         }
-        kafkaServerTest.deleteTopic(config.getEventsTopicName());
-        kafkaServerTest.deleteTopic(config.getControlTopicName());
-        kafkaServerTest.deleteTopic(config.getSnapshotTopicName());
-        kafkaServerTest.deleteTopic(config.getKieSessionInfosTopicName());
+        kafkaServerTest.deleteTopic(topicsConfig.getEventsTopicName());
+        kafkaServerTest.deleteTopic(topicsConfig.getKieSessionInfosTopicName());
+        kafkaServerTest.deleteTopic(envConfig.getControlTopicName());
+        kafkaServerTest.deleteTopic(envConfig.getSnapshotTopicName());
+
         kafkaServerTest.shutdownServer();
     }
 
     @Test
-    public void getFactCountTest() throws Exception {
-        Bootstrap.startEngine(config);
+    public void getFactCountTest() {
+        Bootstrap.startEngine(envConfig);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
         kafkaServerTest.insertBatchStockTicketEvent(7,
-                                                    config,
+                                                    topicsConfig,
                                                     RemoteKieSession.class);
         try (RemoteKieSessionImpl client = new RemoteKieSessionImpl( Config.getProducerConfig("getFactCountTest"),
-                                                                    config)) {
+                                                                    topicsConfig)) {
             client.listen();
             CompletableFuture<Long> factCountFuture = client.getFactCount();
             Long factCount = factCountFuture.get(30, TimeUnit.SECONDS);

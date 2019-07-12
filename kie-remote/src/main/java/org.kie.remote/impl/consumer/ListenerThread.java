@@ -29,8 +29,9 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
-import org.kie.remote.Config;
-import org.kie.remote.EnvConfig;
+import org.kie.remote.CommonConfig;
+import org.kie.remote.TopicsConfig;
+
 import org.kie.remote.message.FactCountMessage;
 import org.kie.remote.message.ListKieSessionObjectMessage;
 import org.kie.remote.message.VisitableMessage;
@@ -40,28 +41,29 @@ import org.slf4j.LoggerFactory;
 
 import static org.kie.remote.util.SerializationUtil.deserialize;
 
-public class ListenerThread implements Runnable, VisitorMessage {
+public class ListenerThread implements Runnable,
+                                       VisitorMessage {
 
     private static Logger logger = LoggerFactory.getLogger(ListenerThread.class);
     private Properties configuration;
-    private EnvConfig envConfig;
+    private TopicsConfig topicsConfig;
     private Map<String, CompletableFuture<Object>> store;
     private KafkaConsumer consumer;
 
-    public ListenerThread(Properties configuration, EnvConfig config, Map<String, CompletableFuture<Object>> store){
+    public ListenerThread(Properties configuration, TopicsConfig config, Map<String, CompletableFuture<Object>> store){
         this.configuration = configuration;
-        this.envConfig = config;
+        this.topicsConfig = config;
         this.store = store;
         prepareConsumer();
     }
 
     private void prepareConsumer() {
         consumer = new KafkaConsumer(configuration);
-        List<PartitionInfo> infos = consumer.partitionsFor(envConfig.getKieSessionInfosTopicName());
+        List<PartitionInfo> infos = consumer.partitionsFor(topicsConfig.getKieSessionInfosTopicName());
         List<TopicPartition> partitions = new ArrayList<>();
         if (infos != null) {
             for (PartitionInfo partition : infos) {
-                partitions.add(new TopicPartition(envConfig.getKieSessionInfosTopicName(), partition.partition()));
+                partitions.add(new TopicPartition(topicsConfig.getKieSessionInfosTopicName(), partition.partition()));
             }
         }
         consumer.assign(partitions);
@@ -84,7 +86,7 @@ public class ListenerThread implements Runnable, VisitorMessage {
     public void run() {
         try {
             while(true){
-                ConsumerRecords records = consumer.poll(Duration.of(Config.DEFAULT_POLL_TIMEOUT_MS, ChronoUnit.MILLIS));
+                ConsumerRecords records = consumer.poll(Duration.of(CommonConfig.DEFAULT_POLL_TIMEOUT_MS, ChronoUnit.MILLIS));
                 for (Object item : records) {
                     ConsumerRecord<String, byte[]> record = (ConsumerRecord<String, byte[]>) item;
                     Object msg = deserialize(record.value());
@@ -100,7 +102,7 @@ public class ListenerThread implements Runnable, VisitorMessage {
     }
 
     @Override
-    public void visit( FactCountMessage msg, String key) {
+    public void visit(FactCountMessage msg, String key) {
         CompletableFuture<Object> completableFuture = store.get(msg.getKey());
         if(completableFuture!= null) {
             completableFuture.complete(msg.getFactCount());
@@ -110,7 +112,7 @@ public class ListenerThread implements Runnable, VisitorMessage {
     }
 
     @Override
-    public void visit( ListKieSessionObjectMessage msg, String key) {
+    public void visit(ListKieSessionObjectMessage msg, String key) {
         CompletableFuture<Object> completableFuture = store.get(msg.getKey());
         if(completableFuture!= null) {
             completableFuture.complete(msg.getObjects());

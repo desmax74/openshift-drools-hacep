@@ -19,24 +19,25 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 
-import org.kie.remote.EnvConfig;
+import org.kie.remote.TopicsConfig;
 import org.kie.remote.impl.ClientUtils;
 
 public class Listener {
 
     private Properties configuration;
-    private EnvConfig envConfig;
+    private TopicsConfig topicsConfig;
     private Map<String, CompletableFuture<Object>> store;
     private Thread t;
 
     public Listener(Map<String, CompletableFuture<Object>> requestsStore){
         configuration = ClientUtils.getConfiguration(ClientUtils.CONSUMER_CONF);
-        envConfig = EnvConfig.getDefaultEnvConfig();
+        topicsConfig = TopicsConfig.getDefaultTopicsConfig();
         store = requestsStore;
     }
 
     public void listen(){
-        t = new Thread(new ListenerThread(configuration, envConfig, store));
+        t = new Thread(new ListenerThread(configuration,
+                                          topicsConfig, store));
         t.start();
     }
 

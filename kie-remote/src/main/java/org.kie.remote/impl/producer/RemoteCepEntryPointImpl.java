@@ -20,9 +20,9 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.kie.remote.EnvConfig;
 import org.kie.remote.RemoteCepEntryPoint;
 import org.kie.remote.RemoteFactHandle;
+import org.kie.remote.TopicsConfig;
 import org.kie.remote.command.FactCountCommand;
 import org.kie.remote.command.InsertCommand;
 import org.kie.remote.command.ListObjectsCommand;
@@ -37,12 +37,12 @@ public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
     protected final Listener listener;
     private final String entryPoint;
     private Map<String, CompletableFuture<Object>> requestsStore;
-    private EnvConfig envConfig;
+    private TopicsConfig topicsConfig;
 
-    public RemoteCepEntryPointImpl(Sender sender, String entryPoint, EnvConfig envConfig ) {
+    public RemoteCepEntryPointImpl(Sender sender, String entryPoint, TopicsConfig topicsConfig) {
         this.sender = sender;
         this.entryPoint = entryPoint;
-        this.envConfig = envConfig;
+        this.topicsConfig = topicsConfig;
         requestsStore = new ConcurrentHashMap<>();
         listener = new Listener(requestsStore);
     }
@@ -61,7 +61,7 @@ public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
         CompletableFuture callback = new CompletableFuture<>();
         ListObjectsCommand command = new ListObjectsCommand(entryPoint);
         requestsStore.put(command.getId(), callback);
-        sender.sendCommand(command, envConfig.getEventsTopicName());
+        sender.sendCommand(command, topicsConfig.getEventsTopicName());
         return callback;
     }
 
@@ -70,7 +70,7 @@ public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
         CompletableFuture callback = new CompletableFuture<>();
         ListObjectsCommand command = new ListObjectsCommandClassType(entryPoint, clazztype);
         requestsStore.put(command.getId(), callback);
-        sender.sendCommand(command, envConfig.getEventsTopicName());
+        sender.sendCommand(command, topicsConfig.getEventsTopicName());
         return callback;
     }
 
@@ -79,7 +79,7 @@ public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
         CompletableFuture callback = new CompletableFuture<>();
         ListObjectsCommand command = new ListObjectsCommandNamedQuery(entryPoint, namedQuery, objectName, params);
         requestsStore.put(command.getId(), callback);
-        sender.sendCommand(command, envConfig.getEventsTopicName());
+        sender.sendCommand(command, topicsConfig.getEventsTopicName());
         return callback;
     }
 
@@ -88,7 +88,7 @@ public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
         CompletableFuture callback = new CompletableFuture<>();
         FactCountCommand command = new FactCountCommand(entryPoint );
         requestsStore.put(command.getId(), callback);
-        sender.sendCommand(command, envConfig.getEventsTopicName());
+        sender.sendCommand(command, topicsConfig.getEventsTopicName());
         return callback;
     }
 
@@ -96,7 +96,7 @@ public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
     public void insert(Object object) {
         RemoteFactHandle factHandle = new RemoteFactHandleImpl(object );
         InsertCommand command = new InsertCommand(factHandle, entryPoint );
-        sender.sendCommand(command, envConfig.getEventsTopicName());
+        sender.sendCommand(command, topicsConfig.getEventsTopicName());
     }
 
 }

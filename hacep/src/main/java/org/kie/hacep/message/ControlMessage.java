@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.hacep.model;
+package org.kie.hacep.message;
 
 import java.io.Serializable;
 import java.util.Queue;
 
-import org.kie.remote.Message;
+import org.kie.remote.message.Message;
 
 public class ControlMessage implements Serializable, Message {
 

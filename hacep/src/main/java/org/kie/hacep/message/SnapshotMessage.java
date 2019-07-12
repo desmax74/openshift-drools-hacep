@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kie.hacep.model;
+package org.kie.hacep.message;
 
 import java.io.Serializable;
 import java.util.Set;

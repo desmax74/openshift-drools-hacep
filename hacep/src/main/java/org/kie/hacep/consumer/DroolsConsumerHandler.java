@@ -26,14 +26,14 @@ import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.consumer.ConsumerHandler;
 import org.kie.hacep.core.infra.consumer.ItemToProcess;
 import org.kie.hacep.core.infra.election.State;
-import org.kie.hacep.model.ControlMessage;
+import org.kie.hacep.message.ControlMessage;
 import org.kie.remote.DroolsExecutor;
-import org.kie.remote.EnvConfig;
-import org.kie.remote.RemoteCommand;
+import org.kie.hacep.EnvConfig;
+import org.kie.remote.command.RemoteCommand;
 import org.kie.remote.command.VisitableCommand;
 import org.kie.remote.impl.producer.EventProducer;
 import org.kie.remote.impl.producer.Producer;
-import org.kie.remote.util.PrinterUtil;
+import org.kie.hacep.util.PrinterUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

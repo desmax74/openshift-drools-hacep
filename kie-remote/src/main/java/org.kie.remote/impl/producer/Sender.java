@@ -17,8 +17,7 @@ package org.kie.remote.impl.producer;
 
 import java.util.Properties;
 
-import org.kie.remote.Message;
-import org.kie.remote.RemoteCommand;
+import org.kie.remote.command.RemoteCommand;
 import org.kie.remote.impl.ClientUtils;
 
 public class Sender {
@@ -45,7 +44,7 @@ public class Sender {
         return producer.produceSync( topicName, command.getId(), command );
     }
 
-    public void insertFireAndForget( Message msg, String topicName ) {
-        producer.produceFireAndForget( topicName, msg.getId(), msg );
+    public void insertFireAndForget( RemoteCommand command, String topicName ) {
+        producer.produceFireAndForget( topicName, command.getId(), command );
     }
 }

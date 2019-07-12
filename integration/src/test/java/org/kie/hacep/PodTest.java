@@ -27,12 +27,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
-import org.kie.hacep.model.ControlMessage;
-import org.kie.hacep.model.SnapshotMessage;
+import org.kie.hacep.message.ControlMessage;
+import org.kie.hacep.message.SnapshotMessage;
 import org.kie.hacep.sample.kjar.StockTickEvent;
-import org.kie.remote.Config;
-import org.kie.remote.EnvConfig;
-import org.kie.remote.RemoteCommand;
+import org.kie.remote.TopicsConfig;
+import org.kie.remote.command.RemoteCommand;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.RemoteKieSession;
 import org.kie.remote.command.InsertCommand;
@@ -52,10 +51,12 @@ public class PodTest {
     private KafkaUtilTest kafkaServerTest;
     private Logger logger = LoggerFactory.getLogger(PodTest.class);
     private EnvConfig config;
+    private TopicsConfig topicsConfig;
 
     @Before
     public void setUp() throws Exception {
         config = EnvConfig.getDefaultEnvConfig();
+        topicsConfig = TopicsConfig.getDefaultTopicsConfig();
         kafkaServerTest = new KafkaUtilTest();
         kafkaServerTest.startServer();
         kafkaServerTest.createTopic(TEST_KAFKA_LOGGER_TOPIC);
@@ -92,7 +93,7 @@ public class PodTest {
                                                                     config.getControlTopicName(),
                                                                     Config.getConsumerConfig("controlConsumerProcessOneSentMessageAsLeaderTest"));
         kafkaServerTest.insertBatchStockTicketEvent(1,
-                                                    config,
+                                                    topicsConfig,
                                                     RemoteKieSession.class);
         try {
             //EVENTS TOPIC
@@ -144,7 +145,7 @@ public class PodTest {
                                                                      config.getSnapshotTopicName(),
                                                                      Config.getSnapshotConsumerConfig());
         kafkaServerTest.insertBatchStockTicketEvent(10,
-                                                    config,
+                                                    topicsConfig,
                                                     RemoteKieSession.class);
         try {
             //EVENTS TOPIC
@@ -183,7 +184,7 @@ public class PodTest {
                                                                     config.getControlTopicName(),
                                                                     Config.getConsumerConfig("controlConsumerProcessOneSentMessageAsLeaderTest"));
         kafkaServerTest.insertBatchStockTicketEvent(1,
-                                                    config,
+                                                    topicsConfig,
                                                     RemoteKieSession.class);
         try {
 

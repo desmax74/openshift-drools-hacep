@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2019 Red Hat
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.remote.util;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
+package org.kie.remote.command;
 
-public interface Printer {
+import java.io.Serializable;
 
-    void prettyPrinter(ConsumerRecord consumerRecord, boolean processed);
+import org.kie.remote.message.Message;
 
+public interface RemoteCommand extends Message, Serializable {
+
+    boolean isPermittedForReplicas();
 }

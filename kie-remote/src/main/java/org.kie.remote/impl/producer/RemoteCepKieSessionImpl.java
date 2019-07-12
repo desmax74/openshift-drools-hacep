@@ -18,21 +18,21 @@ package org.kie.remote.impl.producer;
 import java.io.Closeable;
 import java.util.Properties;
 
-import org.kie.remote.EnvConfig;
 import org.kie.remote.RemoteCepEntryPoint;
 import org.kie.remote.RemoteCepKieSession;
+import org.kie.remote.TopicsConfig;
 
 import static org.kie.remote.impl.producer.RemoteKieSessionImpl.DEFAULT_ENTRY_POINT;
 
 public class RemoteCepKieSessionImpl extends RemoteCepEntryPointImpl implements Closeable,
                                                                                 RemoteCepKieSession {
 
-    private EnvConfig envConfig;
+    private TopicsConfig topicsConfig;
 
-    public RemoteCepKieSessionImpl(Properties configuration, EnvConfig envConfig ) {
+    public RemoteCepKieSessionImpl(Properties configuration, TopicsConfig envConfig ) {
         super(new Sender(configuration), DEFAULT_ENTRY_POINT, envConfig);
         sender.start();
-        this.envConfig = envConfig;
+        this.topicsConfig = envConfig;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class RemoteCepKieSessionImpl extends RemoteCepEntryPointImpl implements 
 
     @Override
     public RemoteCepEntryPoint getEntryPoint(String name ) {
-        return new RemoteCepEntryPointImpl(sender, name, envConfig);
+        return new RemoteCepEntryPointImpl(sender, name, topicsConfig);
     }
 
 }

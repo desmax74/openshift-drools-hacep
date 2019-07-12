@@ -40,12 +40,12 @@ import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.election.LeadershipCallback;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.core.infra.utils.ConsumerUtils;
-import org.kie.hacep.model.ControlMessage;
-import org.kie.remote.Config;
+import org.kie.hacep.message.ControlMessage;
+import org.kie.hacep.Config;
 import org.kie.remote.DroolsExecutor;
-import org.kie.remote.EnvConfig;
-import org.kie.remote.util.Printer;
-import org.kie.remote.util.PrinterUtil;
+import org.kie.hacep.EnvConfig;
+import org.kie.hacep.util.Printer;
+import org.kie.hacep.util.PrinterUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -21,11 +21,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.kie.api.runtime.rule.FactHandle;
-import org.kie.remote.EnvConfig;
+import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.KieSessionContext;
 import org.kie.remote.impl.producer.Producer;
-import org.kie.remote.message.FactCountMessage;
-import org.kie.remote.message.ListKieSessionObjectMessage;
+import org.kie.hacep.message.FactCountMessageImpl;
+import org.kie.hacep.message.ListKieSessionObjectMessageImpl;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.command.DeleteCommand;
 import org.kie.remote.command.FactCountCommand;
@@ -77,8 +77,8 @@ public class CommandHandler implements VisitorCommand {
     @Override
     public void visit(ListObjectsCommand command) {
         List serializableItems = getObjectList(command);
-        ListKieSessionObjectMessage msg = new ListKieSessionObjectMessage(command.getId(),
-                                                                          serializableItems);
+        ListKieSessionObjectMessageImpl msg = new ListKieSessionObjectMessageImpl(command.getId(),
+                                                                                  serializableItems);
         producer.produceSync(config.getKieSessionInfosTopicName(),
                              command.getId(),
                              msg);
@@ -92,8 +92,8 @@ public class CommandHandler implements VisitorCommand {
     @Override
     public void visit(ListObjectsCommandClassType command) {
         List serializableItems = getSerializableItemsByClassType(command);
-        ListKieSessionObjectMessage msg = new ListKieSessionObjectMessage(command.getId(),
-                                                                          serializableItems);
+        ListKieSessionObjectMessageImpl msg = new ListKieSessionObjectMessageImpl(command.getId(),
+                                                                                  serializableItems);
         producer.produceSync(config.getKieSessionInfosTopicName(),
                              command.getId(),
                              msg);
@@ -118,8 +118,8 @@ public class CommandHandler implements VisitorCommand {
     @Override
     public void visit(ListObjectsCommandNamedQuery command) {
         List serializableItems = getSerializableItemsByNamedQuery(command);
-        ListKieSessionObjectMessage msg = new ListKieSessionObjectMessage(command.getId(),
-                                                                          serializableItems);
+        ListKieSessionObjectMessageImpl msg = new ListKieSessionObjectMessageImpl(command.getId(),
+                                                                                  serializableItems);
         producer.produceSync(config.getKieSessionInfosTopicName(),
                              command.getId(),
                              msg);
@@ -135,8 +135,8 @@ public class CommandHandler implements VisitorCommand {
 
     @Override
     public void visit(FactCountCommand command) {
-        FactCountMessage msg = new FactCountMessage(command.getId(),
-                                                    kieSessionContext.getKieSession().getFactCount());
+        FactCountMessageImpl msg = new FactCountMessageImpl(command.getId(),
+                                                            kieSessionContext.getKieSession().getFactCount());
         producer.produceSync(config.getKieSessionInfosTopicName(),
                              command.getId(),
                              msg);

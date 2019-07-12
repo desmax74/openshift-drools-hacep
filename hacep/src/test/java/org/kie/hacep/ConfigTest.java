@@ -18,7 +18,6 @@ package org.kie.hacep;
 import java.util.Properties;
 
 import org.junit.Test;
-import org.kie.remote.Config;
 
 import static org.junit.Assert.*;
 

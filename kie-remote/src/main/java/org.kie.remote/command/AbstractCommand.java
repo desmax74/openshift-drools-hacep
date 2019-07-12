@@ -18,8 +18,6 @@ package org.kie.remote.command;
 
 import java.io.Serializable;
 
-import org.kie.remote.RemoteCommand;
-
 public abstract class AbstractCommand implements RemoteCommand,
                                                  Serializable {
 

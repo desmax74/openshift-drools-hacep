@@ -18,18 +18,18 @@ package org.kie.remote.impl.producer;
 import java.io.Closeable;
 import java.util.Properties;
 
-import org.kie.remote.EnvConfig;
 import org.kie.remote.RemoteEntryPoint;
 import org.kie.remote.RemoteKieSession;
+import org.kie.remote.TopicsConfig;
 
 public class RemoteKieSessionImpl extends RemoteEntryPointImpl implements Closeable, RemoteKieSession {
 
     public static final String DEFAULT_ENTRY_POINT = "DEFAULT"; // EntryPointId.DEFAULT.getEntryPointId();
-    private EnvConfig envConfig;
+    private TopicsConfig topicsConfig;
 
-    public RemoteKieSessionImpl( Properties configuration, EnvConfig envConfig ) {
+    public RemoteKieSessionImpl( Properties configuration, TopicsConfig envConfig ) {
         super(new Sender(configuration), DEFAULT_ENTRY_POINT, envConfig);
-        this.envConfig = envConfig;
+        this.topicsConfig = envConfig;
         sender.start();
     }
 
@@ -40,6 +40,6 @@ public class RemoteKieSessionImpl extends RemoteEntryPointImpl implements Closea
 
     @Override
     public RemoteEntryPoint getEntryPoint( String name ) {
-        return new RemoteEntryPointImpl(sender, name, envConfig);
+        return new RemoteEntryPointImpl(sender, name, topicsConfig);
     }
 }

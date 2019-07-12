@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.remote.util;
+package org.kie.hacep.util;
 
-import org.kie.remote.EnvConfig;
+import org.kie.hacep.EnvConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

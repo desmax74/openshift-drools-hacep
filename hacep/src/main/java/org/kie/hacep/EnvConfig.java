@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.remote;
+package org.kie.hacep;
 
 import java.util.Optional;
 
-import org.kie.remote.util.PrinterLogImpl;
+import org.kie.hacep.util.PrinterLogImpl;
+import org.kie.remote.CommonConfig;
 
 public final class EnvConfig {
 
@@ -31,11 +32,11 @@ public final class EnvConfig {
 
     public static EnvConfig getDefaultEnvConfig(){
         return anEnvConfig().
-                withNamespace(Optional.ofNullable(System.getenv( Config.NAMESPACE)).orElse(Config.DEFAULT_NAMESPACE)).
+                withNamespace(Optional.ofNullable(System.getenv( Config.NAMESPACE)).orElse(CommonConfig.DEFAULT_NAMESPACE)).
                 withControlTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_CONTROL_TOPIC)).orElse(Config.DEFAULT_CONTROL_TOPIC)).
-                withEventsTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_EVENTS_TOPIC)).orElse(Config.DEFAULT_EVENTS_TOPIC)).
+                withEventsTopicName(Optional.ofNullable(System.getenv(CommonConfig.DEFAULT_EVENTS_TOPIC)).orElse(CommonConfig.DEFAULT_EVENTS_TOPIC)).
                 withSnapshotTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_SNAPSHOT_TOPIC)).orElse(Config.DEFAULT_SNAPSHOT_TOPIC)).
-                withKieSessionInfosTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_KIE_SESSION_INFOS_TOPIC)).orElse(Config.DEFAULT_KIE_SESSION_INFOS_TOPIC)).
+                withKieSessionInfosTopicName(Optional.ofNullable(System.getenv(CommonConfig.DEFAULT_KIE_SESSION_INFOS_TOPIC)).orElse(CommonConfig.DEFAULT_KIE_SESSION_INFOS_TOPIC)).
                 withPrinterType(Optional.ofNullable(System.getenv(Config.DEFAULT_PRINTER_TYPE)).orElse(PrinterLogImpl.class.getName())).
                 isUnderTest(Optional.ofNullable(System.getenv(Config.TEST)).orElse(Boolean.FALSE.toString())).build();
     }

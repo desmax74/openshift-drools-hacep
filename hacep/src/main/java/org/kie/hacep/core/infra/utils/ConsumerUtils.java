@@ -30,10 +30,10 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.kie.remote.RemoteFactHandle;
-import org.kie.remote.Config;
-import org.kie.remote.EnvConfig;
-import org.kie.hacep.model.ControlMessage;
-import org.kie.remote.message.FactCountMessage;
+import org.kie.hacep.Config;
+import org.kie.hacep.EnvConfig;
+import org.kie.hacep.message.ControlMessage;
+import org.kie.hacep.message.FactCountMessageImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,7 +100,7 @@ public class ConsumerUtils {
         return lastMessage;
     }
 
-    public static FactCountMessage getFactCount(RemoteFactHandle factHandle, EnvConfig config, Properties properties) {
+    public static FactCountMessageImpl getFactCount(RemoteFactHandle factHandle, EnvConfig config, Properties properties) {
         KafkaConsumer consumer = new KafkaConsumer(properties);
         List<PartitionInfo> infos = consumer.partitionsFor(config.getKieSessionInfosTopicName());
         List<TopicPartition> partitions = new ArrayList<>();
@@ -124,7 +124,7 @@ public class ConsumerUtils {
             consumer.seek(part, lastOffset - 1);
         }
 
-        FactCountMessage lastMessage = new FactCountMessage();
+        FactCountMessageImpl lastMessage = new FactCountMessageImpl();
         try {
             ConsumerRecords records = consumer.poll(Duration.of(Config.DEFAULT_POLL_TIMEOUT_MS, ChronoUnit.MILLIS));
             for (Object item : records) {
