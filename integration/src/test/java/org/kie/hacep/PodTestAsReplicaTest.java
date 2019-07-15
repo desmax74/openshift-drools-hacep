@@ -30,12 +30,12 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.kie.remote.util.SerializationUtil.deserialize;
 
-public class PodTestWithKafkaLogger {
+public class PodTestAsReplicaTest {
 
     private final String TEST_KAFKA_LOGGER_TOPIC = "logs";
     private final String TEST_TOPIC = "test";
     private KafkaUtilTest kafkaServerTest;
-    private Logger logger = LoggerFactory.getLogger(PodTestWithKafkaLogger.class);
+    private Logger logger = LoggerFactory.getLogger(PodTestAsReplicaTest.class);
     private Logger kafkaLogger = LoggerFactory.getLogger("org.hacep");
     private EnvConfig config;
     private TopicsConfig topicsConfig;

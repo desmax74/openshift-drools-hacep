@@ -67,7 +67,7 @@ public class KafkaUtilTest implements AutoCloseable {
     private String tmpDir;
 
     public KafkaServer startServer() throws IOException {
-        tmpDir = Files.createTempDirectory("kafkatest-").toAbsolutePath().toString();
+        tmpDir = Files.createTempDirectory(Paths.get(System.getProperty("user.dir")), "kafkatest-").toAbsolutePath().toString();
         zkServer = new EmbeddedZookeeper();
         String zkConnect = ZOOKEPER_HOST + ":" + zkServer.port();
         zkClient = new ZkClient(zkConnect,
