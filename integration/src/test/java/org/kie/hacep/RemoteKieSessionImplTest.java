@@ -42,10 +42,10 @@ public class RemoteKieSessionImplTest {
         envConfig = EnvConfig.getDefaultEnvConfig();
         kafkaServerTest = new KafkaUtilTest();
         kafkaServerTest.startServer();
-        kafkaServerTest.createTopic(topicsConfig.getEventsTopicName());
-        kafkaServerTest.createTopic(topicsConfig.getKieSessionInfosTopicName());
-        kafkaServerTest.createTopic(envConfig.getControlTopicName());
-        kafkaServerTest.createTopic(envConfig.getSnapshotTopicName());
+        kafkaServerTest.createTopics(topicsConfig.getEventsTopicName(),
+                                     topicsConfig.getKieSessionInfosTopicName(),
+                                     envConfig.getControlTopicName(),
+                                     envConfig.getSnapshotTopicName());
     }
 
     @After
@@ -54,11 +54,6 @@ public class RemoteKieSessionImplTest {
             Bootstrap.stopEngine();
         } catch (ConcurrentModificationException ex) {
         }
-        kafkaServerTest.deleteTopic(topicsConfig.getEventsTopicName());
-        kafkaServerTest.deleteTopic(topicsConfig.getKieSessionInfosTopicName());
-        kafkaServerTest.deleteTopic(envConfig.getControlTopicName());
-        kafkaServerTest.deleteTopic(envConfig.getSnapshotTopicName());
-
         kafkaServerTest.shutdownServer();
     }
 
@@ -69,7 +64,7 @@ public class RemoteKieSessionImplTest {
         kafkaServerTest.insertBatchStockTicketEvent(7,
                                                     topicsConfig,
                                                     RemoteKieSession.class);
-        try (RemoteKieSessionImpl client = new RemoteKieSessionImpl( Config.getProducerConfig("getFactCountTest"),
+        try (RemoteKieSessionImpl client = new RemoteKieSessionImpl(Config.getProducerConfig("getFactCountTest"),
                                                                     topicsConfig)) {
             client.listen();
             CompletableFuture<Long> factCountFuture = client.getFactCount();
@@ -79,5 +74,4 @@ public class RemoteKieSessionImplTest {
             e.printStackTrace();
         }
     }
-
 }

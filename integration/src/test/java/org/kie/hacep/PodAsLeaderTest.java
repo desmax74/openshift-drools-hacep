@@ -28,16 +28,13 @@ import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.message.ControlMessage;
 import org.kie.hacep.message.SnapshotMessage;
+import org.kie.remote.RemoteKieSession;
 import org.kie.remote.TopicsConfig;
 import org.kie.remote.command.RemoteCommand;
-import org.kie.remote.RemoteKieSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.kie.remote.util.SerializationUtil.deserialize;
 
 public class PodAsLeaderTest {
@@ -55,12 +52,13 @@ public class PodAsLeaderTest {
         topicsConfig = TopicsConfig.getDefaultTopicsConfig();
         kafkaServerTest = new KafkaUtilTest();
         kafkaServerTest.startServer();
-        kafkaServerTest.createTopic(TEST_KAFKA_LOGGER_TOPIC);
-        kafkaServerTest.createTopic(TEST_TOPIC);
-        kafkaServerTest.createTopic(config.getEventsTopicName());
-        kafkaServerTest.createTopic(config.getControlTopicName());
-        kafkaServerTest.createTopic(config.getSnapshotTopicName());
-        kafkaServerTest.createTopic(config.getKieSessionInfosTopicName());
+        kafkaServerTest.createTopics(TEST_KAFKA_LOGGER_TOPIC,
+                                     TEST_TOPIC,
+                                     config.getEventsTopicName(),
+                                     config.getControlTopicName(),
+                                     config.getSnapshotTopicName(),
+                                     config.getKieSessionInfosTopicName()
+        );
     }
 
     @After
@@ -69,12 +67,6 @@ public class PodAsLeaderTest {
             Bootstrap.stopEngine();
         } catch (ConcurrentModificationException ex) {
         }
-        kafkaServerTest.deleteTopic(TEST_TOPIC);
-        kafkaServerTest.deleteTopic(TEST_KAFKA_LOGGER_TOPIC);
-        kafkaServerTest.deleteTopic(config.getEventsTopicName());
-        kafkaServerTest.deleteTopic(config.getControlTopicName());
-        kafkaServerTest.deleteTopic(config.getSnapshotTopicName());
-        kafkaServerTest.deleteTopic(config.getKieSessionInfosTopicName());
         kafkaServerTest.shutdownServer();
     }
 
@@ -168,5 +160,4 @@ public class PodAsLeaderTest {
             snapshotConsumer.close();
         }
     }
-
 }

@@ -16,18 +16,15 @@ import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.message.ControlMessage;
 import org.kie.hacep.sample.kjar.StockTickEvent;
 import org.kie.remote.CommonConfig;
-import org.kie.remote.TopicsConfig;
-import org.kie.remote.command.RemoteCommand;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.RemoteKieSession;
+import org.kie.remote.TopicsConfig;
 import org.kie.remote.command.InsertCommand;
+import org.kie.remote.command.RemoteCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.kie.remote.util.SerializationUtil.deserialize;
 
 public class PodTestAsReplicaTest {
@@ -46,12 +43,12 @@ public class PodTestAsReplicaTest {
         topicsConfig = TopicsConfig.getDefaultTopicsConfig();
         kafkaServerTest = new KafkaUtilTest();
         kafkaServerTest.startServer();
-        kafkaServerTest.createTopic(TEST_KAFKA_LOGGER_TOPIC);
-        kafkaServerTest.createTopic(TEST_TOPIC);
-        kafkaServerTest.createTopic(config.getEventsTopicName());
-        kafkaServerTest.createTopic(config.getControlTopicName());
-        kafkaServerTest.createTopic(config.getSnapshotTopicName());
-        kafkaServerTest.createTopic(config.getKieSessionInfosTopicName());
+        kafkaServerTest.createTopics(TEST_KAFKA_LOGGER_TOPIC,
+                                     TEST_TOPIC,
+                                     config.getEventsTopicName(),
+                                     config.getControlTopicName(),
+                                     config.getSnapshotTopicName(),
+                                     config.getKieSessionInfosTopicName());
     }
 
     @After
@@ -60,16 +57,10 @@ public class PodTestAsReplicaTest {
             Bootstrap.stopEngine();
         } catch (ConcurrentModificationException ex) {
         }
-        kafkaServerTest.deleteTopic(TEST_TOPIC);
-        kafkaServerTest.deleteTopic(TEST_KAFKA_LOGGER_TOPIC);
-        kafkaServerTest.deleteTopic(config.getEventsTopicName());
-        kafkaServerTest.deleteTopic(config.getControlTopicName());
-        kafkaServerTest.deleteTopic(config.getSnapshotTopicName());
-        kafkaServerTest.deleteTopic(config.getKieSessionInfosTopicName());
         kafkaServerTest.shutdownServer();
     }
 
-    private EnvConfig getEnvConfig(){
+    private EnvConfig getEnvConfig() {
         return EnvConfig.anEnvConfig().
                 withNamespace(CommonConfig.DEFAULT_NAMESPACE).
                 withControlTopicName(Config.DEFAULT_CONTROL_TOPIC).
@@ -79,7 +70,6 @@ public class PodTestAsReplicaTest {
                 withPrinterType(PrinterKafkaImpl.class.getName()).
                 isUnderTest(Boolean.TRUE.toString()).build();
     }
-
 
     @Test
     public void processOneSentMessageAsLeaderAndThenReplicaTest() {
@@ -93,7 +83,9 @@ public class PodTestAsReplicaTest {
                                                                     Config.getConsumerConfig("controlConsumerProcessOneSentMessageAsLeaderTest"));
 
         KafkaConsumer<byte[], String> kafkaLogConsumer = kafkaServerTest.getStringConsumer(TEST_KAFKA_LOGGER_TOPIC);
-        kafkaServerTest.insertBatchStockTicketEvent(1, topicsConfig, RemoteKieSession.class);
+        kafkaServerTest.insertBatchStockTicketEvent(1,
+                                                    topicsConfig,
+                                                    RemoteKieSession.class);
         try {
 
             //EVENTS TOPIC
@@ -124,7 +116,6 @@ public class PodTestAsReplicaTest {
             assertTrue(!controlMessage.getSideEffects().isEmpty());
             assertTrue(controlMessage.getSideEffects().size() == 1);
             String sideEffect = controlMessage.getSideEffects().iterator().next().toString();
-            System.out.println("sideEffect:::::"+sideEffect);
             //Same msg content on Events topic and control topics
             assertEquals(controlRecord.key(), eventsRecord.key());
 
@@ -142,18 +133,17 @@ public class PodTestAsReplicaTest {
             ConsumerRecords<byte[], String> recordsLog = kafkaLogConsumer.poll(5000);
             Iterator<ConsumerRecord<byte[], String>> recordIterator = recordsLog.iterator();
             List<String> kafkaLoggerMsgs = new ArrayList();
-            while (recordIterator.hasNext()){
+            while (recordIterator.hasNext()) {
                 ConsumerRecord<byte[], String> record = recordIterator.next();
                 kafkaLoggerMsgs.add(record.value());
             }
-            for(String item: kafkaLoggerMsgs){
-                if(item.startsWith("sideEffectOn")){
-                    if(item.endsWith(":null")){
+            for (String item : kafkaLoggerMsgs) {
+                if (item.startsWith("sideEffectOn")) {
+                    if (item.endsWith(":null")) {
                         fail("SideEffects null");
                     }
                 }
             }
-
         } catch (Exception ex) {
             logger.error(ex.getMessage(),
                          ex);

@@ -43,14 +43,12 @@ public class KafkaTest {
     public void setUp() throws Exception {
         kafkaServerTest = new KafkaUtilTest();
         kafkaServerTest.startServer();
-        kafkaServerTest.createTopic(TEST_KAFKA_LOGGER_TOPIC);
-        kafkaServerTest.createTopic(TEST_TOPIC);
+        kafkaServerTest.createTopics(TEST_KAFKA_LOGGER_TOPIC,
+                                     TEST_TOPIC);
     }
 
     @After
     public void tearDown() {
-        kafkaServerTest.deleteTopic(TEST_TOPIC);
-        kafkaServerTest.deleteTopic(TEST_KAFKA_LOGGER_TOPIC);
         kafkaServerTest.shutdownServer();
     }
 
@@ -82,9 +80,7 @@ public class KafkaTest {
         Iterator<ConsumerRecord<String, String>> recordIterator = records.iterator();
         ConsumerRecord<String, String> record = recordIterator.next();
         assertNotNull(record);
-        assertEquals(record.topic(),
-                     TEST_KAFKA_LOGGER_TOPIC);
-        assertEquals(record.value(),
-                     "test-message");
+        assertEquals(record.topic(), TEST_KAFKA_LOGGER_TOPIC);
+        assertEquals(record.value(), "test-message");
     }
 }

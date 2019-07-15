@@ -31,8 +31,7 @@ import org.kie.remote.RemoteCepKieSession;
 import org.kie.remote.TopicsConfig;
 import org.kie.remote.impl.producer.RemoteCepKieSessionImpl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class RemoteCepKieSessionImplTest {
 
@@ -46,10 +45,10 @@ public class RemoteCepKieSessionImplTest {
         topicsConfig = TopicsConfig.getDefaultTopicsConfig();
         kafkaServerTest = new KafkaUtilTest();
         kafkaServerTest.startServer();
-        kafkaServerTest.createTopic(config.getEventsTopicName());
-        kafkaServerTest.createTopic(config.getControlTopicName());
-        kafkaServerTest.createTopic(config.getSnapshotTopicName());
-        kafkaServerTest.createTopic(config.getKieSessionInfosTopicName());
+        kafkaServerTest.createTopics(config.getEventsTopicName(),
+                                     config.getControlTopicName(),
+                                     config.getSnapshotTopicName(),
+                                     config.getKieSessionInfosTopicName());
     }
 
     @After
@@ -58,10 +57,6 @@ public class RemoteCepKieSessionImplTest {
             Bootstrap.stopEngine();
         } catch (ConcurrentModificationException ex) {
         }
-        kafkaServerTest.deleteTopic(config.getEventsTopicName());
-        kafkaServerTest.deleteTopic(config.getControlTopicName());
-        kafkaServerTest.deleteTopic(config.getSnapshotTopicName());
-        kafkaServerTest.deleteTopic(config.getKieSessionInfosTopicName());
         kafkaServerTest.shutdownServer();
     }
 
@@ -72,11 +67,12 @@ public class RemoteCepKieSessionImplTest {
         kafkaServerTest.insertBatchStockTicketEvent(7,
                                                     topicsConfig,
                                                     RemoteCepKieSession.class);
-        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl( Config.getProducerConfig("FactCountConsumerTest"),
-                                                                           topicsConfig)) {
+        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("FactCountConsumerTest"),
+                                                                          topicsConfig)) {
             client.listen();
             CompletableFuture<Long> factCountFuture = client.getFactCount();
-            Long factCount  = factCountFuture.get(15, TimeUnit.SECONDS);
+            Long factCount = factCountFuture.get(15,
+                                                 TimeUnit.SECONDS);
             assertTrue(factCount == 7);
         }
     }
@@ -93,7 +89,7 @@ public class RemoteCepKieSessionImplTest {
             client.listen();
             CompletableFuture<Collection<? extends Object>> listKieObjectsFuture = client.getObjects();
             Collection<? extends Object> listKieObjects = listKieObjectsFuture.get(15,
-                                                         TimeUnit.SECONDS);
+                                                                                   TimeUnit.SECONDS);
             assertTrue(listKieObjects.size() == 1);
             StockTickEvent event = (StockTickEvent) listKieObjects.iterator().next();
             assertTrue(event.getCompany().equals("RHT"));

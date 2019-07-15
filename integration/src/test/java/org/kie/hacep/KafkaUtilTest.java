@@ -33,11 +33,13 @@ import kafka.admin.AdminUtils;
 import kafka.admin.RackAwareMode;
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServer;
+import kafka.server.NotRunning;
 import kafka.utils.TestUtils;
 import kafka.utils.ZKStringSerializer$;
 import kafka.utils.ZkUtils;
 import kafka.zk.EmbeddedZookeeper;
 import org.I0Itec.zkclient.ZkClient;
+import org.I0Itec.zkclient.exception.ZkInterruptedException;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -65,9 +67,13 @@ public class KafkaUtilTest implements AutoCloseable {
     private ZkClient zkClient;
     private EmbeddedZookeeper zkServer;
     private String tmpDir;
+    private boolean serverUp = false;
 
     public KafkaServer startServer() throws IOException {
-        tmpDir = Files.createTempDirectory(Paths.get(System.getProperty("user.dir")), "kafkatest-").toAbsolutePath().toString();
+        tmpDir = Files.createTempDirectory(Paths.get(System.getProperty("user.dir"),
+                                                     File.separator,
+                                                     "target"),
+                                           "kafkatest-").toAbsolutePath().toString();
         zkServer = new EmbeddedZookeeper();
         String zkConnect = ZOOKEPER_HOST + ":" + zkServer.port();
         zkClient = new ZkClient(zkConnect,
@@ -92,25 +98,43 @@ public class KafkaUtilTest implements AutoCloseable {
         Time mock = new SystemTime();
         kafkaServer = TestUtils.createServer(config,
                                              mock);
+        serverUp = true;
         return kafkaServer;
     }
 
     public void shutdownServer() {
         log.info("Shutdown kafka server");
-        kafkaServer.shutdown();
-        zkClient.close();
-        zkServer.shutdown();
         Path tmp = Paths.get(tmpDir);
+        try {
+            if (kafkaServer.brokerState().currentState() != (NotRunning.state())) {
+                kafkaServer.shutdown();
+                kafkaServer.awaitShutdown();
+            }
+        } catch (Exception e) {
+            // do nothing
+        }
+        kafkaServer = null;
+
+        try {
+            zkClient.close();
+        } catch (ZkInterruptedException e) {
+            // do nothing
+        }
+        try {
+            zkServer.shutdown();
+        } catch (Exception e) {
+            // do nothing
+        }
+        zkServer = null;
+
         try {
             Files.walk(tmp).
                     sorted(Comparator.reverseOrder()).
                     map(Path::toFile).
                     forEach(File::delete);
         } catch (Exception e) {
-            log.error(e.getMessage(),
-                      e);
+            // do nothing
         }
-        //clean previous kafkatest- dirs
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(tmp.getParent())) {
             for (Path path : directoryStream) {
                 if (path.toString().startsWith("kafkatest-")) {
@@ -124,6 +148,7 @@ public class KafkaUtilTest implements AutoCloseable {
             log.error(e.getMessage(),
                       e);
         }
+        serverUp = false;
     }
 
     @Override
@@ -136,7 +161,6 @@ public class KafkaUtilTest implements AutoCloseable {
         producer.send(data);
         producer.close();
     }
-
 
     private Properties getConsumerConfig() {
         Properties consumerProps = new Properties();
@@ -162,18 +186,41 @@ public class KafkaUtilTest implements AutoCloseable {
         return producerProps;
     }
 
-    public void createTopic(String topic) {
-        AdminUtils.createTopic(zkUtils,
-                               topic,
-                               1,
-                               1,
-                               new Properties(),
-                               RackAwareMode.Disabled$.MODULE$);
+    public void createTopics(String... topics) {
+        try {
+            if (serverUp) {
+                for (String topic : topics) {
+                    if (!AdminUtils.topicExists(zkUtils,
+                                                topic)) {
+
+                        AdminUtils.createTopic(zkUtils,
+                                               topic,
+                                               1,
+                                               1,
+                                               new Properties(),
+                                               RackAwareMode.Disabled$.MODULE$);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public void deleteTopic(String topic) {
-        AdminUtils.deleteTopic(zkUtils,
-                               topic);
+    public void deleteTopics(String... topics) {
+        try {
+            if (serverUp) {
+                for (String topic : topics) {
+                    if (AdminUtils.topicExists(zkUtils,
+                                               topic)) {
+                        AdminUtils.deleteTopic(zkUtils,
+                                               topic);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public <K, V> KafkaConsumer<K, V> getStringConsumer(String topic) {
