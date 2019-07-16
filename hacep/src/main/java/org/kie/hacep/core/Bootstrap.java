@@ -72,10 +72,6 @@ public class Bootstrap {
     }
 
     private static void leaderElection() {
-        //KubernetesLockConfiguration configuration = CoreKube.getKubernetesLockConfiguration();
-        //@TODO configure from env the namespace
-        //KubernetesClient client = Core.getKubeClient();
-        //client.events().inNamespace("my-kafka-project").watch(WatcherFactory.createModifiedLogWatcher(configuration.getPodName()));
         LeaderElection leadership = coreKube.getLeaderElection();
         coreKube.getLeaderElection().addCallbacks(Arrays.asList( consumerController.getCallback()));
         try {

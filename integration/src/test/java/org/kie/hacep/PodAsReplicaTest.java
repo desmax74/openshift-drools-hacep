@@ -27,12 +27,12 @@ import org.slf4j.LoggerFactory;
 import static org.junit.Assert.*;
 import static org.kie.remote.util.SerializationUtil.deserialize;
 
-public class PodTestAsReplicaTest {
+public class PodAsReplicaTest {
 
     private final String TEST_KAFKA_LOGGER_TOPIC = "logs";
     private final String TEST_TOPIC = "test";
     private KafkaUtilTest kafkaServerTest;
-    private Logger logger = LoggerFactory.getLogger(PodTestAsReplicaTest.class);
+    private Logger logger = LoggerFactory.getLogger(PodAsReplicaTest.class);
     private Logger kafkaLogger = LoggerFactory.getLogger("org.hacep");
     private EnvConfig config;
     private TopicsConfig topicsConfig;
@@ -127,23 +127,32 @@ public class PodTestAsReplicaTest {
 
             // SWITCH AS a REPLICA
             Bootstrap.getConsumerController().getCallback().updateStatus(State.REPLICA);
-            Bootstrap.getConsumerController().getCallback().updateStatus(State.REPLICA);
-            //kafkaServerTest.insertBatchStockTicketEvent(1, config, RemoteKieSession.class);
 
-            ConsumerRecords<byte[], String> recordsLog = kafkaLogConsumer.poll(5000);
+            ConsumerRecords<byte[], String> recordsLog = kafkaLogConsumer.poll(20000);
             Iterator<ConsumerRecord<byte[], String>> recordIterator = recordsLog.iterator();
             List<String> kafkaLoggerMsgs = new ArrayList();
             while (recordIterator.hasNext()) {
                 ConsumerRecord<byte[], String> record = recordIterator.next();
                 kafkaLoggerMsgs.add(record.value());
             }
+            String sideEffectOnLeader = null;
+            String sideEffectOnReplica = null;
             for (String item : kafkaLoggerMsgs) {
                 if (item.startsWith("sideEffectOn")) {
                     if (item.endsWith(":null")) {
                         fail("SideEffects null");
                     }
+                    if(item.startsWith("sideEffectOnReplica:")){
+                        sideEffectOnReplica = item.substring(item.indexOf("["));
+                    }
+                    if(item.startsWith("sideEffectOnLeader:")){
+                        sideEffectOnLeader = item.substring(item.indexOf("["));
+                    }
                 }
             }
+            assertNotNull(sideEffectOnLeader);
+            assertNotNull(sideEffectOnReplica);
+            assertEquals(sideEffectOnLeader, sideEffectOnReplica);
         } catch (Exception ex) {
             logger.error(ex.getMessage(),
                          ex);

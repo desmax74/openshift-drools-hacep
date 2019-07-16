@@ -74,18 +74,9 @@ public class LeaderElectionImpl implements LeaderElection {
         serializedExecutor = null;
     }
 
-    public boolean amITheLeader() {
-        return currentState.equals(State.LEADER);
-    }
-
     @Override
     public void addCallbacks(List<LeadershipCallback> callbacks) {
         this.callbacks.addAll(callbacks);
-    }
-
-    @Override
-    public boolean removeCallback(LeadershipCallback callback) {
-        return callbacks.remove(callback);
     }
 
     private void refreshStatus() {

@@ -86,8 +86,19 @@ public class DroolsConsumerHandler implements ConsumerHandler {
                 }
                 DroolsExecutor.getInstance().setResult(sideEffects);
             }
-
             processCommand( command, state );
+        }
+    }
+
+    public void processSideEffectsOnReplica(State state, Queue<Object> sideEffects) {
+        if (state.equals(State.REPLICA)) {
+            if(sideEffects != null) {
+                if(logger.isInfoEnabled()) { logger.info("sideEffectOnReplica:{}", sideEffects); }
+                if(config.isUnderTest()){
+                    loggerForTest.warn("sideEffectOnReplica:{}", sideEffects);
+                }
+                DroolsExecutor.getInstance().setResult(sideEffects);
+            }
         }
     }
 

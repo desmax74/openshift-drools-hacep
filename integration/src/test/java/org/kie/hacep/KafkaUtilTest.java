@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
 
 public class KafkaUtilTest implements AutoCloseable {
 
-    private static final String ZOOKEPER_HOST = "127.0.0.1";
+    private static final String ZOOKEEPER_HOST = "127.0.0.1";
     private static final String BROKER_HOST = "127.0.0.1";
     private static final String BROKER_PORT = "9092";
     private final static Logger log = LoggerFactory.getLogger(KafkaUtilTest.class);
@@ -70,34 +70,25 @@ public class KafkaUtilTest implements AutoCloseable {
     private boolean serverUp = false;
 
     public KafkaServer startServer() throws IOException {
-        tmpDir = Files.createTempDirectory(Paths.get(System.getProperty("user.dir"),
-                                                     File.separator,
-                                                     "target"),
+        tmpDir = Files.createTempDirectory(Paths.get(System.getProperty("user.dir"), File.separator, "target"),
                                            "kafkatest-").toAbsolutePath().toString();
         zkServer = new EmbeddedZookeeper();
-        String zkConnect = ZOOKEPER_HOST + ":" + zkServer.port();
+        String zkConnect = ZOOKEEPER_HOST + ":" + zkServer.port();
         zkClient = new ZkClient(zkConnect,
                                 30000,
                                 30000,
                                 ZKStringSerializer$.MODULE$);
-        zkUtils = ZkUtils.apply(zkClient,
-                                false);
+        zkUtils = ZkUtils.apply(zkClient, false);
 
         Properties brokerProps = new Properties();
-        brokerProps.setProperty("zookeeper.connect",
-                                zkConnect);
-        brokerProps.setProperty("broker.id",
-                                "0");
-        brokerProps.setProperty("log.dirs",
-                                tmpDir);
-        brokerProps.setProperty("listeners",
-                                "PLAINTEXT://" + BROKER_HOST + ":" + BROKER_PORT);
-        brokerProps.setProperty("offsets.topic.replication.factor",
-                                "1");
+        brokerProps.setProperty("zookeeper.connect", zkConnect);
+        brokerProps.setProperty("broker.id", "0");
+        brokerProps.setProperty("log.dirs", tmpDir);
+        brokerProps.setProperty("listeners", "PLAINTEXT://" + BROKER_HOST + ":" + BROKER_PORT);
+        brokerProps.setProperty("offsets.topic.replication.factor", "1");
         KafkaConfig config = new KafkaConfig(brokerProps);
         Time mock = new SystemTime();
-        kafkaServer = TestUtils.createServer(config,
-                                             mock);
+        kafkaServer = TestUtils.createServer(config, mock);
         serverUp = true;
         return kafkaServer;
     }
