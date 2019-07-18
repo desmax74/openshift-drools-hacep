@@ -1,5 +1,3 @@
-# Moved to https://github.com/kiegroup/openshift-drools-hacep
-
 # Drools 
 
 ## Installing and Running Kakfa Cluster
