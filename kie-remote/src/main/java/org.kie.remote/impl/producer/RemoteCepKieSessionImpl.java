@@ -17,6 +17,7 @@ package org.kie.remote.impl.producer;
 
 import java.io.Closeable;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.kie.remote.RemoteCepEntryPoint;
 import org.kie.remote.RemoteCepKieSession;
@@ -27,22 +28,20 @@ import static org.kie.remote.impl.producer.RemoteKieSessionImpl.DEFAULT_ENTRY_PO
 public class RemoteCepKieSessionImpl extends RemoteCepEntryPointImpl implements Closeable,
                                                                                 RemoteCepKieSession {
 
-    private TopicsConfig topicsConfig;
-
-    public RemoteCepKieSessionImpl(Properties configuration, TopicsConfig envConfig ) {
-        super(new Sender(configuration), DEFAULT_ENTRY_POINT, envConfig);
+    public RemoteCepKieSessionImpl(Properties configuration, TopicsConfig envConfig) {
+        super(new Sender(configuration), DEFAULT_ENTRY_POINT, envConfig, new ConcurrentHashMap<>());
         sender.start();
-        this.topicsConfig = envConfig;
     }
 
     @Override
     public void close() {
         sender.stop();
+        requestsStore.clear();
     }
 
     @Override
     public RemoteCepEntryPoint getEntryPoint(String name ) {
-        return new RemoteCepEntryPointImpl(sender, name, topicsConfig);
+        return getEntryPoint(name);
     }
 
 }

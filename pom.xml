@@ -30,7 +30,7 @@
     <version.servlet>4.0.1</version.servlet>
     <version.slf4j>1.7.26</version.slf4j>
     <version.springboot>2.2.0.M4</version.springboot>
-    <version.thorntail>2.4.0.Final</version.thorntail>
+    <version.thorntail>2.5.0.Final</version.thorntail>
   </properties>
 
   <modules>

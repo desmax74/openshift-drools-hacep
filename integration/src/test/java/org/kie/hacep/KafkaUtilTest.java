@@ -27,6 +27,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import kafka.admin.AdminUtils;
@@ -269,25 +270,30 @@ public class KafkaUtilTest implements AutoCloseable {
                                             Class sessionType) {
         Properties props = Config.getProducerConfig("InsertBactchStockTickets");
         if (sessionType.equals(RemoteKieSession.class)) {
-            try (RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props,
-                                                                          topicsConfig)) {
+            RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props, topicsConfig);
+            try{
                 for (int i = 0; i < items; i++) {
                     StockTickEvent ticket = new StockTickEvent("RHT",
                                                                ThreadLocalRandom.current().nextLong(80,
                                                                                                     100));
                     producer.insert(ticket);
                 }
+            }finally {
+                producer.close();
             }
+
         }
         if (sessionType.equals(RemoteCepKieSession.class)) {
-            try (RemoteCepKieSessionImpl producer = new RemoteCepKieSessionImpl(props,
-                                                                                topicsConfig)) {
+            RemoteCepKieSessionImpl producer = new RemoteCepKieSessionImpl(props, topicsConfig);
+            try {
                 for (int i = 0; i < items; i++) {
                     StockTickEvent ticket = new StockTickEvent("RHT",
                                                                ThreadLocalRandom.current().nextLong(80,
                                                                                                     100));
                     producer.insert(ticket);
                 }
+            }finally {
+                producer.close();
             }
         }
     }

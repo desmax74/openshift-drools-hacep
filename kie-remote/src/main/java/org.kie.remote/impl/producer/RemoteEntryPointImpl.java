@@ -17,7 +17,6 @@ package org.kie.remote.impl.producer;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 import org.kie.remote.RemoteEntryPoint;
@@ -35,11 +34,11 @@ public class RemoteEntryPointImpl implements RemoteEntryPoint {
     protected final Sender sender;
     protected final Listener listener;
     private final String entryPoint;
-    private Map<String, CompletableFuture<Object>> requestsStore;
+    protected Map<String, CompletableFuture<Object>> requestsStore;
     private TopicsConfig topicsConfig;
 
-    public RemoteEntryPointImpl(Sender sender, String entryPoint, TopicsConfig topicsConfig) {
-        requestsStore = new ConcurrentHashMap<>();
+    public RemoteEntryPointImpl(Sender sender, String entryPoint, TopicsConfig topicsConfig, Map requestsStore) {
+        this.requestsStore = requestsStore;
         this.listener = new Listener(requestsStore);
         this.sender = sender;
         this.entryPoint = entryPoint;
@@ -53,6 +52,7 @@ public class RemoteEntryPointImpl implements RemoteEntryPoint {
 
     public void stop(){
         listener.stopConsumeEvents();
+        requestsStore.clear();
     }
 
     @Override

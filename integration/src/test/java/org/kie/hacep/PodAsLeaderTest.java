@@ -99,8 +99,7 @@ public class PodAsLeaderTest {
 
             //CONTROL TOPIC
             ConsumerRecords controlRecords = controlConsumer.poll(5000);
-            assertEquals(1,
-                         controlRecords.count());
+            assertEquals(1, controlRecords.count());
             Iterator<ConsumerRecord<String, byte[]>> controlRecordIterator = controlRecords.iterator();
             ConsumerRecord<String, byte[]> controlRecord = controlRecordIterator.next();
             ControlMessage controlMessage = deserialize(controlRecord.value());
@@ -143,8 +142,7 @@ public class PodAsLeaderTest {
 
             //SNAPSHOT TOPIC
             ConsumerRecords snapshotRecords = snapshotConsumer.poll(5000);
-            assertEquals(1,
-                         snapshotRecords.count());
+            assertEquals(1, snapshotRecords.count());
             ConsumerRecord record = (ConsumerRecord) snapshotRecords.iterator().next();
             SnapshotMessage snapshot = deserialize((byte[]) record.value());
             assertNotNull(snapshot);

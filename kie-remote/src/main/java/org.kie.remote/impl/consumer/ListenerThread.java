@@ -47,13 +47,15 @@ public class ListenerThread implements Runnable,
     private static Logger logger = LoggerFactory.getLogger(ListenerThread.class);
     private Properties configuration;
     private TopicsConfig topicsConfig;
-    private Map<String, CompletableFuture<Object>> store;
+    private Map<String, CompletableFuture<Object>> requestsStore;
     private KafkaConsumer consumer;
+    private List<VisitableMessage> buffer;
 
-    public ListenerThread(Properties configuration, TopicsConfig config, Map<String, CompletableFuture<Object>> store){
+    public ListenerThread(Properties configuration, TopicsConfig config, Map<String, CompletableFuture<Object>> requestsStore){
         this.configuration = configuration;
         this.topicsConfig = config;
-        this.store = store;
+        this.requestsStore = requestsStore;
+        this.buffer = new ArrayList<>();
         prepareConsumer();
     }
 
@@ -103,21 +105,23 @@ public class ListenerThread implements Runnable,
 
     @Override
     public void visit(FactCountMessage msg, String key) {
-        CompletableFuture<Object> completableFuture = store.get(msg.getKey());
+        CompletableFuture<Object> completableFuture = requestsStore.get(msg.getKey());
         if(completableFuture!= null) {
             completableFuture.complete(msg.getFactCount());
-        }else {
-            logger.error("CompletableFuture with key {} not found", key);
+            if(logger.isDebugEnabled()){
+                logger.debug("completed msg with key {}",msg.getKey());
+            }
         }
     }
 
     @Override
     public void visit(ListKieSessionObjectMessage msg, String key) {
-        CompletableFuture<Object> completableFuture = store.get(msg.getKey());
+        CompletableFuture<Object> completableFuture = requestsStore.get(msg.getKey());
         if(completableFuture!= null) {
             completableFuture.complete(msg.getObjects());
-        }else {
-            logger.error("CompletableFuture with key {} not found", key);
+            if(logger.isDebugEnabled()){
+                logger.debug("completed msg with key {}",msg.getKey());
+            }
         }
     }
 }

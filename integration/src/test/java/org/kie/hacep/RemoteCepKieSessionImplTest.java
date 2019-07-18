@@ -18,6 +18,7 @@ package org.kie.hacep;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -67,13 +68,15 @@ public class RemoteCepKieSessionImplTest {
         kafkaServerTest.insertBatchStockTicketEvent(7,
                                                     topicsConfig,
                                                     RemoteCepKieSession.class);
-        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("FactCountConsumerTest"),
-                                                                          topicsConfig)) {
+        RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("FactCountConsumerTest"),
+                                                                     topicsConfig);
+        try {
             client.listen();
             CompletableFuture<Long> factCountFuture = client.getFactCount();
-            Long factCount = factCountFuture.get(15,
-                                                 TimeUnit.SECONDS);
+            Long factCount = factCountFuture.get(5, TimeUnit.SECONDS);
             assertTrue(factCount == 7);
+        }finally {
+            client.close();
         }
     }
 
@@ -84,16 +87,21 @@ public class RemoteCepKieSessionImplTest {
         kafkaServerTest.insertBatchStockTicketEvent(1,
                                                     topicsConfig,
                                                     RemoteCepKieSession.class);
-        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(CommonConfig.getProducerConfig("ListKieSessionObjectsConsumerTest"),
-                                                                          topicsConfig)) {
+
+        RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(CommonConfig.getProducerConfig("ListKieSessionObjectsConsumerTest"),
+                                                                     topicsConfig);
+        try {
             client.listen();
             CompletableFuture<Collection<? extends Object>> listKieObjectsFuture = client.getObjects();
-            Collection<? extends Object> listKieObjects = listKieObjectsFuture.get(15,
+            Collection<? extends Object> listKieObjects = listKieObjectsFuture.get(5,
                                                                                    TimeUnit.SECONDS);
             assertTrue(listKieObjects.size() == 1);
             StockTickEvent event = (StockTickEvent) listKieObjects.iterator().next();
             assertTrue(event.getCompany().equals("RHT"));
+        }finally {
+            client.close();
         }
+
     }
 
     @Test
@@ -103,14 +111,17 @@ public class RemoteCepKieSessionImplTest {
         kafkaServerTest.insertBatchStockTicketEvent(1,
                                                     topicsConfig,
                                                     RemoteCepKieSession.class);
-        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("ListKieSessionObjectsWithClassTypeTest"),
-                                                                          topicsConfig)) {
+        RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("ListKieSessionObjectsWithClassTypeTest"),
+                                                                     topicsConfig);
+        try {
             client.listen();
             CompletableFuture<Collection<? extends Object>> listKieObjectsFuture = client.getObjects(StockTickEvent.class);
-            Collection<? extends Object> listKieObjects = listKieObjectsFuture.get(15, TimeUnit.SECONDS);
+            Collection<? extends Object> listKieObjects = listKieObjectsFuture.get(5, TimeUnit.SECONDS);
             assertTrue(listKieObjects.size() == 1);
             StockTickEvent event = (StockTickEvent) listKieObjects.iterator().next();
             assertTrue(event.getCompany().equals("RHT"));
+        }finally {
+            client.close();
         }
     }
 
@@ -121,8 +132,9 @@ public class RemoteCepKieSessionImplTest {
         kafkaServerTest.insertBatchStockTicketEvent(1,
                                                     topicsConfig,
                                                     RemoteCepKieSession.class);
-        try (RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("ListKieSessionObjectsWithNamedQueryTest"),
-                                                                          topicsConfig)) {
+        RemoteCepKieSessionImpl client = new RemoteCepKieSessionImpl(Config.getProducerConfig("ListKieSessionObjectsWithNamedQueryTest"),
+                                                                     topicsConfig);
+        try{
             client.listen();
 
             doQuery( client, "IBM", 0 );
@@ -130,6 +142,8 @@ public class RemoteCepKieSessionImplTest {
             Collection<?> listKieObjects = doQuery( client, "RHT", 1 );
             StockTickEvent event = (StockTickEvent)listKieObjects.iterator().next();
             assertTrue(event.getCompany().equals("RHT"));
+        }finally {
+            client.close();
         }
     }
 
@@ -137,7 +151,7 @@ public class RemoteCepKieSessionImplTest {
         CompletableFuture<Collection<?>> listKieObjectsFuture;
         Collection<?> listKieObjects;
         listKieObjectsFuture = client.getObjects("stockTickEventQuery" , "stock", stockName);
-        listKieObjects = listKieObjectsFuture.get(15, TimeUnit.SECONDS);
+        listKieObjects = listKieObjectsFuture.get(5, TimeUnit.SECONDS);
         assertEquals(expectedResult, listKieObjects.size());
         return listKieObjects;
     }

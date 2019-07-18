@@ -17,6 +17,7 @@ package org.kie.remote.impl.producer;
 
 import java.io.Closeable;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.kie.remote.RemoteEntryPoint;
 import org.kie.remote.RemoteKieSession;
@@ -25,21 +26,20 @@ import org.kie.remote.TopicsConfig;
 public class RemoteKieSessionImpl extends RemoteEntryPointImpl implements Closeable, RemoteKieSession {
 
     public static final String DEFAULT_ENTRY_POINT = "DEFAULT"; // EntryPointId.DEFAULT.getEntryPointId();
-    private TopicsConfig topicsConfig;
 
-    public RemoteKieSessionImpl( Properties configuration, TopicsConfig envConfig ) {
-        super(new Sender(configuration), DEFAULT_ENTRY_POINT, envConfig);
-        this.topicsConfig = envConfig;
+    public RemoteKieSessionImpl(Properties configuration, TopicsConfig envConfig) {
+        super(new Sender(configuration), DEFAULT_ENTRY_POINT, envConfig , new ConcurrentHashMap<>());
         sender.start();
     }
 
     @Override
     public void close() {
         sender.stop();
+        requestsStore.clear();
     }
 
     @Override
     public RemoteEntryPoint getEntryPoint( String name ) {
-        return new RemoteEntryPointImpl(sender, name, topicsConfig);
+        return getEntryPoint(name);
     }
 }

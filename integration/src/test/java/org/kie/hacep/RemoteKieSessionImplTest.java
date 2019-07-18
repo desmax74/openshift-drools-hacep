@@ -17,6 +17,7 @@ package org.kie.hacep;
 
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -68,7 +69,7 @@ public class RemoteKieSessionImplTest {
                                                                     topicsConfig)) {
             client.listen();
             CompletableFuture<Long> factCountFuture = client.getFactCount();
-            Long factCount = factCountFuture.get(30, TimeUnit.SECONDS);
+            Long factCount = factCountFuture.get(5, TimeUnit.SECONDS);
             assertTrue(factCount == 7);
         } catch (Throwable e) {
             e.printStackTrace();

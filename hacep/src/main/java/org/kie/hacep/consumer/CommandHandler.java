@@ -77,8 +77,7 @@ public class CommandHandler implements VisitorCommand {
     @Override
     public void visit(ListObjectsCommand command) {
         List serializableItems = getObjectList(command);
-        ListKieSessionObjectMessageImpl msg = new ListKieSessionObjectMessageImpl(command.getId(),
-                                                                                  serializableItems);
+        ListKieSessionObjectMessageImpl msg = new ListKieSessionObjectMessageImpl(command.getId(), serializableItems);
         producer.produceSync(config.getKieSessionInfosTopicName(),
                              command.getId(),
                              msg);
@@ -92,8 +91,7 @@ public class CommandHandler implements VisitorCommand {
     @Override
     public void visit(ListObjectsCommandClassType command) {
         List serializableItems = getSerializableItemsByClassType(command);
-        ListKieSessionObjectMessageImpl msg = new ListKieSessionObjectMessageImpl(command.getId(),
-                                                                                  serializableItems);
+        ListKieSessionObjectMessageImpl msg = new ListKieSessionObjectMessageImpl(command.getId(), serializableItems);
         producer.produceSync(config.getKieSessionInfosTopicName(),
                              command.getId(),
                              msg);
@@ -118,8 +116,7 @@ public class CommandHandler implements VisitorCommand {
     @Override
     public void visit(ListObjectsCommandNamedQuery command) {
         List serializableItems = getSerializableItemsByNamedQuery(command);
-        ListKieSessionObjectMessageImpl msg = new ListKieSessionObjectMessageImpl(command.getId(),
-                                                                                  serializableItems);
+        ListKieSessionObjectMessageImpl msg = new ListKieSessionObjectMessageImpl(command.getId(), serializableItems);
         producer.produceSync(config.getKieSessionInfosTopicName(),
                              command.getId(),
                              msg);

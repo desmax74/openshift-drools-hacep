@@ -26,18 +26,17 @@ public class Listener {
 
     private Properties configuration;
     private TopicsConfig topicsConfig;
-    private Map<String, CompletableFuture<Object>> store;
+    private Map<String, CompletableFuture<Object>> requestsStore;
     private Thread t;
 
     public Listener(Map<String, CompletableFuture<Object>> requestsStore){
         configuration = ClientUtils.getConfiguration(ClientUtils.CONSUMER_CONF);
         topicsConfig = TopicsConfig.getDefaultTopicsConfig();
-        store = requestsStore;
+        this.requestsStore = requestsStore;
     }
 
     public void listen(){
-        t = new Thread(new ListenerThread(configuration,
-                                          topicsConfig, store));
+        t = new Thread(new ListenerThread(configuration, topicsConfig, requestsStore));
         t.start();
     }
 
