@@ -30,6 +30,11 @@
       <artifactId>openshift-kie-hacep</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>sample-hacep-project-kjar</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>

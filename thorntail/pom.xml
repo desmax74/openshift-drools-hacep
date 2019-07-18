@@ -32,6 +32,11 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>sample-hacep-project-kjar</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>io.thorntail</groupId>
       <artifactId>undertow</artifactId>
     </dependency>
