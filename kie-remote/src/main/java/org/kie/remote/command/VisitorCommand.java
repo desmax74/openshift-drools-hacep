@@ -19,6 +19,8 @@ public interface VisitorCommand {
 
     void visit(InsertCommand command);
 
+    void visit(EventInsertCommand command);
+
     void visit(DeleteCommand command);
 
     void visit(UpdateCommand command);

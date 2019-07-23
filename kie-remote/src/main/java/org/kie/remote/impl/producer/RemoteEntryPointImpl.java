@@ -43,7 +43,6 @@ public class RemoteEntryPointImpl implements RemoteEntryPoint {
         this.sender = sender;
         this.entryPoint = entryPoint;
         this.topicsConfig = topicsConfig;
-
     }
 
     public void listen(){

@@ -18,15 +18,20 @@ package org.kie.remote.command;
 
 import java.io.Serializable;
 
-import org.kie.remote.RemoteFactHandle;
-
-public class InsertCommand extends WorkingMemoryActionCommand implements VisitableCommand,
+public class EventInsertCommand extends WorkingMemoryActionCommand implements VisitableCommand,
                                                                          Serializable {
 
-    public InsertCommand(){}
+    private Object object;
 
-    public InsertCommand(RemoteFactHandle factHandle, String entryPoint ) {
-        super(factHandle, entryPoint);
+    public EventInsertCommand(){}
+
+    public EventInsertCommand( Object object, String entryPoint ) {
+        super(null, entryPoint);
+        this.object = object;
+    }
+
+    public Object getObject() {
+        return object;
     }
 
     @Override

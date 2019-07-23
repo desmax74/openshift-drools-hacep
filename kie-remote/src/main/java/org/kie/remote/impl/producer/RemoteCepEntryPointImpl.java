@@ -20,14 +20,12 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.kie.remote.RemoteCepEntryPoint;
-import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.TopicsConfig;
+import org.kie.remote.command.EventInsertCommand;
 import org.kie.remote.command.FactCountCommand;
-import org.kie.remote.command.InsertCommand;
 import org.kie.remote.command.ListObjectsCommand;
 import org.kie.remote.command.ListObjectsCommandClassType;
 import org.kie.remote.command.ListObjectsCommandNamedQuery;
-import org.kie.remote.impl.RemoteFactHandleImpl;
 import org.kie.remote.impl.consumer.Listener;
 
 public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
@@ -93,9 +91,7 @@ public class RemoteCepEntryPointImpl implements RemoteCepEntryPoint {
 
     @Override
     public void insert(Object object) {
-        RemoteFactHandle factHandle = new RemoteFactHandleImpl(object );
-        InsertCommand command = new InsertCommand(factHandle, entryPoint );
+        EventInsertCommand command = new EventInsertCommand(object, entryPoint);
         sender.sendCommand(command, topicsConfig.getEventsTopicName());
     }
-
 }

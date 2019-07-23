@@ -48,10 +48,10 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.SystemTime;
 import org.apache.kafka.common.utils.Time;
 import org.kie.hacep.sample.kjar.StockTickEvent;
-import org.kie.remote.RemoteCepKieSession;
+import org.kie.remote.RemoteEventKieSession;
 import org.kie.remote.RemoteKieSession;
 import org.kie.remote.TopicsConfig;
-import org.kie.remote.impl.producer.RemoteCepKieSessionImpl;
+import org.kie.remote.impl.producer.RemoteEventKieSessionImpl;
 import org.kie.remote.impl.producer.RemoteKieSessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -282,8 +282,8 @@ public class KafkaUtilTest implements AutoCloseable {
             }
 
         }
-        if (sessionType.equals(RemoteCepKieSession.class)) {
-            RemoteCepKieSessionImpl producer = new RemoteCepKieSessionImpl(props, topicsConfig);
+        if (sessionType.equals( RemoteEventKieSession.class)) {
+            RemoteEventKieSessionImpl producer = new RemoteEventKieSessionImpl(props, topicsConfig);
             try {
                 for (int i = 0; i < items; i++) {
                     StockTickEvent ticket = new StockTickEvent("RHT",

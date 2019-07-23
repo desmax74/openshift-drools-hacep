@@ -20,13 +20,13 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.kie.remote.RemoteCepEntryPoint;
-import org.kie.remote.RemoteCepKieSession;
+import org.kie.remote.RemoteEventKieSession;
 import org.kie.remote.TopicsConfig;
 
-public class RemoteCepKieSessionImpl extends RemoteCepEntryPointImpl implements Closeable,
-                                                                                RemoteCepKieSession {
+public class RemoteEventKieSessionImpl extends RemoteCepEntryPointImpl implements Closeable,
+        RemoteEventKieSession {
 
-    public RemoteCepKieSessionImpl(Properties configuration, TopicsConfig envConfig) {
+    public RemoteEventKieSessionImpl( Properties configuration, TopicsConfig envConfig) {
         super(new Sender(configuration), RemoteKieSessionImpl.DEFAULT_ENTRY_POINT, envConfig, new ConcurrentHashMap<>());
         sender.start();
     }

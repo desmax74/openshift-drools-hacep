@@ -23,11 +23,11 @@ import java.util.List;
 import org.kie.api.runtime.rule.FactHandle;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.KieSessionContext;
-import org.kie.remote.impl.producer.Producer;
 import org.kie.hacep.message.FactCountMessageImpl;
 import org.kie.hacep.message.ListKieSessionObjectMessageImpl;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.command.DeleteCommand;
+import org.kie.remote.command.EventInsertCommand;
 import org.kie.remote.command.FactCountCommand;
 import org.kie.remote.command.InsertCommand;
 import org.kie.remote.command.ListObjectsCommand;
@@ -35,6 +35,7 @@ import org.kie.remote.command.ListObjectsCommandClassType;
 import org.kie.remote.command.ListObjectsCommandNamedQuery;
 import org.kie.remote.command.UpdateCommand;
 import org.kie.remote.command.VisitorCommand;
+import org.kie.remote.impl.producer.Producer;
 
 public class CommandHandler implements VisitorCommand {
 
@@ -59,18 +60,22 @@ public class CommandHandler implements VisitorCommand {
     }
 
     @Override
+    public void visit(EventInsertCommand command) {
+        FactHandle fh = kieSessionContext.getKieSession().getEntryPoint(command.getEntryPoint()).insert(command.getObject());
+        kieSessionContext.getKieSession().fireAllRules();
+    }
+
+    @Override
     public void visit(DeleteCommand command) {
-        RemoteFactHandle remoteFH = command.getFactHandle();
-        kieSessionContext.getKieSession().getEntryPoint(command.getEntryPoint()).delete(kieSessionContext.getFhManager().mapRemoteFactHandle(remoteFH));
+        FactHandle factHandle = kieSessionContext.getFhManager().mapRemoteFactHandle(command.getFactHandle());
+        kieSessionContext.getKieSession().getEntryPoint(command.getEntryPoint()).delete(factHandle);
         kieSessionContext.getKieSession().fireAllRules();
     }
 
     @Override
     public void visit(UpdateCommand command) {
-        RemoteFactHandle remoteFH = command.getFactHandle();
-        FactHandle factHandle = kieSessionContext.getFhManager().mapRemoteFactHandle(remoteFH);
-        kieSessionContext.getKieSession().getEntryPoint(command.getEntryPoint()).update(factHandle,
-                                                                                        command.getObject());
+        FactHandle factHandle = kieSessionContext.getFhManager().mapRemoteFactHandle(command.getFactHandle());
+        kieSessionContext.getKieSession().getEntryPoint(command.getEntryPoint()).update(factHandle, command.getObject());
         kieSessionContext.getKieSession().fireAllRules();
     }
 
