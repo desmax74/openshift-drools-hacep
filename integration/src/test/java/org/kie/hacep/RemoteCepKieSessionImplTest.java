@@ -73,7 +73,7 @@ public class RemoteCepKieSessionImplTest {
         try {
             client.listen();
             CompletableFuture<Long> factCountFuture = client.getFactCount();
-            Long factCount = factCountFuture.get(5, TimeUnit.SECONDS);
+            Long factCount = factCountFuture.get(20, TimeUnit.SECONDS);
             assertTrue(factCount == 7);
         }finally {
             client.close();
@@ -93,7 +93,7 @@ public class RemoteCepKieSessionImplTest {
         try {
             client.listen();
             CompletableFuture<Collection<? extends Object>> listKieObjectsFuture = client.getObjects();
-            Collection<? extends Object> listKieObjects = listKieObjectsFuture.get(5,
+            Collection<? extends Object> listKieObjects = listKieObjectsFuture.get(20,
                                                                                    TimeUnit.SECONDS);
             assertTrue(listKieObjects.size() == 1);
             StockTickEvent event = (StockTickEvent) listKieObjects.iterator().next();
@@ -116,7 +116,7 @@ public class RemoteCepKieSessionImplTest {
         try {
             client.listen();
             CompletableFuture<Collection<? extends Object>> listKieObjectsFuture = client.getObjects(StockTickEvent.class);
-            Collection<? extends Object> listKieObjects = listKieObjectsFuture.get(5, TimeUnit.SECONDS);
+            Collection<? extends Object> listKieObjects = listKieObjectsFuture.get(20, TimeUnit.SECONDS);
             assertTrue(listKieObjects.size() == 1);
             StockTickEvent event = (StockTickEvent) listKieObjects.iterator().next();
             assertTrue(event.getCompany().equals("RHT"));
@@ -151,7 +151,7 @@ public class RemoteCepKieSessionImplTest {
         CompletableFuture<Collection<?>> listKieObjectsFuture;
         Collection<?> listKieObjects;
         listKieObjectsFuture = client.getObjects("stockTickEventQuery" , "stock", stockName);
-        listKieObjects = listKieObjectsFuture.get(5, TimeUnit.SECONDS);
+        listKieObjects = listKieObjectsFuture.get(20, TimeUnit.SECONDS);
         assertEquals(expectedResult, listKieObjects.size());
         return listKieObjects;
     }

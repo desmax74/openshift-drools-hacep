@@ -26,7 +26,7 @@
     <version.k8s.client>4.2.1</version.k8s.client>
     <version.logback.core>1.2.3</version.logback.core>
     <version.logback.kafka.appender>0.2.0-RC2</version.logback.kafka.appender>
-    <version.org.kie>7.24.0.Final</version.org.kie>
+    <version.org.kie>7.23.0.Final</version.org.kie>
     <version.servlet>4.0.1</version.servlet>
     <version.slf4j>1.7.26</version.slf4j>
     <version.springboot>2.2.0.M4</version.springboot>
