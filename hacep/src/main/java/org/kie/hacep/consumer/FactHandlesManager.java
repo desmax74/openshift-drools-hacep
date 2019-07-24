@@ -29,7 +29,7 @@ import org.kie.api.runtime.rule.FactHandle;
 import org.kie.remote.RemoteFactHandle;
 
 public class FactHandlesManager implements Serializable {
-    private BidirectionalMap<RemoteFactHandle, Integer> fhIdMap = new BidirectionalMap<>();
+    private BidirectionalMap<RemoteFactHandle, Long> fhIdMap = new BidirectionalMap<>();
 
     private transient KieSession kieSession;
 
@@ -70,7 +70,7 @@ public class FactHandlesManager implements Serializable {
     }
 
     private InternalFactHandle getFactHandleById(RemoteFactHandle remoteFH) {
-        int id = fhIdMap.get(remoteFH);
+        long id = fhIdMap.get(remoteFH);
         for (FactHandle fh : kieSession.getFactHandles()) {
             InternalFactHandle ifh = ( InternalFactHandle ) fh;
             if ( ifh.getId() == id) {
