@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Red Hat
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ public class InsertCommand extends WorkingMemoryActionCommand implements Visitab
 
     public InsertCommand(){}
 
-    public InsertCommand(RemoteFactHandle factHandle, String entryPoint, boolean autoFire ) {
-        super(factHandle, entryPoint, autoFire);
+    public InsertCommand(RemoteFactHandle factHandle, String entryPoint ) {
+        super(factHandle, entryPoint);
     }
 
     @Override

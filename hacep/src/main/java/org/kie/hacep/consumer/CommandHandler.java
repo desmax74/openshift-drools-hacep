@@ -30,6 +30,8 @@ import org.kie.remote.command.DeleteCommand;
 import org.kie.remote.command.EventInsertCommand;
 import org.kie.remote.command.FactCountCommand;
 import org.kie.remote.command.FireAllRulesCommand;
+import org.kie.remote.command.FireUntilHaltCommand;
+import org.kie.remote.command.HaltCommand;
 import org.kie.remote.command.InsertCommand;
 import org.kie.remote.command.ListObjectsCommand;
 import org.kie.remote.command.ListObjectsCommandClassType;
@@ -43,6 +45,8 @@ public class CommandHandler implements VisitorCommand {
     private KieSessionContext kieSessionContext;
     private EnvConfig config;
     private Producer producer;
+
+    private volatile boolean firingUntilHalt;
 
     public CommandHandler(KieSessionContext kieSessionContext,
                           EnvConfig config,
@@ -59,11 +63,21 @@ public class CommandHandler implements VisitorCommand {
     }
 
     @Override
+    public void visit(FireUntilHaltCommand command) {
+        firingUntilHalt = true;
+    }
+
+    @Override
+    public void visit(HaltCommand command) {
+        firingUntilHalt = false;
+    }
+
+    @Override
     public void visit(InsertCommand command) {
         RemoteFactHandle remoteFH = command.getFactHandle();
         FactHandle fh = kieSessionContext.getKieSession().getEntryPoint(command.getEntryPoint()).insert(remoteFH.getObject());
         kieSessionContext.getFhManager().registerHandle(remoteFH, fh);
-        if (command.isAutoFire()) {
+        if (firingUntilHalt) {
             kieSessionContext.getKieSession().fireAllRules();
         }
     }
@@ -71,7 +85,7 @@ public class CommandHandler implements VisitorCommand {
     @Override
     public void visit(EventInsertCommand command) {
         FactHandle fh = kieSessionContext.getKieSession().getEntryPoint(command.getEntryPoint()).insert(command.getObject());
-        if (command.isAutoFire()) {
+        if (firingUntilHalt) {
             kieSessionContext.getKieSession().fireAllRules();
         }
     }
@@ -80,7 +94,7 @@ public class CommandHandler implements VisitorCommand {
     public void visit(DeleteCommand command) {
         FactHandle factHandle = kieSessionContext.getFhManager().mapRemoteFactHandle(command.getFactHandle());
         kieSessionContext.getKieSession().getEntryPoint(command.getEntryPoint()).delete(factHandle);
-        if (command.isAutoFire()) {
+        if (firingUntilHalt) {
             kieSessionContext.getKieSession().fireAllRules();
         }
     }
@@ -89,7 +103,7 @@ public class CommandHandler implements VisitorCommand {
     public void visit(UpdateCommand command) {
         FactHandle factHandle = kieSessionContext.getFhManager().mapRemoteFactHandle(command.getFactHandle());
         kieSessionContext.getKieSession().getEntryPoint(command.getEntryPoint()).update(factHandle, command.getObject());
-        if (command.isAutoFire()) {
+        if (firingUntilHalt) {
             kieSessionContext.getKieSession().fireAllRules();
         }
     }

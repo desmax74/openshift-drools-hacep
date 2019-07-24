@@ -19,6 +19,7 @@ import org.kie.remote.CommonConfig;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.RemoteKieSession;
 import org.kie.remote.TopicsConfig;
+import org.kie.remote.command.FireUntilHaltCommand;
 import org.kie.remote.command.InsertCommand;
 import org.kie.remote.command.RemoteCommand;
 import org.slf4j.Logger;
@@ -90,12 +91,20 @@ public class PodAsReplicaTest {
 
             //EVENTS TOPIC
             ConsumerRecords eventsRecords = eventsConsumer.poll(5000);
-            assertEquals(1, eventsRecords.count());
+            assertEquals(2, eventsRecords.count());
             Iterator<ConsumerRecord<String, byte[]>> eventsRecordIterator = eventsRecords.iterator();
+
             ConsumerRecord<String, byte[]> eventsRecord = eventsRecordIterator.next();
             assertEquals(eventsRecord.topic(), config.getEventsTopicName());
             RemoteCommand remoteCommand = deserialize(eventsRecord.value());
             assertEquals(eventsRecord.offset(), 0);
+            assertNotNull(remoteCommand.getId());
+            assertTrue( remoteCommand instanceof FireUntilHaltCommand );
+
+            eventsRecord = eventsRecordIterator.next();
+            assertEquals(eventsRecord.topic(), config.getEventsTopicName());
+            remoteCommand = deserialize(eventsRecord.value());
+            assertEquals(eventsRecord.offset(), 1);
             assertNotNull(remoteCommand.getId());
             InsertCommand insertCommand = (InsertCommand) remoteCommand;
             assertEquals(insertCommand.getEntryPoint(), "DEFAULT");

@@ -26,8 +26,8 @@ public class UpdateCommand extends WorkingMemoryActionCommand implements Visitab
 
     public UpdateCommand() { }
 
-    public UpdateCommand(RemoteFactHandle factHandle, Object obj, String entryPoint, boolean autoFire ) {
-        super(factHandle, entryPoint, autoFire);
+    public UpdateCommand(RemoteFactHandle factHandle, Object obj, String entryPoint ) {
+        super(factHandle, entryPoint);
         this.object = obj;
     }
 

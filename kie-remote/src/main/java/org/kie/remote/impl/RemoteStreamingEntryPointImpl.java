@@ -38,7 +38,7 @@ public class RemoteStreamingEntryPointImpl extends AbstractRemoteEntryPoint impl
 
     @Override
     public void insert(Object object) {
-        EventInsertCommand command = new EventInsertCommand(object, entryPoint, delegate.isFiringUntilHalt());
+        EventInsertCommand command = new EventInsertCommand(object, entryPoint);
         sender.sendCommand(command, topicsConfig.getEventsTopicName());
     }
 }

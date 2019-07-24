@@ -28,7 +28,7 @@ public class FireAllRulesCommand extends AbstractCommand implements VisitableCom
     public void accept(VisitorCommand visitor) { visitor.visit(this); }
 
     @Override
-    public boolean isPermittedForReplicas() { return false; }
+    public boolean isPermittedForReplicas() { return true; }
 
     @Override
     public String toString() {

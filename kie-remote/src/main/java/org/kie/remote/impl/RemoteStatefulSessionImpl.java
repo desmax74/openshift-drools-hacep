@@ -22,6 +22,8 @@ import java.util.concurrent.CompletableFuture;
 import org.kie.remote.RemoteStatefulSession;
 import org.kie.remote.TopicsConfig;
 import org.kie.remote.command.FireAllRulesCommand;
+import org.kie.remote.command.FireUntilHaltCommand;
+import org.kie.remote.command.HaltCommand;
 import org.kie.remote.impl.producer.Sender;
 
 public class RemoteStatefulSessionImpl implements RemoteStatefulSession {
@@ -29,8 +31,6 @@ public class RemoteStatefulSessionImpl implements RemoteStatefulSession {
     private final Sender sender;
     private final Map<String, CompletableFuture<Object>> requestsStore;
     private final TopicsConfig topicsConfig;
-
-    private volatile boolean firingUntilHalt;
 
     public RemoteStatefulSessionImpl( Sender sender, Map<String, CompletableFuture<Object>> requestsStore, TopicsConfig topicsConfig ) {
         this.sender = sender;
@@ -49,15 +49,11 @@ public class RemoteStatefulSessionImpl implements RemoteStatefulSession {
 
     @Override
     public void fireUntilHalt() {
-        firingUntilHalt = true;
+        sender.sendCommand(new FireUntilHaltCommand(), topicsConfig.getEventsTopicName());
     }
 
     @Override
     public void halt() {
-        firingUntilHalt = false;
-    }
-
-    public boolean isFiringUntilHalt() {
-        return firingUntilHalt;
+        sender.sendCommand(new HaltCommand(), topicsConfig.getEventsTopicName());
     }
 }
