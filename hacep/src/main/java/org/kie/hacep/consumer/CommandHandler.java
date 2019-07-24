@@ -29,6 +29,7 @@ import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.command.DeleteCommand;
 import org.kie.remote.command.EventInsertCommand;
 import org.kie.remote.command.FactCountCommand;
+import org.kie.remote.command.FireAllRulesCommand;
 import org.kie.remote.command.InsertCommand;
 import org.kie.remote.command.ListObjectsCommand;
 import org.kie.remote.command.ListObjectsCommandClassType;
@@ -52,40 +53,52 @@ public class CommandHandler implements VisitorCommand {
     }
 
     @Override
+    public void visit(FireAllRulesCommand command) {
+        int fires = kieSessionContext.getKieSession().fireAllRules();
+        producer.produceSync(config.getKieSessionInfosTopicName(), command.getId(), fires);
+    }
+
+    @Override
     public void visit(InsertCommand command) {
         RemoteFactHandle remoteFH = command.getFactHandle();
         FactHandle fh = kieSessionContext.getKieSession().getEntryPoint(command.getEntryPoint()).insert(remoteFH.getObject());
         kieSessionContext.getFhManager().registerHandle(remoteFH, fh);
-        kieSessionContext.getKieSession().fireAllRules();
+        if (command.isAutoFire()) {
+            kieSessionContext.getKieSession().fireAllRules();
+        }
     }
 
     @Override
     public void visit(EventInsertCommand command) {
         FactHandle fh = kieSessionContext.getKieSession().getEntryPoint(command.getEntryPoint()).insert(command.getObject());
-        kieSessionContext.getKieSession().fireAllRules();
+        if (command.isAutoFire()) {
+            kieSessionContext.getKieSession().fireAllRules();
+        }
     }
 
     @Override
     public void visit(DeleteCommand command) {
         FactHandle factHandle = kieSessionContext.getFhManager().mapRemoteFactHandle(command.getFactHandle());
         kieSessionContext.getKieSession().getEntryPoint(command.getEntryPoint()).delete(factHandle);
-        kieSessionContext.getKieSession().fireAllRules();
+        if (command.isAutoFire()) {
+            kieSessionContext.getKieSession().fireAllRules();
+        }
     }
 
     @Override
     public void visit(UpdateCommand command) {
         FactHandle factHandle = kieSessionContext.getFhManager().mapRemoteFactHandle(command.getFactHandle());
         kieSessionContext.getKieSession().getEntryPoint(command.getEntryPoint()).update(factHandle, command.getObject());
-        kieSessionContext.getKieSession().fireAllRules();
+        if (command.isAutoFire()) {
+            kieSessionContext.getKieSession().fireAllRules();
+        }
     }
 
     @Override
     public void visit(ListObjectsCommand command) {
         List serializableItems = getObjectList(command);
         ListKieSessionObjectMessageImpl msg = new ListKieSessionObjectMessageImpl(command.getId(), serializableItems);
-        producer.produceSync(config.getKieSessionInfosTopicName(),
-                             command.getId(),
-                             msg);
+        producer.produceSync(config.getKieSessionInfosTopicName(), command.getId(), msg);
     }
 
     private List getObjectList(ListObjectsCommand command) {

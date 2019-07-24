@@ -20,15 +20,14 @@ import java.io.Serializable;
 
 import org.kie.remote.RemoteFactHandle;
 
-public class UpdateCommand extends WorkingMemoryActionCommand implements VisitableCommand,
-                                                                         Serializable {
+public class UpdateCommand extends WorkingMemoryActionCommand implements VisitableCommand, Serializable {
 
     private Object object;
 
-    public UpdateCommand() {}
+    public UpdateCommand() { }
 
-    public UpdateCommand(RemoteFactHandle factHandle, Object obj, String entryPoint) {
-        super(factHandle, entryPoint);
+    public UpdateCommand(RemoteFactHandle factHandle, Object obj, String entryPoint, boolean autoFire ) {
+        super(factHandle, entryPoint, autoFire);
         this.object = obj;
     }
 

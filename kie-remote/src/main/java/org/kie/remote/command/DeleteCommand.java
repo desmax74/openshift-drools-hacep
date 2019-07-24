@@ -20,13 +20,12 @@ import java.io.Serializable;
 
 import org.kie.remote.RemoteFactHandle;
 
-public class DeleteCommand extends WorkingMemoryActionCommand implements VisitableCommand,
-                                                                         Serializable {
+public class DeleteCommand extends WorkingMemoryActionCommand implements VisitableCommand, Serializable {
 
     public DeleteCommand(){}
 
-    public DeleteCommand(RemoteFactHandle factHandle, String entryPoint ) {
-        super(factHandle, entryPoint);
+    public DeleteCommand(RemoteFactHandle factHandle, String entryPoint, boolean autoFire ) {
+        super(factHandle, entryPoint, autoFire);
     }
 
     @Override

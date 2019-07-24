@@ -17,6 +17,8 @@ package org.kie.remote.command;
 
 public interface VisitorCommand {
 
+    void visit(FireAllRulesCommand command);
+
     void visit(InsertCommand command);
 
     void visit(EventInsertCommand command);

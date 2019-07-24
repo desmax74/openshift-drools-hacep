@@ -25,8 +25,8 @@ public class InsertCommand extends WorkingMemoryActionCommand implements Visitab
 
     public InsertCommand(){}
 
-    public InsertCommand(RemoteFactHandle factHandle, String entryPoint ) {
-        super(factHandle, entryPoint);
+    public InsertCommand(RemoteFactHandle factHandle, String entryPoint, boolean autoFire ) {
+        super(factHandle, entryPoint, autoFire);
     }
 
     @Override

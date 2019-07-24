@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Red Hat
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,35 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.kie.remote.command;
 
 import java.io.Serializable;
+import java.util.UUID;
 
-public class EventInsertCommand extends WorkingMemoryActionCommand implements VisitableCommand,
-                                                                         Serializable {
+public class FireAllRulesCommand extends AbstractCommand implements VisitableCommand, Serializable {
 
-    private Object object;
-
-    public EventInsertCommand(){}
-
-    public EventInsertCommand( Object object, String entryPoint, boolean autoFire ) {
-        super(null, entryPoint, autoFire);
-        this.object = object;
-    }
-
-    public Object getObject() {
-        return object;
+    public FireAllRulesCommand() {
+        super(UUID.randomUUID().toString());
     }
 
     @Override
     public void accept(VisitorCommand visitor) { visitor.visit(this); }
 
     @Override
-    public boolean isPermittedForReplicas() { return true; }
+    public boolean isPermittedForReplicas() { return false; }
 
     @Override
     public String toString() {
-        return "Insert of " + getFactHandle() + " into entry-point " + getEntryPoint();
+        return "Fire all rules of " + getId();
     }
+
 }
+

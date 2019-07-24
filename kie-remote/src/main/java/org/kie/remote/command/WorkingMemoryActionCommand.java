@@ -20,17 +20,21 @@ import java.util.UUID;
 
 import org.kie.remote.RemoteFactHandle;
 
-public abstract class WorkingMemoryActionCommand extends AbstractCommand{
+public abstract class WorkingMemoryActionCommand extends AbstractCommand {
 
     private RemoteFactHandle factHandle;
     private String entryPoint;
+    private boolean autoFire;
 
-    public WorkingMemoryActionCommand(){super( UUID.randomUUID().toString() );}
+    public WorkingMemoryActionCommand() {
+        super( UUID.randomUUID().toString() );
+    }
 
-    public WorkingMemoryActionCommand( RemoteFactHandle factHandle, String entryPoint ) {
+    public WorkingMemoryActionCommand( RemoteFactHandle factHandle, String entryPoint, boolean autoFire ) {
         super( UUID.randomUUID().toString() );
         this.factHandle = factHandle;
         this.entryPoint = entryPoint;
+        this.autoFire = autoFire;
     }
 
     public RemoteFactHandle getFactHandle() {
@@ -39,5 +43,9 @@ public abstract class WorkingMemoryActionCommand extends AbstractCommand{
 
     public String getEntryPoint() {
         return entryPoint;
+    }
+
+    public boolean isAutoFire() {
+        return autoFire;
     }
 }
