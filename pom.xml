@@ -22,7 +22,7 @@
     <version.javax.el>3.0.1-b08</version.javax.el>
     <version.javax.ws.rs>2.1.1</version.javax.ws.rs>
     <version.junit>4.12</version.junit>
-    <version.org.apache.kafka>2.1.1</version.org.apache.kafka>
+    <version.org.apache.kafka>2.2.1</version.org.apache.kafka>
     <version.k8s.client>4.2.1</version.k8s.client>
     <version.logback.kafka.appender>0.2.0-RC2</version.logback.kafka.appender>
     <version.servlet>4.0.1</version.servlet>
@@ -176,38 +176,12 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
-    <repository>
-      <id>spring-snapshots</id>
-      <name>Spring Snapshots</name>
-      <url>https://repo.spring.io/snapshot</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>spring-milestones</id>
-      <name>Spring Milestones</name>
-      <url>https://repo.spring.io/milestone</url>
-    </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
       <id>central</id>
       <name>Maven Central</name>
       <url>http://repo.maven.apache.org/maven2</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>spring-snapshots</id>
-      <name>Spring Snapshots</name>
-      <url>https://repo.spring.io/snapshot</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </pluginRepository>
-    <pluginRepository>
-      <id>spring-milestones</id>
-      <name>Spring Milestones</name>
-      <url>https://repo.spring.io/milestone</url>
     </pluginRepository>
   </pluginRepositories>
 
