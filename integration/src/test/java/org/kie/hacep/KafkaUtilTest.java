@@ -48,6 +48,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.SystemTime;
 import org.apache.kafka.common.utils.Time;
 import org.kie.hacep.sample.kjar.StockTickEvent;
+import org.kie.remote.CommonConfig;
 import org.kie.remote.RemoteStreamingKieSession;
 import org.kie.remote.RemoteKieSession;
 import org.kie.remote.TopicsConfig;
@@ -297,5 +298,18 @@ public class KafkaUtilTest implements AutoCloseable {
                 producer.close();
             }
         }
+    }
+
+    public static EnvConfig getEnvConfig() {
+        return EnvConfig.anEnvConfig().
+                withNamespace(CommonConfig.DEFAULT_NAMESPACE).
+                withControlTopicName(Config.DEFAULT_CONTROL_TOPIC).
+                withEventsTopicName(CommonConfig.DEFAULT_EVENTS_TOPIC).
+                withSnapshotTopicName(Config.DEFAULT_SNAPSHOT_TOPIC).
+                withKieSessionInfosTopicName(CommonConfig.DEFAULT_KIE_SESSION_INFOS_TOPIC).
+                withPrinterType(PrinterKafkaImpl.class.getName()).
+                withPollTimeout("10").
+                withIterationBetweenSnapshot("10").
+                isUnderTest(Boolean.TRUE.toString()).build();
     }
 }

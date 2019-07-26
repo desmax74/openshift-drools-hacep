@@ -15,7 +15,6 @@ import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.message.ControlMessage;
 import org.kie.hacep.sample.kjar.StockTickEvent;
-import org.kie.remote.CommonConfig;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.RemoteKieSession;
 import org.kie.remote.TopicsConfig;
@@ -40,7 +39,7 @@ public class PodAsReplicaTest {
 
     @Before
     public void setUp() throws Exception {
-        config = getEnvConfig();
+        config = KafkaUtilTest.getEnvConfig();
         topicsConfig = TopicsConfig.getDefaultTopicsConfig();
         kafkaServerTest = new KafkaUtilTest();
         kafkaServerTest.startServer();
@@ -61,16 +60,7 @@ public class PodAsReplicaTest {
         kafkaServerTest.shutdownServer();
     }
 
-    private EnvConfig getEnvConfig() {
-        return EnvConfig.anEnvConfig().
-                withNamespace(CommonConfig.DEFAULT_NAMESPACE).
-                withControlTopicName(Config.DEFAULT_CONTROL_TOPIC).
-                withEventsTopicName(CommonConfig.DEFAULT_EVENTS_TOPIC).
-                withSnapshotTopicName(Config.DEFAULT_SNAPSHOT_TOPIC).
-                withKieSessionInfosTopicName(CommonConfig.DEFAULT_KIE_SESSION_INFOS_TOPIC).
-                withPrinterType(PrinterKafkaImpl.class.getName()).
-                isUnderTest(Boolean.TRUE.toString()).build();
-    }
+
 
     @Test(timeout = 60000L)
     public void processOneSentMessageAsLeaderAndThenReplicaTest() {
@@ -163,8 +153,7 @@ public class PodAsReplicaTest {
             assertNotNull(sideEffectOnLeader);
             assertNotNull(sideEffectOnReplica);
 
-            // TODO Max FIXME
-            // assertEquals(sideEffectOnLeader, sideEffectOnReplica);
+            assertEquals(sideEffectOnLeader, sideEffectOnReplica);
         } catch (Exception ex) {
             logger.error(ex.getMessage(),
                          ex);

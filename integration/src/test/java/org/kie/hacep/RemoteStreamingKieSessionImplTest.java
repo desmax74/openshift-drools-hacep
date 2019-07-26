@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
@@ -34,7 +33,6 @@ import org.kie.remote.impl.RemoteStreamingKieSessionImpl;
 
 import static org.junit.Assert.*;
 
-@Ignore
 public class RemoteStreamingKieSessionImplTest {
 
     private KafkaUtilTest kafkaServerTest;
@@ -43,7 +41,7 @@ public class RemoteStreamingKieSessionImplTest {
 
     @Before
     public void setUp() throws Exception {
-        config = EnvConfig.getDefaultEnvConfig();
+        config = KafkaUtilTest.getEnvConfig();
         topicsConfig = TopicsConfig.getDefaultTopicsConfig();
         kafkaServerTest = new KafkaUtilTest();
         kafkaServerTest.startServer();
