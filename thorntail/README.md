@@ -1,28 +1,8 @@
-# Drools 
-
-## Installing and Running
-- Kafka Cluster on Openshift
-https://github.com/desmax74/openshift-handbook/blob/master/fedora/kafka.md
-
-In the root of the project
-```sh
-mvn clean package
-```
-### API
-
-- http://<address>/rest/env/all  env vars
-
 #### Build Container on docker
 In the thorntail module
 ```sh
 docker build -t quickstarter/openshift-kie-thorntail:latest .
 docker images | grep openshift-kie
-```
-
-#### Deploy on Openshift
-Relax RBAC for configmap
-```sh
-kubectl create clusterrolebinding permissive-binding --clusterrole=cluster-admin --group=system:serviceaccounts
 ```
 
 By default will be created under project called "My Project"
@@ -31,6 +11,7 @@ kubectl create -f kubernetes/deployment.yaml
 kubectl create -f kubernetes/service.yaml 
 oc expose service  openshift-kie-thorntail
 ```
+@TODO add oc commands where available
 
  ```
  oc get route
@@ -40,7 +21,7 @@ oc expose service  openshift-kie-thorntail
   ```
     
   Your address will be
-  http://quick-drools-myproject.192.168.99.109.nip.io/rest/env/all
+  http://openshift-kie-thorntail-my-kafka-project.192.168.99.109.nip.io/rest/env/all
   
 ### Remote debug    
     
@@ -52,11 +33,12 @@ docker push <user_username>/openshift-kie-springboot:<tag>
 ```
 
 #### Deploy
-With version 0.2 of desmax74/openshift-kie-thorntail
+Change the image name with your in the following files before run the create command
 ```sh
 kubectl create -f kubernetes/debug_pod.yaml
 kubectl create -f kubernetes/deployment_registry.yaml
 ```
+@TODO add oc commands where available
 
 #### Port forward
 port forwarding 
@@ -73,6 +55,7 @@ visualvm --openjmx localhost:3000
 #### IntellijIdea
 Attach to process
 
-
-
-
+### REST API
+```sh
+ http://<address>/rest/env/all
+```
