@@ -15,6 +15,7 @@
  */
 package org.kie.hacep.consumer;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -23,6 +24,9 @@ import java.util.List;
 import org.kie.api.runtime.rule.FactHandle;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.KieSessionContext;
+import org.kie.hacep.core.infra.SessionSnapshooter;
+import org.kie.hacep.core.infra.utils.ConsumerUtils;
+import org.kie.hacep.message.ControlMessage;
 import org.kie.hacep.message.FactCountMessageImpl;
 import org.kie.hacep.message.ListKieSessionObjectMessageImpl;
 import org.kie.remote.RemoteFactHandle;
@@ -36,6 +40,7 @@ import org.kie.remote.command.InsertCommand;
 import org.kie.remote.command.ListObjectsCommand;
 import org.kie.remote.command.ListObjectsCommandClassType;
 import org.kie.remote.command.ListObjectsCommandNamedQuery;
+import org.kie.remote.command.SnapshotOnDemandCommand;
 import org.kie.remote.command.UpdateCommand;
 import org.kie.remote.command.VisitorCommand;
 import org.kie.remote.impl.producer.Producer;
@@ -43,23 +48,27 @@ import org.kie.remote.impl.producer.Producer;
 public class CommandHandler implements VisitorCommand {
 
     private KieSessionContext kieSessionContext;
-    private EnvConfig config;
+    private EnvConfig envConfig;
     private Producer producer;
-
+    private SessionSnapshooter sessionSnapshooter;
     private volatile boolean firingUntilHalt;
 
     public CommandHandler(KieSessionContext kieSessionContext,
-                          EnvConfig config,
-                          Producer producer) {
+                          EnvConfig envConfig,
+                          Producer producer,
+                          SessionSnapshooter sessionSnapshooter) {
         this.kieSessionContext = kieSessionContext;
-        this.config = config;
+        this.envConfig = envConfig;
         this.producer = producer;
+        this.sessionSnapshooter = sessionSnapshooter;
     }
 
     @Override
     public void visit(FireAllRulesCommand command) {
         int fires = kieSessionContext.getKieSession().fireAllRules();
-        producer.produceSync(config.getKieSessionInfosTopicName(), command.getId(), fires);
+        producer.produceSync(envConfig.getKieSessionInfosTopicName(),
+                             command.getId(),
+                             fires);
     }
 
     @Override
@@ -76,7 +85,8 @@ public class CommandHandler implements VisitorCommand {
     public void visit(InsertCommand command) {
         RemoteFactHandle remoteFH = command.getFactHandle();
         FactHandle fh = kieSessionContext.getKieSession().getEntryPoint(command.getEntryPoint()).insert(remoteFH.getObject());
-        kieSessionContext.getFhManager().registerHandle(remoteFH, fh);
+        kieSessionContext.getFhManager().registerHandle(remoteFH,
+                                                        fh);
         if (firingUntilHalt) {
             kieSessionContext.getKieSession().fireAllRules();
         }
@@ -102,7 +112,8 @@ public class CommandHandler implements VisitorCommand {
     @Override
     public void visit(UpdateCommand command) {
         FactHandle factHandle = kieSessionContext.getFhManager().mapRemoteFactHandle(command.getFactHandle());
-        kieSessionContext.getKieSession().getEntryPoint(command.getEntryPoint()).update(factHandle, command.getObject());
+        kieSessionContext.getKieSession().getEntryPoint(command.getEntryPoint()).update(factHandle,
+                                                                                        command.getObject());
         if (firingUntilHalt) {
             kieSessionContext.getKieSession().fireAllRules();
         }
@@ -111,8 +122,11 @@ public class CommandHandler implements VisitorCommand {
     @Override
     public void visit(ListObjectsCommand command) {
         List serializableItems = getObjectList(command);
-        ListKieSessionObjectMessageImpl msg = new ListKieSessionObjectMessageImpl(command.getId(), serializableItems);
-        producer.produceSync(config.getKieSessionInfosTopicName(), command.getId(), msg);
+        ListKieSessionObjectMessageImpl msg = new ListKieSessionObjectMessageImpl(command.getId(),
+                                                                                  serializableItems);
+        producer.produceSync(envConfig.getKieSessionInfosTopicName(),
+                             command.getId(),
+                             msg);
     }
 
     private List getObjectList(ListObjectsCommand command) {
@@ -123,8 +137,9 @@ public class CommandHandler implements VisitorCommand {
     @Override
     public void visit(ListObjectsCommandClassType command) {
         List serializableItems = getSerializableItemsByClassType(command);
-        ListKieSessionObjectMessageImpl msg = new ListKieSessionObjectMessageImpl(command.getId(), serializableItems);
-        producer.produceSync(config.getKieSessionInfosTopicName(),
+        ListKieSessionObjectMessageImpl msg = new ListKieSessionObjectMessageImpl(command.getId(),
+                                                                                  serializableItems);
+        producer.produceSync(envConfig.getKieSessionInfosTopicName(),
                              command.getId(),
                              msg);
     }
@@ -148,8 +163,9 @@ public class CommandHandler implements VisitorCommand {
     @Override
     public void visit(ListObjectsCommandNamedQuery command) {
         List serializableItems = getSerializableItemsByNamedQuery(command);
-        ListKieSessionObjectMessageImpl msg = new ListKieSessionObjectMessageImpl(command.getId(), serializableItems);
-        producer.produceSync(config.getKieSessionInfosTopicName(),
+        ListKieSessionObjectMessageImpl msg = new ListKieSessionObjectMessageImpl(command.getId(),
+                                                                                  serializableItems);
+        producer.produceSync(envConfig.getKieSessionInfosTopicName(),
                              command.getId(),
                              msg);
     }
@@ -164,10 +180,25 @@ public class CommandHandler implements VisitorCommand {
 
     @Override
     public void visit(FactCountCommand command) {
-        FactCountMessageImpl msg = new FactCountMessageImpl(command.getId(),
-                                                            kieSessionContext.getKieSession().getFactCount());
-        producer.produceSync(config.getKieSessionInfosTopicName(),
-                             command.getId(),
-                             msg);
+        FactCountMessageImpl msg = new FactCountMessageImpl(command.getId(), kieSessionContext.getKieSession().getFactCount());
+        producer.produceSync(envConfig.getKieSessionInfosTopicName(), command.getId(), msg);
+    }
+
+    @Override
+    public void visit(SnapshotOnDemandCommand command) {
+        LocalDateTime lastSnapshotTime = sessionSnapshooter.getLastSnapshotTime();
+
+        //if the lastSnapshot time is after the the age we perform a snapshot
+        if (lastSnapshotTime == null) {
+            sessionSnapshooter.serialize(kieSessionContext, command.getId(), 0l);
+        } else if (LocalDateTime.now().minusSeconds(envConfig.getMaxSnapshotAge()).isAfter(lastSnapshotTime)) {
+
+            ControlMessage lastControlMessage = ConsumerUtils.getLastEvent(envConfig.getControlTopicName(), envConfig.getPollTimeout());
+            if (lastControlMessage != null) {
+                sessionSnapshooter.serialize(kieSessionContext, lastControlMessage.getKey(), lastControlMessage.getOffset());
+            } else {
+                sessionSnapshooter.serialize(kieSessionContext, command.getId(), 0l);
+            }
+        }
     }
 }

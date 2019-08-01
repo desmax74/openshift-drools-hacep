@@ -43,7 +43,7 @@ public class Bootstrap {
         if(!envConfig.isUnderTest()) {
             leaderElection();
         }
-        logger.info("CONFIGURE on start engine:{}", Config.getDefaultConfig());
+        logger.info("CONFIGURE on start engine:{}", envConfig);
     }
 
     public static void stopEngine() {
@@ -53,8 +53,7 @@ public class Bootstrap {
         try {
             leadership.stop();
         } catch (Exception e) {
-            logger.error(e.getMessage(),
-                         e);
+            throw new RuntimeException(e.getMessage(), e);
         }
         if ( consumerController != null) {
             consumerController.stop();
@@ -90,7 +89,4 @@ public class Bootstrap {
         consumerController = new ConsumerController(envConfig, eventProducer);
         consumerController.start();
     }
-
-
-
 }

@@ -30,24 +30,31 @@ public final class EnvConfig {
     private String printerType;
     private Integer iterationBetweenSnapshot = Config.DEFAULT_ITERATION_BETWEEN_SNAPSHOT;
     private Integer pollTimeout = 1000;
+    private boolean skipOnDemanSnapshot;
+    private Long maxSnapshotAge;
     private boolean test;
 
-    public static EnvConfig getDefaultEnvConfig(){
+    private EnvConfig() {
+    }
+
+    public static EnvConfig getDefaultEnvConfig() {
         return anEnvConfig().
-                withNamespace(Optional.ofNullable(System.getenv( Config.NAMESPACE)).orElse(CommonConfig.DEFAULT_NAMESPACE)).
+                withNamespace(Optional.ofNullable(System.getenv(Config.NAMESPACE)).orElse(CommonConfig.DEFAULT_NAMESPACE)).
                 withControlTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_CONTROL_TOPIC)).orElse(Config.DEFAULT_CONTROL_TOPIC)).
                 withEventsTopicName(Optional.ofNullable(System.getenv(CommonConfig.DEFAULT_EVENTS_TOPIC)).orElse(CommonConfig.DEFAULT_EVENTS_TOPIC)).
                 withSnapshotTopicName(Optional.ofNullable(System.getenv(Config.DEFAULT_SNAPSHOT_TOPIC)).orElse(Config.DEFAULT_SNAPSHOT_TOPIC)).
                 withKieSessionInfosTopicName(Optional.ofNullable(System.getenv(CommonConfig.DEFAULT_KIE_SESSION_INFOS_TOPIC)).orElse(CommonConfig.DEFAULT_KIE_SESSION_INFOS_TOPIC)).
                 withPrinterType(Optional.ofNullable(System.getenv(Config.DEFAULT_PRINTER_TYPE)).orElse(PrinterLogImpl.class.getName())).
                 withPollTimeout(Optional.ofNullable(System.getenv(Config.POLL_TIMEOUT_MS)).orElse(String.valueOf(Config.DEFAULT_POLL_TIMEOUT_MS))).
+                skipOnDemandSnapshot(Optional.ofNullable(System.getenv(Config.SKIP_ON_DEMAND_SNAPSHOT)).orElse(Boolean.FALSE.toString())).
                 withIterationBetweenSnapshot(Optional.ofNullable(System.getenv(Config.ITERATION_BETWEEN_SNAPSHOT)).orElse(String.valueOf(Config.DEFAULT_ITERATION_BETWEEN_SNAPSHOT))).
+                withMaxSnapshotAgeSeconds(Optional.ofNullable(System.getenv(Config.MAX_SNAPSHOT_AGE)).orElse(Config.DEFAULT_MAX_SNAPSHOT_AGE_SEC)).
                 isUnderTest(Optional.ofNullable(System.getenv(Config.UNDER_TEST)).orElse(Config.TEST)).build();
     }
 
-    private EnvConfig() { }
-
-    public static EnvConfig anEnvConfig() { return new EnvConfig(); }
+    public static EnvConfig anEnvConfig() {
+        return new EnvConfig();
+    }
 
     public EnvConfig withNamespace(String namespace) {
         this.namespace = namespace;
@@ -89,8 +96,18 @@ public final class EnvConfig {
         return this;
     }
 
-    public EnvConfig isUnderTest(String underTest){
+    public EnvConfig isUnderTest(String underTest) {
         this.test = Boolean.valueOf(underTest);
+        return this;
+    }
+
+    public EnvConfig skipOnDemandSnapshot(String skipOnDemandSnapshoot) {
+        this.skipOnDemanSnapshot = Boolean.valueOf(skipOnDemandSnapshoot);
+        return this;
+    }
+
+    public EnvConfig withMaxSnapshotAgeSeconds(String maxSnapshotAge) {
+        this.maxSnapshotAge = Long.valueOf(maxSnapshotAge);
         return this;
     }
 
@@ -105,28 +122,54 @@ public final class EnvConfig {
         envConfig.test = this.test;
         envConfig.pollTimeout = this.pollTimeout;
         envConfig.iterationBetweenSnapshot = this.iterationBetweenSnapshot;
+        envConfig.skipOnDemanSnapshot = this.skipOnDemanSnapshot;
+        envConfig.maxSnapshotAge = this.maxSnapshotAge;
         return envConfig;
     }
 
-    public String getNamespace() { return namespace; }
+    public String getNamespace() {
+        return namespace;
+    }
 
-    public String getEventsTopicName() { return eventsTopicName; }
+    public String getEventsTopicName() {
+        return eventsTopicName;
+    }
 
-    public String getControlTopicName() { return controlTopicName; }
+    public String getControlTopicName() {
+        return controlTopicName;
+    }
 
-    public String getSnapshotTopicName() { return snapshotTopicName; }
+    public String getSnapshotTopicName() {
+        return snapshotTopicName;
+    }
 
-    public String getKieSessionInfosTopicName() { return kieSessionInfosTopicName; }
+    public String getKieSessionInfosTopicName() {
+        return kieSessionInfosTopicName;
+    }
 
-    public String getPrinterType() { return printerType; }
+    public String getPrinterType() {
+        return printerType;
+    }
 
-    public Boolean isUnderTest(){ return test; }
+    public Boolean isUnderTest() {
+        return test;
+    }
 
     public Integer getPollTimeout() {
         return pollTimeout;
     }
 
-    public Integer getIterationBetweenSnapshot() { return iterationBetweenSnapshot; }
+    public Integer getIterationBetweenSnapshot() {
+        return iterationBetweenSnapshot;
+    }
+
+    public Boolean isSkipOnDemanSnapshot() {
+        return skipOnDemanSnapshot;
+    }
+
+    public Long getMaxSnapshotAge() {
+        return maxSnapshotAge;
+    }
 
     @Override
     public String toString() {
@@ -139,6 +182,8 @@ public final class EnvConfig {
         sb.append(", printerType='").append(printerType).append('\'');
         sb.append(", pollTimeout='").append(pollTimeout).append('\'');
         sb.append(", iterationBetweenSnapshot='").append(iterationBetweenSnapshot).append('\'');
+        sb.append(", skipOnDemanSnapshot='").append(skipOnDemanSnapshot).append('\'');
+        sb.append(", maxSnapshotAge='").append(maxSnapshotAge).append('\'');
         sb.append(", underTest='").append(test).append('\'');
         sb.append('}');
         return sb.toString();

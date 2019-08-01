@@ -34,16 +34,14 @@ public class JdkHttpServer {
     private static Logger logger = LoggerFactory.getLogger(JdkHttpServer.class);
 
     public static void main(String[] args) throws Exception {
+
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
         server.createContext("/health", new HealthHandler());
         server.createContext("/env/all", new EnvHandler());
-        try {
-            Bootstrap.startEngine(EnvConfig.getDefaultEnvConfig());
-            logger.info("Core system started");
-        }finally {
-           // Bootstrap.stopEngine();
-        }
         server.start();
+        Bootstrap.startEngine(EnvConfig.getDefaultEnvConfig());
+        logger.info("Core system started");
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> Bootstrap.stopEngine()));
     }
 
     static class HealthHandler implements HttpHandler {
