@@ -18,30 +18,45 @@ package org.kie.remote.impl.consumer;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.kie.remote.TopicsConfig;
-import org.kie.remote.impl.ClientUtils;
+
+import static org.kie.remote.CommonConfig.SKIP_LISTENER_AUTOSTART;
+import static org.kie.remote.util.ConfigurationUtil.readBoolean;
 
 public class Listener {
 
+    private final Map<String, CompletableFuture<Object>> requestsStore = new ConcurrentHashMap<>();
+
+    private final ListenerThread listenerThread;
+
     private Properties configuration;
-    private TopicsConfig topicsConfig;
-    private Map<String, CompletableFuture<Object>> requestsStore;
     private Thread t;
 
-    public Listener(Map<String, CompletableFuture<Object>> requestsStore){
-        configuration = ClientUtils.getConfiguration(ClientUtils.CONSUMER_CONF);
-        topicsConfig = TopicsConfig.getDefaultTopicsConfig();
-        this.requestsStore = requestsStore;
+    public Listener(Properties configuration) {
+        this.configuration = configuration;
+        listenerThread = ListenerThread.get( TopicsConfig.getDefaultTopicsConfig(), requestsStore, configuration );
+        if (!readBoolean(configuration, SKIP_LISTENER_AUTOSTART)) {
+            start();
+        }
     }
 
-    public void listen(){
-        t = new Thread(new ListenerThread(configuration, topicsConfig, requestsStore));
+    public Listener start() {
+        t = new Thread(listenerThread);
+        t.setDaemon( true );
         t.start();
+        return this;
     }
 
-    public void stopConsumeEvents(){
-        if(t != null){
+    public Map<String, CompletableFuture<Object>> getRequestsStore() {
+        return requestsStore;
+    }
+
+    public void stopConsumeEvents() {
+        listenerThread.stop();
+        requestsStore.clear();
+        if (t != null) {
             try {
                 t.join();
             }catch (InterruptedException ex){

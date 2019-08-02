@@ -13,11 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.remote.message;
 
-public interface VisitorMessage {
+package org.kie.remote.util;
 
-    void visit(FactCountMessage msg, String key);
+import java.util.Properties;
 
-    void visit(ListKieSessionObjectMessage msg, String key);
+public class ConfigurationUtil {
+
+    public static boolean readBoolean( Properties configuration, String propName ) {
+        Object value = (Object) configuration.get( propName );
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
+        if (value instanceof String) {
+            return Boolean.valueOf((String) value);
+        }
+        return false;
+    }
 }
