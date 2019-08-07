@@ -21,6 +21,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.drools.core.common.EventFactHandle;
+import org.kie.api.definition.type.Role;
+import org.kie.api.definition.type.Timestamp;
 import org.kie.api.runtime.rule.FactHandle;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.KieSessionContext;
@@ -43,9 +46,14 @@ import org.kie.remote.command.ListObjectsCommandNamedQuery;
 import org.kie.remote.command.SnapshotOnDemandCommand;
 import org.kie.remote.command.UpdateCommand;
 import org.kie.remote.command.VisitorCommand;
+import org.kie.remote.command.WorkingMemoryActionCommand;
 import org.kie.remote.impl.producer.Producer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CommandHandler implements VisitorCommand {
+
+    private static final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
 
     private KieSessionContext kieSessionContext;
     private EnvConfig envConfig;
@@ -84,20 +92,42 @@ public class CommandHandler implements VisitorCommand {
     @Override
     public void visit(InsertCommand command) {
         RemoteFactHandle remoteFH = command.getFactHandle();
-        FactHandle fh = kieSessionContext.getKieSession().getEntryPoint(command.getEntryPoint()).insert(remoteFH.getObject());
-        kieSessionContext.getFhManager().registerHandle(remoteFH,
-                                                        fh);
-        if (firingUntilHalt) {
-            kieSessionContext.getKieSession().fireAllRules();
-        }
+        FactHandle fh = internalInsert( command, remoteFH.getObject() );
+        kieSessionContext.getFhManager().registerHandle(remoteFH, fh);
     }
 
     @Override
     public void visit(EventInsertCommand command) {
-        FactHandle fh = kieSessionContext.getKieSession().getEntryPoint(command.getEntryPoint()).insert(command.getObject());
-        if (firingUntilHalt) {
+        internalInsert( command, command.getObject() );
+    }
+
+    private FactHandle internalInsert( WorkingMemoryActionCommand command, Object obj ) {
+        FactHandle fh = isEvent(obj) ? insertEvent( command, obj ) : insertFact( command, obj );
+        if ( firingUntilHalt ) {
             kieSessionContext.getKieSession().fireAllRules();
         }
+        return fh;
+    }
+
+    private FactHandle insertEvent( WorkingMemoryActionCommand command, Object obj ) {
+        FactHandle fh;
+        if ( hasTimestamp( obj ) ) {
+            fh = insertFact( command, obj );
+            kieSessionContext.setClockAt( (( EventFactHandle ) fh).getStartTimestamp() );
+        } else {
+            // if the event doesn't have an its own timestamp, it has to use the command's one and then
+            // advance the pseudo clock to the command timestamp before inserting the event
+            if (logger.isDebugEnabled()) {
+                logger.debug("Event class " + obj.getClass().getName() + " doesn't have a timestamp property. Consider adding one.");
+            }
+            kieSessionContext.setClockAt( command.getTimestamp() );
+            fh = insertFact( command, obj );
+        }
+        return fh;
+    }
+
+    private FactHandle insertFact( WorkingMemoryActionCommand command, Object obj ) {
+        return kieSessionContext.getKieSession().getEntryPoint( command.getEntryPoint() ).insert( obj );
     }
 
     @Override
@@ -200,5 +230,14 @@ public class CommandHandler implements VisitorCommand {
                 sessionSnapshooter.serialize(kieSessionContext, command.getId(), 0l);
             }
         }
+    }
+
+    public static boolean isEvent( Object obj ) {
+        Role role = obj.getClass().getAnnotation( Role.class );
+        return role != null && role.value() == Role.Type.EVENT;
+    }
+
+    public static boolean hasTimestamp( Object obj ) {
+        return obj.getClass().getAnnotation( Timestamp.class ) != null;
     }
 }
