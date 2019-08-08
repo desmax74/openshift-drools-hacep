@@ -14,9 +14,12 @@
 
   <properties>
     <alphanetworkCompilerEnabled>false</alphanetworkCompilerEnabled>
+    <dockerImageName>quickstarter/openshift-kie-springboot</dockerImageName>
     <failOnMissingWebXml>false</failOnMissingWebXml>
     <generateModel>YES</generateModel>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <version.fabric8.plugin>4.2.0</version.fabric8.plugin>
+    <version.fabric8.docker-plugin>0.30.0</version.fabric8.docker-plugin>
     <surefire.forkCount>1</surefire.forkCount>
     <version.hibernate.validator>6.0.17.Final</version.hibernate.validator>
     <version.javax.cdi>2.0.SP1</version.javax.cdi>

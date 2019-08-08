@@ -44,6 +44,16 @@
 
   <build>
     <finalName>${project.artifactId}</finalName>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+      </resource>
+      <resource>
+        <directory>src/main/fabric8</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -79,6 +89,31 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>${version.fabric8.docker-plugin}</version>
+        <configuration>
+          <images>
+            <image>
+              <name>${dockerImageName}</name>
+              <build>
+                <contextDir>${project.basedir}</contextDir>
+                <tags>latest</tags>
+              </build>
+            </image>
+          </images>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric8-maven-plugin</artifactId>
+        <version>${version.fabric8.plugin}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

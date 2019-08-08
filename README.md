@@ -48,10 +48,10 @@ to avoid inconsistencies when processing 2 events inserted by 2 different client
 ## Installation Guide
 ### Prerequisites
 
-- Openshift 3.11 or Minishift
+- Openshift 3.11, 4.1 or Minishift
 
 - A Kafka Cluster on Openshift 3.11 with Strimzi https://strimzi.io/
-(tested on Openshift 3.11 and strimzi 0.11.1 and 0.12.1)
+(tested on Openshift 3.11, 4.1 and strimzi 0.11.1, 0.12.1)
 
 ### Creation of Kafka's topics
 Create the kafka topics using the files in the kafka-topics folder, 
@@ -67,13 +67,6 @@ oc create -f kafka-topisc/kiesessioninfos.yaml
 Checks the topics
 ```sh
 oc exec -it my-cluster-kafka-<number> -- bin/kafka-topics.sh --zookeeper localhost:2181 --describe
-```
-
-### Pre deploy on Openshift
-Relax Role based access control (RBAC https://kubernetes.io/docs/reference/access-authn-authz/rbac/) for configmap
-@TODO change with one less powerful or with a different strategy
-```sh
-kubectl create clusterrolebinding permissive-binding --clusterrole=cluster-admin --group=system:serviceaccounts
 ```
 
 ### Build the pods
@@ -112,7 +105,6 @@ spec:
       external:
         type: route
 ```
-
 
 ### Client module
 - sample-hacep-project-client 
