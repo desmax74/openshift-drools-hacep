@@ -37,6 +37,7 @@ import org.kie.api.runtime.KieSessionConfiguration;
 import org.kie.api.runtime.conf.ClockTypeOption;
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
+import org.kie.hacep.core.GlobalStatus;
 import org.kie.hacep.core.infra.SessionSnapshooter;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.message.SnapshotMessage;
@@ -112,6 +113,8 @@ public class SnapshotOnDemandUtils {
         boolean snapshotReady = false;
         SnapshotMessage msg = null;
         try {
+            GlobalStatus.canBecomeLeader = false;
+            int counter = 0;
             while (!snapshotReady) {
                 ConsumerRecords<String, byte[]> records = consumer.poll(Duration.of(Integer.valueOf(Config.DEFAULT_POLL_TIMEOUT_MS),
                                                                                     ChronoUnit.MILLIS));
@@ -124,9 +127,20 @@ public class SnapshotOnDemandUtils {
                     snapshotReady = true;
                     msg = snapshotMsg;
                 }
+                else {
+                    // use a counter to avoid infinite attempts
+                    counter += 1;
+                    if(counter > envConfig.getMaxSnapshotRequestAttempts()) {
+                        GlobalStatus.nodeLive = false;
+                        String errorMessage = "Impossible to retrieve a snapshot and start after " + counter + " attempts";
+                        logger.error(errorMessage);
+                        throw new IllegalStateException(errorMessage);
+                    }
+                }
             }
         } finally {
             consumer.close();
+            GlobalStatus.canBecomeLeader = true;
         }
         return msg;
     }

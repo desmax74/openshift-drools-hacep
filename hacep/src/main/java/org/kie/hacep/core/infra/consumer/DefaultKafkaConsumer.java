@@ -35,6 +35,7 @@ import org.apache.kafka.common.errors.WakeupException;
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.consumer.DroolsConsumerHandler;
+import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.DeafultSessionSnapShooter;
 import org.kie.hacep.core.infra.OffsetManager;
 import org.kie.hacep.core.infra.SnapshotInfos;
@@ -462,8 +463,8 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
                                     currentState);
             saveOffset(record,
                        kafkaConsumer);
-            if (logger.isInfoEnabled()) {
-                logger.info("change topic, switch to consume control");
+            if (logger.isDebugEnabled()) {
+                logger.debug("change topic, switch to consume control");
             }
         } else if (processingReplica) {
             consumerHandler.process(ItemToProcess.getItemToProcess(record),

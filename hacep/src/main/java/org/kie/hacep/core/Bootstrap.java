@@ -16,6 +16,7 @@
 package org.kie.hacep.core;
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
@@ -43,6 +44,7 @@ public class Bootstrap {
         if(!envConfig.isUnderTest()) {
             leaderElection();
         }
+        GlobalStatus.nodeReady = true;
         logger.info("CONFIGURE on start engine:{}", envConfig);
     }
 

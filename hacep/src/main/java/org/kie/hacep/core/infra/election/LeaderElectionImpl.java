@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import org.kie.hacep.core.GlobalStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +54,7 @@ public class LeaderElectionImpl implements LeaderElection {
         this.kubernetesClient = kubernetesClient;
         this.lockConfiguration = lockConfiguration;
         this.callbacks = new ArrayList<>();
-        if(initialState != null) {
+        if (initialState != null) {
             this.currentState = initialState;
         }
     }
@@ -133,6 +134,12 @@ public class LeaderElectionImpl implements LeaderElection {
                                 logPrefix());
                 }
             }
+        } else if (!GlobalStatus.canBecomeLeader) {
+            // Node is waiting for an initial state to use as starting point
+            logger.info("{} Pod is not initialized yet (waiting snapshot) so cannot try to become leader",
+                        logPrefix());
+            rescheduleAfterDelay();
+            return;
         } else if (!this.latestLeaderInfo.hasValidLeader()) {
             // There's a previous leader and it's invalid
             logger.info("{} Leadership has been lost by old owner. Trying to acquire the leadership...",
