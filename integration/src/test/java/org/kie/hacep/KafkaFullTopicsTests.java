@@ -33,8 +33,8 @@ public class KafkaFullTopicsTests {
         topicsConfig = TopicsConfig.getDefaultTopicsConfig();
         kafkaServerTest = new KafkaUtilTest();
         kafkaServerTest.startServer();
-        kafkaServerTest.createTopics(TEST_KAFKA_LOGGER_TOPIC,
-                                     TEST_TOPIC,
+        kafkaServerTest.createTopics(TEST_TOPIC,
+                                     TEST_KAFKA_LOGGER_TOPIC,
                                      envConfig.getEventsTopicName(),
                                      envConfig.getControlTopicName(),
                                      envConfig.getSnapshotTopicName(),
