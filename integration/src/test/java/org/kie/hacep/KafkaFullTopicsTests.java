@@ -44,6 +44,7 @@ public class KafkaFullTopicsTests {
 
     @After
     public void tearDown() {
+        kafkaServerTest.deleteTopics(TEST_KAFKA_LOGGER_TOPIC);
         kafkaServerTest.tearDown();
     }
 }
