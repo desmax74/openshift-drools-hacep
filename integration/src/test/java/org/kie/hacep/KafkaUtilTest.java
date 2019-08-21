@@ -99,7 +99,7 @@ public class KafkaUtilTest implements AutoCloseable {
     }
 
     public void shutdownServer() {
-        logger.info("Shutdown kafka server");
+        logger.warn("Shutdown kafka server");
         Path tmp = Paths.get(tmpDir);
         try {
             if (kafkaServer.brokerState().currentState() != (NotRunning.state())) {
@@ -124,7 +124,7 @@ public class KafkaUtilTest implements AutoCloseable {
         zkServer = null;
 
         try {
-            logger.info("Deleting kafka temp dir:{}", tmp.toString());
+            logger.warn("Deleting kafka temp dir:{}", tmp.toString());
             Files.walk(tmp).
                     sorted(Comparator.reverseOrder()).
                     map(Path::toFile).
@@ -135,7 +135,7 @@ public class KafkaUtilTest implements AutoCloseable {
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(tmp.getParent())) {
             for (Path path : directoryStream) {
                 if (path.toString().startsWith("kafkatest-")) {
-                    logger.info("Deleting kafkatest folder:{}", path.toString());
+                    logger.warn("Deleting kafkatest folder:{}", path.toString());
                     Files.walk(path).
                             sorted(Comparator.reverseOrder()).
                             map(Path::toFile).
@@ -191,7 +191,7 @@ public class KafkaUtilTest implements AutoCloseable {
 
                     if (!AdminUtils.topicExists(zkUtils, topic)) {
 
-                        logger.info("topic:{} don't exist, going to create", topic);
+                        logger.warn("topic:{} don't exist, going to create", topic);
                         AdminUtils.createTopic(zkUtils,
                                                topic,
                                                1,
