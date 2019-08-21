@@ -124,6 +124,7 @@ public class KafkaUtilTest implements AutoCloseable {
         zkServer = null;
 
         try {
+            logger.info("Deleting kafka temp dir:{}", tmp.toString());
             Files.walk(tmp).
                     sorted(Comparator.reverseOrder()).
                     map(Path::toFile).
@@ -134,6 +135,7 @@ public class KafkaUtilTest implements AutoCloseable {
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(tmp.getParent())) {
             for (Path path : directoryStream) {
                 if (path.toString().startsWith("kafkatest-")) {
+                    logger.info("Deleting kafkatest folder:{}", path.toString());
                     Files.walk(path).
                             sorted(Comparator.reverseOrder()).
                             map(Path::toFile).
