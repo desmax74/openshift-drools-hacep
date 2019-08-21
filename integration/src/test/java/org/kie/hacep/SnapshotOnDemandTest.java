@@ -74,15 +74,12 @@ public class SnapshotOnDemandTest {
         Bootstrap.startEngine(config);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
 
-        KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("",
-                                                                   config.getEventsTopicName(),
+        KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer(config.getEventsTopicName(),
                                                                    Config.getConsumerConfig("SnapshotOnDemandTest.createSnapshotOnDemandTest"));
-        KafkaConsumer controlConsumer = kafkaServerTest.getConsumer("",
-                                                                    config.getControlTopicName(),
+        KafkaConsumer controlConsumer = kafkaServerTest.getConsumer(config.getControlTopicName(),
                                                                     Config.getConsumerConfig("SnapshotOnDemandTest.createSnapshotOnDemandTest"));
 
-        KafkaConsumer snapshotConsumer = kafkaServerTest.getConsumer("",
-                                                                     config.getSnapshotTopicName(),
+        KafkaConsumer snapshotConsumer = kafkaServerTest.getConsumer(config.getSnapshotTopicName(),
                                                                      Config.getConsumerConfig("SnapshotOnDemandTest.createSnapshotOnDemandTest"));
 
         try {

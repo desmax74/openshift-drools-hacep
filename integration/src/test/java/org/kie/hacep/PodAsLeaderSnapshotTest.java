@@ -33,14 +33,11 @@ public class PodAsLeaderSnapshotTest extends KafkaFullTopicsTests{
     public void processMessagesAsLeaderAndCreateSnapshotTest() {
         Bootstrap.startEngine(envConfig);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
-        KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("",
-                                                                   envConfig.getEventsTopicName(),
+        KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer(envConfig.getEventsTopicName(),
                                                                    Config.getConsumerConfig("eventsProcessMessagesAsLeaderAndCreateSnapshotTest"));
-        KafkaConsumer snapshotConsumer = kafkaServerTest.getConsumer("",
-                                                                     envConfig.getSnapshotTopicName(),
+        KafkaConsumer snapshotConsumer = kafkaServerTest.getConsumer(envConfig.getSnapshotTopicName(),
                                                                      Config.getSnapshotConsumerConfig());
-        KafkaConsumer controlConsumer = kafkaServerTest.getConsumer("",
-                                                                    envConfig.getControlTopicName(),
+        KafkaConsumer controlConsumer = kafkaServerTest.getConsumer(envConfig.getControlTopicName(),
                                                                     Config.getConsumerConfig("controlProcessMessagesAsLeaderAndCreateSnapshotTest"));
 
         kafkaServerTest.insertBatchStockTicketEvent(10,

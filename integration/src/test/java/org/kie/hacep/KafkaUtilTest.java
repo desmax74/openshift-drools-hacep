@@ -247,15 +247,7 @@ public class KafkaUtilTest implements AutoCloseable {
         return new KafkaProducer<>(producerProps);
     }
 
-    public <K, V> KafkaProducer<K, V> getStringProducer() {
-        Properties producerProps = getProducerConfig();
-        producerProps.setProperty("value.serializer",
-                                  "org.apache.kafka.common.serialization.StringSerializer");
-        return new KafkaProducer<>(producerProps);
-    }
-
-    public KafkaConsumer getConsumer(String key,
-                                     String topic,
+    public KafkaConsumer getConsumer(String topic,
                                      Properties props) {
         KafkaConsumer consumer = new KafkaConsumer(props);
         List<PartitionInfo> infos = consumer.partitionsFor(topic);
