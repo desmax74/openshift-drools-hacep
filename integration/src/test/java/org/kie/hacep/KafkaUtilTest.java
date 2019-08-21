@@ -186,9 +186,10 @@ public class KafkaUtilTest implements AutoCloseable {
         try {
             if (serverUp) {
                 for (String topic : topics) {
-                    if (!AdminUtils.topicExists(zkUtils,
-                                                topic)) {
 
+                    if (!AdminUtils.topicExists(zkUtils, topic)) {
+
+                        logger.info("topic:{} don't exist, going to create", topic);
                         AdminUtils.createTopic(zkUtils,
                                                topic,
                                                1,
