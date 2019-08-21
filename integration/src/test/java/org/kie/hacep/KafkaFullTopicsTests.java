@@ -21,7 +21,7 @@ import org.kie.remote.TopicsConfig;
 
 public class KafkaFullTopicsTests {
 
-    protected final String TEST_KAFKA_LOGGER_TOPIC = "logs";
+    protected final String TEST_KAFKA_LOGGER_TOPIC = "testlogs";
     protected final String TEST_TOPIC = "test";
     protected KafkaUtilTest kafkaServerTest;
     protected EnvConfig envConfig;
