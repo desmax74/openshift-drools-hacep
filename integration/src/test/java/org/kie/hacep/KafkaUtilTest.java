@@ -66,7 +66,7 @@ public class KafkaUtilTest implements AutoCloseable {
     private static final String ZOOKEEPER_HOST = "127.0.0.1";
     private static final String BROKER_HOST = "127.0.0.1";
     private static final String BROKER_PORT = "9092";
-    private final static Logger log = LoggerFactory.getLogger(KafkaUtilTest.class);
+    private final static Logger logger = LoggerFactory.getLogger(KafkaUtilTest.class);
     private KafkaServer kafkaServer;
     private ZkUtils zkUtils;
     private ZkClient zkClient;
@@ -99,7 +99,7 @@ public class KafkaUtilTest implements AutoCloseable {
     }
 
     public void shutdownServer() {
-        log.info("Shutdown kafka server");
+        logger.info("Shutdown kafka server");
         Path tmp = Paths.get(tmpDir);
         try {
             if (kafkaServer.brokerState().currentState() != (NotRunning.state())) {
@@ -107,19 +107,19 @@ public class KafkaUtilTest implements AutoCloseable {
                 kafkaServer.awaitShutdown();
             }
         } catch (Exception e) {
-            // do nothing
+            logger.error(e.getMessage(), e);
         }
         kafkaServer = null;
 
         try {
             zkClient.close();
         } catch (ZkInterruptedException e) {
-            // do nothing
+            logger.error(e.getMessage(), e);
         }
         try {
             zkServer.shutdown();
         } catch (Exception e) {
-            // do nothing
+            logger.error(e.getMessage(), e);
         }
         zkServer = null;
 
@@ -129,7 +129,7 @@ public class KafkaUtilTest implements AutoCloseable {
                     map(Path::toFile).
                     forEach(File::delete);
         } catch (Exception e) {
-            // do nothing
+            logger.error(e.getMessage(), e);
         }
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(tmp.getParent())) {
             for (Path path : directoryStream) {
@@ -141,8 +141,8 @@ public class KafkaUtilTest implements AutoCloseable {
                 }
             }
         } catch (IOException e) {
-            log.error(e.getMessage(),
-                      e);
+            logger.error(e.getMessage(),
+                         e);
         }
         serverUp = false;
     }
