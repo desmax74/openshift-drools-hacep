@@ -38,6 +38,7 @@ import kafka.server.NotRunning;
 import kafka.utils.TestUtils;
 import kafka.zk.EmbeddedZookeeper;
 import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.CreateTopicsOptions;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -186,18 +187,33 @@ public class KafkaUtilTest implements AutoCloseable {
     public void createTopics(String... topics) {
         try {
             if (serverUp) {
-
+                short replicationFactor = 1;
                 for (String topic : topics) {
-                    if(!adminClient.listTopics().listings().get().contains(topic)){
-                        logger.warn("topic:{} don't exist, going to create", topic);
-                        short replicationFactor = 1;
-                        adminClient.createTopics(Arrays.asList(new NewTopic(topic, 1,
-                                                                            replicationFactor))).all().get();
-                    }
+                    create(topic, replicationFactor);
                 }
             }
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    private void deleteTopicIfExists(String topic) {
+        try {
+            adminClient.deleteTopics(Arrays.asList(topic)).all().get();
+
+        }catch (Exception e){
+            //do nothing if the topics isn't present
+        }
+    }
+
+    private void create(String topic, short replicationFactor) {
+        try {
+            adminClient.deleteTopics(Arrays.asList(topic)).all().get();
+            adminClient.createTopics(Arrays.asList(new NewTopic(topic, 1,
+                                                                replicationFactor))).all().get();
+        }catch (Exception e){
+            logger.error(e.getMessage(), e);
+            //do nothing if the topics isn't present
         }
     }
 
@@ -206,7 +222,7 @@ public class KafkaUtilTest implements AutoCloseable {
             if (serverUp) {
                 for (String topic : topics) {
                     if(adminClient.listTopics().listings().get().contains(topic)){
-                        adminClient.deleteTopics(Arrays.asList(topic)).all().get();
+                        deleteTopicIfExists(topic);
                     }
                 }
             }
