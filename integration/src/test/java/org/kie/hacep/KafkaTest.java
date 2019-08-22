@@ -34,7 +34,7 @@ import static org.junit.Assert.*;
 
 public class KafkaTest {
 
-    private final String TEST_KAFKA_LOGGER_TOPIC = "logs";
+    private final String TEST_KAFKA_LOGGER_TOPIC = "testlogs";
     private final String TEST_TOPIC = "test";
     private KafkaUtilTest kafkaServerTest;
     private Logger kafkaLogger = LoggerFactory.getLogger("org.hacep");
@@ -43,12 +43,13 @@ public class KafkaTest {
     public void setUp() throws Exception {
         kafkaServerTest = new KafkaUtilTest();
         kafkaServerTest.startServer();
-        kafkaServerTest.createTopics(TEST_KAFKA_LOGGER_TOPIC,
-                                     TEST_TOPIC);
+        kafkaServerTest.createTopics(TEST_TOPIC,
+                                     TEST_KAFKA_LOGGER_TOPIC);
     }
 
     @After
     public void tearDown() {
+        kafkaServerTest.deleteTopics(TEST_TOPIC);
         kafkaServerTest.shutdownServer();
     }
 

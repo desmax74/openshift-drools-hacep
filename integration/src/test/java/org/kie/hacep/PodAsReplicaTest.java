@@ -31,11 +31,9 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
     public void processOneSentMessageAsLeaderAndThenReplicaTest() {
         Bootstrap.startEngine(envConfig);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
-        KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("",
-                                                                   envConfig.getEventsTopicName(),
+        KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer(envConfig.getEventsTopicName(),
                                                                    Config.getConsumerConfig("eventsConsumerProcessOneSentMessageAsLeaderTest"));
-        KafkaConsumer controlConsumer = kafkaServerTest.getConsumer("",
-                                                                    envConfig.getControlTopicName(),
+        KafkaConsumer controlConsumer = kafkaServerTest.getConsumer(envConfig.getControlTopicName(),
                                                                     Config.getConsumerConfig("controlConsumerProcessOneSentMessageAsLeaderTest"));
 
         KafkaConsumer<byte[], String> kafkaLogConsumer = kafkaServerTest.getStringConsumer(TEST_KAFKA_LOGGER_TOPIC);

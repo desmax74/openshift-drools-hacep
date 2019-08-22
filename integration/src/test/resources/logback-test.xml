@@ -21,7 +21,7 @@
       <pattern>%msg</pattern>
     </encoder>
 
-    <topic>logs</topic>
+    <topic>testlogs</topic>
     <keyingStrategy class="com.github.danielwegener.logback.kafka.keying.HostNameKeyingStrategy" />
     <deliveryStrategy class="com.github.danielwegener.logback.kafka.delivery.AsynchronousDeliveryStrategy" />
 

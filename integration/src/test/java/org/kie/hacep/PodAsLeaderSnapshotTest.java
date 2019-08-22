@@ -33,14 +33,11 @@ public class PodAsLeaderSnapshotTest extends KafkaFullTopicsTests{
     public void processMessagesAsLeaderAndCreateSnapshotTest() {
         Bootstrap.startEngine(envConfig);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
-        KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("",
-                                                                   envConfig.getEventsTopicName(),
+        KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer(envConfig.getEventsTopicName(),
                                                                    Config.getConsumerConfig("eventsProcessMessagesAsLeaderAndCreateSnapshotTest"));
-        KafkaConsumer snapshotConsumer = kafkaServerTest.getConsumer("",
-                                                                     envConfig.getSnapshotTopicName(),
+        KafkaConsumer snapshotConsumer = kafkaServerTest.getConsumer(envConfig.getSnapshotTopicName(),
                                                                      Config.getSnapshotConsumerConfig());
-        KafkaConsumer controlConsumer = kafkaServerTest.getConsumer("",
-                                                                    envConfig.getControlTopicName(),
+        KafkaConsumer controlConsumer = kafkaServerTest.getConsumer(envConfig.getControlTopicName(),
                                                                     Config.getConsumerConfig("controlProcessMessagesAsLeaderAndCreateSnapshotTest"));
 
         kafkaServerTest.insertBatchStockTicketEvent(10,
@@ -64,8 +61,11 @@ public class PodAsLeaderSnapshotTest extends KafkaFullTopicsTests{
             assertEquals(9, snapshot.getFhMapKeys().size());
             assertNotNull(snapshot.getLastInsertedEventkey());
 
-            ConsumerRecords controlRecords = controlConsumer.poll(5000);
-            assertEquals(11, controlRecords.count()); //1 fireUntilHalt + 10 stock ticket
+            int items = controlConsumer.poll(5000).count();
+            while(items < 11){
+                items = controlConsumer.poll(100).count();
+            }
+            assertEquals(11, items); //1 fireUntilHalt + 10 stock ticket
         } catch (Exception ex) {
             throw new RuntimeException(ex.getMessage(), ex);
         } finally {

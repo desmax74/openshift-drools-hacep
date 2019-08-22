@@ -21,7 +21,7 @@ import org.kie.remote.TopicsConfig;
 
 public class KafkaFullTopicsTests {
 
-    protected final String TEST_KAFKA_LOGGER_TOPIC = "logs";
+    protected final String TEST_KAFKA_LOGGER_TOPIC = "testlogs";
     protected final String TEST_TOPIC = "test";
     protected KafkaUtilTest kafkaServerTest;
     protected EnvConfig envConfig;
@@ -33,8 +33,8 @@ public class KafkaFullTopicsTests {
         topicsConfig = TopicsConfig.getDefaultTopicsConfig();
         kafkaServerTest = new KafkaUtilTest();
         kafkaServerTest.startServer();
-        kafkaServerTest.createTopics(TEST_KAFKA_LOGGER_TOPIC,
-                                     TEST_TOPIC,
+        kafkaServerTest.createTopics(TEST_TOPIC,
+                                     TEST_KAFKA_LOGGER_TOPIC,
                                      envConfig.getEventsTopicName(),
                                      envConfig.getControlTopicName(),
                                      envConfig.getSnapshotTopicName(),
@@ -44,6 +44,12 @@ public class KafkaFullTopicsTests {
 
     @After
     public void tearDown() {
+        kafkaServerTest.deleteTopics(TEST_TOPIC,
+                                     TEST_KAFKA_LOGGER_TOPIC,
+                                     envConfig.getEventsTopicName(),
+                                     envConfig.getControlTopicName(),
+                                     envConfig.getSnapshotTopicName(),
+                                     envConfig.getKieSessionInfosTopicName());
         kafkaServerTest.tearDown();
     }
 }

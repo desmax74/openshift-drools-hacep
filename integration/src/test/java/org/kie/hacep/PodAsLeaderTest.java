@@ -44,11 +44,9 @@ public class PodAsLeaderTest extends KafkaFullTopicsTests{
     public void processOneSentMessageAsLeaderTest() {
         Bootstrap.startEngine(envConfig);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
-        KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer("",
-                                                                   envConfig.getEventsTopicName(),
+        KafkaConsumer eventsConsumer = kafkaServerTest.getConsumer(envConfig.getEventsTopicName(),
                                                                    Config.getConsumerConfig("eventsConsumerProcessOneSentMessageAsLeaderTest"));
-        KafkaConsumer controlConsumer = kafkaServerTest.getConsumer("",
-                                                                    envConfig.getControlTopicName(),
+        KafkaConsumer controlConsumer = kafkaServerTest.getConsumer(envConfig.getControlTopicName(),
                                                                     Config.getConsumerConfig("controlConsumerProcessOneSentMessageAsLeaderTest"));
 
         Properties props = (Properties) Config.getProducerConfig( "InsertBactchStockTickets" ).clone();
