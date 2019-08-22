@@ -192,7 +192,7 @@ public class KafkaUtilTest implements AutoCloseable {
                         logger.warn("topic:{} don't exist, going to create", topic);
                         short replicationFactor = 1;
                         adminClient.createTopics(Arrays.asList(new NewTopic(topic, 1,
-                                                                            replicationFactor)));
+                                                                            replicationFactor))).all().get();
                     }
                 }
             }
@@ -206,7 +206,7 @@ public class KafkaUtilTest implements AutoCloseable {
             if (serverUp) {
                 for (String topic : topics) {
                     if(adminClient.listTopics().listings().get().contains(topic)){
-                        adminClient.deleteTopics(Arrays.asList(topic));
+                        adminClient.deleteTopics(Arrays.asList(topic)).all().get();
                     }
                 }
             }
