@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
 
 import kafka.server.KafkaConfig;
@@ -38,7 +39,6 @@ import kafka.server.NotRunning;
 import kafka.utils.TestUtils;
 import kafka.zk.EmbeddedZookeeper;
 import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.CreateTopicsOptions;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -189,7 +189,7 @@ public class KafkaUtilTest implements AutoCloseable {
             if (serverUp) {
                 short replicationFactor = 1;
                 for (String topic : topics) {
-                    create(topic, replicationFactor);
+                    deleteAndThenCreate(topic, replicationFactor);
                 }
             }
         } catch (Exception e) {
@@ -202,18 +202,30 @@ public class KafkaUtilTest implements AutoCloseable {
             adminClient.deleteTopics(Arrays.asList(topic)).all().get();
 
         }catch (Exception e){
-            //do nothing if the topics isn't present
+            if(e instanceof ExecutionException){
+                if(e.getMessage().startsWith("org.apache.kafka.common.errors.UnknownTopicOrPartitionException:")){
+                    //do nothing if the topics isn't present
+                }else{
+                    logger.error(e.getMessage(), e);
+                }
+            }
         }
     }
 
-    private void create(String topic, short replicationFactor) {
+    private void deleteAndThenCreate(String topic, short replicationFactor) {
         try {
             adminClient.deleteTopics(Arrays.asList(topic)).all().get();
-            adminClient.createTopics(Arrays.asList(new NewTopic(topic, 1,
-                                                                replicationFactor))).all().get();
+            adminClient.createTopics(Arrays.asList(new NewTopic(topic, 1, replicationFactor))).all().get();
         }catch (Exception e){
-            logger.error(e.getMessage(), e);
-            //do nothing if the topics isn't present
+            if(e instanceof ExecutionException){
+                if(e.getMessage().startsWith("org.apache.kafka.common.errors.UnknownTopicOrPartitionException:")){
+                    //do nothing if the topics isn't present
+                }else{
+                    logger.error(e.getMessage(), e);
+                }
+            }
+
+
         }
     }
 
