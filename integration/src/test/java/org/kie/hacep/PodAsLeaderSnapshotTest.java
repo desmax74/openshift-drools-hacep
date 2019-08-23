@@ -66,10 +66,10 @@ public class PodAsLeaderSnapshotTest extends KafkaFullTopicsTests{
             assertNotNull(snapshot.getLastInsertedEventkey());
 
             int items = controlConsumer.poll(5000).count();
-            logger.info("Found {} items.", items);
+            logger.warn("Found {} items.", items);
             while(items < 11){
                 items = items + controlConsumer.poll(1000).count();
-                logger.info("Update items {}.", items);
+                logger.warn("Update items {}.", items);
             }
             assertEquals(11, items); //1 fireUntilHalt + 10 stock ticket
         } catch (Exception ex) {
