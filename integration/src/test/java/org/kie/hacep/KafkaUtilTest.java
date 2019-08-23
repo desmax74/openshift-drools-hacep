@@ -347,7 +347,7 @@ public class KafkaUtilTest implements AutoCloseable {
                 withMaxSnapshotAgeSeconds("60000").
                 underTest(true);
     }
-    
+
     public void tearDown() {
         try {
             Bootstrap.stopEngine();
