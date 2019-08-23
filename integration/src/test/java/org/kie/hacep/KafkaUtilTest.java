@@ -100,6 +100,7 @@ public class KafkaUtilTest implements AutoCloseable {
         brokerProps.setProperty("log.dirs", tmpDir);
         brokerProps.setProperty("listeners", "PLAINTEXT://" + BROKER_HOST + ":" + BROKER_PORT);
         brokerProps.setProperty("offsets.topic.replication.factor", "1");
+        brokerProps.setProperty("auto.create.topics.enable","true");
         KafkaConfig config = new KafkaConfig(brokerProps);
         Time mock = new SystemTime();
         kafkaServer = TestUtils.createServer(config, mock);
