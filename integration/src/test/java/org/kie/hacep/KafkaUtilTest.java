@@ -200,7 +200,6 @@ public class KafkaUtilTest implements AutoCloseable {
     private void deleteTopicIfExists(String topic) {
         try {
             adminClient.deleteTopics(Arrays.asList(topic)).all().get();
-
         }catch (Exception e){
             if(e instanceof ExecutionException){
                 if(e.getMessage().startsWith("org.apache.kafka.common.errors.UnknownTopicOrPartitionException:")){
@@ -224,8 +223,6 @@ public class KafkaUtilTest implements AutoCloseable {
                     logger.error(e.getMessage(), e);
                 }
             }
-
-
         }
     }
 
@@ -350,8 +347,7 @@ public class KafkaUtilTest implements AutoCloseable {
                 withMaxSnapshotAgeSeconds("60000").
                 underTest(true);
     }
-
-
+    
     public void tearDown() {
         try {
             Bootstrap.stopEngine();
