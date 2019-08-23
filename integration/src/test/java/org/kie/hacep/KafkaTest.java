@@ -43,8 +43,6 @@ public class KafkaTest {
     public void setUp() throws Exception {
         kafkaServerTest = new KafkaUtilTest();
         kafkaServerTest.startServer();
-        kafkaServerTest.createTopics(TEST_TOPIC,
-                                     TEST_KAFKA_LOGGER_TOPIC);
     }
 
     @After
