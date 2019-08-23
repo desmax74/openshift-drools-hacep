@@ -67,16 +67,17 @@
 
       <!-- drools -->
       <dependency>
-        <groupId>org.drools</groupId>
-        <artifactId>drools-model-compiler</artifactId>
-        <version>${version.org.kie}</version>
-      </dependency>
-      <dependency>
         <groupId>org.kie</groupId>
         <artifactId>kie-maven-plugin</artifactId>
         <version>${version.org.kie}</version>
       </dependency>
-
+      <dependency>
+        <groupId>org.drools</groupId>
+        <artifactId>drools-bom</artifactId>
+        <version>${version.org.kie}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
 
       <!-- kafka -->
       <dependency>
