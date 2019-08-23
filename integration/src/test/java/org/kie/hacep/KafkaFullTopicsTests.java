@@ -37,12 +37,6 @@ public class KafkaFullTopicsTests {
 
     @After
     public void tearDown() {
-        kafkaServerTest.deleteTopics(TEST_TOPIC,
-                                     TEST_KAFKA_LOGGER_TOPIC,
-                                     envConfig.getEventsTopicName(),
-                                     envConfig.getControlTopicName(),
-                                     envConfig.getSnapshotTopicName(),
-                                     envConfig.getKieSessionInfosTopicName());
         kafkaServerTest.tearDown();
     }
 }

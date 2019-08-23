@@ -40,7 +40,6 @@ import kafka.utils.TestUtils;
 import kafka.zk.EmbeddedZookeeper;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
-import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -185,37 +184,9 @@ public class KafkaUtilTest implements AutoCloseable {
         return producerProps;
     }
 
-    public void createTopics(String... topics) {
-        try {
-            if (serverUp) {
-                short replicationFactor = 1;
-                for (String topic : topics) {
-                    deleteAndThenCreate(topic, replicationFactor);
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
     private void deleteTopicIfExists(String topic) {
         try {
             adminClient.deleteTopics(Arrays.asList(topic)).all().get();
-        }catch (Exception e){
-            if(e instanceof ExecutionException){
-                if(e.getMessage().startsWith("org.apache.kafka.common.errors.UnknownTopicOrPartitionException:")){
-                    //do nothing if the topics isn't present
-                }else{
-                    logger.error(e.getMessage(), e);
-                }
-            }
-        }
-    }
-
-    private void deleteAndThenCreate(String topic, short replicationFactor) {
-        try {
-            adminClient.deleteTopics(Arrays.asList(topic)).all().get();
-            adminClient.createTopics(Arrays.asList(new NewTopic(topic, 1, replicationFactor))).all().get();
         }catch (Exception e){
             if(e instanceof ExecutionException){
                 if(e.getMessage().startsWith("org.apache.kafka.common.errors.UnknownTopicOrPartitionException:")){

@@ -47,7 +47,6 @@ public class KafkaTest {
 
     @After
     public void tearDown() {
-        kafkaServerTest.deleteTopics(TEST_TOPIC);
         kafkaServerTest.shutdownServer();
     }
 
