@@ -33,7 +33,7 @@ public class PodAsLeaderSnapshotTest extends KafkaFullTopicsTests{
 
     private final static Logger logger = LoggerFactory.getLogger(PodAsLeaderSnapshotTest.class);
 
-    @Test(timeout = 60000)
+    @Test(timeout = 30000)
     public void processMessagesAsLeaderAndCreateSnapshotTest() {
         Bootstrap.startEngine(envConfig);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
