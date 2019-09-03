@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2019 Red Hat, Inc. and/or its affiliates.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
 
@@ -34,8 +50,8 @@
         <exclude>/doc/**</exclude>
         <exclude>/integration/**</exclude>
         <exclude>/jdkhttp/**</exclude>
-        <exclude>/sample-hacep-project/**</exclude>
         <exclude>/thorntail/**</exclude>
+        <exclude>*.md</exclude>
       </excludes>
     </fileSet>
   </fileSets>
@@ -43,15 +59,12 @@
   <dependencySets>
     <dependencySet>
       <includes>
-        <include>org.kie:openshift-kie-hacep:jar</include>
-        <include>org.kie:kie-remote:jar</include>
         <include>org.kie:openshift-kie-springboot:jar</include>
       </includes>
       <outputDirectory>binaries</outputDirectory>
       <useStrictFiltering>true</useStrictFiltering>
       <useTransitiveFiltering>false</useTransitiveFiltering><!-- Only include war -->
     </dependencySet>
-    <!-- TODO: pending Reference Manual -->
   </dependencySets>
 
 </assembly>
