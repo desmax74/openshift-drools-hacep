@@ -47,6 +47,7 @@
         <exclude>**/*.iml</exclude>
         <exclude>.git/**</exclude>
         <exclude>**/*.md</exclude>
+        <exclude>**/debug*.yaml</exclude>
       </excludes>
     </fileSet>
   </fileSets>
