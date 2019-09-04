@@ -46,6 +46,7 @@
         <exclude>*.iws</exclude>
         <exclude>**/*.iml</exclude>
         <exclude>.git/**</exclude>
+        <exclude>*.md</exclude>
       </excludes>
     </fileSet>
   </fileSets>
