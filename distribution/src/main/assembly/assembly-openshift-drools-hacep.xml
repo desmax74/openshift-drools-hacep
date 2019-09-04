@@ -46,12 +46,6 @@
         <exclude>*.iws</exclude>
         <exclude>**/*.iml</exclude>
         <exclude>.git/**</exclude>
-        <exclude>/distribution/**</exclude>
-        <exclude>/doc/**</exclude>
-        <exclude>/integration/**</exclude>
-        <exclude>/jdkhttp/**</exclude>
-        <exclude>/thorntail/**</exclude>
-        <exclude>*.md</exclude>
       </excludes>
     </fileSet>
   </fileSets>
