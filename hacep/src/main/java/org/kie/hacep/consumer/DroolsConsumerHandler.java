@@ -22,8 +22,9 @@ import org.kie.api.runtime.KieContainer;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.GlobalStatus;
 import org.kie.hacep.core.KieSessionContext;
-import org.kie.hacep.core.infra.DeafultSessionSnapShooter;
+import org.kie.hacep.core.infra.DefaultSessionSnapShooter;
 import org.kie.hacep.core.infra.SnapshotInfos;
+import org.kie.hacep.core.infra.consumer.ConsumerController;
 import org.kie.hacep.core.infra.consumer.ConsumerHandler;
 import org.kie.hacep.core.infra.consumer.ItemToProcess;
 import org.kie.hacep.core.infra.election.State;
@@ -44,7 +45,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private static final Logger logger = LoggerFactory.getLogger(DroolsConsumerHandler.class);
     private Logger loggerForTest;
     private Producer producer;
-    private DeafultSessionSnapShooter snapshooter;
+    private DefaultSessionSnapShooter snapshooter;
     private EnvConfig config;
     private KieSessionContext kieSessionContext;
     private CommandHandler commandHandler;
@@ -53,7 +54,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
 
     public DroolsConsumerHandler(Producer producer, EnvConfig envConfig) {
         this.config = envConfig;
-        this.snapshooter = new DeafultSessionSnapShooter(config);
+        this.snapshooter = new DefaultSessionSnapShooter(config);
         initializeKieSessionFromSnapshot(config);
         this.producer = producer;
         commandHandler = new CommandHandler(kieSessionContext, config, producer, snapshooter);
@@ -63,7 +64,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     }
 
     private void initializeKieSessionFromSnapshot(EnvConfig config) {
-        if(config.isSkipOnDemanSnapshot()) {// if true we reads the snapshots and waitn until the first leaderElectionUpdate
+        if(config.isSkipOnDemanSnapshot()) {// if true we reads the snapshots and wait until the first leaderElectionUpdate
             this.infos = snapshooter.deserialize();
             this.kieSessionContext = createSessionHolder(infos);
         } else{
@@ -81,7 +82,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         return false;
     }
 
-    public DeafultSessionSnapShooter getSnapshooter(){
+    public DefaultSessionSnapShooter getSnapshooter(){
         return snapshooter;
     }
 
@@ -93,11 +94,13 @@ public class DroolsConsumerHandler implements ConsumerHandler {
 
     @Override
     public void process( RemoteCommand command, State state ) {
-        if(config.isUnderTest()) {  loggerForTest.warn("Remote command on process:{}", command); }
+        if(config.isUnderTest()) {  loggerForTest.warn("DroolsConsumerHandler.process Remote command on process:{} state:{}", command, state); }
         if (state.equals(State.LEADER)) {
             processCommand( command, state );
             Queue<Object> sideEffectsResults = DroolsExecutor.getInstance().getAndReset();
+            if (config.isUnderTest()) { loggerForTest.warn("DroolsConsumerHandler.process sideEffects:{}", sideEffectsResults); }
             ControlMessage newControlMessage = new ControlMessage(command.getId(), sideEffectsResults);
+            if (config.isUnderTest()) { loggerForTest.warn("DroolsConsumerHandler.process new ControlMessage sent to control topic:{}", newControlMessage); }
             producer.produceSync(config.getControlTopicName(), command.getId(), newControlMessage);
             if (config.isUnderTest()) { loggerForTest.warn("sideEffectOnLeader:{}", sideEffectsResults); }
         } else {

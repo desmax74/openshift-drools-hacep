@@ -31,6 +31,7 @@ import org.kie.api.runtime.rule.QueryResults;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.KieSessionContext;
 import org.kie.hacep.core.infra.SessionSnapshooter;
+import org.kie.hacep.core.infra.consumer.ConsumerController;
 import org.kie.hacep.message.FactCountMessage;
 import org.kie.hacep.message.FireAllRuleMessage;
 import org.kie.hacep.message.GetObjectMessage;
@@ -114,6 +115,8 @@ public class CommandHandlerTest {
     protected ArgumentCaptor<ResultMessage<Object>> messageArgumentCaptor;
 
     protected CommandHandler commandHandler;
+
+    protected ConsumerController consumerController;
 
     @Before
     public void initTest() {
@@ -261,6 +264,7 @@ public class CommandHandlerTest {
                                                 anyLong());
                          });
     }
+
 
     private <T extends RemoteCommand> void executeAndVerify(T command,
                                                             Consumer<T> consumer,

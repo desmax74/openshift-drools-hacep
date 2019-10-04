@@ -42,4 +42,5 @@ public interface VisitorCommand {
     void visit(SnapshotOnDemandCommand command);
 
     void visit(GetObjectCommand command);
+
 }

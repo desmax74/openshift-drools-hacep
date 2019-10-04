@@ -16,7 +16,9 @@
 package org.kie.hacep;
 
 import java.nio.charset.Charset;
+import java.time.Duration;
 import java.util.Iterator;
+import java.util.function.Consumer;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -60,25 +62,24 @@ public class KafkaTest {
                                                                  Base64.encodeBase64("test-message".getBytes(Charset.forName("UTF-8"))));
         kafkaServerTest.sendSingleMsg(producer, data);
 
-        ConsumerRecords<String, byte[]> records = consumer.poll(10000);
+        ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(10000));
         assertEquals(1, records.count());
-        Iterator<ConsumerRecord<String, byte[]>> recordIterator = records.iterator();
-        ConsumerRecord<String, byte[]> record = recordIterator.next();
-
-        assertEquals("42", record.key());
-        assertEquals("test-message", new String(Base64.decodeBase64(record.value())));
+        records.forEach(record -> {
+            assertNotNull(record);
+            assertEquals("42", record.key());
+            assertEquals("test-message", new String(Base64.decodeBase64(record.value())));
+        });
     }
 
     @Test
     public void testKafkaLoggerWithStringTest() {
         KafkaConsumer<String, String> consumerKafkaLogger = kafkaServerTest.getStringConsumer(TEST_KAFKA_LOGGER_TOPIC);
         kafkaLogger.warn("test-message");
-        ConsumerRecords<String, String> records = consumerKafkaLogger.poll(10000);
+        ConsumerRecords<String, String> records = consumerKafkaLogger.poll(Duration.ofMillis(10000));
         assertEquals(1, records.count());
-        Iterator<ConsumerRecord<String, String>> recordIterator = records.iterator();
-        ConsumerRecord<String, String> record = recordIterator.next();
-        assertNotNull(record);
-        assertEquals(record.topic(), TEST_KAFKA_LOGGER_TOPIC);
-        assertEquals(record.value(), "test-message");
+        records.forEach(record -> {
+            assertEquals(record.topic(), TEST_KAFKA_LOGGER_TOPIC);
+            assertEquals(record.value(), "test-message");
+        });
     }
 }

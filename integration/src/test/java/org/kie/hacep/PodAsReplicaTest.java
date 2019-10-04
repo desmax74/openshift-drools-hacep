@@ -1,8 +1,9 @@
 package org.kie.hacep;
 
+import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -27,7 +28,7 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
 
     private Logger logger = LoggerFactory.getLogger(PodAsReplicaTest.class);
 
-    @Test(timeout = 60000L)
+    @Test(timeout = 30000L)
     public void processOneSentMessageAsLeaderAndThenReplicaTest() {
         Bootstrap.startEngine(envConfig);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
@@ -36,67 +37,101 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
         KafkaConsumer controlConsumer = kafkaServerTest.getConsumer(envConfig.getControlTopicName(),
                                                                     Config.getConsumerConfig("controlConsumerProcessOneSentMessageAsLeaderTest"));
 
-        KafkaConsumer<byte[], String> kafkaLogConsumer = kafkaServerTest.getStringConsumer(TEST_KAFKA_LOGGER_TOPIC);
-        kafkaServerTest.insertBatchStockTicketEvent(1,
-                                                    topicsConfig,
-                                                    RemoteKieSession.class);
+        KafkaConsumer<byte[], java.lang.String> kafkaLogConsumer = kafkaServerTest.getStringConsumer(TEST_KAFKA_LOGGER_TOPIC);
+        kafkaServerTest.insertBatchStockTicketEvent(1, topicsConfig, RemoteKieSession.class);
+
         try {
-
             //EVENTS TOPIC
-            ConsumerRecords eventsRecords = eventsConsumer.poll(5000);
-            assertEquals(2, eventsRecords.count());
-            Iterator<ConsumerRecord<String, byte[]>> eventsRecordIterator = eventsRecords.iterator();
+            logger.warn("Checks on Events topic");
+            ConsumerRecords eventsRecords = eventsConsumer.poll(Duration.ofSeconds(2));
 
-            ConsumerRecord<String, byte[]> eventsRecord = eventsRecordIterator.next();
-            assertEquals(eventsRecord.topic(), envConfig.getEventsTopicName());
-            RemoteCommand remoteCommand = deserialize(eventsRecord.value());
-            assertEquals(eventsRecord.offset(), 0);
-            assertNotNull(remoteCommand.getId());
-            assertTrue( remoteCommand instanceof FireUntilHaltCommand );
+            AtomicReference<ConsumerRecord<String, byte[]>> lastEvent = new AtomicReference<>();
+            final AtomicInteger index = new AtomicInteger(0);
+            final AtomicInteger attempts = new AtomicInteger(0);
+            while (index.get() < 2) {
+                eventsRecords.forEach(o -> {
+                    ConsumerRecord<String, byte[]> eventsRecord = (ConsumerRecord<String, byte[]>) o;
+                    assertNotNull(eventsRecord);
+                    assertEquals(eventsRecord.topic(), envConfig.getEventsTopicName());
+                    RemoteCommand remoteCommand = deserialize(eventsRecord.value());
+                    assertEquals(eventsRecord.offset(), index.get());
+                    assertNotNull(remoteCommand.getId());
 
-            eventsRecord = eventsRecordIterator.next();
-            assertEquals(eventsRecord.topic(), envConfig.getEventsTopicName());
-            remoteCommand = deserialize(eventsRecord.value());
-            assertEquals(eventsRecord.offset(), 1);
-            assertNotNull(remoteCommand.getId());
-            InsertCommand insertCommand = (InsertCommand) remoteCommand;
-            assertEquals(insertCommand.getEntryPoint(), "DEFAULT");
-            assertNotNull(insertCommand.getId());
-            assertNotNull(insertCommand.getFactHandle());
-            RemoteFactHandle remoteFactHandle = insertCommand.getFactHandle();
-            StockTickEvent eventsTicket = (StockTickEvent) remoteFactHandle.getObject();
-            assertEquals(eventsTicket.getCompany(), "RHT");
+                    if (index.get() == 0) {
+                        assertTrue(remoteCommand instanceof FireUntilHaltCommand);
+                    }
+
+                    if (index.get() == 1) {
+                        assertTrue(remoteCommand instanceof InsertCommand);
+                        InsertCommand insertCommand = (InsertCommand) remoteCommand;
+                        assertEquals(insertCommand.getEntryPoint(), "DEFAULT");
+                        assertNotNull(insertCommand.getId());
+                        assertNotNull(insertCommand.getFactHandle());
+                        RemoteFactHandle remoteFactHandle = insertCommand.getFactHandle();
+                        StockTickEvent eventsTicket = (StockTickEvent) remoteFactHandle.getObject();
+                        assertEquals(eventsTicket.getCompany(), "RHT");
+                    }
+
+                    index.incrementAndGet();
+
+                    if (index.get() > 2) {
+                        throw new RuntimeException("Found " + index.get() + " messages, more than the 2 expected.");
+                    }
+                    lastEvent.set(eventsRecord);
+                });
+                logger.warn("Attempt number:{}", attempts.incrementAndGet());
+                if(attempts.get() == 10){
+                    throw new RuntimeException("No Events message available after "+attempts + "attempts.");
+                }
+            }
 
             //CONTROL TOPIC
-            ConsumerRecords controlRecords = waitForControlMessage( controlConsumer );
-
-            Iterator<ConsumerRecord<String, byte[]>> controlRecordIterator = controlRecords.iterator();
-            checkFireSideEffects( controlRecordIterator.next() );
-
-            if (controlRecords.count() == 2) {
-                checkInsertSideEffects( eventsRecord, controlRecordIterator.next() );
-            } else {
-                // wait for second control message
-                controlRecords = waitForControlMessage( controlConsumer );
-                checkInsertSideEffects( eventsRecord, (ConsumerRecord<String, byte[]>) controlRecords.iterator().next() );
+            logger.warn("Checks on Control topic");
+            index.set(0);
+            attempts.set(0);
+            while (index.get() < 2 ) {
+                ConsumerRecords controlRecords = controlConsumer.poll(Duration.ofSeconds(1));
+                controlRecords.forEach(o -> {
+                    ConsumerRecord<String, byte[]> control = (ConsumerRecord<String, byte[]>)o;
+                    // FireUntilHalt command has no side effects
+                    logger.warn("Control message found:{}", control);
+                    assertEquals(control.topic(), envConfig.getControlTopicName());
+                    ControlMessage controlMessage = deserialize(control.value());
+                    assertEquals(control.offset(), index.get());
+                    if(index.get()== 0) {
+                        // FireUntilHalt command has no side effects
+                        assertTrue(controlMessage.getSideEffects().isEmpty());
+                    }
+                    if(index.get()== 1) {
+                        assertFalse(controlMessage.getSideEffects().isEmpty());
+                        checkInsertSideEffects(lastEvent.get(), control);
+                    }
+                    index.incrementAndGet();
+                });
+                logger.warn("Attempt number:{}", attempts.incrementAndGet());
+                if(attempts.get() == 10){
+                    throw new RuntimeException("No Events message available after "+attempts + "attempts.");
+                }
             }
 
             //no more msg to consume as a leader
-            eventsRecords = eventsConsumer.poll(5000);
+            eventsRecords = eventsConsumer.poll(Duration.ofSeconds(2));
             assertEquals(0, eventsRecords.count());
-            controlRecords = controlConsumer.poll(5000);
+            ConsumerRecords controlRecords = controlConsumer.poll(Duration.ofSeconds(2));
             assertEquals(0, controlRecords.count());
 
             // SWITCH AS a REPLICA
+            logger.warn("Switch as a replica");
             Bootstrap.getConsumerController().getCallback().updateStatus(State.REPLICA);
-
-            ConsumerRecords<byte[], String> recordsLog = kafkaLogConsumer.poll(20000);
-            Iterator<ConsumerRecord<byte[], String>> recordIterator = recordsLog.iterator();
-            List<String> kafkaLoggerMsgs = new ArrayList();
-            while (recordIterator.hasNext()) {
-                ConsumerRecord<byte[], String> record = recordIterator.next();
-                kafkaLoggerMsgs.add(record.value());
-            }
+            ConsumerRecords<byte[], String> recordsLog = kafkaLogConsumer.poll(Duration.ofSeconds(5));
+            java.util.List<java.lang.String> kafkaLoggerMsgs = new ArrayList<>();
+            recordsLog.forEach(stringConsumerRecord -> {
+                assertNotNull(stringConsumerRecord);
+                kafkaLoggerMsgs.add(stringConsumerRecord.value());
+                if(envConfig.isUnderTest()){
+                    logger.warn("msg:{}", stringConsumerRecord.value());
+                }
+            });
 
             String sideEffectOnLeader = null;
             String sideEffectOnReplica = null;
@@ -105,17 +140,16 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
                     if (item.endsWith(":null")) {
                         fail("SideEffects null");
                     }
-                    if(item.startsWith("sideEffectOnReplica:")){
+                    if (item.startsWith("sideEffectOnReplica:")) {
                         sideEffectOnReplica = item.substring(item.indexOf("["));
                     }
-                    if(item.startsWith("sideEffectOnLeader:")){
+                    if (item.startsWith("sideEffectOnLeader:")) {
                         sideEffectOnLeader = item.substring(item.indexOf("["));
                     }
                 }
             }
             assertNotNull(sideEffectOnLeader);
             assertNotNull(sideEffectOnReplica);
-
             assertEquals(sideEffectOnLeader, sideEffectOnReplica);
         } catch (Exception ex) {
             logger.error(ex.getMessage(),
@@ -126,31 +160,13 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
             kafkaLogConsumer.close();
         }
     }
-
-    private ConsumerRecords waitForControlMessage( KafkaConsumer controlConsumer ) throws InterruptedException {
-        ConsumerRecords controlRecords = controlConsumer.poll(5000);
-        while (controlRecords.count() == 0) {
-            Thread.sleep( 10 );
-            controlRecords = controlConsumer.poll( 5000 );
-        }
-        return controlRecords;
-    }
-
-    private void checkFireSideEffects( ConsumerRecord<String, byte[]> controlRecord ) {
-        // FireUntilHalt command has no side effects
-        assertEquals(controlRecord.topic(), envConfig.getControlTopicName());
-        ControlMessage controlMessage = deserialize(controlRecord.value());
-        assertEquals(controlRecord.offset(), 0);
-        assertTrue(controlMessage.getSideEffects().isEmpty());
-    }
-
-    private void checkInsertSideEffects( ConsumerRecord<String, byte[]> eventsRecord, ConsumerRecord<String, byte[]> controlRecord ) {
+    
+    private void checkInsertSideEffects(ConsumerRecord<String, byte[]> eventsRecord, ConsumerRecord<String, byte[]> controlRecord) {
         assertEquals(controlRecord.topic(), envConfig.getControlTopicName());
         ControlMessage controlMessage = deserialize(controlRecord.value());
         assertEquals(controlRecord.offset(), 1);
         assertTrue(!controlMessage.getSideEffects().isEmpty());
         assertTrue(controlMessage.getSideEffects().size() == 1);
-        String sideEffect = controlMessage.getSideEffects().iterator().next().toString();
         //Same msg content on Events topic and control topics
         assertEquals(controlRecord.key(), eventsRecord.key());
     }

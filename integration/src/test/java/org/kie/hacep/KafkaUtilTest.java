@@ -30,9 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
-
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServer;
 import kafka.server.NotRunning;
@@ -71,8 +69,8 @@ public class KafkaUtilTest implements AutoCloseable {
     private KafkaServer kafkaServer;
     private EmbeddedZookeeper zkServer;
     private String tmpDir;
-    private boolean serverUp = false;
     private KafkaAdminClient adminClient;
+    private Logger kafkaLogger = LoggerFactory.getLogger("org.hacep");
 
 
     public Map<String, Object> getKafkaProps() {
@@ -103,14 +101,15 @@ public class KafkaUtilTest implements AutoCloseable {
         KafkaConfig config = new KafkaConfig(brokerProps);
         Time mock = new SystemTime();
         kafkaServer = TestUtils.createServer(config, mock);
-        serverUp = true;
         Map<String, Object>  props = getKafkaProps();
         adminClient = (KafkaAdminClient) AdminClient.create(props);
         return kafkaServer;
     }
 
     public void shutdownServer() {
-        adminClient.close();
+        if(adminClient != null) {
+            adminClient.close();
+        }
         logger.warn("Shutdown kafka server");
         Path tmp = Paths.get(tmpDir);
         try {
@@ -153,7 +152,6 @@ public class KafkaUtilTest implements AutoCloseable {
             logger.error(e.getMessage(),
                          e);
         }
-        serverUp = false;
     }
 
     @Override
@@ -184,33 +182,6 @@ public class KafkaUtilTest implements AutoCloseable {
         return producerProps;
     }
 
-    private void deleteTopicIfExists(String topic) {
-        try {
-            adminClient.deleteTopics(Arrays.asList(topic)).all().get();
-        }catch (Exception e){
-            if(e instanceof ExecutionException){
-                if(e.getMessage().startsWith("org.apache.kafka.common.errors.UnknownTopicOrPartitionException:")){
-                    //do nothing if the topics isn't present
-                }else{
-                    logger.error(e.getMessage(), e);
-                }
-            }
-        }
-    }
-
-    public void deleteTopics(String... topics) {
-        try {
-            if (serverUp) {
-                for (String topic : topics) {
-                    if(adminClient.listTopics().listings().get().contains(topic)){
-                        deleteTopicIfExists(topic);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
 
     public <K, V> KafkaConsumer<K, V> getStringConsumer(String topic) {
         Properties consumerProps = getConsumerConfig();
@@ -220,6 +191,7 @@ public class KafkaUtilTest implements AutoCloseable {
         consumer.subscribe(Arrays.asList(topic));
         return consumer;
     }
+
 
     public <K, V> KafkaConsumer<K, V> getByteArrayConsumer(String topic) {
         Properties consumerProps = getConsumerConfig();
@@ -257,7 +229,7 @@ public class KafkaUtilTest implements AutoCloseable {
     public void insertBatchStockTicketEvent(int items,
                                             TopicsConfig topicsConfig,
                                             Class sessionType) {
-        insertBatchStockTicketEvent(items, topicsConfig, sessionType, Config.getProducerConfig( "InsertBactchStockTickets" ));
+        insertBatchStockTicketEvent(items, topicsConfig, sessionType, Config.getProducerConfig( "InsertBatchStockTicketEvent" ));
     }
 
     public void insertBatchStockTicketEvent(int items,
@@ -321,11 +293,13 @@ public class KafkaUtilTest implements AutoCloseable {
     }
 
     public void tearDown() {
+        kafkaLogger.warn("tearDown");
         try {
             Bootstrap.stopEngine();
         } catch (ConcurrentModificationException ex) {
             throw new RuntimeException(ex.getMessage(), ex);
         }
+        kafkaLogger.warn("shutdownServer");
         shutdownServer();
     }
 }
