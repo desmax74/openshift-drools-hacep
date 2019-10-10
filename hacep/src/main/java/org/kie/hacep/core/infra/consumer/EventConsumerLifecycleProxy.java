@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 package org.kie.hacep.core.infra.consumer;
+;
+import org.kie.hacep.core.infra.election.State;
 
-import org.kie.hacep.EnvConfig;
-import org.kie.hacep.core.infra.election.LeadershipCallback;
+public interface EventConsumerLifecycleProxy<T> {
 
-public interface EventConsumer extends LeadershipCallback {
+    EventConsumerStatus getStatus();
 
-    void initConsumer(ConsumerHandler consumerHandler);
+    KafkaConsumers getConsumers();
 
-    void poll(int durationMillis);
+    void internalAskAndProcessSnapshotOnDemand();
 
-    void stop();
+    void internalUpdateOnRunningConsumer(State state);
 
-    static EventConsumer get(EnvConfig config) {
-        return config.isLocal() ? new LocalConsumer( config ) : new DefaultKafkaConsumerWithProxy( config );
-    }
+    void internalEnableConsumeAndStartLoop(State state);
+
+    void internalStopConsume();
 }
