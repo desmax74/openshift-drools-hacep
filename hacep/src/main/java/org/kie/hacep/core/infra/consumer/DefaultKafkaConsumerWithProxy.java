@@ -46,7 +46,7 @@ public class DefaultKafkaConsumerWithProxy<T> implements EventConsumer {
 
     @Override
     public void stop() {
-        proxy.internalStopConsume();
+        proxy.stopConsume();
         kafkaConsumers.stop();
         proxy.getStatus().setExit(true);
         consumerHandler.stop();
@@ -59,7 +59,7 @@ public class DefaultKafkaConsumerWithProxy<T> implements EventConsumer {
             proxy.getStatus().setCurrentState(state);
         }
         if (proxy.getStatus().isStarted() && changedState && !proxy.getStatus().getCurrentState().equals(State.BECOMING_LEADER)) {
-            proxy.internalUpdateOnRunningConsumer(state);
+            proxy.updateOnRunningConsumer(state);
         } else if(!proxy.getStatus().isStarted()) {
             if (state.equals(State.REPLICA)) {
                 //ask and wait a snapshot before start
@@ -67,7 +67,7 @@ public class DefaultKafkaConsumerWithProxy<T> implements EventConsumer {
                     if (logger.isInfoEnabled()) {
                         logger.info("askAndProcessSnapshotOnDemand:");
                     }
-                    proxy.internalAskAndProcessSnapshotOnDemand();
+                    proxy.askAndProcessSnapshotOnDemand();
                 }
             }
             //State.BECOMING_LEADER won't start the pod
@@ -75,7 +75,7 @@ public class DefaultKafkaConsumerWithProxy<T> implements EventConsumer {
                 if (logger.isInfoEnabled()) {
                     logger.info("enableConsumeAndStartLoop:{}", state);
                 }
-                proxy.internalEnableConsumeAndStartLoop(state);
+                proxy.enableConsumeAndStartLoop(state);
             }
         }
     }

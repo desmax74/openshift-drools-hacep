@@ -23,11 +23,11 @@ public interface EventConsumerLifecycleProxy<T> {
 
     KafkaConsumers getConsumers();
 
-    void internalAskAndProcessSnapshotOnDemand();
+    void askAndProcessSnapshotOnDemand();
 
-    void internalUpdateOnRunningConsumer(State state);
+    void updateOnRunningConsumer(State state);
 
-    void internalEnableConsumeAndStartLoop(State state);
+    void enableConsumeAndStartLoop(State state);
 
-    void internalStopConsume();
+    void stopConsume();
 }

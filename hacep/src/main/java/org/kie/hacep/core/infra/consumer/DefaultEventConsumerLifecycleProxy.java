@@ -6,7 +6,6 @@ import org.kie.hacep.core.infra.DefaultSessionSnapShooter;
 
 import org.kie.hacep.core.infra.election.State;
 
-import org.kie.hacep.util.PrinterUtil;
 import org.kie.remote.DroolsExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +13,6 @@ import org.slf4j.LoggerFactory;
 public class DefaultEventConsumerLifecycleProxy<T> implements EventConsumerLifecycleProxy {
 
     private Logger logger = LoggerFactory.getLogger(DefaultKafkaConsumer.class);
-    private Logger loggerForTest;
     private EventConsumerStatus status;
     private DroolsConsumerHandler consumerHandler;
     private EnvConfig config;
@@ -24,9 +22,6 @@ public class DefaultEventConsumerLifecycleProxy<T> implements EventConsumerLifec
         status = new EventConsumerStatus();
         this.consumerHandler = consumerHandler;
         this.config = config;
-        if (this.config.isUnderTest()) {
-            loggerForTest = PrinterUtil.getKafkaLoggerForTest(this.config);
-        }
         kafkaConsumers = new KafkaConsumers(status, config,this, this.consumerHandler, this.consumerHandler.getSnapshooter());
     }
 
@@ -40,7 +35,7 @@ public class DefaultEventConsumerLifecycleProxy<T> implements EventConsumerLifec
 
 
 
-    public void internalAskAndProcessSnapshotOnDemand() {
+    public void askAndProcessSnapshotOnDemand() {
         status.setAskedSnapshotOnDemand(true);
         boolean completed = consumerHandler.initializeKieSessionFromSnapshotOnDemand(config);
         if (logger.isInfoEnabled()) {
@@ -52,24 +47,24 @@ public class DefaultEventConsumerLifecycleProxy<T> implements EventConsumerLifec
     }
 
 
-    public  void internalUpdateOnRunningConsumer(State state) {
+    public  void updateOnRunningConsumer(State state) {
         logger.info("updateOnRunning Consumer");
         if (state.equals(State.LEADER) ) {
             DroolsExecutor.setAsLeader();
-            kafkaConsumers.internalRestart(state);
+            kafkaConsumers.restart(state);
         } else if (state.equals(State.REPLICA)) {
             DroolsExecutor.setAsReplica();
-            kafkaConsumers.internalRestart(state);
+            kafkaConsumers.restart(state);
         }
     }
 
     @Override
-    public void internalEnableConsumeAndStartLoop(State state) {
-        kafkaConsumers.internalEnableConsumeAndStartLoop(state);
+    public void enableConsumeAndStartLoop(State state) {
+        kafkaConsumers.enableConsumeAndStartLoop(state);
     }
 
     @Override
-    public void internalStopConsume() {
+    public void stopConsume() {
         kafkaConsumers.stop();
     }
 }
