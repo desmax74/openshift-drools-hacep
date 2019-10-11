@@ -13,20 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.hacep.core.infra.consumer;
+package org.kie.hacep;
 
-import org.kie.hacep.EnvConfig;
-import org.kie.hacep.core.infra.election.LeadershipCallback;
-
-public interface EventConsumer extends LeadershipCallback {
-
-    void initConsumer(ConsumerHandler consumerHandler);
-
-    void poll();
-
-    void stop();
-
-    static EventConsumer get(EnvConfig config) {
-        return config.isLocal() ? new LocalConsumer( config ) : new DefaultKafkaConsumer( config );
-    }
+public enum PollUnit {
+    SECOND, MILLISECOND;
 }

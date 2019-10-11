@@ -26,14 +26,14 @@ public class LocalConsumer implements EventConsumer {
 
     private final LocalMessageSystem queue = LocalMessageSystem.get();
 
-    private final EnvConfig config;
+    private final EnvConfig envConfig;
 
     private ConsumerHandler consumerHandler;
 
     private State currentState;
 
     public LocalConsumer( EnvConfig config ) {
-        this.config = config;
+        this.envConfig = config;
     }
 
     @Override
@@ -42,10 +42,10 @@ public class LocalConsumer implements EventConsumer {
     }
 
     @Override
-    public void poll( int durationMillis ) {
-        String topic = config.getEventsTopicName();
+    public void poll() {
+        String topic = envConfig.getEventsTopicName();
         while (true) {
-            RemoteCommand command = ( RemoteCommand ) queue.poll( topic, durationMillis );
+            RemoteCommand command = ( RemoteCommand ) queue.poll(topic, 1000);
             if (command != null) {
                 consumerHandler.process( command, currentState );
             } else {
