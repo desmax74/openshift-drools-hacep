@@ -36,7 +36,6 @@ import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.consumer.DroolsConsumerHandler;
 import org.kie.hacep.core.infra.DefaultSessionSnapShooter;
-import org.kie.hacep.core.infra.OffsetManager;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.core.infra.utils.ConsumerUtils;
@@ -250,7 +249,6 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
                                      entry.getValue().offset());
                     }
                 }
-                OffsetManager.store(offsetsEvents);
             } catch (WakeupException e) {
                 //nothing to do
             } finally {
