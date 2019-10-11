@@ -15,6 +15,11 @@
  */
 package org.kie.hacep.core.infra.consumer;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.TopicPartition;
 import org.kie.hacep.core.infra.election.State;
 
 public class EventConsumerStatus {
@@ -23,6 +28,51 @@ public class EventConsumerStatus {
     private volatile PolledTopic polledTopic = PolledTopic.CONTROL;
     private volatile boolean started, exit = false;
     private volatile boolean askedSnapshotOnDemand;
+    private volatile long processingKeyOffset, lastProcessedControlOffset, lastProcessedEventOffset;
+    private volatile String processingKey = "";
+    /*
+    Is still needed ?
+    private Map<TopicPartition, OffsetAndMetadata> offsetsEvents = new HashMap<>();
+
+    public Map<TopicPartition, OffsetAndMetadata> getOffsetsEvents() {
+        return offsetsEvents;
+    }
+
+    public void setOffsetsEvents(Map<TopicPartition, OffsetAndMetadata> offsetsEvents) {
+        this.offsetsEvents = offsetsEvents;
+    }*/
+
+    public long getProcessingKeyOffset() {
+        return processingKeyOffset;
+    }
+
+    public void setProcessingKeyOffset(long processingKeyOffset) {
+        this.processingKeyOffset = processingKeyOffset;
+    }
+
+    public long getLastProcessedControlOffset() {
+        return lastProcessedControlOffset;
+    }
+
+    public void setLastProcessedControlOffset(long lastProcessedControlOffset) {
+        this.lastProcessedControlOffset = lastProcessedControlOffset;
+    }
+
+    public long getLastProcessedEventOffset() {
+        return lastProcessedEventOffset;
+    }
+
+    public void setLastProcessedEventOffset(long lastProcessedEventOffset) {
+        this.lastProcessedEventOffset = lastProcessedEventOffset;
+    }
+
+    public String getProcessingKey() {
+        return processingKey;
+    }
+
+    public void setProcessingKey(String processingKey) {
+        this.processingKey = processingKey;
+    }
 
     public State getCurrentState() {
         return currentState;
