@@ -25,5 +25,3 @@ rules:
       - patch
       - update
       - watch
-      - edit
-      - exec

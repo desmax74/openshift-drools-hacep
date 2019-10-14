@@ -2,6 +2,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: openshift-kie-thorntail
+  namespace: <your-namespace>
   labels:
     app: openshift-kie-thorntail
 rules:
@@ -24,5 +25,3 @@ rules:
       - patch
       - update
       - watch
-      - edit
-      - exec
