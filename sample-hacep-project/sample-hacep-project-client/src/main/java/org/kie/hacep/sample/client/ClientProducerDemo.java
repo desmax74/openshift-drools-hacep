@@ -50,11 +50,13 @@ public class ClientProducerDemo {
 
     private static Properties getProperties() {
         Properties props = CommonConfig.getStatic();
-        props.put("bootstrap.servers", "my-cluster-kafka-bootstrap-my-kafka-project.<ip>.nip.io:443");
+        // for openshift 3.11 -> props.put("bootstrap.servers", "my-cluster-kafka-bootstrap-my-kafka-project.<ip>.nip.io:443");
+        // for openshift 4.X  -> props.put("bootstrap.servers", "my-cluster-kafka-bootstrap-my-kafka-project.apps-crc.testing:443");
+        props.put("bootstrap.servers", "my-cluster-kafka-bootstrap-my-kafka-project.apps-crc.testing:443");
         props.put("security.protocol", "SSL");
-        props.put("ssl.keystore.location", "/<path>/openshift-drools-hacep/sample-hacep-project/sample-hacep-project-client/src/main/resources/keystore.jks");
+        props.put("ssl.keystore.location", "<path>/openshift-drools-hacep/sample-hacep-project/sample-hacep-project-client/src/main/resources/keystore.jks");
         props.put("ssl.keystore.password", "<password>");
-        props.put("ssl.truststore.location", "/<path>/openshift-drools-hacep/sample-hacep-project/sample-hacep-project-client/src/main/resources/keystore.jks");
+        props.put("ssl.truststore.location", "<path>/openshift-drools-hacep/sample-hacep-project/sample-hacep-project-client/src/main/resources/keystore.jks");
         props.put("ssl.truststore.password", "<password>");
         return props;
     }
