@@ -2,25 +2,25 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: openshift-kie-jdkhttp
+    app: openshift-kie-thorntail
     version: v1
-  name: openshift-kie-jdkhttp
+  name: openshift-kie-thorntail
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: openshift-kie-jdkhttp
+      app: openshift-kie-thorntail
       version: v1
   template:
     metadata:
       labels:
-        app: openshift-kie-jdkhttp
+        app: openshift-kie-thorntail
         version: v1
     spec:
       containers:
         - env:
-          name: openshift-kie-jdkhttp
-          image: <user>/openshift-kie-jdkhttp:<version>
+          name: openshift-kie-thorntail
+          image: <user>/openshift-kie-thorntail:<version>
           imagePullPolicy: IfNotPresent
           livenessProbe:
             exec:

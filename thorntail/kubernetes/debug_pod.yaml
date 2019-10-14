@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: openshift-kie-springboot
+  name: openshift-kie-thorntail
 spec:
   containers:
     - name: main
-      image: "<user>/openshift-kie-springboot:<tag>"
+      image: "<user>/openshift-kie-thorntail:<tag>"
       env:
         - name: JAVA_TOOL_OPTIONS
           value: -agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n
