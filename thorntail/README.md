@@ -64,8 +64,8 @@ from th UI (Kafka Topic) or from cli
 then build the docker image and push into docker hub  
 ```sh
 docker login --username=<user username>
-docker build -t <user_username>/openshift-kie-springboot:<tag> .  
-docker push <user_username>/openshift-kie-springboot:<tag>
+docker build -t <user_username>/openshift-kie-jdkhttp:<tag> .  
+docker push <user_username>/openshift-kie-jdkhttp:<tag>
 ```
 then create a yaml from the UI using the content 
 
@@ -77,20 +77,20 @@ changing the image with the name of your docker image.
 #### Build and deploy using a local registry 
 Create the image
 ```sh
-oc new-build --binary --strategy=docker --name openshift-kie-springboot
-oc start-build openshift-kie-springboot --from-dir=. --follow
+oc new-build --binary --strategy=docker --name openshift-kie-thorntail
+oc start-build openshift-kie-thorntail --from-dir=. --follow
 ```
 
 Get the image
 ```sh
-oc get is/openshift-kie-springboot -o template --template='{{range .status.tags}}{{range .items}}{{.dockerImageReference}}{{end}}{{end}}'
+oc get is/openshift-kie-thorntail -o template --template='{{range .status.tags}}{{range .items}}{{.dockerImageReference}}{{end}}{{end}}'
 ```
 Open the deployment_registry yaml and replace existing image URL with the result of the previous command trimming the tail after @ symbol then add :latest. 
 E.g. image: 
 ```sh
  - env:
-   name: openshift-kie-springboot
-   image: image-registry.openshift-image-registry.svc:5000/my-kafka-project/openshift-kie-springboot:latest
+   name: openshift-kie-thorntail
+   image: image-registry.openshift-image-registry.svc:5000/my-kafka-project/openshift-kie-thorntail:latest
 ```
   
 ### Remote debug    
@@ -98,8 +98,8 @@ E.g. image:
 #### Using docker hub registry
 ```sh
 docker login --username=<user username>
-docker build -t <user_username>/openshift-kie-springboot:<tag> .  
-docker push <user_username>/openshift-kie-springboot:<tag>
+docker build -t <user_username>/openshift-kie-jdkhttp:<tag> .  
+docker push <user_username>/openshift-kie-jdkhttp:<tag>
 ```
 
 #### Deploy
