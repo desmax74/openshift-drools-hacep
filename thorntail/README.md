@@ -73,26 +73,6 @@ of kubernetes/deployment_registry.yaml
 
 changing the image with the name of your docker image.  
 
-
-#### Build and deploy using a local registry 
-Create the image
-```sh
-oc new-build --binary --strategy=docker --name openshift-kie-thorntail
-oc start-build openshift-kie-thorntail --from-dir=. --follow
-```
-
-Get the image
-```sh
-oc get is/openshift-kie-thorntail -o template --template='{{range .status.tags}}{{range .items}}{{.dockerImageReference}}{{end}}{{end}}'
-```
-Open the deployment_registry yaml and replace existing image URL with the result of the previous command trimming the tail after @ symbol then add :latest. 
-E.g. image: 
-```sh
- - env:
-   name: openshift-kie-thorntail
-   image: image-registry.openshift-image-registry.svc:5000/my-kafka-project/openshift-kie-thorntail:latest
-```
-  
 ### Remote debug    
     
 #### Using docker hub registry
