@@ -72,6 +72,26 @@ then create a yaml from the UI using the content
 of kubernetes/deployment_registry.yaml
 
 changing the image with the name of your docker image.  
+
+
+#### Build and deploy using a local registry 
+Create the image
+```sh
+oc new-build --binary --strategy=docker --name openshift-kie-springboot
+oc start-build openshift-kie-springboot --from-dir=. --follow
+```
+
+Get the image
+```sh
+oc get is/openshift-kie-springboot -o template --template='{{range .status.tags}}{{range .items}}{{.dockerImageReference}}{{end}}{{end}}'
+```
+Open the deployment_registry yaml and replace existing image URL with the result of the previous command trimming the tail after @ symbol then add :latest. 
+E.g. image: 
+```sh
+ - env:
+   name: openshift-kie-springboot
+   image: image-registry.openshift-image-registry.svc:5000/my-kafka-project/openshift-kie-springboot:latest
+```
   
 ### Remote debug    
     
