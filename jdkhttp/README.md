@@ -71,6 +71,7 @@ then create a yaml from the UI using the content
 
 of kubernetes/deployment_registry.yaml
 
+
 changing the image with the name of your docker image.
 
 #### Build and using a local registry 
@@ -147,6 +148,7 @@ E.g. image:
    image: image-registry.openshift-image-registry.svc:5000/my-kafka-project/openshift-kie-jdkhttp:latest
 ```
   
+
 ### Remote debug    
     
 #### Using docker hub registry
