@@ -117,7 +117,7 @@ public class SnapshotOnDemandUtils {
             int counter = 0;
             while (!snapshotReady) {
                 ConsumerRecords<String, byte[]> records = consumer.poll(Duration.of(Integer.valueOf(Config.DEFAULT_POLL_TIMEOUT_MS),
-                                                                                    ChronoUnit.MILLIS));
+                                                                                    ChronoUnit.SECONDS));
                 byte[] bytes = null;
                 for (ConsumerRecord record : records) {
                     bytes = (byte[]) record.value();
