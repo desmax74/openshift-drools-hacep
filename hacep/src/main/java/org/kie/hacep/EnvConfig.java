@@ -38,6 +38,7 @@ public final class EnvConfig {
     private boolean test;
     private boolean local;
     private PollUnit pollUnit, pollUnitSnapshot;
+    private Duration pollDuration, pollSnapshotDuration;
     private final static String sec ="sec";
     private final static String millisec ="millisec";
 
@@ -145,10 +146,14 @@ public final class EnvConfig {
         switch (pollTimeUnit){
             case millisec:
                 this.pollUnit = PollUnit.MILLISECOND;
+                this.pollDuration = Duration.ofMillis(pollTimeout);
+                break;
             case sec:
                 this.pollUnit = PollUnit.SECOND;
+                this.pollDuration = Duration.ofSeconds(pollTimeout);
+                break;
             default:
-                this.pollUnit = PollUnit.SECOND;
+                throw new RuntimeException("No pollTimeUnit provided");
         }
         return this;
     }
@@ -157,10 +162,14 @@ public final class EnvConfig {
         switch (pollSnapshotTimeUnit){
             case millisec:
                 this.pollUnitSnapshot = PollUnit.MILLISECOND;
+                this.pollSnapshotDuration = Duration.ofMillis(pollSnapshotTimeout);
+                break;
             case sec:
                 this.pollUnitSnapshot = PollUnit.SECOND;
+                this.pollSnapshotDuration = Duration.ofSeconds(pollSnapshotTimeout);
+                break;
             default:
-                this.pollUnitSnapshot = PollUnit.SECOND;
+                throw new RuntimeException("No pollSnapshotTimeUnit provided");
         }
         return this;
     }
@@ -246,29 +255,9 @@ public final class EnvConfig {
 
     public PollUnit getPollSnapshotUnit() { return pollUnitSnapshot; }
 
-    public Duration getPollDuration(){
-        Duration duration;
-        if(pollUnit == PollUnit.MILLISECOND){
-            duration = Duration.ofMillis(pollTimeout);
-        }else if(pollUnit == PollUnit.SECOND){
-            duration = Duration.ofSeconds(pollTimeout);
-        }else{
-            duration = Duration.ofSeconds(1);
-        }
-        return duration;
-    }
+    public Duration getPollDuration(){ return pollDuration; }
 
-    public Duration getPollSnapshotDuration(){
-        Duration duration;
-        if(pollUnitSnapshot == PollUnit.MILLISECOND){
-            duration = Duration.ofMillis(pollSnapshotTimeout);
-        }else if(pollUnitSnapshot == PollUnit.SECOND){
-            duration = Duration.ofSeconds(pollSnapshotTimeout);
-        }else{
-            duration = Duration.ofSeconds(1);
-        }
-        return duration;
-    }
+    public Duration getPollSnapshotDuration(){ return pollSnapshotDuration; }
 
     @Override
     public String toString() {
@@ -281,7 +270,9 @@ public final class EnvConfig {
         sb.append(", printerType='").append(printerType).append('\'');
         sb.append(", pollTimeUnit='").append(pollUnit).append('\'');
         sb.append(", pollTimeout='").append(pollTimeout).append('\'');
+        sb.append(", pollDuration='").append(pollDuration).append('\'');
         sb.append(", pollSnapshotUnit='").append(pollUnitSnapshot).append('\'');
+        sb.append(", pollSnapshotDuration='").append(pollSnapshotDuration).append('\'');
         sb.append(", pollSnapshotTimeout='").append(pollSnapshotTimeout).append('\'');
         sb.append(", iterationBetweenSnapshot='").append(iterationBetweenSnapshot).append('\'');
         sb.append(", skipOnDemanSnapshot='").append(skipOnDemanSnapshot).append('\'');
