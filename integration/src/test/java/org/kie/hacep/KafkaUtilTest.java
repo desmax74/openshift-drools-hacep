@@ -285,8 +285,8 @@ public class KafkaUtilTest implements AutoCloseable {
                 withSnapshotTopicName(Config.DEFAULT_SNAPSHOT_TOPIC).
                 withKieSessionInfosTopicName(CommonConfig.DEFAULT_KIE_SESSION_INFOS_TOPIC).
                 withPrinterType(PrinterKafkaImpl.class.getName()).
-                withPollTimeUnit("sec").
-                withPollTimeout("10").
+                withPollTimeUnit("millisec").
+                withPollTimeout("1000").
                 withIterationBetweenSnapshot("10").
                 skipOnDemandSnapshot("true").
                 withMaxSnapshotAgeSeconds("60000").
