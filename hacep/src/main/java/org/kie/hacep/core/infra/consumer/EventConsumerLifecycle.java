@@ -17,7 +17,7 @@ package org.kie.hacep.core.infra.consumer;
 ;
 import org.kie.hacep.core.infra.election.State;
 
-public interface EventConsumerLifecycleProxy<T> {
+public interface EventConsumerLifecycle<T> {
 
     EventConsumerStatus getStatus();
 

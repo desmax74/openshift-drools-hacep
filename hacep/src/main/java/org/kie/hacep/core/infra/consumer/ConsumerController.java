@@ -29,7 +29,7 @@ public class ConsumerController {
 
     public ConsumerController( EnvConfig envConfig, Producer producer ) {
         this.callback = new InfraCallback();
-        this.consumer = EventConsumer.get(envConfig);
+        this.consumer = EventConsumer.getConsumer(envConfig);
         this.callback.setConsumer(consumer);
         this.consumer.initConsumer(new DroolsConsumerHandler(producer, envConfig));
         this.envConfig = envConfig;

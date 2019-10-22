@@ -25,7 +25,7 @@ import org.kie.remote.DroolsExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DefaultEventConsumerLifecycleProxy<T> implements EventConsumerLifecycleProxy {
+public class DefaultEventConsumerLifecycle implements EventConsumerLifecycle {
 
     private Logger logger = LoggerFactory.getLogger(DefaultKafkaConsumer.class);
     private EventConsumerStatus status;
@@ -33,7 +33,7 @@ public class DefaultEventConsumerLifecycleProxy<T> implements EventConsumerLifec
     private EnvConfig config;
     private KafkaConsumers kafkaConsumers;
 
-    public DefaultEventConsumerLifecycleProxy(DroolsConsumerHandler consumerHandler, EnvConfig config, DefaultSessionSnapShooter snapShooter){
+    public DefaultEventConsumerLifecycle(DroolsConsumerHandler consumerHandler, EnvConfig config, DefaultSessionSnapShooter snapShooter){
         status = new EventConsumerStatus();
         this.consumerHandler = consumerHandler;
         this.config = config;
@@ -48,8 +48,6 @@ public class DefaultEventConsumerLifecycleProxy<T> implements EventConsumerLifec
         return status;
     }
 
-
-
     public void askAndProcessSnapshotOnDemand() {
         status.setAskedSnapshotOnDemand(true);
         boolean completed = consumerHandler.initializeKieSessionFromSnapshotOnDemand(config);
@@ -60,7 +58,6 @@ public class DefaultEventConsumerLifecycleProxy<T> implements EventConsumerLifec
             throw new RuntimeException("Can't obtain a snapshot on demand");
         }
     }
-
 
     public  void updateOnRunningConsumer(State state) {
         logger.info("updateOnRunning Consumer");

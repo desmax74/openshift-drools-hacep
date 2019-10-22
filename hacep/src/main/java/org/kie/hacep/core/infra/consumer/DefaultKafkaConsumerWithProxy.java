@@ -30,7 +30,7 @@ public class DefaultKafkaConsumerWithProxy<T> implements EventConsumer {
     private DroolsConsumerHandler consumerHandler;
     private EnvConfig config;
     private KafkaConsumers kafkaConsumers;
-    private EventConsumerLifecycleProxy proxy ;
+    private EventConsumerLifecycle eventConsumerLifecycle;
 
 
     public DefaultKafkaConsumerWithProxy(EnvConfig config) {
@@ -39,35 +39,35 @@ public class DefaultKafkaConsumerWithProxy<T> implements EventConsumer {
 
     public void initConsumer(ConsumerHandler consumerHandler) {
         this.consumerHandler = (DroolsConsumerHandler) consumerHandler;
-        proxy = new DefaultEventConsumerLifecycleProxy(this.consumerHandler, this.config, this.consumerHandler.getSnapshooter());
-        kafkaConsumers = proxy.getConsumers();
+        eventConsumerLifecycle = new DefaultEventConsumerLifecycle(this.consumerHandler, this.config, this.consumerHandler.getSnapshooter());
+        kafkaConsumers = eventConsumerLifecycle.getConsumers();
         kafkaConsumers.initConsumer();
     }
 
     @Override
     public void stop() {
-        proxy.stopConsume();
+        eventConsumerLifecycle.stopConsume();
         kafkaConsumers.stop();
-        proxy.getStatus().setExit(true);
+        eventConsumerLifecycle.getStatus().setExit(true);
         consumerHandler.stop();
     }
 
     @Override
     public void updateStatus(State state) {
-        boolean changedState = !state.equals(proxy.getStatus().getCurrentState());
-        if(proxy.getStatus().getCurrentState() == null ||  changedState){
-            proxy.getStatus().setCurrentState(state);
+        boolean changedState = !state.equals(eventConsumerLifecycle.getStatus().getCurrentState());
+        if(eventConsumerLifecycle.getStatus().getCurrentState() == null ||  changedState){
+            eventConsumerLifecycle.getStatus().setCurrentState(state);
         }
-        if (proxy.getStatus().isStarted() && changedState && !proxy.getStatus().getCurrentState().equals(State.BECOMING_LEADER)) {
-            proxy.updateOnRunningConsumer(state);
-        } else if(!proxy.getStatus().isStarted()) {
+        if (eventConsumerLifecycle.getStatus().isStarted() && changedState && !eventConsumerLifecycle.getStatus().getCurrentState().equals(State.BECOMING_LEADER)) {
+            eventConsumerLifecycle.updateOnRunningConsumer(state);
+        } else if(!eventConsumerLifecycle.getStatus().isStarted()) {
             if (state.equals(State.REPLICA)) {
                 //ask and wait a snapshot before start
-                if (!config.isSkipOnDemanSnapshot() && !proxy.getStatus().isAskedSnapshotOnDemand()) {
+                if (!config.isSkipOnDemanSnapshot() && !eventConsumerLifecycle.getStatus().isAskedSnapshotOnDemand()) {
                     if (logger.isInfoEnabled()) {
                         logger.info("askAndProcessSnapshotOnDemand:");
                     }
-                    proxy.askAndProcessSnapshotOnDemand();
+                    eventConsumerLifecycle.askAndProcessSnapshotOnDemand();
                 }
             }
             //State.BECOMING_LEADER won't start the pod
@@ -75,7 +75,7 @@ public class DefaultKafkaConsumerWithProxy<T> implements EventConsumer {
                 if (logger.isInfoEnabled()) {
                     logger.info("enableConsumeAndStartLoop:{}", state);
                 }
-                proxy.enableConsumeAndStartLoop(state);
+                eventConsumerLifecycle.enableConsumeAndStartLoop(state);
             }
         }
     }

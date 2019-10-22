@@ -26,7 +26,7 @@ public interface EventConsumer extends LeadershipCallback {
 
     void stop();
 
-    static EventConsumer get(EnvConfig config) {
+    static EventConsumer getConsumer(EnvConfig config) {
         return config.isLocal() ? new LocalConsumer( config ) : new DefaultKafkaConsumerWithProxy( config );
     }
 }

@@ -51,8 +51,8 @@ import static org.kie.remote.util.SerializationUtil.deserialize;
 public class KafkaConsumers<T> {
 
     private Logger logger = LoggerFactory.getLogger(KafkaConsumers.class);
-    private Consumer<String, T> kafkaConsumer, kafkaSecondaryConsumer;
-    private EventConsumerLifecycleProxy proxy;
+    private Consumer<String, T> primaryConsumer, secondaryConsumer;
+    private EventConsumerLifecycle consumerLifecycle;
     private EnvConfig config;
     private SnapshotInfos snapshotInfos;
     private SessionSnapshooter snapShooter;
@@ -63,9 +63,9 @@ public class KafkaConsumers<T> {
     private AtomicInteger counter ;
     private Printer printer;
 
-    public KafkaConsumers(EventConsumerStatus status, EnvConfig config, EventConsumerLifecycleProxy proxy, ConsumerHandler consumerHandler, SessionSnapshooter snapshooter){
+    public KafkaConsumers(EventConsumerStatus status, EnvConfig config, EventConsumerLifecycle consumerLifecycle, ConsumerHandler consumerHandler, SessionSnapshooter snapshooter){
         this.consumerHandler = (DroolsConsumerHandler) consumerHandler;
-        this.proxy = proxy;
+        this.consumerLifecycle = consumerLifecycle;
         this.config = config;
         this.snapShooter = snapshooter;
         this.status = status;
@@ -76,16 +76,16 @@ public class KafkaConsumers<T> {
     }
 
     public void initConsumer() {
-        this.kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));
-        if (proxy.getStatus().getCurrentState().equals(State.REPLICA)) {
-            this.kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
+        this.primaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));;
+        if (consumerLifecycle.getStatus().getCurrentState().equals(State.REPLICA)) {
+            this.secondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
         }
     }
     
     public void stop() {
-        kafkaConsumer.wakeup();
-        if (kafkaSecondaryConsumer != null) {
-            kafkaSecondaryConsumer.wakeup();
+        primaryConsumer.wakeup();
+        if (secondaryConsumer != null) {
+            secondaryConsumer.wakeup();
         }
     }
 
@@ -93,9 +93,9 @@ public class KafkaConsumers<T> {
         final Thread mainThread = Thread.currentThread();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("Starting exit...\n");
-            kafkaConsumer.wakeup();
-            if (kafkaSecondaryConsumer != null) {
-                kafkaSecondaryConsumer.wakeup();
+            primaryConsumer.wakeup();
+            if (secondaryConsumer != null) {
+                secondaryConsumer.wakeup();
             }
             try {
                 mainThread.join();
@@ -104,39 +104,30 @@ public class KafkaConsumers<T> {
             }
         }));
 
-        if (kafkaConsumer == null) {
+        if (primaryConsumer == null) {
             throw new IllegalStateException("Can't poll, kafkaConsumer not subscribed or null!");
         }
 
-        if (kafkaSecondaryConsumer == null) {
+        if (secondaryConsumer == null) {
             throw new IllegalStateException("Can't poll, kafkaSecondaryConsumer not subscribed or null!");
         }
 
         try {
-            while (!proxy.getStatus().isExit()) {
+            while (!consumerLifecycle.getStatus().isExit()) {
                 consume(durationMillis);
             }
         } catch (WakeupException e) {
             //nothind to do
         } finally {
             try {
-                kafkaConsumer.commitSync();
-                kafkaSecondaryConsumer.commitSync();
-                /* is still needed
-                if (logger.isDebugEnabled()) {
-                    for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : status.getOffsetsEvents().entrySet()) {
-                        logger.debug("Consumer partition %s - lastOffset %s\n",
-                                     entry.getKey().partition(),
-                                     entry.getValue().offset());
-                    }
-                }
-                OffsetManager.store(status.getOffsetsEvents());*/
+                primaryConsumer.commitSync();
+                secondaryConsumer.commitSync();
             } catch (WakeupException e) {
                 //nothing to do
             } finally {
                 logger.info("Closing kafkaConsumer on the loop");
-                kafkaConsumer.close();
-                kafkaSecondaryConsumer.close();
+                primaryConsumer.close();
+                secondaryConsumer.close();
             }
         }
     }
@@ -156,17 +147,18 @@ public class KafkaConsumers<T> {
             logger.debug("Restart Consumers");
         }
         snapshotInfos = snapShooter.deserialize();//is still useful ?
-        kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));
+        primaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));
+
         assign();
-        if (proxy.getStatus().getCurrentState().equals(State.REPLICA)) {
-            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
+        if (consumerLifecycle.getStatus().getCurrentState().equals(State.REPLICA)) {
+            secondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
         } else {
-            kafkaSecondaryConsumer = null;
+            secondaryConsumer = null;
         }
     }
 
     private  void assign() {
-        if (proxy.getStatus().getCurrentState().equals(State.LEADER)) {
+        if (consumerLifecycle.getStatus().getCurrentState().equals(State.LEADER)) {
             assignAsALeader();
         } else {
             assignReplica();
@@ -174,12 +166,12 @@ public class KafkaConsumers<T> {
     }
 
     private  void assignAsALeader() {
-        assignConsumer(kafkaConsumer, config.getEventsTopicName());
+        assignConsumer(primaryConsumer, config.getEventsTopicName());
     }
 
     private void assignReplica() {
-        assignConsumer(kafkaConsumer, config.getEventsTopicName());
-        assignConsumer(kafkaSecondaryConsumer, config.getControlTopicName());
+        assignConsumer(primaryConsumer, config.getEventsTopicName());
+        assignConsumer(secondaryConsumer, config.getControlTopicName());
     }
 
     private void assignConsumer(Consumer kafkaConsumer, String topic) {
@@ -204,10 +196,10 @@ public class KafkaConsumers<T> {
             kafkaConsumer.assignment().forEach(topicPartition -> kafkaConsumer.seek(partitionCollection.iterator().next(),
                                                                                     snapshotInfos.getOffsetDuringSnapshot()));
         } else {
-            if(proxy.getStatus().getCurrentState().equals(State.LEADER)){
+            if(consumerLifecycle.getStatus().getCurrentState().equals(State.LEADER)){
                 kafkaConsumer.assignment().forEach(topicPartition -> kafkaConsumer.seek(partitionCollection.iterator().next(),
                                                                                         status.getLastProcessedEventOffset()));
-            }else if(proxy.getStatus().getCurrentState().equals(State.REPLICA)){
+            }else if(consumerLifecycle.getStatus().getCurrentState().equals(State.REPLICA)){
                 kafkaConsumer.assignment().forEach(topicPartition -> kafkaConsumer.seek(partitionCollection.iterator().next(),
                                                                                         status.getLastProcessedControlOffset()));
             }
@@ -221,7 +213,7 @@ public class KafkaConsumers<T> {
 
         } else if (state.equals(State.REPLICA) ) {
             status.setCurrentState(State.REPLICA);
-            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
+            secondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
             DroolsExecutor.setAsReplica();
         }
         setLastProcessedKey();
@@ -237,7 +229,7 @@ public class KafkaConsumers<T> {
 
     public  void settingsOnAEmptyControlTopic(ControlMessage lastWrapper) {
         if (lastWrapper.getId() == null) {// completely empty or restart of ephemeral already used
-            if (proxy.getStatus().getCurrentState().equals(State.REPLICA)) {
+            if (consumerLifecycle.getStatus().getCurrentState().equals(State.REPLICA)) {
                 pollControl();
             }
         }
@@ -264,7 +256,7 @@ public class KafkaConsumers<T> {
 
     private  void defaultProcessAsLeader(int millisTimeout) {
         pollEvents();
-        ConsumerRecords<String, T> records = kafkaConsumer.poll(Duration.of(millisTimeout, ChronoUnit.MILLIS));
+        ConsumerRecords<String, T> records = primaryConsumer.poll(Duration.of(millisTimeout, ChronoUnit.MILLIS));
         if (!records.isEmpty()) {
             ConsumerRecord<String, T> first = records.iterator().next();
             eventsBuffer = records.records(new TopicPartition(first.topic(), first.partition()));
@@ -276,7 +268,7 @@ public class KafkaConsumers<T> {
 
     private void defaultProcessAsAReplica(int millisTimeout) {
         if (status.getPolledTopic().equals(EventConsumerStatus.PolledTopic.EVENTS)) {
-            ConsumerRecords<String, T> records = kafkaConsumer.poll(Duration.of(millisTimeout, ChronoUnit.MILLIS));
+            ConsumerRecords<String, T> records = primaryConsumer.poll(Duration.of(millisTimeout, ChronoUnit.MILLIS));
             if (!records.isEmpty()) {
                 ConsumerRecord<String, T> first = records.iterator().next();
                 eventsBuffer = records.records(new TopicPartition(first.topic(), first.partition()));
@@ -290,7 +282,7 @@ public class KafkaConsumers<T> {
             if (controlBuffer != null && controlBuffer.size() > 0) {
                 consumeControlFromBufferAsAReplica();
             }
-            ConsumerRecords<String, T> records = kafkaSecondaryConsumer.poll(Duration.of(millisTimeout, ChronoUnit.MILLIS));
+            ConsumerRecords<String, T> records = secondaryConsumer.poll(Duration.of(millisTimeout, ChronoUnit.MILLIS));
             if (records.count() > 0) {
                 ConsumerRecord<String, T> first = records.iterator().next();
                 controlBuffer = records.records(new TopicPartition(first.topic(), first.partition()));
@@ -318,11 +310,10 @@ public class KafkaConsumers<T> {
                 logger.debug("processEventsAsAReplica change topic, switch to consume control.");
             }
             consumerHandler.process(item, status.getCurrentState());
-            saveOffset(record, kafkaConsumer);
-
+            saveOffset(record, primaryConsumer);
         } else {
             consumerHandler.process(ItemToProcess.getItemToProcess(record), status.getCurrentState());
-            saveOffset(record, kafkaConsumer);
+            saveOffset(record, primaryConsumer);
         }
     }
 
@@ -365,7 +356,8 @@ public class KafkaConsumers<T> {
             status.setProcessingKey(record.key().toString());
             status.setProcessingKeyOffset(record.offset());
         }
-        saveOffset(record, kafkaSecondaryConsumer);
+        saveOffset(record,
+                   secondaryConsumer);
     }
 
     private  void processLeader(ConsumerRecord record) {
@@ -376,7 +368,7 @@ public class KafkaConsumers<T> {
             consumerHandler.process(ItemToProcess.getItemToProcess(record), status.getCurrentState());
         }
         status.setProcessingKey(record.key().toString());// the new processed became the new processingKey
-        saveOffset(record, kafkaConsumer);
+        saveOffset(record, primaryConsumer);
 
         if (logger.isInfoEnabled() || config.isUnderTest()) {
             printer.prettyPrinter("DefaulImprovedKafkaConsumer.processLeader record:{}", record, true);
