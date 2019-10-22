@@ -52,7 +52,10 @@ public class SnapshotOnDemandTest {
                 withSnapshotTopicName(Config.DEFAULT_SNAPSHOT_TOPIC).
                 withKieSessionInfosTopicName(CommonConfig.DEFAULT_KIE_SESSION_INFOS_TOPIC).
                 withPrinterType(PrinterKafkaImpl.class.getName()).
+                withPollTimeUnit("sec").
                 withPollTimeout("10").
+                withPollSnapshotTimeUnit("sec").
+                withPollSnapshotTimeout("10").
                 withMaxSnapshotAgeSeconds("60000").
                 underTest(true);
     }
