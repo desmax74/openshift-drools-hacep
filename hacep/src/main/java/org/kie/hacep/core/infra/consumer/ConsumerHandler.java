@@ -15,6 +15,9 @@
  */
 package org.kie.hacep.core.infra.consumer;
 
+import java.util.Queue;
+
+import org.kie.hacep.core.infra.SessionSnapshooter;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.remote.command.RemoteCommand;
 
@@ -27,4 +30,8 @@ public interface ConsumerHandler {
     void processWithSnapshot(ItemToProcess item, State currentState);
 
     void stop();
+
+    SessionSnapshooter getSnapshooter();
+
+    void processSideEffectsOnReplica(Queue<Object> newSideEffects);
 }

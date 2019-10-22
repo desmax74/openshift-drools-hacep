@@ -17,9 +17,11 @@
 package org.kie.hacep.core.infra.consumer;
 
 import org.kie.hacep.EnvConfig;
+import org.kie.hacep.consumer.DroolsConsumerHandler;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.remote.DroolsExecutor;
 import org.kie.remote.command.RemoteCommand;
+import org.kie.remote.impl.producer.Producer;
 import org.kie.remote.util.LocalMessageSystem;
 
 public class LocalConsumer implements EventConsumer {
@@ -37,8 +39,8 @@ public class LocalConsumer implements EventConsumer {
     }
 
     @Override
-    public void initConsumer( ConsumerHandler consumerHandler ) {
-        this.consumerHandler = consumerHandler;
+    public void initConsumer(Producer producer) {
+        this.consumerHandler = new DroolsConsumerHandler(producer, envConfig);
     }
 
     @Override

@@ -15,106 +15,43 @@
  */
 package org.kie.hacep.core.infra.consumer;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.kafka.clients.consumer.OffsetAndMetadata;
-import org.apache.kafka.common.TopicPartition;
 import org.kie.hacep.core.infra.election.State;
 
-public class EventConsumerStatus {
+public interface EventConsumerStatus {
 
-    private volatile State currentState = State.REPLICA;
-    private volatile PolledTopic polledTopic = PolledTopic.CONTROL;
-    private volatile boolean started, exit = false;
-    private volatile boolean askedSnapshotOnDemand;
-    private volatile long processingKeyOffset, lastProcessedControlOffset, lastProcessedEventOffset;
-    private volatile String processingKey = "";
-    /*
-    Is still needed ?
-    private Map<TopicPartition, OffsetAndMetadata> offsetsEvents = new HashMap<>();
+    long getProcessingKeyOffset();
 
-    public Map<TopicPartition, OffsetAndMetadata> getOffsetsEvents() {
-        return offsetsEvents;
-    }
+    void setProcessingKeyOffset(long processingKeyOffset);
 
-    public void setOffsetsEvents(Map<TopicPartition, OffsetAndMetadata> offsetsEvents) {
-        this.offsetsEvents = offsetsEvents;
-    }*/
+    long getLastProcessedControlOffset();
 
-    public long getProcessingKeyOffset() {
-        return processingKeyOffset;
-    }
+    void setLastProcessedControlOffset(long lastProcessedControlOffset);
 
-    public void setProcessingKeyOffset(long processingKeyOffset) {
-        this.processingKeyOffset = processingKeyOffset;
-    }
+    long getLastProcessedEventOffset();
 
-    public long getLastProcessedControlOffset() {
-        return lastProcessedControlOffset;
-    }
+    void setLastProcessedEventOffset(long lastProcessedEventOffset);
 
-    public void setLastProcessedControlOffset(long lastProcessedControlOffset) {
-        this.lastProcessedControlOffset = lastProcessedControlOffset;
-    }
+    String getProcessingKey();
 
-    public long getLastProcessedEventOffset() {
-        return lastProcessedEventOffset;
-    }
+    void setProcessingKey(String processingKey);
 
-    public void setLastProcessedEventOffset(long lastProcessedEventOffset) {
-        this.lastProcessedEventOffset = lastProcessedEventOffset;
-    }
+    State getCurrentState();
 
-    public String getProcessingKey() {
-        return processingKey;
-    }
+    void setCurrentState(State currentState);
 
-    public void setProcessingKey(String processingKey) {
-        this.processingKey = processingKey;
-    }
+    DefaultEventConsumerStatus.PolledTopic getPolledTopic();
 
-    public State getCurrentState() {
-        return currentState;
-    }
+    void setPolledTopic(DefaultEventConsumerStatus.PolledTopic polledTopic);
 
-    public void setCurrentState(State currentState) {
-        this.currentState = currentState;
-    }
+    boolean isExit();
 
-    public PolledTopic getPolledTopic() {
-        return polledTopic;
-    }
+    void setExit(boolean exit);
 
-    public void setPolledTopic(PolledTopic polledTopic) {
-        this.polledTopic = polledTopic;
-    }
+    boolean isStarted();
 
-    public boolean isExit() {
-        return exit;
-    }
+    void setStarted(boolean started);
 
-    public void setExit(boolean exit) {
-        this.exit = exit;
-    }
+    boolean isAskedSnapshotOnDemand();
 
-    public boolean isStarted() {
-        return started;
-    }
-
-    public void setStarted(boolean started) {
-        this.started = started;
-    }
-
-    public boolean isAskedSnapshotOnDemand() {
-        return askedSnapshotOnDemand;
-    }
-
-    public void setAskedSnapshotOnDemand(boolean askedSnapshotOnDemand) {
-        this.askedSnapshotOnDemand = askedSnapshotOnDemand;
-    }
-
-    public enum PolledTopic {
-        EVENTS, CONTROL;
-    }
+    void setAskedSnapshotOnDemand(boolean askedSnapshotOnDemand);
 }

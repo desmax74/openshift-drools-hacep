@@ -34,6 +34,7 @@ import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.consumer.DroolsConsumerHandler;
 import org.kie.hacep.core.infra.DefaultSessionSnapShooter;
+import org.kie.hacep.core.infra.SessionSnapshooter;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.core.infra.utils.ConsumerUtils;
@@ -41,6 +42,7 @@ import org.kie.hacep.message.ControlMessage;
 import org.kie.hacep.util.Printer;
 import org.kie.hacep.util.PrinterUtil;
 import org.kie.remote.DroolsExecutor;
+import org.kie.remote.impl.producer.Producer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +56,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
     private Logger logger = LoggerFactory.getLogger(DefaultKafkaConsumer.class);
     private Map<TopicPartition, OffsetAndMetadata> offsetsEvents = new HashMap<>();
     private Consumer<String, T> kafkaConsumer, kafkaSecondaryConsumer;
-    private DroolsConsumerHandler consumerHandler;
+    private ConsumerHandler consumerHandler;
     private volatile String processingKey = "";
     private volatile long processingKeyOffset, lastProcessedControlOffset, lastProcessedEventOffset;
     private volatile boolean started, exit = false;
@@ -65,7 +67,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
     private List<ConsumerRecord<String, T>> controlBuffer;
     private AtomicInteger counter ;
     private SnapshotInfos snapshotInfos;
-    private DefaultSessionSnapShooter snapShooter;
+    private SessionSnapshooter snapShooter;
     private Printer printer;
     private EnvConfig envConfig;
     private Logger loggerForTest;
@@ -83,8 +85,8 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         }
     }
 
-    public void initConsumer(ConsumerHandler consumerHandler) {
-        this.consumerHandler = (DroolsConsumerHandler) consumerHandler;
+    public void initConsumer(Producer producer) {
+        this.consumerHandler =  new DroolsConsumerHandler(producer, envConfig);
         this.snapShooter = this.consumerHandler.getSnapshooter();
         this.kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));
         if (currentState.equals(State.REPLICA)) {
@@ -147,7 +149,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
 
     protected void askAndProcessSnapshotOnDemand() {
         askedSnapshotOnDemand = true;
-        boolean completed = consumerHandler.initializeKieSessionFromSnapshotOnDemand(envConfig);
+        boolean completed = ((DroolsConsumerHandler)consumerHandler).initializeKieSessionFromSnapshotOnDemand(envConfig);
         if (logger.isInfoEnabled()) {
             logger.info("askAndProcessSnapshotOnDemand:{}", completed);
         }

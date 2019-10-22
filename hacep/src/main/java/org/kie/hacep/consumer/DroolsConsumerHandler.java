@@ -23,6 +23,7 @@ import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.GlobalStatus;
 import org.kie.hacep.core.KieSessionContext;
 import org.kie.hacep.core.infra.DefaultSessionSnapShooter;
+import org.kie.hacep.core.infra.SessionSnapshooter;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.consumer.ConsumerHandler;
 import org.kie.hacep.core.infra.consumer.ItemToProcess;
@@ -81,7 +82,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         return false;
     }
 
-    public DefaultSessionSnapShooter getSnapshooter(){
+    public SessionSnapshooter getSnapshooter(){
         return snapshooter;
     }
 

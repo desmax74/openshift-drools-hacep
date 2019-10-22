@@ -17,8 +17,6 @@ package org.kie.hacep.core.infra.consumer;
 
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.consumer.DroolsConsumerHandler;
-import org.kie.hacep.core.infra.DefaultSessionSnapShooter;
-
 import org.kie.hacep.core.infra.election.State;
 
 import org.kie.remote.DroolsExecutor;
@@ -29,18 +27,38 @@ public class DefaultEventConsumerLifecycle implements EventConsumerLifecycle {
 
     private Logger logger = LoggerFactory.getLogger(DefaultKafkaConsumer.class);
     private EventConsumerStatus status;
-    private DroolsConsumerHandler consumerHandler;
-    private EnvConfig config;
-    private KafkaConsumers kafkaConsumers;
+    private ConsumerHandler consumerHandler;
+    private EnvConfig envConfig;
+    private ConsumerProxy kafkaConsumers;
 
-    public DefaultEventConsumerLifecycle(DroolsConsumerHandler consumerHandler, EnvConfig config, DefaultSessionSnapShooter snapShooter){
-        status = new EventConsumerStatus();
+    public DefaultEventConsumerLifecycle(ConsumerHandler consumerHandler, EnvConfig envConfig){
+        this.envConfig = envConfig;
+        this.status = getConsumerStatus();
         this.consumerHandler = consumerHandler;
-        this.config = config;
-        kafkaConsumers = new KafkaConsumers(status, config,this, this.consumerHandler, this.consumerHandler.getSnapshooter());
+        this.kafkaConsumers = getConsumerProxy();
     }
 
-    public KafkaConsumers getConsumers(){
+    private EventConsumerStatus getConsumerStatus(){
+        EventConsumerStatus status;
+        if(envConfig.isUnderTest()){
+            status = (EventConsumerStatus) LoggableInvocationHandler.createProxy(new DefaultEventConsumerStatus());
+        }else{
+            status = new DefaultEventConsumerStatus();
+        }
+        return status;
+    }
+
+    private ConsumerProxy getConsumerProxy(){
+        ConsumerProxy consumers ;
+        if(envConfig.isUnderTest()) {
+            consumers = (ConsumerProxy) LoggableInvocationHandler.createProxy(new KafkaConsumers(status, envConfig,this, this.consumerHandler, this.consumerHandler.getSnapshooter()));
+        }else{
+            consumers = new KafkaConsumers(status, envConfig,this, this.consumerHandler, this.consumerHandler.getSnapshooter());
+        }
+        return consumers;
+    }
+
+    public ConsumerProxy getConsumers(){
         return  kafkaConsumers;
     }
 
@@ -50,7 +68,7 @@ public class DefaultEventConsumerLifecycle implements EventConsumerLifecycle {
 
     public void askAndProcessSnapshotOnDemand() {
         status.setAskedSnapshotOnDemand(true);
-        boolean completed = consumerHandler.initializeKieSessionFromSnapshotOnDemand(config);
+        boolean completed = ((DroolsConsumerHandler)consumerHandler).initializeKieSessionFromSnapshotOnDemand(envConfig);
         if (logger.isInfoEnabled()) {
             logger.info("askAndProcessSnapshotOnDemand:{}", completed);
         }

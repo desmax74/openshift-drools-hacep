@@ -17,7 +17,6 @@ package org.kie.hacep.core.infra.consumer;
 
 import org.kie.remote.impl.producer.Producer;
 import org.kie.hacep.EnvConfig;
-import org.kie.hacep.consumer.DroolsConsumerHandler;
 import org.kie.hacep.core.infra.election.LeadershipCallback;
 
 public class ConsumerController {
@@ -30,7 +29,7 @@ public class ConsumerController {
         this.callback = new InfraCallback();
         this.consumer = EventConsumer.getConsumer(envConfig);
         this.callback.setConsumer(consumer);
-        this.consumer.initConsumer(new DroolsConsumerHandler(producer, envConfig));
+        this.consumer.initConsumer(producer);
     }
 
     public void start() {

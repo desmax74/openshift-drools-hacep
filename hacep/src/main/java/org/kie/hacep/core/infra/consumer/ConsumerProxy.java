@@ -16,18 +16,25 @@
 package org.kie.hacep.core.infra.consumer;
 
 import org.kie.hacep.core.infra.election.State;
+import org.kie.hacep.message.ControlMessage;
 
-public interface EventConsumerLifecycle<T> {
+public interface ConsumerProxy<T> {
 
-    EventConsumerStatus getStatus();
+    void initConsumer();
 
-    ConsumerProxy getConsumers();
+    void stop();
 
-    void askAndProcessSnapshotOnDemand();
+    void poll();
 
-    void updateOnRunningConsumer(State state);
+    void restartConsumer();
 
     void enableConsumeAndStartLoop(State state);
 
-    void stopConsume();
+    void setLastProcessedKey();
+
+    void settingsOnAEmptyControlTopic(ControlMessage lastWrapper);
+
+    void internalRestartConsumer();
+
+    void restart(State state);
 }
