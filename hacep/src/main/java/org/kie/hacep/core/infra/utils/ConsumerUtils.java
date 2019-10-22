@@ -126,7 +126,7 @@ public class ConsumerUtils {
 
         FactCountMessage lastMessage = new FactCountMessage();
         try {
-            ConsumerRecords records = consumer.poll(Duration.of(Config.DEFAULT_POLL_TIMEOUT_MS, ChronoUnit.MILLIS));
+            ConsumerRecords records = consumer.poll(Duration.of(Config.DEFAULT_POLL_TIMEOUT, ChronoUnit.MILLIS));
             for (Object item : records) {
                 ConsumerRecord<String, byte[]> record = (ConsumerRecord<String, byte[]>) item;
                 if(record.key().equals(factHandle.getId())) {

@@ -25,14 +25,12 @@ public class ConsumerController {
     private EventConsumer consumer;
     private InfraCallback callback;
     private Thread thread;
-    private EnvConfig envConfig;
 
     public ConsumerController( EnvConfig envConfig, Producer producer ) {
         this.callback = new InfraCallback();
         this.consumer = EventConsumer.get(envConfig);
         this.callback.setConsumer(consumer);
         this.consumer.initConsumer(new DroolsConsumerHandler(producer, envConfig));
-        this.envConfig = envConfig;
     }
 
     public void start() {
@@ -54,7 +52,7 @@ public class ConsumerController {
 
     private void consumeEvents() {
         thread = new Thread(
-                new ConsumerThread(envConfig.getPollTimeout(), this));
+                new ConsumerThread(this));
         thread.start();
     }
 
