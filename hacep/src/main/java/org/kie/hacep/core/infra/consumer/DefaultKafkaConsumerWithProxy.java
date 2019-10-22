@@ -80,7 +80,7 @@ public class DefaultKafkaConsumerWithProxy<T> implements EventConsumer {
         }
     }
 
-    public void poll(int durationMillis) {
-        kafkaConsumers.poll(durationMillis);
+    public void poll() {
+        kafkaConsumers.poll();
     }
 }
