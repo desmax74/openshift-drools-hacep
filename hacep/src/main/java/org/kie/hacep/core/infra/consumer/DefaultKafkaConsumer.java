@@ -33,7 +33,6 @@ import org.apache.kafka.common.errors.WakeupException;
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.consumer.DroolsConsumerHandler;
-import org.kie.hacep.core.infra.DefaultSessionSnapShooter;
 import org.kie.hacep.core.infra.SessionSnapshooter;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.election.State;
@@ -147,7 +146,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         }
     }
 
-    protected void askAndProcessSnapshotOnDemand() {
+    public void askAndProcessSnapshotOnDemand() {
         askedSnapshotOnDemand = true;
         boolean completed = ((DroolsConsumerHandler)consumerHandler).initializeKieSessionFromSnapshotOnDemand(envConfig);
         if (logger.isInfoEnabled()) {
@@ -252,7 +251,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         }
     }
 
-    protected void updateOnRunningConsumer(State state) {
+    public void updateOnRunningConsumer(State state) {
         logger.info("updateOnRunning COnsumer");
         if (state.equals(State.LEADER) ) {
             DroolsExecutor.setAsLeader();
@@ -263,13 +262,13 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         }
     }
 
-    protected void restart(State state) {
+    public void restart(State state) {
         stopConsume();
         restartConsumer();
         enableConsumeAndStartLoop(state);
     }
 
-    protected void enableConsumeAndStartLoop(State state) {
+    public void enableConsumeAndStartLoop(State state) {
         if (state.equals(State.LEADER)) {
             currentState = State.LEADER;
             DroolsExecutor.setAsLeader();
@@ -283,14 +282,14 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         assignAndStartConsume();
     }
 
-    protected void setLastProcessedKey() {
+    public void setLastProcessedKey() {
         ControlMessage lastControlMessage = ConsumerUtils.getLastEvent(envConfig.getControlTopicName(), envConfig.getPollTimeout());
         settingsOnAEmptyControlTopic(lastControlMessage);
         processingKey = lastControlMessage.getId();
         processingKeyOffset = lastControlMessage.getOffset();
     }
 
-    protected void settingsOnAEmptyControlTopic(ControlMessage lastWrapper) {
+    public void settingsOnAEmptyControlTopic(ControlMessage lastWrapper) {
         if (lastWrapper.getId() == null) {// completely empty or restart of ephemeral already used
             if (currentState.equals(State.REPLICA)) {
                 pollControl();
@@ -298,12 +297,12 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         }
     }
 
-    protected void assignAndStartConsume() {
+    public void assignAndStartConsume() {
         assign();
         startConsume();
     }
 
-    protected void consume() {
+    public void consume() {
         if (started) {
             if (currentState.equals(State.LEADER)) {
                 defaultProcessAsLeader();
@@ -471,19 +470,19 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         kafkaConsumer.commitSync(map);
     }
 
-    protected void startConsume() {
+    public void startConsume() {
         started = true;
     }
 
-    protected void stopConsume() {
+    public void stopConsume() {
         started = false;
     }
 
-    protected void pollControl(){
+    public void pollControl(){
         polledTopic = PolledTopic.CONTROL;
     }
 
-    protected void pollEvents(){
+    public void pollEvents(){
         polledTopic = PolledTopic.EVENTS;
     }
 

@@ -28,7 +28,6 @@ import org.kie.api.runtime.rule.FactHandle;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.KieSessionContext;
 import org.kie.hacep.core.infra.SessionSnapshooter;
-import org.kie.hacep.core.infra.consumer.ConsumerController;
 import org.kie.hacep.core.infra.utils.ConsumerUtils;
 import org.kie.hacep.message.ControlMessage;
 import org.kie.hacep.message.FactCountMessage;

@@ -31,7 +31,7 @@ import org.kie.api.runtime.rule.QueryResults;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.KieSessionContext;
 import org.kie.hacep.core.infra.SessionSnapshooter;
-import org.kie.hacep.core.infra.consumer.ConsumerController;
+import org.kie.hacep.core.infra.consumer.DefaultConsumerController;
 import org.kie.hacep.message.FactCountMessage;
 import org.kie.hacep.message.FireAllRuleMessage;
 import org.kie.hacep.message.GetObjectMessage;
@@ -116,7 +116,7 @@ public class CommandHandlerTest {
 
     protected CommandHandler commandHandler;
 
-    protected ConsumerController consumerController;
+    protected DefaultConsumerController consumerController;
 
     @Before
     public void initTest() {

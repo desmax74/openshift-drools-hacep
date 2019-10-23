@@ -18,6 +18,7 @@ package org.kie.hacep.core.infra.consumer;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.consumer.DroolsConsumerHandler;
 import org.kie.hacep.core.infra.election.State;
+import org.kie.remote.DroolsExecutor;
 import org.kie.remote.impl.producer.Producer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,21 +31,94 @@ public class LoggableDefaultKafkaConsumer<T> implements EventConsumer {
     private Logger logger = LoggerFactory.getLogger(DefaultKafkaConsumer.class);
     private ConsumerHandler consumerHandler;
     private EnvConfig envConfig;
-    private ConsumerProxy kafkaConsumers;
-    private EventConsumerLifecycle eventConsumerLifecycle;
-
+    private Consumers kafkaConsumers;
+    private EventConsumerStatus status;
 
     public LoggableDefaultKafkaConsumer(EnvConfig envConfig) {
         this.envConfig = envConfig;
+        this.status = getConsumerStatus();
     }
 
+    @Override
     public void initConsumer(Producer producer) {
         this.consumerHandler = getDroolsConsumerHandler(producer);
-        eventConsumerLifecycle = new DefaultEventConsumerLifecycle(this.consumerHandler, this.envConfig);
-        kafkaConsumers = eventConsumerLifecycle.getConsumers();
+        kafkaConsumers = getConsumersImpl();
         kafkaConsumers.initConsumer();
     }
 
+    @Override
+    public void stop() {
+        stopConsume();
+        kafkaConsumers.stop();
+        status.setExit(true);
+        consumerHandler.stop();
+    }
+
+    public void enableConsumeAndStartLoop(State state) {
+        kafkaConsumers.enableConsumeAndStartLoop(state);
+    }
+
+    public void stopConsume() {
+        kafkaConsumers.stop();
+    }
+
+    @Override
+    public void poll() {
+        kafkaConsumers.poll();
+    }
+
+    @Override
+    public void updateStatus(State state) {
+        boolean changedState = !state.equals(status.getCurrentState());
+        if(status.getCurrentState() == null ||  changedState){
+            status.setCurrentState(state);
+        }
+        if (status.isStarted() && changedState && !status.getCurrentState().equals(State.BECOMING_LEADER)) {
+            updateOnRunningConsumer(state);
+        } else if(!status.isStarted()) {
+            if (state.equals(State.REPLICA)) {
+                //ask and wait a snapshot before start
+                if (!envConfig.isSkipOnDemanSnapshot() && !status.isAskedSnapshotOnDemand()) {
+                    if (logger.isInfoEnabled()) {
+                        logger.info("askAndProcessSnapshotOnDemand:");
+                    }
+                    askAndProcessSnapshotOnDemand();
+                }
+            }
+            //State.BECOMING_LEADER won't start the pod
+            if (state.equals(State.LEADER) || state.equals(State.REPLICA)) {
+                if (logger.isInfoEnabled()) {
+                    logger.info("enableConsumeAndStartLoop:{}", state);
+                }
+                enableConsumeAndStartLoop(state);
+            }
+        }
+    }
+
+
+    public void askAndProcessSnapshotOnDemand() {
+        status.setAskedSnapshotOnDemand(true);
+        boolean completed = ((DroolsConsumerHandler)consumerHandler).initializeKieSessionFromSnapshotOnDemand(envConfig);
+        if (logger.isInfoEnabled()) {
+            logger.info("askAndProcessSnapshotOnDemand:{}", completed);
+        }
+        if (!completed) {
+            throw new RuntimeException("Can't obtain a snapshot on demand");
+        }
+    }
+
+
+    public  void updateOnRunningConsumer(State state) {
+        if (state.equals(State.LEADER) ) {
+            DroolsExecutor.setAsLeader();
+            kafkaConsumers.restart(state);
+        } else if (state.equals(State.REPLICA)) {
+            DroolsExecutor.setAsReplica();
+            kafkaConsumers.restart(state);
+        }
+    }
+
+    //LoggableProxy
     private ConsumerHandler getDroolsConsumerHandler(Producer producer){
         ConsumerHandler handler ;
         if(envConfig.isUnderTest()) {
@@ -55,43 +129,23 @@ public class LoggableDefaultKafkaConsumer<T> implements EventConsumer {
         return handler;
     }
 
-    @Override
-    public void stop() {
-        eventConsumerLifecycle.stopConsume();
-        kafkaConsumers.stop();
-        eventConsumerLifecycle.getStatus().setExit(true);
-        consumerHandler.stop();
+    private EventConsumerStatus getConsumerStatus(){
+        EventConsumerStatus status;
+        if(envConfig.isUnderTest()){
+            status = (EventConsumerStatus) LoggableInvocationHandler.createProxy(new DefaultEventConsumerStatus());
+        }else{
+            status = new DefaultEventConsumerStatus();
+        }
+        return status;
     }
 
-    @Override
-    public void updateStatus(State state) {
-        boolean changedState = !state.equals(eventConsumerLifecycle.getStatus().getCurrentState());
-        if(eventConsumerLifecycle.getStatus().getCurrentState() == null ||  changedState){
-            eventConsumerLifecycle.getStatus().setCurrentState(state);
+    private Consumers getConsumersImpl(){
+        Consumers consumers ;
+        if(envConfig.isUnderTest()) {
+            consumers = (Consumers) LoggableInvocationHandler.createProxy(new KafkaConsumers(status, envConfig, this.consumerHandler, this.consumerHandler.getSnapshooter()));
+        }else{
+            consumers = new KafkaConsumers(status, envConfig,this.consumerHandler, this.consumerHandler.getSnapshooter());
         }
-        if (eventConsumerLifecycle.getStatus().isStarted() && changedState && !eventConsumerLifecycle.getStatus().getCurrentState().equals(State.BECOMING_LEADER)) {
-            eventConsumerLifecycle.updateOnRunningConsumer(state);
-        } else if(!eventConsumerLifecycle.getStatus().isStarted()) {
-            if (state.equals(State.REPLICA)) {
-                //ask and wait a snapshot before start
-                if (!envConfig.isSkipOnDemanSnapshot() && !eventConsumerLifecycle.getStatus().isAskedSnapshotOnDemand()) {
-                    if (logger.isInfoEnabled()) {
-                        logger.info("askAndProcessSnapshotOnDemand:");
-                    }
-                    eventConsumerLifecycle.askAndProcessSnapshotOnDemand();
-                }
-            }
-            //State.BECOMING_LEADER won't start the pod
-            if (state.equals(State.LEADER) || state.equals(State.REPLICA)) {
-                if (logger.isInfoEnabled()) {
-                    logger.info("enableConsumeAndStartLoop:{}", state);
-                }
-                eventConsumerLifecycle.enableConsumeAndStartLoop(state);
-            }
-        }
-    }
-
-    public void poll() {
-        kafkaConsumers.poll();
+        return consumers;
     }
 }

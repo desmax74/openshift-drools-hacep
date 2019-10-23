@@ -32,7 +32,6 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
-import org.kie.hacep.consumer.DroolsConsumerHandler;
 import org.kie.hacep.core.infra.SessionSnapshooter;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.election.State;
@@ -46,11 +45,10 @@ import org.slf4j.LoggerFactory;
 
 import static org.kie.remote.util.SerializationUtil.deserialize;
 
-public class KafkaConsumers<T> implements ConsumerProxy<T> {
+public class KafkaConsumers<T> implements Consumers<T> {
 
     private Logger logger = LoggerFactory.getLogger(KafkaConsumers.class);
     private Consumer<String, T> primaryConsumer, secondaryConsumer;
-    private EventConsumerLifecycle consumerLifecycle;
     private EnvConfig envConfig;
     private SnapshotInfos snapshotInfos;
     private SessionSnapshooter snapShooter;
@@ -61,9 +59,8 @@ public class KafkaConsumers<T> implements ConsumerProxy<T> {
     private AtomicInteger counter ;
     private Printer printer;
 
-    public KafkaConsumers(EventConsumerStatus status, EnvConfig envConfig, EventConsumerLifecycle consumerLifecycle, ConsumerHandler consumerHandler, SessionSnapshooter snapshooter){
+    public KafkaConsumers(EventConsumerStatus status, EnvConfig envConfig, ConsumerHandler consumerHandler, SessionSnapshooter snapshooter){
         this.consumerHandler = consumerHandler;
-        this.consumerLifecycle = consumerLifecycle;
         this.envConfig = envConfig;
         this.snapShooter = snapshooter;
         this.status = status;
@@ -76,7 +73,7 @@ public class KafkaConsumers<T> implements ConsumerProxy<T> {
     @Override
     public void initConsumer() {
         this.primaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));;
-        if (consumerLifecycle.getStatus().getCurrentState().equals(State.REPLICA)) {
+        if (status.getCurrentState().equals(State.REPLICA)) {
             this.secondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
         }
     }
@@ -114,7 +111,7 @@ public class KafkaConsumers<T> implements ConsumerProxy<T> {
         }
 
         try {
-            while (!consumerLifecycle.getStatus().isExit()) {
+            while (!status.isExit()) {
                 consume();
             }
         } catch (WakeupException e) {
@@ -152,7 +149,7 @@ public class KafkaConsumers<T> implements ConsumerProxy<T> {
         primaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));
 
         assign();
-        if (consumerLifecycle.getStatus().getCurrentState().equals(State.REPLICA)) {
+        if (status.getCurrentState().equals(State.REPLICA)) {
             secondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
         } else {
             secondaryConsumer = null;
@@ -160,7 +157,7 @@ public class KafkaConsumers<T> implements ConsumerProxy<T> {
     }
 
     private  void assign() {
-        if (consumerLifecycle.getStatus().getCurrentState().equals(State.LEADER)) {
+        if (status.getCurrentState().equals(State.LEADER)) {
             assignAsALeader();
         } else {
             assignReplica();
@@ -198,10 +195,10 @@ public class KafkaConsumers<T> implements ConsumerProxy<T> {
             kafkaConsumer.assignment().forEach(topicPartition -> kafkaConsumer.seek(partitionCollection.iterator().next(),
                                                                                     snapshotInfos.getOffsetDuringSnapshot()));
         } else {
-            if(consumerLifecycle.getStatus().getCurrentState().equals(State.LEADER)){
+            if(status.getCurrentState().equals(State.LEADER)){
                 kafkaConsumer.assignment().forEach(topicPartition -> kafkaConsumer.seek(partitionCollection.iterator().next(),
                                                                                         status.getLastProcessedEventOffset()));
-            }else if(consumerLifecycle.getStatus().getCurrentState().equals(State.REPLICA)){
+            }else if(status.getCurrentState().equals(State.REPLICA)){
                 kafkaConsumer.assignment().forEach(topicPartition -> kafkaConsumer.seek(partitionCollection.iterator().next(),
                                                                                         status.getLastProcessedControlOffset()));
             }
@@ -234,7 +231,7 @@ public class KafkaConsumers<T> implements ConsumerProxy<T> {
     @Override
     public  void settingsOnAEmptyControlTopic(ControlMessage lastWrapper) {
         if (lastWrapper.getId() == null) {// completely empty or restart of ephemeral already used
-            if (consumerLifecycle.getStatus().getCurrentState().equals(State.REPLICA)) {
+            if (status.getCurrentState().equals(State.REPLICA)) {
                 pollControl();
             }
         }

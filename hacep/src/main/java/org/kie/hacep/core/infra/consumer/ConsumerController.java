@@ -15,54 +15,15 @@
  */
 package org.kie.hacep.core.infra.consumer;
 
-import org.kie.remote.impl.producer.Producer;
-import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.infra.election.LeadershipCallback;
 
-public class ConsumerController {
+public interface ConsumerController {
 
-    private EventConsumer consumer;
-    private InfraCallback callback;
-    private Thread thread;
+    void start();
 
-    public ConsumerController( EnvConfig envConfig, Producer producer ) {
-        this.callback = new InfraCallback();
-        this.consumer = EventConsumer.getConsumer(envConfig);
-        this.callback.setConsumer(consumer);
-        this.consumer.initConsumer(producer);
-    }
+    void stop();
 
-    public void start() {
-        consumeEvents();
-    }
+    EventConsumer getConsumer();
 
-    public void stop() {
-        consumer.stop();
-        stopConsumeEvents();
-    }
-
-    public EventConsumer getConsumer() {
-        return consumer;
-    }
-
-    public LeadershipCallback getCallback() {
-        return callback;
-    }
-
-    private void consumeEvents() {
-        thread = new Thread(
-                new ConsumerThread(this));
-        thread.start();
-    }
-
-    private void stopConsumeEvents(){
-        if ( thread != null) {
-            try {
-                thread.join();
-            }catch (InterruptedException ex){
-                throw new RuntimeException(ex);
-            }
-        }
-    }
-
+    LeadershipCallback getCallback();
 }

@@ -16,11 +16,10 @@
 package org.kie.hacep.core;
 
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
-import org.kie.hacep.core.infra.consumer.ConsumerController;
+import org.kie.hacep.core.infra.consumer.DefaultConsumerController;
 import org.kie.hacep.core.infra.election.LeaderElection;
 import org.kie.remote.impl.producer.Producer;
 import org.slf4j.Logger;
@@ -33,7 +32,7 @@ public class Bootstrap {
 
     private static final Logger logger = LoggerFactory.getLogger(Bootstrap.class);
     private static Producer eventProducer;
-    private static ConsumerController consumerController;
+    private static DefaultConsumerController consumerController;
     private static CoreKube coreKube;
 
     public static void startEngine(EnvConfig envConfig) {
@@ -74,7 +73,7 @@ public class Bootstrap {
     }
 
     // only for tests
-    public static ConsumerController getConsumerController() {
+    public static DefaultConsumerController getConsumerController() {
         return consumerController;
     }
 
@@ -95,7 +94,7 @@ public class Bootstrap {
     }
 
     private static void startConsumers(EnvConfig envConfig, Producer producer) {
-        consumerController = new ConsumerController(envConfig, producer);
+        consumerController = new DefaultConsumerController(envConfig, producer);
         consumerController.start();
     }
 }
