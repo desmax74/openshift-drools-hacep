@@ -49,7 +49,7 @@
   <logger name="testx.org.hacep" level="warn" additivity="false">
     <appender-ref ref="KafkaAppenderTrace"/>
   </logger>
-  
+
   <logger name="org.hacep" level="info" additivity="false">
     <appender-ref ref="STDOUT"/>
   </logger>

@@ -184,7 +184,7 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
                 kafkaLoggerCallsMsgs.add(stringConsumerRecord.value());
             });
 
-            File file = new File("src/test/resources/output/processOneSentMessageAsLeaderTest.log");
+            File file = new File("src/test/resources/output/processOneSentMessageAsLeaderTest.callstack");
             BufferedReader br = new BufferedReader(new FileReader(file));
             String st;
             List<String> fromLogFile = new ArrayList<>();
