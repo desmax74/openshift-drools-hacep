@@ -1,13 +1,18 @@
 package org.kie.hacep;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
@@ -38,11 +43,11 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
                                                                     Config.getConsumerConfig("controlConsumerProcessOneSentMessageAsLeaderTest"));
 
         KafkaConsumer<byte[], java.lang.String> kafkaLogConsumer = kafkaServerTest.getStringConsumer(TEST_KAFKA_LOGGER_TOPIC);
+        KafkaConsumer<byte[], java.lang.String> kafkaLogCallsConsumer = kafkaServerTest.getStringConsumer(TEST_KAFKA_LOGGER_TEST_CALLS_TOPIC);
         kafkaServerTest.insertBatchStockTicketEvent(1, topicsConfig, RemoteKieSession.class);
 
         try {
             //EVENTS TOPIC
-            logger.warn("Checks on Events topic");
             ConsumerRecords eventsRecords = eventsConsumer.poll(Duration.ofSeconds(2));
 
             AtomicReference<ConsumerRecord<String, byte[]>> lastEvent = new AtomicReference<>();
@@ -86,7 +91,6 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
             }
 
             //CONTROL TOPIC
-            logger.warn("Checks on Control topic");
             index.set(0);
             attempts.set(0);
             while (index.get() < 2 ) {
@@ -121,7 +125,6 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
             assertEquals(0, controlRecords.count());
 
             // SWITCH AS a REPLICA
-            logger.warn("Switch as a replica");
             Bootstrap.getConsumerController().getCallback().updateStatus(State.REPLICA);
             ConsumerRecords<byte[], String> recordsLog = kafkaLogConsumer.poll(Duration.ofSeconds(5));
             java.util.List<java.lang.String> kafkaLoggerMsgs = new ArrayList<>();
@@ -151,6 +154,7 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
             assertNotNull(sideEffectOnLeader);
             assertNotNull(sideEffectOnReplica);
             assertEquals(sideEffectOnLeader, sideEffectOnReplica);
+            System.out.println("count:"+kafkaLogCallsConsumer.poll(Duration.ofSeconds(5)).count());
         } catch (Exception ex) {
             logger.error(ex.getMessage(),
                          ex);
@@ -158,7 +162,45 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
             eventsConsumer.close();
             controlConsumer.close();
             kafkaLogConsumer.close();
+            kafkaLogCallsConsumer.close();
         }
+    }
+
+
+    @Test(timeout = 30000L)
+    public void processOneSentMessageAsLeaderAndThenReplicaTestCallStack() {
+        Bootstrap.startEngine(envConfig);
+        Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
+        KafkaConsumer<byte[], java.lang.String> kafkaLogCallsConsumer = kafkaServerTest.getStringConsumer(TEST_KAFKA_LOGGER_TEST_CALLS_TOPIC);
+        kafkaServerTest.insertBatchStockTicketEvent(1, topicsConfig, RemoteKieSession.class);
+
+        try {
+            // SWITCH AS a REPLICA
+            Bootstrap.getConsumerController().getCallback().updateStatus(State.REPLICA);
+            ConsumerRecords<byte[], String> recordsCallsLog = kafkaLogCallsConsumer.poll(Duration.ofSeconds(5));
+            List<java.lang.String> kafkaLoggerCallsMsgs = new ArrayList<>();
+            recordsCallsLog.forEach(stringConsumerRecord -> {
+                assertNotNull(stringConsumerRecord);
+                kafkaLoggerCallsMsgs.add(stringConsumerRecord.value());
+            });
+
+            File file = new File("src/test/resources/output/processOneSentMessageAsLeaderTest.log");
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String st;
+            List<String> fromLogFile = new ArrayList<>();
+            while ((st = br.readLine()) != null){
+                fromLogFile.add(st);
+            }
+            assertTrue(kafkaLoggerCallsMsgs.size() == fromLogFile.size());
+            assertEquals(kafkaLoggerCallsMsgs, fromLogFile);
+
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(),
+                         ex);
+        } finally {
+            kafkaLogCallsConsumer.close();
+        }
+
     }
     
     private void checkInsertSideEffects(ConsumerRecord<String, byte[]> eventsRecord, ConsumerRecord<String, byte[]> controlRecord) {

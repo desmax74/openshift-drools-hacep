@@ -73,6 +73,7 @@ public class KafkaUtilTest implements AutoCloseable {
     private Logger kafkaLogger = LoggerFactory.getLogger("org.hacep");
 
 
+
     public Map<String, Object> getKafkaProps() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");

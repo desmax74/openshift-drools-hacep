@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 public class LoggableInvocationHandler implements InvocationHandler {
 
 
-    private Logger kafkaLogger = LoggerFactory.getLogger("org.hacep");
+    private Logger kafkaLogger = LoggerFactory.getLogger("testx.org.hacep");
     private Object target;
 
 
@@ -45,8 +45,9 @@ public class LoggableInvocationHandler implements InvocationHandler {
                          Object[] args) throws Throwable {
 
         Object result = method.invoke(target, args);
-        //kafkaLogger.warn("Class:{} method:{} args:{} result:{}", target, method, args, result);
-
+        if(!method.getDeclaringClass().equals(EventConsumerStatus.class)){
+            kafkaLogger.warn("{}.{}", method.getDeclaringClass(),method.getName());
+        }
         return result;
     }
 }
