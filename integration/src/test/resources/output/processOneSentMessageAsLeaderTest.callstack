@@ -1,8 +1,15 @@
 interface org.kie.hacep.core.infra.consumer.ConsumerHandler.getSnapshooter
+interface org.kie.hacep.core.infra.consumer.loggable.CoreConsumer.initConsumer
 interface org.kie.hacep.core.infra.consumer.Consumers.initConsumer
+interface org.kie.hacep.core.infra.consumer.loggable.CoreConsumer.enableConsumeAndStartLoop
+interface org.kie.hacep.core.infra.consumer.loggable.CoreConsumer.assignAndStartConsume
 interface org.kie.hacep.core.infra.consumer.Consumers.enableConsumeAndStartLoop
 interface org.kie.hacep.core.infra.consumer.ConsumerHandler.process
 interface org.kie.hacep.core.infra.consumer.ConsumerHandler.process
+interface org.kie.hacep.core.infra.consumer.loggable.CoreConsumer.stopConsume
+interface org.kie.hacep.core.infra.consumer.loggable.CoreConsumer.restartConsumer
+interface org.kie.hacep.core.infra.consumer.loggable.CoreConsumer.enableConsumeAndStartLoop
+interface org.kie.hacep.core.infra.consumer.loggable.CoreConsumer.assignAndStartConsume
 interface org.kie.hacep.core.infra.consumer.Consumers.restart
 interface org.kie.hacep.core.infra.consumer.ConsumerHandler.processSideEffectsOnReplica
 interface org.kie.hacep.core.infra.consumer.ConsumerHandler.processSideEffectsOnReplica

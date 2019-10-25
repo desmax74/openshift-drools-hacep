@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.hacep.core.infra.consumer;
+package org.kie.hacep.core.infra.consumer.loggable;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -24,16 +24,14 @@ import org.slf4j.LoggerFactory;
 
 public class LoggableInvocationHandler implements InvocationHandler {
 
-
     private Logger kafkaLogger = LoggerFactory.getLogger("testx.org.hacep");
     private Object target;
 
-
-    public LoggableInvocationHandler(Object target){
+    public LoggableInvocationHandler(Object target) {
         this.target = target;
     }
 
-    public static Object createProxy(Object target){
+    public static Object createProxy(Object target) {
         return Proxy.newProxyInstance(target.getClass().getClassLoader(),
                                       target.getClass().getInterfaces(),
                                       new LoggableInvocationHandler(target));
@@ -45,9 +43,20 @@ public class LoggableInvocationHandler implements InvocationHandler {
                          Object[] args) throws Throwable {
 
         Object result = method.invoke(target, args);
-        if(!method.getDeclaringClass().equals(EventConsumerStatus.class)){
-            kafkaLogger.warn("{}.{}", method.getDeclaringClass(),method.getName());
+        if (hasToBeProcess(method)) {
+            kafkaLogger.warn("{}.{}",
+                             method.getDeclaringClass(),
+                             method.getName());
         }
         return result;
+    }
+
+    private boolean hasToBeProcess(Method method){
+        if(method.getDeclaringClass().equals(EventConsumerStatus.class) ||
+                ( method.getDeclaringClass().equals(CoreConsumer.class)) && method.getName().equals("consume")){
+           return false;
+        }else {
+            return true;
+        }
     }
 }

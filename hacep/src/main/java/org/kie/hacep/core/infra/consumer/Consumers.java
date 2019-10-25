@@ -26,8 +26,6 @@ public interface Consumers<T> {
 
     void poll();
 
-    void restartConsumer();
-
     void enableConsumeAndStartLoop(State state);
 
     void setLastProcessedKey();

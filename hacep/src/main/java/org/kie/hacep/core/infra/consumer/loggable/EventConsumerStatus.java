@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.hacep.core.infra.consumer;
+package org.kie.hacep.core.infra.consumer.loggable;
 
 import org.kie.hacep.core.infra.election.State;
 

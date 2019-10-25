@@ -33,6 +33,12 @@ public class ItemToProcess implements Serializable {
         this.offset = offset;
     }
 
+    public static ItemToProcess getItemToProcess(ConsumerRecord record) {
+        return new ItemToProcess(record.key().toString(),
+                                 record.offset(),
+                                 record.value());
+    }
+
     public String getKey() {
         return key;
     }
@@ -43,10 +49,6 @@ public class ItemToProcess implements Serializable {
 
     public long getOffset() {
         return offset;
-    }
-
-    public static ItemToProcess getItemToProcess(ConsumerRecord record){
-        return new ItemToProcess(record.key().toString(), record.offset(), record.value());
     }
 
     @Override

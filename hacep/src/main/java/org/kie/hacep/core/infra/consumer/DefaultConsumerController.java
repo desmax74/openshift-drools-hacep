@@ -15,9 +15,9 @@
  */
 package org.kie.hacep.core.infra.consumer;
 
-import org.kie.remote.impl.producer.Producer;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.infra.election.LeadershipCallback;
+import org.kie.remote.impl.producer.Producer;
 
 public class DefaultConsumerController implements ConsumerController {
 
@@ -25,7 +25,8 @@ public class DefaultConsumerController implements ConsumerController {
     private InfraCallback callback;
     private Thread thread;
 
-    public DefaultConsumerController(EnvConfig envConfig, Producer producer ) {
+    public DefaultConsumerController(EnvConfig envConfig,
+                                     Producer producer) {
         this.callback = new InfraCallback();
         this.consumer = EventConsumer.getConsumer(envConfig);
         this.callback.setConsumer(consumer);
@@ -59,14 +60,13 @@ public class DefaultConsumerController implements ConsumerController {
         thread.start();
     }
 
-    private void stopConsumeEvents(){
-        if ( thread != null) {
+    private void stopConsumeEvents() {
+        if (thread != null) {
             try {
                 thread.join();
-            }catch (InterruptedException ex){
+            } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);
             }
         }
     }
-
 }
