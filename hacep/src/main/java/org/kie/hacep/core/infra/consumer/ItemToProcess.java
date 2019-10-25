@@ -34,9 +34,7 @@ public class ItemToProcess implements Serializable {
     }
 
     public static ItemToProcess getItemToProcess(ConsumerRecord record) {
-        return new ItemToProcess(record.key().toString(),
-                                 record.offset(),
-                                 record.value());
+        return new ItemToProcess(record.key().toString(), record.offset(), record.value());
     }
 
     public String getKey() {
