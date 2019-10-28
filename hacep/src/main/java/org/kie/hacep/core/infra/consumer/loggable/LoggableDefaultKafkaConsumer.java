@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public class LoggableDefaultKafkaConsumer<T> implements EventConsumer {
 
-    private Logger logger = LoggerFactory.getLogger(DefaultKafkaConsumer.class);
+    private Logger logger = LoggerFactory.getLogger(LoggableDefaultKafkaConsumer.class);
     private ConsumerHandler consumerHandler;
     private EnvConfig envConfig;
     private Consumers kafkaConsumers;

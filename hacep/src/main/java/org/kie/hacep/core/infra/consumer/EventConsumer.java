@@ -16,19 +16,14 @@
 package org.kie.hacep.core.infra.consumer;
 
 import org.kie.hacep.EnvConfig;
-import org.kie.hacep.core.infra.consumer.loggable.DefaultKafkaConsumer;
 import org.kie.hacep.core.infra.consumer.loggable.LoggableDefaultKafkaConsumer;
 import org.kie.hacep.core.infra.election.LeadershipCallback;
 import org.kie.remote.impl.producer.Producer;
 
 public interface EventConsumer extends LeadershipCallback {
 
-    static EventConsumer getConsumer(EnvConfig config) {
-        return config.isLocal() ? new LocalConsumer(config) : getKafkaConsumer(config);
-    }
-
-    static EventConsumer getKafkaConsumer(EnvConfig envConfig) {
-        return envConfig.isUnderTest() ? new LoggableDefaultKafkaConsumer(envConfig) : new DefaultKafkaConsumer<>(envConfig);
+    static EventConsumer getConsumer(EnvConfig envConfig) {
+        return envConfig.isLocal() ? new LocalConsumer(envConfig) : new LoggableDefaultKafkaConsumer(envConfig);
     }
 
     void initConsumer(Producer producer);
