@@ -31,12 +31,14 @@ public class SnapshotMessage extends AbstractMessage implements Serializable {
     private String lastInsertedEventkey;
     private long lastInsertedEventOffset;
     private LocalDateTime time;
+    private String kjarGAV;
 
     /* Empty constructor for serialization */
     public SnapshotMessage() {
     }
 
     public SnapshotMessage(String id,
+                           String kjarGAV,
                            byte[] serializedSession,
                            FactHandlesManager fhManager,
                            String lastInsertedEventkey,
@@ -48,6 +50,7 @@ public class SnapshotMessage extends AbstractMessage implements Serializable {
         this.lastInsertedEventkey = lastInsertedEventkey;
         this.lastInsertedEventOffset = lastInsertedEventOffset;
         this.time = time;
+        this.kjarGAV = kjarGAV;
     }
 
     public byte[] getSerializedSession() {
@@ -86,6 +89,10 @@ public class SnapshotMessage extends AbstractMessage implements Serializable {
         return time;
     }
 
+    public String getKjarGAV(){
+        return kjarGAV;
+    }
+
     @Override
     public String toString() {
         return "SnapshotMessage{" +
@@ -95,6 +102,7 @@ public class SnapshotMessage extends AbstractMessage implements Serializable {
                 ", lastInsertedEventOffset=" + lastInsertedEventOffset +
                 ", time=" + time +
                 ", id='" + id + '\'' +
+                ", kjarGAV='" + kjarGAV + '\'' +
                 ", timestamp=" + timestamp +
                 '}';
     }

@@ -19,8 +19,8 @@
             <artifactId>kie-remote</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.drools</groupId>
-            <artifactId>drools-model-compiler</artifactId>
+            <groupId>org.kie</groupId>
+            <artifactId>kie-api</artifactId>
         </dependency>
     </dependencies>
 

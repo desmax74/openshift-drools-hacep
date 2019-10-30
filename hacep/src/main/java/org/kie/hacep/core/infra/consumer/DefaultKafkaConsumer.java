@@ -86,7 +86,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
 
     public void initConsumer(ConsumerHandler consumerHandler) {
         this.consumerHandler = (DroolsConsumerHandler) consumerHandler;
-        this.snapShooter = this.consumerHandler.getSnapshooter();
+        this.snapShooter = this.consumerHandler.getSessionSnapShooter();
         this.kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));
         if (currentState.equals(State.REPLICA)) {
             this.kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));

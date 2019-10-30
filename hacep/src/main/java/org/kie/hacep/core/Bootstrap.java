@@ -16,7 +16,6 @@
 package org.kie.hacep.core;
 
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
@@ -38,6 +37,7 @@ public class Bootstrap {
 
     public static void startEngine(EnvConfig envConfig) {
         //order matter
+        checkKJarVersion(envConfig);
         coreKube = new CoreKube(envConfig.getNamespace(), null);
         eventProducer = startProducer(envConfig);
         startConsumers(envConfig, eventProducer);
@@ -97,5 +97,18 @@ public class Bootstrap {
     private static void startConsumers(EnvConfig envConfig, Producer producer) {
         consumerController = new ConsumerController(envConfig, producer);
         consumerController.start();
+    }
+
+    private static void checkKJarVersion(EnvConfig envConfig){
+        if(envConfig.isUpdatableKJar()){
+            String gav = envConfig.getKjarGAV();
+            if(gav.isEmpty()){
+                throw new RuntimeException("The KJar GAV is empty and must be in the format groupdID:artifactID:version");
+            }
+            String parts[]= gav.split(":");
+            if(parts.length != 3){
+                throw new RuntimeException("The KJar GAV must be in the format groupdID:artifactID:version");
+            }
+        }
     }
 }

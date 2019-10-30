@@ -25,6 +25,7 @@ import org.kie.remote.RemoteWorkingMemory;
 import org.kie.remote.TopicsConfig;
 import org.kie.remote.command.AbstractCommand;
 import org.kie.remote.command.FactCountCommand;
+import org.kie.remote.command.GetKJarGAVCommand;
 import org.kie.remote.command.GetObjectCommand;
 import org.kie.remote.command.ListObjectsCommand;
 import org.kie.remote.command.ListObjectsCommandClassType;
@@ -76,6 +77,12 @@ public abstract class AbstractRemoteEntryPoint implements RemoteWorkingMemory {
     public <T> CompletableFuture<T> getObject(RemoteFactHandle<T> remoteFactHandle) {
         GetObjectCommand command = new GetObjectCommand(remoteFactHandle);
         return executeCommand(command);
+    }
+
+    @Override
+    public CompletableFuture<String> getKJarGAV() {
+        GetKJarGAVCommand command = new GetKJarGAVCommand(entryPoint);
+        return null;
     }
 
     protected <T> CompletableFuture<T> executeCommand(AbstractCommand command ) {

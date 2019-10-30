@@ -70,26 +70,32 @@ public class SnapshotOnDemandUtils {
         }
     }
 
-    private static SnapshotInfos buildNewSnapshotOnDemand(EnvConfig config,
+    private static SnapshotInfos buildNewSnapshotOnDemand(EnvConfig envConfig,
                                                           LocalDateTime limitAge) {
-        SnapshotMessage snapshotMsg = askAndReadSnapshotOnDemand(config,
+        SnapshotMessage snapshotMsg = askAndReadSnapshotOnDemand(envConfig,
                                                                  limitAge);
         KieSession kSession = null;
+        KieContainer kieContainer = null;
         try (ByteArrayInputStream in = new ByteArrayInputStream(snapshotMsg.getSerializedSession())) {
-            KieSessionConfiguration conf = KieServices.get().newKieSessionConfiguration();
-            conf.setOption(ClockTypeOption.get("pseudo"));
-            kSession = KieServices.get().getMarshallers().newMarshaller(getKieContainer().getKieBase()).unmarshall(in,
-                                                                                                                   conf,
-                                                                                                                   null);
+            KieServices ks = KieServices.get();
+            if(ks != null) {
+                KieSessionConfiguration conf = ks.newKieSessionConfiguration();
+                conf.setOption(ClockTypeOption.get("pseudo"));
+                kSession = ks.getMarshallers().newMarshaller(getKieContainer().getKieBase()).unmarshall(in, conf,null);
+                //@TODO leggere kieContainer = ? dalla kiesession
+                String[] parts = envConfig.getKjarGAV().split(":");
+                kieContainer = ks.newKieContainer(ks.newReleaseId(parts[0], parts[1], parts[2]));
+            }
         } catch (IOException | ClassNotFoundException e) {
-            logger.error(e.getMessage(),
-                         e);
+            logger.error(e.getMessage(), e);
         }
         return new SnapshotInfos(kSession,
+                                 kieContainer,
                                  snapshotMsg.getFhManager(),
                                  snapshotMsg.getLastInsertedEventkey(),
                                  snapshotMsg.getLastInsertedEventOffset(),
-                                 snapshotMsg.getTime());
+                                 snapshotMsg.getTime(),
+                                 snapshotMsg.getKjarGAV());
     }
 
     private static KieContainer getKieContainer() {

@@ -152,4 +152,5 @@ public class PodAsLeaderTest extends KafkaFullTopicsTests {
             logger.warn("Control consumer closed");
         }
     }
+
 }

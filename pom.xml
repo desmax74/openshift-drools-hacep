@@ -16,7 +16,6 @@
     <alphanetworkCompilerEnabled>false</alphanetworkCompilerEnabled>
     <dockerImageName>quickstarter/openshift-kie-springboot</dockerImageName>
     <failOnMissingWebXml>false</failOnMissingWebXml>
-    <generateModel>YES</generateModel>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <version.annotations>2.0.1.Final</version.annotations>
     <version.fabric8.plugin>4.2.0</version.fabric8.plugin>
@@ -73,6 +72,11 @@
       <dependency>
         <groupId>org.kie</groupId>
         <artifactId>kie-maven-plugin</artifactId>
+        <version>${version.org.kie}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.kie</groupId>
+        <artifactId>kie-ci</artifactId>
         <version>${version.org.kie}</version>
       </dependency>
       <dependency>
@@ -181,6 +185,7 @@
         <version>${version.logback.kafka.appender}</version>
         <scope>test</scope>
       </dependency>
+
     </dependencies>
   </dependencyManagement>
 

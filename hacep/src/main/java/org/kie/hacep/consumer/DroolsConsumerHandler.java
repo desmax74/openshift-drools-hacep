@@ -18,6 +18,7 @@ package org.kie.hacep.consumer;
 import java.util.Queue;
 
 import org.kie.api.KieServices;
+import org.kie.api.builder.KieScanner;
 import org.kie.api.runtime.KieContainer;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.GlobalStatus;
@@ -44,28 +45,43 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private static final Logger logger = LoggerFactory.getLogger(DroolsConsumerHandler.class);
     private Logger loggerForTest;
     private Producer producer;
-    private DefaultSessionSnapShooter snapshooter;
-    private EnvConfig config;
+    private DefaultSessionSnapShooter sessionSnapShooter;
+    private EnvConfig envConfig;
     private KieSessionContext kieSessionContext;
     private CommandHandler commandHandler;
-    private SnapshotInfos infos;
+    private SnapshotInfos snapshotInfos;
     private boolean shutdown;
 
     public DroolsConsumerHandler(Producer producer, EnvConfig envConfig) {
-        this.config = envConfig;
-        this.snapshooter = new DefaultSessionSnapShooter(config);
-        initializeKieSessionFromSnapshot(config);
+        this.envConfig = envConfig;
         this.producer = producer;
-        commandHandler = new CommandHandler(kieSessionContext, config, producer, snapshooter);
-        if (config.isUnderTest()) {
+        this.sessionSnapShooter = new DefaultSessionSnapShooter(this.envConfig);
+        initializeKieSessionContextFromSnapshot(this.envConfig);
+        commandHandler = new CommandHandler(kieSessionContext, this.envConfig, producer, sessionSnapShooter);
+        if (this.envConfig.isUnderTest()) {
             loggerForTest = PrinterUtil.getKafkaLoggerForTest(envConfig);
         }
     }
 
-    private void initializeKieSessionFromSnapshot(EnvConfig config) {
+    private void initializeKieSessionContextFromSnapshot(EnvConfig config) {
         if(config.isSkipOnDemanSnapshot()) {// if true we reads the snapshots and wait until the first leaderElectionUpdate
-            this.infos = snapshooter.deserialize();
-            this.kieSessionContext = createSessionHolder(infos);
+            this.snapshotInfos = sessionSnapShooter.deserialize();
+            /* if the Snapshot is ok we use the KieContainer and KieSession from the infos,
+            otherwise (empty system) we create kiecontainer and kieSession from the envConfig's GAV */
+            if (snapshotInfos != null) {
+                kieSessionContext = initializeKieSessionContext(snapshotInfos);
+            }else{
+                KieContainer kieContainer;
+                if(envConfig.isUpdatableKJar()) {
+                    String[] parts = envConfig.getKjarGAV().split(":");
+                    kieContainer = KieServices.get().newKieContainer(KieServices.get().newReleaseId(parts[0], parts[1], parts[2]));
+                }else{
+                    kieContainer = KieServices.get().newKieClasspathContainer();
+                }
+                kieSessionContext = new KieSessionContext();
+                kieSessionContext.init(kieContainer, kieContainer.newKieSession());
+            }
+
         } else{
             kieSessionContext = new KieSessionContext();
             createClasspathSession( kieSessionContext );
@@ -74,15 +90,17 @@ public class DroolsConsumerHandler implements ConsumerHandler {
 
     public boolean initializeKieSessionFromSnapshotOnDemand(EnvConfig config) {
         if(!config.isSkipOnDemanSnapshot()) {// if true we reads the snapshots and wait until the first leaderElectionUpdate
-            this.infos = SnapshotOnDemandUtils.askASnapshotOnDemand(config, snapshooter);
-            this.kieSessionContext = createSessionHolder(infos);
+            this.snapshotInfos = SnapshotOnDemandUtils.askASnapshotOnDemand(config,
+                                                                            sessionSnapShooter);
+            kieSessionContext = initializeKieSessionContext(snapshotInfos);
+            this.sessionSnapShooter = new DefaultSessionSnapShooter(this.envConfig);
             return true;
         }
         return false;
     }
 
-    public DefaultSessionSnapShooter getSnapshooter(){
-        return snapshooter;
+    public DefaultSessionSnapShooter getSessionSnapShooter(){
+        return sessionSnapShooter;
     }
 
     @Override
@@ -93,15 +111,15 @@ public class DroolsConsumerHandler implements ConsumerHandler {
 
     @Override
     public void process( RemoteCommand command, State state ) {
-        if(config.isUnderTest()) {  loggerForTest.warn("DroolsConsumerHandler.process Remote command on process:{} state:{}", command, state); }
+        if(envConfig.isUnderTest()) {  loggerForTest.warn("DroolsConsumerHandler.process Remote command on process:{} state:{}", command, state); }
         if (state.equals(State.LEADER)) {
             processCommand( command, state );
             Queue<Object> sideEffectsResults = DroolsExecutor.getInstance().getAndReset();
-            if (config.isUnderTest()) { loggerForTest.warn("DroolsConsumerHandler.process sideEffects:{}", sideEffectsResults); }
+            if (envConfig.isUnderTest()) { loggerForTest.warn("DroolsConsumerHandler.process sideEffects:{}", sideEffectsResults); }
             ControlMessage newControlMessage = new ControlMessage(command.getId(), sideEffectsResults);
-            if (config.isUnderTest()) { loggerForTest.warn("DroolsConsumerHandler.process new ControlMessage sent to control topic:{}", newControlMessage); }
-            producer.produceSync(config.getControlTopicName(), command.getId(), newControlMessage);
-            if (config.isUnderTest()) { loggerForTest.warn("sideEffectOnLeader:{}", sideEffectsResults); }
+            if (envConfig.isUnderTest()) { loggerForTest.warn("DroolsConsumerHandler.process new ControlMessage sent to control topic:{}", newControlMessage); }
+            producer.produceSync(envConfig.getControlTopicName(), command.getId(), newControlMessage);
+            if (envConfig.isUnderTest()) { loggerForTest.warn("sideEffectOnLeader:{}", sideEffectsResults); }
         } else {
             processCommand( command, state );
         }
@@ -109,7 +127,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
 
     public void processSideEffectsOnReplica(Queue<Object> newSideEffects) {
         DroolsExecutor.getInstance().appendSideEffects(newSideEffects);
-        if(config.isUnderTest()){ loggerForTest.warn("sideEffectOnReplica:{}", newSideEffects);}
+        if(envConfig.isUnderTest()){ loggerForTest.warn("sideEffectOnReplica:{}", newSideEffects);}
     }
 
     @Override
@@ -117,7 +135,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         if (logger.isInfoEnabled()){ logger.info("SNAPSHOT"); }
         process(item, currentState);
         if(!shutdown) {
-            snapshooter.serialize(kieSessionContext, item.getKey(), item.getOffset());
+            sessionSnapShooter.serialize(kieSessionContext, item.getKey(), item.getOffset());
         }
     }
 
@@ -142,13 +160,23 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         }
     }
 
-    private KieSessionContext createSessionHolder(SnapshotInfos infos ) {
-        KieSessionContext kieSessionContext = new KieSessionContext();
+    public KieSessionContext initializeKieSessionContext(SnapshotInfos infos){
+        KieSessionContext kieSessionContext = getKieSessionContext();
         if (infos != null) {
-            if(logger.isInfoEnabled()){ logger.info("start consumer with:{}", infos);}
-            initSessionHolder( infos, kieSessionContext );
+            if (logger.isInfoEnabled()) { logger.info("start consumer with:{}", infos); }
+            initSessionHolder(infos, kieSessionContext);
         } else {
-            createClasspathSession( kieSessionContext );
+            createClasspathSession(kieSessionContext);
+        }
+        return kieSessionContext;
+    }
+
+    private KieSessionContext getKieSessionContext() {
+        KieSessionContext kieSessionContext;
+        if(envConfig.isUpdatableKJar()){
+            kieSessionContext = deployKJar(envConfig.getKjarGAV());
+        }else {
+            kieSessionContext = new KieSessionContext();
         }
         return kieSessionContext;
     }
@@ -156,9 +184,20 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private void createClasspathSession( KieSessionContext kieSessionContext ) {
         KieServices srv = KieServices.get();
         if (srv != null) {
-            if (logger.isInfoEnabled()) {logger.info("Creating new Kie Session");}
-            KieContainer kieContainer = KieServices.get().newKieClasspathContainer();
-            kieSessionContext.init(kieContainer.newKieSession());
+            if(envConfig.isUpdatableKJar()){
+                if (logger.isInfoEnabled()) {logger.info("Creating new KieContainer with KJar:{}", envConfig.getKjarGAV());}
+                String parts[] = envConfig.getKjarGAV().split(":");
+                KieContainer kieContainer = srv.newKieContainer(srv.newReleaseId(parts[0], parts[1], parts[2]));
+                KieScanner scanner = srv.newKieScanner(kieContainer);
+                scanner.scanNow();
+                kieSessionContext.init(kieContainer, kieContainer.newKieSession());
+            }else {
+                if (logger.isInfoEnabled()) {
+                    logger.info("Creating new Kie Session");
+                }
+                KieContainer kieContainer = KieServices.get().newKieClasspathContainer();
+                kieSessionContext.init(kieContainer, kieContainer.newKieSession());
+            }
         } else {
             logger.error("KieService is null");
         }
@@ -167,10 +206,29 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private void initSessionHolder(SnapshotInfos infos, KieSessionContext kieSessionContext) {
         if (infos.getKieSession() == null) {
             KieContainer kieContainer = KieServices.get().newKieClasspathContainer();
-            kieSessionContext.init(kieContainer.newKieSession());
+            kieSessionContext.init(kieContainer, kieContainer.newKieSession());
         } else {
             if(logger.isInfoEnabled()){ logger.info("Applying snapshot");}
             kieSessionContext.initFromSnapshot(infos);
         }
+    }
+
+    public KieSessionContext deployKJar(String gav){
+        String parts[]= gav.split(":");
+        return deployKJar(parts[0], parts[1], parts[2]);
+    }
+
+    public KieSessionContext deployKJar(String groupId, String artifactId, String version) {
+        KieSessionContext kieSessionContext = new KieSessionContext();
+        KieServices ks = KieServices.get();
+        if (ks != null) {
+            KieContainer kieContainer = ks.newKieContainer(ks.newReleaseId(groupId, artifactId, version));
+            KieScanner scanner = ks.newKieScanner(kieContainer);
+            scanner.scanNow();
+            kieSessionContext.init(kieContainer, kieContainer.newKieSession());
+        } else {
+            logger.error("KieService is null");
+        }
+        return kieSessionContext;
     }
 }

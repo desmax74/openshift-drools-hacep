@@ -18,9 +18,7 @@ package org.kie.hacep.core.infra;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -50,22 +48,13 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
 
     private final String key = "LAST-SNAPSHOT";
     private final Logger logger = LoggerFactory.getLogger(DefaultSessionSnapShooter.class);
-    private KieContainer kieContainer;
     private EnvConfig envConfig;
 
     public DefaultSessionSnapShooter(EnvConfig envConfig) {
         this.envConfig = envConfig;
-        KieServices srv = KieServices.get();
-        if (srv != null) {
-            kieContainer = srv.newKieClasspathContainer();
-        } else {
-            logger.error("KieServices is null");
-        }
     }
 
-    public void serialize(KieSessionContext kieSessionContext,
-                          String lastInsertedEventkey,
-                          long lastInsertedEventOffset) {
+    public void serialize(KieSessionContext kieSessionContext, String lastInsertedEventkey, long lastInsertedEventOffset) {
         KieMarshallers marshallers = KieServices.get().getMarshallers();
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             EventProducer<byte[]> producer = new EventProducer<>();
@@ -75,6 +64,7 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
             /* We are storing the last inserted key and offset together with the session's bytes */
             byte[] bytes = out.toByteArray();
             SnapshotMessage message = new SnapshotMessage(UUID.randomUUID().toString(),
+                                                          envConfig.getKjarGAV(),
                                                           bytes,
                                                           kieSessionContext.getFhManager(),
                                                           lastInsertedEventkey,
@@ -103,23 +93,27 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
             }
             consumer.close();
             SnapshotMessage snapshotMsg = bytes != null ? SerializationUtil.deserialize(bytes) : null;
-
+            /* if the Snapshot is ok we use the KieContainer and KieSession from the infos,
+            otherwise (empty system) we will create kiecontainer and kieSession from the envConfig's GAV */
+            KieContainer kieContainer = null;
             if (snapshotMsg != null) {
                 try (ByteArrayInputStream in = new ByteArrayInputStream(snapshotMsg.getSerializedSession())) {
-                    KieSessionConfiguration conf = KieServices.get().newKieSessionConfiguration();
+                    KieSessionConfiguration conf = srv.newKieSessionConfiguration();
                     conf.setOption(ClockTypeOption.get("pseudo"));
-                    kSession = marshallers.newMarshaller(kieContainer.getKieBase()).unmarshall(in,
-                                                                                               conf,
-                                                                                               null);
+                    String[] partsSerialized = snapshotMsg.getKjarGAV().split(":");
+                    kieContainer = srv.newKieContainer(srv.newReleaseId(partsSerialized[0], partsSerialized[1], partsSerialized[2]));
+                    kSession = marshallers.newMarshaller(kieContainer.getKieBase()).unmarshall(in, conf,null);
+
                 } catch (IOException | ClassNotFoundException e) {
-                    logger.error(e.getMessage(),
-                                 e);
+                    logger.error(e.getMessage(), e);
                 }
                 return new SnapshotInfos(kSession,
+                                         kieContainer,
                                          snapshotMsg.getFhManager(),
                                          snapshotMsg.getLastInsertedEventkey(),
                                          snapshotMsg.getLastInsertedEventOffset(),
-                                         snapshotMsg.getTime());
+                                         snapshotMsg.getTime(),
+                                         snapshotMsg.getKjarGAV());
             }
         }
         return null;
@@ -134,8 +128,7 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
         if (partitionsInfo != null) {
             for (PartitionInfo partition : partitionsInfo) {
                 if (partitions == null || partitions.contains(partition.partition())) {
-                    partitionCollection.add(new TopicPartition(partition.topic(),
-                                                               partition.partition()));
+                    partitionCollection.add(new TopicPartition(partition.topic(), partition.partition()));
                 }
             }
             if (!partitionCollection.isEmpty()) {

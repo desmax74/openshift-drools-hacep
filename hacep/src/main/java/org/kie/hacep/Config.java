@@ -40,7 +40,6 @@ public class Config {
     public static final String DEFAULT_PRINTER_TYPE = "printer.type";
     public static final String MAX_SNAPSHOT_AGE = "max.snapshot.age";
     public static final String DEFAULT_MAX_SNAPSHOT_AGE_SEC = "600";
-
     public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST";
     public static final String BROKER_URL = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST);
     public static final int DEFAULT_POLL_TIMEOUT = 1000;
@@ -49,12 +48,12 @@ public class Config {
     public static final String POLL_TIMEOUT_SNAPSHOT = "poll.timeout.snapshot";
     public static final String POLL_TIMEOUT_UNIT = "poll.timeout.unit";
     public static final String POLL_TIMEOUT_UNIT_SNAPSHOT = "poll.timeout.unit.snapshot";
-    public static final PollUnit POLL_TIMEOUT_DEFAULT_UNIT = PollUnit.MILLISECOND;
-    public static final PollUnit POLL_TIMEOUT_SNAPSHOT_DEFAULT_UNIT = PollUnit.SECOND;
     public static final String SKIP_ON_DEMAND_SNAPSHOT = "skip.ondemandsnapshoot";
     public static final String TEST = Boolean.FALSE.toString();
     public static final String UNDER_TEST = "undertest";
     public static final String MAX_SNAPSHOT_REQUEST_ATTEMPTS = "max.snapshot.request.attempts";
+    public static final String UPDATABLE_KJAR = "updatablekjar";
+    public static final String KJAR_GAV = "kjargav";
     public static final String DEFAULT_MAX_SNAPSHOT_REQUEST_ATTEMPTS = "10";
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
     private static Properties config;
@@ -64,6 +63,8 @@ public class Config {
     private static final String CONF = "infra.properties";
     private static final String SNAPSHOT_CONSUMER_CONF = "snapshot_consumer.properties";
     private static final String SNAPSHOT_PRODUCER_CONF = "snapshot_producer.properties";
+    public static final String USER_HOME = "HOME";
+    public static final String MAVEN_HOME = "MAVEN_HOME";
 
     public static String getBootStrapServers() {
         StringBuilder sb = new StringBuilder();
@@ -122,6 +123,7 @@ public class Config {
             config.put(ENABLE_AUTOCOMMIT_KEY, "false");
             config.put(METADATA_MAX_AGE_MS_KEY, "10000");
             config.put(ITERATION_BETWEEN_SNAPSHOT, "10");
+            config.put(UPDATABLE_KJAR, "false");
         }
         return config;
     }
