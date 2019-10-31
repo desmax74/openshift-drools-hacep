@@ -54,9 +54,9 @@ public class DroolsConsumerHandler implements ConsumerHandler {
 
     public DroolsConsumerHandler(Producer producer, EnvConfig envConfig) {
         this.envConfig = envConfig;
+        this.sessionSnapShooter = new DefaultSessionSnapShooter(this.envConfig);
         initializeKieSessionContext(this.envConfig);
         this.producer = producer;
-        this.sessionSnapShooter = new DefaultSessionSnapShooter(this.envConfig);
         this.commandHandler = new CommandHandler(this.kieSessionContext, this.envConfig, producer, this.sessionSnapShooter);
         if (this.envConfig.isUnderTest()) {
             loggerForTest = PrinterUtil.getKafkaLoggerForTest(envConfig);
