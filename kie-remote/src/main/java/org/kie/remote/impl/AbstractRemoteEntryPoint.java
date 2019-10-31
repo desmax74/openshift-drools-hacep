@@ -82,7 +82,7 @@ public abstract class AbstractRemoteEntryPoint implements RemoteWorkingMemory {
     @Override
     public CompletableFuture<String> getKJarGAV() {
         GetKJarGAVCommand command = new GetKJarGAVCommand(entryPoint);
-        return null;
+        return executeCommand(command);
     }
 
     protected <T> CompletableFuture<T> executeCommand(AbstractCommand command ) {
