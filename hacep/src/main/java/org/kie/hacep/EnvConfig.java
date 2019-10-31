@@ -267,7 +267,7 @@ public final class EnvConfig {
         return iterationBetweenSnapshot;
     }
 
-    public boolean isSkipOnDemanSnapshot() {
+    public boolean isSkipOnDemandSnapshot() {
         return skipOnDemanSnapshot;
     }
 

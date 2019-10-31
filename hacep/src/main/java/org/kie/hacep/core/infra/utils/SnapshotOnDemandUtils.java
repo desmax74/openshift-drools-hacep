@@ -17,9 +17,7 @@ package org.kie.hacep.core.infra.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -52,10 +50,8 @@ public class SnapshotOnDemandUtils {
 
     private final static Logger logger = LoggerFactory.getLogger(SnapshotOnDemandUtils.class);
 
-    public static SnapshotInfos askASnapshotOnDemand(EnvConfig config,
-                                                     SessionSnapshooter snapshooter) {
+    public static SnapshotInfos askASnapshotOnDemand(EnvConfig config, SessionSnapshooter snapshooter) {
         LocalDateTime infosTime = snapshooter.getLastSnapshotTime();
-
         LocalDateTime limitAge = LocalDateTime.now().minusSeconds(config.getMaxSnapshotAge());
         if (infosTime != null && limitAge.isBefore(infosTime)) { //included in the max age
             if (logger.isInfoEnabled()) {
@@ -70,10 +66,8 @@ public class SnapshotOnDemandUtils {
         }
     }
 
-    private static SnapshotInfos buildNewSnapshotOnDemand(EnvConfig envConfig,
-                                                          LocalDateTime limitAge) {
-        SnapshotMessage snapshotMsg = askAndReadSnapshotOnDemand(envConfig,
-                                                                 limitAge);
+    private static SnapshotInfos buildNewSnapshotOnDemand(EnvConfig envConfig, LocalDateTime limitAge) {
+        SnapshotMessage snapshotMsg = askAndReadSnapshotOnDemand(envConfig, limitAge);
         KieSession kSession = null;
         KieContainer kieContainer = null;
         try (ByteArrayInputStream in = new ByteArrayInputStream(snapshotMsg.getSerializedSession())) {
@@ -81,10 +75,9 @@ public class SnapshotOnDemandUtils {
             if(ks != null) {
                 KieSessionConfiguration conf = ks.newKieSessionConfiguration();
                 conf.setOption(ClockTypeOption.get("pseudo"));
-                kSession = ks.getMarshallers().newMarshaller(getKieContainer().getKieBase()).unmarshall(in, conf,null);
-                //@TODO leggere kieContainer = ? dalla kiesession
-                String[] parts = envConfig.getKjarGAV().split(":");
-                kieContainer = ks.newKieContainer(ks.newReleaseId(parts[0], parts[1], parts[2]));
+                String[] partsSerialized = snapshotMsg.getKjarGAV().split(":");
+                kieContainer = ks.newKieContainer(ks.newReleaseId(partsSerialized[0], partsSerialized[1], partsSerialized[2]));
+                kSession = ks.getMarshallers().newMarshaller(kieContainer.getKieBase()).unmarshall(in, conf,null);
             }
         } catch (IOException | ClassNotFoundException e) {
             logger.error(e.getMessage(), e);
@@ -98,17 +91,7 @@ public class SnapshotOnDemandUtils {
                                  snapshotMsg.getKjarGAV());
     }
 
-    private static KieContainer getKieContainer() {
-        KieServices srv = KieServices.get();
-        if (srv != null) {
-            return srv.newKieClasspathContainer();
-        } else {
-            throw new RuntimeException("KieServices is null");
-        }
-    }
-
-    private static SnapshotMessage askAndReadSnapshotOnDemand(EnvConfig envConfig,
-                                                              LocalDateTime limitAge) {
+    private static SnapshotMessage askAndReadSnapshotOnDemand(EnvConfig envConfig, LocalDateTime limitAge) {
         Properties props = Config.getProducerConfig("SnapshotOnDemandUtils.askASnapshotOnDemand");
         Sender sender = new Sender(props);
         sender.start();

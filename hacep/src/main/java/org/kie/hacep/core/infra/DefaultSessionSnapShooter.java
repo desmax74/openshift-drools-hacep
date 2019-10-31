@@ -84,7 +84,7 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
         KieServices srv = KieServices.get();
         if (srv != null) {
             KafkaConsumer<String, byte[]> consumer = getConfiguredSnapshotConsumer();
-            KieMarshallers marshallers = KieServices.get().getMarshallers();
+            KieMarshallers marshallers = srv.getMarshallers();
             KieSession kSession = null;
             ConsumerRecords<String, byte[]> records = consumer.poll(envConfig.getPollSnapshotDuration());
             byte[] bytes = null;
@@ -98,6 +98,7 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
             KieContainer kieContainer = null;
             if (snapshotMsg != null) {
                 try (ByteArrayInputStream in = new ByteArrayInputStream(snapshotMsg.getSerializedSession())) {
+
                     KieSessionConfiguration conf = srv.newKieSessionConfiguration();
                     conf.setOption(ClockTypeOption.get("pseudo"));
                     String[] partsSerialized = snapshotMsg.getKjarGAV().split(":");

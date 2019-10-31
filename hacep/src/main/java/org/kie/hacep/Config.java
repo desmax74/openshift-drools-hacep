@@ -40,6 +40,7 @@ public class Config {
     public static final String DEFAULT_PRINTER_TYPE = "printer.type";
     public static final String MAX_SNAPSHOT_AGE = "max.snapshot.age";
     public static final String DEFAULT_MAX_SNAPSHOT_AGE_SEC = "600";
+
     public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST";
     public static final String BROKER_URL = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST);
     public static final int DEFAULT_POLL_TIMEOUT = 1000;
@@ -48,6 +49,8 @@ public class Config {
     public static final String POLL_TIMEOUT_SNAPSHOT = "poll.timeout.snapshot";
     public static final String POLL_TIMEOUT_UNIT = "poll.timeout.unit";
     public static final String POLL_TIMEOUT_UNIT_SNAPSHOT = "poll.timeout.unit.snapshot";
+    public static final PollUnit POLL_TIMEOUT_DEFAULT_UNIT = PollUnit.MILLISECOND;
+    public static final PollUnit POLL_TIMEOUT_SNAPSHOT_DEFAULT_UNIT = PollUnit.SECOND;
     public static final String SKIP_ON_DEMAND_SNAPSHOT = "skip.ondemandsnapshoot";
     public static final String TEST = Boolean.FALSE.toString();
     public static final String UNDER_TEST = "undertest";

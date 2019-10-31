@@ -74,7 +74,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
 
     public DefaultKafkaConsumer(EnvConfig config) {
         this.envConfig = config;
-        if(this.envConfig.isSkipOnDemanSnapshot()){
+        if(this.envConfig.isSkipOnDemandSnapshot()){
             counter = new AtomicInteger(0);
         }
         iterationBetweenSnapshot = this.envConfig.getIterationBetweenSnapshot();
@@ -129,7 +129,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         } else if(!started) {
             if (state.equals(State.REPLICA)) {
                 //ask and wait a snapshot before start
-                if (!envConfig.isSkipOnDemanSnapshot() && !askedSnapshotOnDemand) {
+                if (!envConfig.isSkipOnDemandSnapshot() && !askedSnapshotOnDemand) {
                     if (logger.isInfoEnabled()) {
                         logger.info("askAndProcessSnapshotOnDemand:");
                     }
@@ -337,7 +337,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
 
     protected void processLeader(ConsumerRecord<String, T> record) {
 
-        if (envConfig.isSkipOnDemanSnapshot()) {
+        if (envConfig.isSkipOnDemandSnapshot()) {
             handleSnapshotBetweenIteration(record);
         } else {
             consumerHandler.process(ItemToProcess.getItemToProcess(record), currentState);
