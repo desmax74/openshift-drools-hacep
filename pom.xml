@@ -33,6 +33,8 @@
     <version.org.springframework>5.1.3.RELEASE</version.org.springframework>
     <version.org.spring-boot>2.1.1.RELEASE</version.org.spring-boot>
     <version.validation.api>2.0.1.Final</version.validation.api>
+    <version.powermock>1.7.4</version.powermock>
+    <version.powermock.mockito>1.7.4</version.powermock.mockito>
   </properties>
 
   <modules>
@@ -186,6 +188,18 @@
         <scope>test</scope>
       </dependency>
 
+      <dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-module-junit4</artifactId>
+        <version>${version.powermock}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-api-mockito</artifactId>
+        <version>${version.powermock.mockito}</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

@@ -23,11 +23,10 @@ import java.util.List;
 
 import org.drools.core.common.EventFactHandle;
 import org.kie.api.KieServices;
-import org.kie.api.builder.KieScanner;
 import org.kie.api.builder.ReleaseId;
+import org.kie.api.builder.Results;
 import org.kie.api.definition.type.Role;
 import org.kie.api.definition.type.Timestamp;
-import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.rule.FactHandle;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.KieSessionContext;
@@ -37,7 +36,7 @@ import org.kie.hacep.message.ControlMessage;
 import org.kie.hacep.message.FactCountMessage;
 import org.kie.hacep.message.FireAllRuleMessage;
 import org.kie.hacep.message.GetObjectMessage;
-import org.kie.hacep.message.KJarGAVMessage;
+import org.kie.hacep.message.GetKJarGAVMessage;
 import org.kie.hacep.message.ListKieSessionObjectMessage;
 import org.kie.remote.DroolsExecutor;
 import org.kie.remote.RemoteFactHandle;
@@ -273,7 +272,7 @@ public class CommandHandler implements VisitorCommand {
 
     @Override
     public void visit(GetKJarGAVCommand command) {
-        KJarGAVMessage msg = new KJarGAVMessage(command.getId(), kieSessionContext.getKjarGAVUsed());
+        GetKJarGAVMessage msg = new GetKJarGAVMessage(command.getId(), kieSessionContext.getKjarGAVUsed());
         producer.produceSync(envConfig.getKieSessionInfosTopicName(), command.getId(), msg);
     }
 

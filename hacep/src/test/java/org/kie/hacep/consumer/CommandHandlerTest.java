@@ -24,6 +24,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.kie.api.KieServices;
+import org.kie.api.builder.ReleaseId;
+import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.EntryPoint;
 import org.kie.api.runtime.rule.FactHandle;
@@ -31,9 +34,9 @@ import org.kie.api.runtime.rule.QueryResults;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.KieSessionContext;
 import org.kie.hacep.core.infra.SessionSnapshooter;
-import org.kie.hacep.core.infra.consumer.ConsumerController;
 import org.kie.hacep.message.FactCountMessage;
 import org.kie.hacep.message.FireAllRuleMessage;
+import org.kie.hacep.message.GetKJarGAVMessage;
 import org.kie.hacep.message.GetObjectMessage;
 import org.kie.hacep.message.ListKieSessionObjectMessage;
 import org.kie.remote.CommonConfig;
@@ -44,6 +47,7 @@ import org.kie.remote.command.EventInsertCommand;
 import org.kie.remote.command.FactCountCommand;
 import org.kie.remote.command.FireAllRulesCommand;
 import org.kie.remote.command.FireUntilHaltCommand;
+import org.kie.remote.command.GetKJarGAVCommand;
 import org.kie.remote.command.GetObjectCommand;
 import org.kie.remote.command.HaltCommand;
 import org.kie.remote.command.InsertCommand;
@@ -53,13 +57,15 @@ import org.kie.remote.command.ListObjectsCommandNamedQuery;
 import org.kie.remote.command.RemoteCommand;
 import org.kie.remote.command.SnapshotOnDemandCommand;
 import org.kie.remote.command.UpdateCommand;
+import org.kie.remote.command.UpdateKJarCommand;
 import org.kie.remote.impl.RemoteFactHandleImpl;
 import org.kie.remote.impl.producer.Producer;
 import org.kie.remote.message.ResultMessage;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -68,14 +74,13 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.internal.verification.VerificationModeFactory.atLeast;
 
-@RunWith(MockitoJUnitRunner.class)
+import org.powermock.api.mockito.PowerMockito;
+
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(KieServices.class)
 public class CommandHandlerTest {
 
     protected static final EnvConfig envConfig = EnvConfig.getDefaultEnvConfig();
@@ -85,6 +90,7 @@ public class CommandHandlerTest {
     protected static final String myEntryPoint = "myEntryPoint";
     protected static final String namedQuery = "namedQuery";
     protected static final String objectName = "objectName";
+    protected static final String kJarGAV = "org.kie:fake-jar:0.1-SNAPSHOT";
     protected static final RemoteFactHandle remoteFactHandle = new RemoteFactHandleImpl(myObject);
 
     @Mock
@@ -111,12 +117,20 @@ public class CommandHandlerTest {
     @Mock
     protected QueryResults queryResultsMock;
 
+    @Mock
+    protected ReleaseId releaseIdMock;
+
+    @Mock
+    protected KieServices kieServicesMock;
+
+    @Mock
+    protected KieContainer kieContainerMock;
+
     @Captor
     protected ArgumentCaptor<ResultMessage<Object>> messageArgumentCaptor;
 
     protected CommandHandler commandHandler;
 
-    protected ConsumerController consumerController;
 
     @Before
     public void initTest() {
@@ -131,6 +145,9 @@ public class CommandHandlerTest {
         doReturn(Collections.singletonList(myObject)).when(kieSessionMock).getObjects(any());
         when(kieSessionMock.getObject(any())).thenReturn(myObject);
         when(factHandlesManagerMock.mapRemoteFactHandle(any(RemoteFactHandle.class))).thenReturn(factHandleMock);
+        when(kieSessionContextMock.getKjarGAVUsed()).thenReturn(kJarGAV);
+        when(kieSessionContextMock.getKieContainer()).thenReturn(kieContainerMock);
+        when(kieServicesMock.newReleaseId("org.kie","fake-jar","0.1-SNAPSHOT")).thenReturn(releaseIdMock);
         commandHandler = new CommandHandler(kieSessionContextMock,
                                             envConfig,
                                             producerMock,
@@ -263,6 +280,28 @@ public class CommandHandlerTest {
                                                 anyString(),
                                                 anyLong());
                          });
+    }
+
+    @Test
+    public void visitGetKJarGAVCommand() {
+        executeAndVerifyResponseMessage(new GetKJarGAVCommand(myEntryPoint),
+                                        commandHandler::visit,
+                                        GetKJarGAVMessage.class,
+                                        result -> kJarGAV.equals(result));
+    }
+
+    @Test
+    public void visitUpdateKJarCommand() {
+        PowerMockito.mockStatic(KieServices.class);
+        when(KieServices.get()).thenReturn(kieServicesMock);
+        executeAndVerify(new UpdateKJarCommand(kJarGAV),
+                         commandHandler::visit,
+                         () ->{
+                            verify(kieServicesMock, times(1)).newReleaseId("org.kie","fake-jar","0.1-SNAPSHOT");
+                            verify(kieSessionContextMock, times(1)).getKieContainer();
+                            verify(kieContainerMock, times(1)).updateToVersion(releaseIdMock);
+                         });
+        PowerMockito.verifyStatic(KieServices.class, atLeast(1));
     }
 
 

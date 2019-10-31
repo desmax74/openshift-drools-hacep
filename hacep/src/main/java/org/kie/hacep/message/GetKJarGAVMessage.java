@@ -19,14 +19,14 @@ import java.io.Serializable;
 
 import org.kie.remote.message.ResultMessage;
 
-public class KJarGAVMessage extends AbstractMessage implements Serializable, ResultMessage<String> {
+public class GetKJarGAVMessage extends AbstractMessage implements Serializable, ResultMessage<String> {
 
     private String kJarGAV;
 
     /* Empty constructor for serialization */
-    public KJarGAVMessage(){}
+    public GetKJarGAVMessage(){}
 
-    public KJarGAVMessage(String id, String kJarGAV){
+    public GetKJarGAVMessage(String id, String kJarGAV){
         super(id);
         this.kJarGAV = kJarGAV;
     }
