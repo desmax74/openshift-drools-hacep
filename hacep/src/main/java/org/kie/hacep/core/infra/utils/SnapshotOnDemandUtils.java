@@ -35,6 +35,8 @@ import org.kie.api.runtime.KieSessionConfiguration;
 import org.kie.api.runtime.conf.ClockTypeOption;
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
+import org.kie.hacep.consumer.GAVUtils;
+import org.kie.hacep.consumer.KieContainerUtils;
 import org.kie.hacep.core.GlobalStatus;
 import org.kie.hacep.core.infra.SessionSnapshooter;
 import org.kie.hacep.core.infra.SnapshotInfos;
@@ -72,15 +74,12 @@ public class SnapshotOnDemandUtils {
         KieContainer kieContainer = null;
         try (ByteArrayInputStream in = new ByteArrayInputStream(snapshotMsg.getSerializedSession())) {
             KieServices ks = KieServices.get();
-            if(ks != null) {
-                KieSessionConfiguration conf = ks.newKieSessionConfiguration();
-                conf.setOption(ClockTypeOption.get("pseudo"));
-                String[] partsSerialized = snapshotMsg.getKjarGAV().split(":");
-                kieContainer = ks.newKieContainer(ks.newReleaseId(partsSerialized[0], partsSerialized[1], partsSerialized[2]));
-                kSession = ks.getMarshallers().newMarshaller(kieContainer.getKieBase()).unmarshall(in, conf,null);
-            }
+            kieContainer = KieContainerUtils.getKieContainer(envConfig, ks);
+            KieSessionConfiguration conf = ks.newKieSessionConfiguration();
+            conf.setOption(ClockTypeOption.get("pseudo"));
+            kSession = ks.getMarshallers().newMarshaller(kieContainer.getKieBase()).unmarshall(in, conf,null);
         } catch (IOException | ClassNotFoundException e) {
-            logger.error(e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
         return new SnapshotInfos(kSession,
                                  kieContainer,

@@ -66,7 +66,7 @@ public final class EnvConfig {
                 withMaxSnapshotAgeSeconds(Optional.ofNullable(System.getenv(Config.MAX_SNAPSHOT_AGE)).orElse(Config.DEFAULT_MAX_SNAPSHOT_AGE_SEC)).
                 withMaxSnapshotRequestAttempts(Optional.ofNullable(System.getenv(Config.MAX_SNAPSHOT_REQUEST_ATTEMPTS)).orElse(Config.DEFAULT_MAX_SNAPSHOT_REQUEST_ATTEMPTS)).
                 withUpdatableKJar(Optional.ofNullable(System.getenv(Config.UPDATABLE_KJAR)).orElse(Boolean.TRUE.toString())).
-                withKJarGAV(Optional.ofNullable(System.getenv(Config.KJAR_GAV)).orElse("org.kie:sample-hacep-project-kjar:7.29.0-SNAPSHOT")).
+                withKJarGAV(Optional.ofNullable(System.getenv(Config.KJAR_GAV)).orElse(null)).
                 withUserHome(Optional.ofNullable(System.getenv(Config.USER_HOME)).orElse("/home/"+ System.getenv("USER"))).
                 withMavenHome(Optional.ofNullable(System.getenv(Config.MAVEN_HOME)).orElse(System.getenv("M2_HOME"))).
                 underTest(Optional.ofNullable(System.getenv(Config.UNDER_TEST)).orElse(Config.TEST));

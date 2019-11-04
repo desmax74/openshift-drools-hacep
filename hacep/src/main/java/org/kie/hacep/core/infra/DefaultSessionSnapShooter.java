@@ -37,6 +37,7 @@ import org.kie.api.runtime.KieSessionConfiguration;
 import org.kie.api.runtime.conf.ClockTypeOption;
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
+import org.kie.hacep.consumer.KieContainerUtils;
 import org.kie.hacep.core.KieSessionContext;
 import org.kie.hacep.message.SnapshotMessage;
 import org.kie.remote.impl.producer.EventProducer;
@@ -84,26 +85,23 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
         KieServices srv = KieServices.get();
         if (srv != null) {
             KafkaConsumer<String, byte[]> consumer = getConfiguredSnapshotConsumer();
-            KieMarshallers marshallers = srv.getMarshallers();
-            KieSession kSession = null;
             ConsumerRecords<String, byte[]> records = consumer.poll(envConfig.getPollSnapshotDuration());
             byte[] bytes = null;
             for (ConsumerRecord record : records) {
                 bytes = (byte[]) record.value();
             }
             consumer.close();
+
             SnapshotMessage snapshotMsg = bytes != null ? SerializationUtil.deserialize(bytes) : null;
-            /* if the Snapshot is ok we use the KieContainer and KieSession from the infos,
-            otherwise (empty system) we will create kiecontainer and kieSession from the envConfig's GAV */
-            KieContainer kieContainer = null;
             if (snapshotMsg != null) {
+                KieContainer kieContainer = null;
+                KieSession kSession = null;
                 try (ByteArrayInputStream in = new ByteArrayInputStream(snapshotMsg.getSerializedSession())) {
 
                     KieSessionConfiguration conf = srv.newKieSessionConfiguration();
                     conf.setOption(ClockTypeOption.get("pseudo"));
-                    String[] partsSerialized = snapshotMsg.getKjarGAV().split(":");
-                    kieContainer = srv.newKieContainer(srv.newReleaseId(partsSerialized[0], partsSerialized[1], partsSerialized[2]));
-                    kSession = marshallers.newMarshaller(kieContainer.getKieBase()).unmarshall(in, conf,null);
+                    kieContainer = KieContainerUtils.getKieContainer(envConfig, srv);
+                    kSession = srv.getMarshallers().newMarshaller(kieContainer.getKieBase()).unmarshall(in, conf,null);
 
                 } catch (IOException | ClassNotFoundException e) {
                     logger.error(e.getMessage(), e);
@@ -116,6 +114,8 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
                                          snapshotMsg.getTime(),
                                          snapshotMsg.getKjarGAV());
             }
+        }else{
+            throw new RuntimeException("KieServices is null");
         }
         return null;
     }

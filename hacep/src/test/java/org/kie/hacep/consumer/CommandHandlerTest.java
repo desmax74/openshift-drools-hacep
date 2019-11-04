@@ -17,6 +17,7 @@ package org.kie.hacep.consumer;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -145,7 +146,7 @@ public class CommandHandlerTest {
         doReturn(Collections.singletonList(myObject)).when(kieSessionMock).getObjects(any());
         when(kieSessionMock.getObject(any())).thenReturn(myObject);
         when(factHandlesManagerMock.mapRemoteFactHandle(any(RemoteFactHandle.class))).thenReturn(factHandleMock);
-        when(kieSessionContextMock.getKjarGAVUsed()).thenReturn(kJarGAV);
+        when(kieSessionContextMock.getKjarGAVUsed()).thenReturn(Optional.of(kJarGAV));
         when(kieSessionContextMock.getKieContainer()).thenReturn(kieContainerMock);
         when(kieServicesMock.newReleaseId("org.kie","fake-jar","0.1-SNAPSHOT")).thenReturn(releaseIdMock);
         commandHandler = new CommandHandler(kieSessionContextMock,
@@ -297,7 +298,7 @@ public class CommandHandlerTest {
         executeAndVerify(new UpdateKJarCommand(kJarGAV),
                          commandHandler::visit,
                          () ->{
-                            verify(kieServicesMock, times(1)).newReleaseId("org.kie","fake-jar","0.1-SNAPSHOT");
+                            verify(kieServicesMock, times(1)).newReleaseId(eq("org.kie"),eq("fake-jar"),eq("0.1-SNAPSHOT"));
                             verify(kieSessionContextMock, times(1)).getKieContainer();
                             verify(kieContainerMock, times(1)).updateToVersion(releaseIdMock);
                          });

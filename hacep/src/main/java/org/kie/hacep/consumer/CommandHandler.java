@@ -272,7 +272,7 @@ public class CommandHandler implements VisitorCommand {
 
     @Override
     public void visit(GetKJarGAVCommand command) {
-        GetKJarGAVMessage msg = new GetKJarGAVMessage(command.getId(), kieSessionContext.getKjarGAVUsed());
+        GetKJarGAVMessage msg = new GetKJarGAVMessage(command.getId(), kieSessionContext.getKjarGAVUsed().get());
         producer.produceSync(envConfig.getKieSessionInfosTopicName(), command.getId(), msg);
     }
 

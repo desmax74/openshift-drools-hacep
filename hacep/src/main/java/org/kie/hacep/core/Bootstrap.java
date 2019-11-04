@@ -19,6 +19,7 @@ import java.util.Arrays;
 
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
+import org.kie.hacep.consumer.GAVUtils;
 import org.kie.hacep.core.infra.consumer.ConsumerController;
 import org.kie.hacep.core.infra.election.LeaderElection;
 import org.kie.remote.impl.producer.Producer;
@@ -102,10 +103,10 @@ public class Bootstrap {
     private static void checkKJarVersion(EnvConfig envConfig){
         if(envConfig.isUpdatableKJar()){
             String gav = envConfig.getKjarGAV();
-            if(gav.isEmpty()){
-                throw new RuntimeException("The KJar GAV is empty and must be in the format groupdID:artifactID:version");
+            if(gav == null){
+                throw new RuntimeException("The KJar GAV is missing and must be in the format groupdID:artifactID:version");
             }
-            String parts[]= gav.split(":");
+            String parts[]= GAVUtils.getSplittedGav(gav);
             if(parts.length != 3){
                 throw new RuntimeException("The KJar GAV must be in the format groupdID:artifactID:version");
             }

@@ -18,7 +18,6 @@ package org.kie.hacep.consumer;
 import java.util.Queue;
 
 import org.kie.api.KieServices;
-import org.kie.api.builder.KieScanner;
 import org.kie.api.runtime.KieContainer;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.GlobalStatus;
@@ -55,7 +54,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     public DroolsConsumerHandler(Producer producer, EnvConfig envConfig) {
         this.envConfig = envConfig;
         this.sessionSnapShooter = new DefaultSessionSnapShooter(this.envConfig);
-        initializeKieSessionContext(this.envConfig);
+        initializeKieSessionContext();
         this.producer = producer;
         this.commandHandler = new CommandHandler(this.kieSessionContext, this.envConfig, producer, this.sessionSnapShooter);
         if (this.envConfig.isUnderTest()) {
@@ -63,8 +62,8 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         }
     }
 
-    private void initializeKieSessionContext(EnvConfig config) {
-        if(config.isSkipOnDemandSnapshot()) {// if true we reads the snapshots and wait until the first leaderElectionUpdate
+    private void initializeKieSessionContext() {
+        if(this.envConfig.isSkipOnDemandSnapshot()) {// if true we reads the snapshots and wait until the first leaderElectionUpdate
             initializeSessionContextWithSnapshotCheck();
         } else{
             createAndInitializeSessionContextWithoutSnapshot();
@@ -85,27 +84,18 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private void createAndInitializeSessionContextWithoutSnapshot() {
         KieServices srv = KieServices.get();
         if (srv != null) {
-            KieContainer kieContainer;
-            if(envConfig.isUpdatableKJar()){
-                if (logger.isInfoEnabled()) {logger.info("Creating new KieContainer with KJar:{}", envConfig.getKjarGAV());}
-                String parts[] = envConfig.getKjarGAV().split(":");
-                kieContainer = srv.newKieContainer(srv.newReleaseId(parts[0], parts[1], parts[2]));
-                KieScanner scanner = srv.newKieScanner(kieContainer);
-                scanner.scanNow();
-            }else {
-                if (logger.isInfoEnabled()) { logger.info("Creating new Kie Session with the Kjar deployed");}
-                kieContainer = KieServices.get().newKieClasspathContainer();
-            }
+            KieContainer kieContainer = KieContainerUtils.getKieContainer(envConfig, srv);
             this.kieSessionContext = new KieSessionContext();
             this.kieSessionContext.init(kieContainer, kieContainer.newKieSession());
         } else {
-            logger.error("KieService is null");
+            throw new RuntimeException("KieService is null");
         }
     }
 
     private void initializeSessionContextFromSnapshot() {
         if (this.snapshotInfos.getKieSession() != null) {
             if(logger.isInfoEnabled()){ logger.info("Applying snapshot Session");}
+            this.kieSessionContext = new KieSessionContext();
             this.kieSessionContext.initFromSnapshot(this.snapshotInfos);
         } else {
             throw new RuntimeException("The Serialized Session isn't present");

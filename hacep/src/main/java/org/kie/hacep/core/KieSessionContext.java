@@ -15,6 +15,7 @@
  */
 package org.kie.hacep.core;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.kie.api.runtime.KieContainer;
@@ -44,8 +45,8 @@ public class KieSessionContext {
         return kieContainer;
     }
 
-    public String getKjarGAVUsed(){
-        return kjarGAVUsed;
+    public Optional<String> getKjarGAVUsed(){
+        return Optional.ofNullable(kjarGAVUsed);
     }
 
     public void initFromSnapshot(SnapshotInfos infos) {
