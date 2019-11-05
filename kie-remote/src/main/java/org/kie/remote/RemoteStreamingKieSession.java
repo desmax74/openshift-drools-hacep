@@ -17,6 +17,7 @@ package org.kie.remote;
 
 import java.io.Closeable;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
 
 import org.kie.remote.impl.RemoteStreamingKieSessionImpl;
 
@@ -31,4 +32,8 @@ public interface RemoteStreamingKieSession extends Closeable, RemoteStreamingEnt
     static RemoteStreamingKieSession create(Properties configuration, TopicsConfig envConfig) {
         return new RemoteStreamingKieSessionImpl( configuration, envConfig );
     }
+
+    CompletableFuture<String> getKJarGAV();
+
+    void updateKJarGAV(String kjar);
 }

@@ -67,8 +67,4 @@ public interface RemoteWorkingMemory {
      */
     <T> CompletableFuture<T> getObject(RemoteFactHandle<T> remoteFactHandle);
 
-    /**
-     * @return a completable future with String to read the KJar GAV currently used in this entry point
-     */
-    CompletableFuture<String> getKJarGAV();
 }

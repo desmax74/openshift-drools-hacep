@@ -23,6 +23,8 @@ import java.util.concurrent.CompletableFuture;
 import org.kie.remote.RemoteEntryPoint;
 import org.kie.remote.RemoteKieSession;
 import org.kie.remote.TopicsConfig;
+import org.kie.remote.command.GetKJarGAVCommand;
+import org.kie.remote.command.UpdateKJarCommand;
 import org.kie.remote.impl.consumer.Listener;
 import org.kie.remote.impl.producer.Sender;
 
@@ -65,5 +67,17 @@ public class RemoteKieSessionImpl extends RemoteEntryPointImpl implements Remote
     @Override
     public void halt() {
         delegate.halt();
+    }
+
+    @Override
+    public void updateKJarGAV(String kJar) {
+        UpdateKJarCommand command = new UpdateKJarCommand(kJar);
+        executeCommand(command);
+    }
+
+    @Override
+    public CompletableFuture<String> getKJarGAV() {
+        GetKJarGAVCommand command = new GetKJarGAVCommand(entryPoint);
+        return executeCommand(command);
     }
 }
