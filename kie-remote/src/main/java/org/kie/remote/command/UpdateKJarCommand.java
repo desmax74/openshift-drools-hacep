@@ -56,6 +56,6 @@ public class UpdateKJarCommand extends AbstractCommand implements VisitableComma
 
     @Override
     public String toString() {
-        return "UpdateKJarCommand with KJar GAV:"+ kJarGAV;
+        return "UpdateKJarCommand with KJar GAV:"+ kJarGAV ;
     }
 }

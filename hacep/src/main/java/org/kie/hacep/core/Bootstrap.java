@@ -102,7 +102,7 @@ public class Bootstrap {
 
     private static void checkKJarVersion(EnvConfig envConfig){
         if(envConfig.isUpdatableKJar()){
-            String gav = envConfig.getKjarGAV();
+            String gav = envConfig.getKJarGAV();
             if(gav == null){
                 throw new RuntimeException("The KJar GAV is missing and must be in the format groupdID:artifactID:version");
             }

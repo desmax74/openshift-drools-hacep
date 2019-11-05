@@ -65,7 +65,7 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
             /* We are storing the last inserted key and offset together with the session's bytes */
             byte[] bytes = out.toByteArray();
             SnapshotMessage message = new SnapshotMessage(UUID.randomUUID().toString(),
-                                                          envConfig.getKjarGAV(),
+                                                          envConfig.getKJarGAV(),
                                                           bytes,
                                                           kieSessionContext.getFhManager(),
                                                           lastInsertedEventkey,
@@ -105,6 +105,9 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
 
                 } catch (IOException | ClassNotFoundException e) {
                     logger.error(e.getMessage(), e);
+                }
+                if(kSession == null) {//Snapshot topic empty
+                    kSession = kieContainer.newKieSession();
                 }
                 return new SnapshotInfos(kSession,
                                          kieContainer,

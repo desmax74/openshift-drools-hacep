@@ -63,7 +63,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     }
 
     private void initializeKieSessionContext() {
-        if(this.envConfig.isSkipOnDemandSnapshot()) {// if true we reads the snapshots and wait until the first leaderElectionUpdate
+        if(!this.envConfig.isSkipOnDemandSnapshot()) {// if true we reads the snapshots and wait until the first leaderElectionUpdate
             initializeSessionContextWithSnapshotCheck();
         } else{
             createAndInitializeSessionContextWithoutSnapshot();
@@ -102,6 +102,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         }
     }
 
+    //This is called from the Default KafkaCOnsumer
     public boolean initializeKieSessionFromSnapshotOnDemand(EnvConfig config) {
         if(!config.isSkipOnDemandSnapshot()) {// if true we reads the snapshots and wait until the first leaderElectionUpdate
             this.snapshotInfos = SnapshotOnDemandUtils.askASnapshotOnDemand(config, sessionSnapShooter);

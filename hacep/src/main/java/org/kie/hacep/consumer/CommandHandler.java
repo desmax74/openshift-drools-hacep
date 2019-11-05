@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.maven.repository.metadata.ClasspathContainer;
 import org.drools.core.common.EventFactHandle;
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
@@ -264,7 +265,11 @@ public class CommandHandler implements VisitorCommand {
         if (ks != null) {
             if (logger.isInfoEnabled()) {logger.info("Updating KieContainer with KJar:{}", command.getKJarGAV());}
             ReleaseId releaseId = ks.newReleaseId(command.getGroupID(), command.getArtifactID(), command.getVersion());
-            kieSessionContext.getKieContainer().updateToVersion(releaseId);
+            if(!(kieSessionContext.getKieContainer() instanceof ClasspathContainer)) {
+                kieSessionContext.getKieContainer().updateToVersion(releaseId);
+            }else{
+                logger.info("It isn't possible update a classpath container to a new version");
+            }
         } else {
             logger.error("KieService is null");
         }
@@ -272,7 +277,7 @@ public class CommandHandler implements VisitorCommand {
 
     @Override
     public void visit(GetKJarGAVCommand command) {
-        GetKJarGAVMessage msg = new GetKJarGAVMessage(command.getId(), kieSessionContext.getKjarGAVUsed().get());
+        GetKJarGAVMessage msg = new GetKJarGAVMessage(command.getId(), kieSessionContext.getKjarGAVUsed().orElse("KJar GAV NotDefined"));
         producer.produceSync(envConfig.getKieSessionInfosTopicName(), command.getId(), msg);
     }
 

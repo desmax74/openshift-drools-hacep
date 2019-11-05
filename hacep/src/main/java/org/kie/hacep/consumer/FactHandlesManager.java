@@ -30,6 +30,7 @@ import org.kie.api.runtime.rule.FactHandle;
 import org.kie.remote.RemoteFactHandle;
 
 public class FactHandlesManager implements Serializable {
+
     private BidirectionalMap<RemoteFactHandle, Long> fhIdMap = new BidirectionalMap<>();
 
     private transient KieSession kieSession;
@@ -62,6 +63,9 @@ public class FactHandlesManager implements Serializable {
                     fhIdMap.removeValue( (( InternalFactHandle ) objectDeletedEvent.getFactHandle()).getId() ) );
             }
         } );
+        if(fhMap == null){
+            fhMap = new HashMap<>();
+        }
         fhMap.clear();
         return this;
     }

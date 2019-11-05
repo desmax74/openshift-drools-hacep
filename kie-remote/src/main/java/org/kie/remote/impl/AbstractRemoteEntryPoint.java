@@ -25,7 +25,6 @@ import org.kie.remote.RemoteWorkingMemory;
 import org.kie.remote.TopicsConfig;
 import org.kie.remote.command.AbstractCommand;
 import org.kie.remote.command.FactCountCommand;
-import org.kie.remote.command.GetKJarGAVCommand;
 import org.kie.remote.command.GetObjectCommand;
 import org.kie.remote.command.ListObjectsCommand;
 import org.kie.remote.command.ListObjectsCommandClassType;

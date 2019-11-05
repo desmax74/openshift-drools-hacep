@@ -45,6 +45,7 @@ public final class EnvConfig {
     private String kjarGAV;//groupid:artifactid:version
     private String userHome;
     private String mavenHome;
+    private String mavenRepoURL ;
 
 
     private EnvConfig() { }
@@ -65,10 +66,11 @@ public final class EnvConfig {
                 withIterationBetweenSnapshot(Optional.ofNullable(System.getenv(Config.ITERATION_BETWEEN_SNAPSHOT)).orElse(String.valueOf(Config.DEFAULT_ITERATION_BETWEEN_SNAPSHOT))).
                 withMaxSnapshotAgeSeconds(Optional.ofNullable(System.getenv(Config.MAX_SNAPSHOT_AGE)).orElse(Config.DEFAULT_MAX_SNAPSHOT_AGE_SEC)).
                 withMaxSnapshotRequestAttempts(Optional.ofNullable(System.getenv(Config.MAX_SNAPSHOT_REQUEST_ATTEMPTS)).orElse(Config.DEFAULT_MAX_SNAPSHOT_REQUEST_ATTEMPTS)).
-                withUpdatableKJar(Optional.ofNullable(System.getenv(Config.UPDATABLE_KJAR)).orElse(Boolean.TRUE.toString())).
+                withUpdatableKJar(Optional.ofNullable(System.getenv(Config.UPDATABLE_KJAR)).orElse(Boolean.FALSE.toString())).
                 withKJarGAV(Optional.ofNullable(System.getenv(Config.KJAR_GAV)).orElse(null)).
                 withUserHome(Optional.ofNullable(System.getenv(Config.USER_HOME)).orElse("/home/"+ System.getenv("USER"))).
                 withMavenHome(Optional.ofNullable(System.getenv(Config.MAVEN_HOME)).orElse(System.getenv("M2_HOME"))).
+                withMavenRepoURL(Optional.ofNullable(System.getenv(Config.MAVEN_REPO_URL)).orElse(null)).
                 underTest(Optional.ofNullable(System.getenv(Config.UNDER_TEST)).orElse(Config.TEST));
     }
 
@@ -202,6 +204,11 @@ public final class EnvConfig {
         return this;
     }
 
+    public EnvConfig withMavenRepoURL(String mavenRepoURL){
+        this.mavenRepoURL = mavenRepoURL;
+        return this;
+    }
+
     public EnvConfig clone() {
         EnvConfig envConfig = new EnvConfig();
         envConfig.eventsTopicName = this.eventsTopicName;
@@ -224,6 +231,7 @@ public final class EnvConfig {
         envConfig.kjarGAV = this.kjarGAV;
         envConfig.userHome = this.userHome;
         envConfig.mavenHome = this.mavenHome;
+        envConfig.mavenRepoURL = this.mavenRepoURL;
         return envConfig;
     }
 
@@ -293,11 +301,15 @@ public final class EnvConfig {
 
     public boolean isUpdatableKJar(){ return updatableKJar;}
 
-    public String getKjarGAV(){ return kjarGAV;}
+    public String getKJarGAV(){ return kjarGAV;}
 
     public String getUserHome(){ return userHome;}
 
     public String getMavenHome(){ return mavenHome;}
+
+    public String getMavenRepoURL(){
+        return mavenRepoURL;
+    }
 
     @Override
     public String toString() {
@@ -322,6 +334,7 @@ public final class EnvConfig {
         sb.append(", kjarGAV='").append(kjarGAV).append('\'');
         sb.append(", userHome='").append(userHome).append('\'');
         sb.append(", mavenHome='").append(mavenHome).append('\'');
+        sb.append(", mavenRepoURL='").append(mavenRepoURL).append('\'');
         sb.append(", underTest='").append(test).append('\'');
         sb.append('}');
         return sb.toString();
