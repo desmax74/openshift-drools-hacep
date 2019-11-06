@@ -40,7 +40,7 @@ public class KieContainerUtils {
                 if (logger.isInfoEnabled()) {
                     logger.info("Creating new Kie Session with the Kjar deployed");
                 }
-                kieContainer = KieServices.get().newKieClasspathContainer();
+                kieContainer = srv.newKieClasspathContainer();
             }
             return kieContainer;
         }else{

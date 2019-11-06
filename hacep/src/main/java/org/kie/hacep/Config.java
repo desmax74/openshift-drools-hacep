@@ -55,8 +55,8 @@ public class Config {
     public static final String TEST = Boolean.FALSE.toString();
     public static final String UNDER_TEST = "undertest";
     public static final String MAX_SNAPSHOT_REQUEST_ATTEMPTS = "max.snapshot.request.attempts";
-    public static final String UPDATABLE_KJAR = "updatablekjar";
-    public static final String KJAR_GAV = "kjargav";
+    public static final String UPDATABLE_KJAR = "UPDATABLEKJAR";
+    public static final String KJAR_GAV = "KJARGAV";
     public static final String DEFAULT_MAX_SNAPSHOT_REQUEST_ATTEMPTS = "10";
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
     private static Properties config;
