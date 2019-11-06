@@ -20,6 +20,16 @@ spec:
       serviceAccountName: openshift-kie-springboot
       containers:
         - env:
+          - name: MAVEN_REPO_URL
+            value: "<NEXUS>"
+          - name: MAVEN_MIRROR_URL
+            value: "<NEXUS>"
+          - name: UPDATABLEKJAR
+            value: "true"
+          - name: KJARGAV
+            value: "org.kie:sample-hacep-project:<VERSION>"
+          - name: kie.maven.settings.custom
+            value: "/root/.m2/settings.xml"
           name: openshift-kie-springboot
           image: quickstarter/openshift-kie-springboot:latest
           imagePullPolicy: IfNotPresent
@@ -43,5 +53,12 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 5
             timeoutSeconds: 1
+          volumeMounts:
+            - mountPath: /opt/.m2/repository
+              name: maven-repo
           securityContext:
             privileged: false
+      volumes:
+        - name: maven-repo
+          persistentVolumeClaim:
+            claimName: maven-repo
