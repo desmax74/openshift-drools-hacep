@@ -9,9 +9,9 @@
   <mirrors>
     <mirror>
       <id>central</id>
-      <mirrorOf>*</mirrorOf>
-      <name>central</name>
-      <url>{NEXUS}</url>
+      <mirrorOf>central</mirrorOf>
+      <name>nexus</name>
+      <url>NEXUS_URL</url>
     </mirror>
   </mirrors>
   <profiles></profiles>

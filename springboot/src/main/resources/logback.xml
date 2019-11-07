@@ -6,8 +6,6 @@
   </root>
   <logger name="org.springframework.web" level="ERROR"/>
   <logger name="org.kie.hacep" level="INFO"/>
-  <logger name="org.apache.maven" level="DEBUG"/>
-  <logger name="org.appformer.maven" level="DEBUG"/>
-  <logger name="org.drools" level="DEBUG"/>
+  <logger name="org.drools.compiler.kie.builder" level="DEBUG"/>
   <logger name="org.apache.kafka" level="WARN"/>
 </configuration>

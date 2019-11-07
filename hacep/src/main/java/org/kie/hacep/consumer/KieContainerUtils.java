@@ -30,15 +30,15 @@ public class KieContainerUtils {
         KieContainer kieContainer;
         if(srv != null) {
             if (envConfig.isUpdatableKJar()) {
-                if (logger.isInfoEnabled()) {
-                    logger.info("Creating new KieContainer with KJar:{}", envConfig.getKJarGAV());
-                }
                 kieContainer = srv.newKieContainer(GAVUtils.getReleaseID(envConfig.getKJarGAV(), srv));
                 KieScanner scanner = srv.newKieScanner(kieContainer);
                 scanner.scanNow();
+                if (logger.isInfoEnabled()) {
+                    logger.info("Created new KieContainer with KJar:{} from maven repo", envConfig.getKJarGAV());
+                }
             } else {
                 if (logger.isInfoEnabled()) {
-                    logger.info("Creating new Kie Session with the Kjar deployed");
+                    logger.info("Creating new Kie Session with the KJar deployed with the app");
                 }
                 kieContainer = srv.newKieClasspathContainer();
             }
