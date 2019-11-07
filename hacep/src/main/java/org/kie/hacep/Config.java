@@ -66,9 +66,6 @@ public class Config {
     private static final String CONF = "infra.properties";
     private static final String SNAPSHOT_CONSUMER_CONF = "snapshot_consumer.properties";
     private static final String SNAPSHOT_PRODUCER_CONF = "snapshot_producer.properties";
-    public static final String USER_HOME = "HOME";
-    public static final String MAVEN_HOME = "MAVEN_HOME";
-    public static final String MAVEN_REPO_URL = "MAVEN_REPO_URL";
 
     public static String getBootStrapServers() {
         StringBuilder sb = new StringBuilder();
