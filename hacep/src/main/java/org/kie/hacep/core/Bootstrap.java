@@ -39,7 +39,10 @@ public class Bootstrap {
     public static void startEngine(EnvConfig envConfig) {
         //order matter
         checkKJarVersion(envConfig);
-        coreKube = new CoreKube(envConfig.getNamespace(), null);
+        if(!envConfig.isUnderTest()) {
+            coreKube = new CoreKube(envConfig.getNamespace(),
+                                    null);
+        }
         eventProducer = startProducer(envConfig);
         startConsumers(envConfig, eventProducer);
         if(!envConfig.isUnderTest()) {
