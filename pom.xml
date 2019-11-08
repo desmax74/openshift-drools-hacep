@@ -78,6 +78,12 @@
         <groupId>org.kie</groupId>
         <artifactId>kie-ci</artifactId>
         <version>${version.org.kie}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>aopalliance</groupId>
+            <artifactId>aopalliance</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.drools</groupId>
@@ -138,6 +144,12 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>
         <version>${version.org.spring-boot}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jcl</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
