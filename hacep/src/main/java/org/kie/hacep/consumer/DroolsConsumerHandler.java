@@ -63,7 +63,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     }
 
     private void initializeKieSessionContext() {
-        if(!this.envConfig.isSkipOnDemandSnapshot()) {// if true we reads the snapshots and wait until the first leaderElectionUpdate
+        if(this.envConfig.isSkipOnDemandSnapshot()) {// if true we reads the snapshots and wait until the first leaderElectionUpdate
             initializeSessionContextWithSnapshotCheck();
         } else{
             createAndInitializeSessionContextWithoutSnapshot();
