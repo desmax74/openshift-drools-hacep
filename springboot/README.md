@@ -265,7 +265,7 @@ spec:
           - name: KJARGAV
             value: "org.kie:sample-hacep-project:7.29.0-SNAPSHOT"
           name: openshift-kie-springboot
-          image: quickstarter/openshift-kie-springboot:latest
+          image: <user>/openshift-kie-springboot:<version>
           imagePullPolicy: IfNotPresent
           livenessProbe:
             exec:
@@ -299,5 +299,5 @@ spec:
 ```
 
 the kjar must be present in the nexus repo accessed by our Aether before the start, 
-Aether will ask the jar to NExus and the jar will be putted inside /opt/.m2/repository 
+Aether will ask the jar to Nexus and the jar will be putted inside /opt/.m2/repository 
 and loaded by Drools at the startup and on every UpdateCommand jar.
