@@ -17,4 +17,6 @@ poll.timeout.snapshot : value to poll snapshot topic, default value is 1
 poll.timeout.unit.snapshot : : time unit to poll.timout.snapshot default is sec, other option is sec
 
 max.snapshot.request.attempts : max number of attempt to wait a snapshot, default value is 10
+
+namespace : namespace to use, default value is 'default'
 ```
