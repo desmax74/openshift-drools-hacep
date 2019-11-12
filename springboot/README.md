@@ -196,7 +196,7 @@ COPY target/*-springboot.jar /deployments/app.jar
 COPY settings.xml /root/.m2/settings.xml
 EXPOSE 8080
 ```
-and in this way the local cahced maven repo will be 
+and in this way the local cached maven repo will be 
 ```sh 
 /opt/.m2/repository
 ```

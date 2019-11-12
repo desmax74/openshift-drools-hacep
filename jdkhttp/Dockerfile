@@ -1,5 +1,6 @@
 FROM registry.access.redhat.com/ubi8/ubi-minimal
 RUN microdnf install --nodocs java-1.8.0-openjdk-headless && microdnf clean all
 COPY target/*-jdkhttp-fat.jar /deployments/app.jar
+COPY settings.xml /root/.m2/settings.xml
 EXPOSE 8080
 CMD ["java","-jar","/deployments/app.jar"]
