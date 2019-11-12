@@ -39,100 +39,71 @@ time when the event is inserted by the client into a remote session. In this cas
 events in the same session, will be necessary to synchronize the machine clocks of all the nodes hosting those clients in order 
 to avoid inconsistencies when processing 2 events inserted by 2 different clients. 
 
-### Architectural (doc folder)
-@TODO with images
+### Architectural
+[Diagrams](docs/diagrams)
 
-### Customization (kjar)
-@TODO
 
 ## Installation Guide
 ### Prerequisites
 
-- Openshift 3.11, 4.1 or Minishift
+- Openshift 3.11, 4.X or Minishift, CRC
 
-- A Kafka Cluster on Openshift 3.11 with Strimzi https://strimzi.io/
-(tested on Openshift 3.11, 4.1 and strimzi 0.11.1, 0.12.1)
+- A Kafka Cluster on Openshift with AMQ Streams or Strimzi https://strimzi.io/
+(tested on Openshift 3.11, 4.x and strimzi 0.11.1, 0.12.1)
 
-### Creation of Kafka's topics
-Create the kafka topics using the files in the kafka-topics folder, 
-the cluster's name default is "my-cluster", change it accordingly in 
-the yaml files with your cluster's name 
-##### TODO describe each topic in terms of configuration and single partition reason
-```sh
-oc create -f kafka-topisc/events.yaml
-oc create -f kafka-topisc/control.yaml
-oc create -f kafka-topisc/snapshot.yaml
-oc create -f kafka-topisc/kiesessioninfos.yaml
-```
-Checks the topics
-```sh
-oc exec -it my-cluster-kafka-<number> -- bin/kafka-topics.sh --zookeeper localhost:2181 --describe
-```
+### Kafka Cluster
+[Kafka Topics](docs/kafka-topics/README.md)
 
-### Build the pods
+
+
+#### Implementing the HA CEP server on Openshift 4.2
+
+The high-availability (HA) CEP server runs on the Red Hat OpenShift Container Platform environment. It includes all necessary Drools rules and other code required to process events.
+
+You must prepare the source, build it, and then deploy it on Red Hat OpenShift Container Platform. 
+
+- 1) Change to the openshift-drools-hacep-distribution/sources directory.
+Review and modify the server code based on the sample project in the sample-hacep-project/sample-hacep-project-kjar directory. 
+The complex event processing logic is defined by the DRL rules in the src/main/resources/org.drools.cep subdirectory.
+- 2) Build the project using the standard Maven command: 
+
 ```sh
 mvn clean install -DskipTests
 ```
-### Deployment
-Are available three modules 
+- 3)
+Use the OpenShift operator infrastructure to install [Red Hat AMQ Streams](https://access.redhat.com/documentation/en-us/red_hat_amq/7.3/html/using_amq_streams_on_openshift_container_platform/index) .
 
-- Springboot     ( openshift-kie-springboot.jar )
-- Thorntail      ( openshift-kie-thorntail.jar )
-- Jdk HttpServer ( openshift-kie-jdkhttp.jar )
+- 4)
+Using the KafkaTopic resource on Red Hat OpenShift Container Platform, create the topics from all the YAML files in the kafka-topics subdirectory. 
+For instructions about creating topics using the KafkaTopic resource, see [Using the topic operator](https://access.redhat.com/documentation/en-us/red_hat_amq/7.4/html/using_amq_streams_on_openshift_container_platform/using-the-topic-operator-str) in the Red Hat AMQ documentation.
 
-choose your and move in the respective module to run the resepcitve command 
-to create the Container image and then deploy on Openshift, as described in the module's README.md
-
-
-### Client outside cluster
-
-If you plan to use a client outside openshift
-you need to expose kafka with a route
-in the kafka cluster creation you could enable the https endpoint with
-listener external of type route
-
-```json
-apiVersion: kafka.strimzi.io/v1beta1
-kind: Kafka
-metadata:
-  name: my-cluster
-spec:
-  kafka:
-    version: 2.2.1
-    replicas: 3
-    listeners:
-      plain: {}
-      external:
-        type: route
-```
-
-### Client module
-- sample-hacep-project-client 
-
-#### Client configuration
-From the root of the client module:
-Generate a keystore and use "password" as a password
+- 5)
+In order to enable application access to the ConfigMap that is used in the leader election, you must configure role-based access control. 
+Change to the springboot directory and enter the following commands: 
 ```sh
-keytool -genkeypair -keyalg RSA -keystore src/main/resources/keystore.jks
+oc create -f kubernetes/service-account.yaml
+oc create -f kubernetes/role.yaml
+oc create -f kubernetes/role-binding.yaml
 ```
-extract the cert from openshift with:
+  
+  For more information about configuring role-based access control in Red Hat OpenShift Container Platform, see [Using RBAC to define and apply permissions](https://access.redhat.com/documentation/en-us/openshift_container_platform/4.1/html/authentication/using-rbac) in the Red Hat OpenShift Container Platform product documentation.
+
+- 6) In the springboot directory, enter the following commands to build the Docker image and push it into the Docker registry that is configured on your system. (Consider configuring a private registry before running these commands). This build imports the built sample-hacep-project-kjar code as a Maven dependency and includes it in the BOOT-INF/lib directory of the openshift-kie-springboot.jar file. 
+The Docker build then uses the JAR file to create the image.
 ```sh
-oc extract secret/my-cluster-cluster-ca-cert --keys=ca.crt --to=- > src/main/resources/ca.crt
-```
-```sh
-keytool -import -trustcacerts -alias root -file src/main/resources/ca.crt -keystore src/main/resources/keystore.jks -storepass password -noprompt
+docker login --username=<user username>
+docker build -t <user_username>/openshift-kie-springboot:<tag> .
+docker push <user_username>/openshift-kie-springboot:<tag> 
 ```
 
-- In the configuration.properties add the path of the keystore.jks 
-in the fields:
-"ssl.keystore.location"
-and 
-"ssl.truststore.location"
-in the fields
-"ssl.keystore.password"
-and 
-"ssl.truststore.password"
-the passwords used during the generation of the jks file and the trustore
+### Detailed docs
+Detailed docs about kjar customization, kafka-topics, available modules and openshift versions
 
-- in the field
-"bootstrap.servers" add the address of the bootstrap.servers exposed in the routes
+- [Docs](docs/README.md)
+
+  
+  
+  
+
+
+   
