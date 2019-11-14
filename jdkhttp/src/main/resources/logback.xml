@@ -10,5 +10,6 @@
   </root>
   <logger name="org.hibernate.validator.internal.util.Version" level="WARN"/>
   <logger name="org.kie.hacep" level="INFO"/>
+  <logger name="org.kie.api.builder.KieScanner " level="INFO"/>
   <logger name="org.apache.kafka" level="WARN"/>
 </configuration>

@@ -20,8 +20,12 @@ spec:
       serviceAccountName: openshift-kie-springboot
       containers:
         - env:
+          - name: MAVEN_LOCAL_REPO
+            value: "/root/.m2/repository"
+          - name: MAVEN_SETTINGS_XML
+            value: "/root/.m2/settings.xml"
           name: openshift-kie-springboot
-          image: <user>/openshift-kie-springboot:<version>
+          image: quickstarter/openshift-kie-springboot:latest
           imagePullPolicy: IfNotPresent
           livenessProbe:
             exec:
