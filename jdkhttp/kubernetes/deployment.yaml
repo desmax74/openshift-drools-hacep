@@ -20,10 +20,6 @@ spec:
       serviceAccountName: openshift-kie-jdkhttp
       containers:
         - env:
-          - name: MAVEN_LOCAL_REPO
-            value: "/root/.m2/repository"
-          - name: MAVEN_SETTINGS_XML
-            value: "/root/.m2/settings.xml"
           name: openshift-kie-jdkhttp
           image: quickstarter/openshift-kie-jdkhttp:latest
           imagePullPolicy: IfNotPresent
