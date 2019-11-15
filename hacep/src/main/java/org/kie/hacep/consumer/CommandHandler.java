@@ -263,7 +263,6 @@ public class CommandHandler implements VisitorCommand {
         KieServices ks = KieServices.get();
         UpdateKjarMessage msg = new UpdateKjarMessage(command.getId(), Boolean.FALSE);
         if (ks != null) {
-            logger.info("Updating KieContainer with KJar:{}", command.getKJarGAV());
             ReleaseId releaseId = ks.newReleaseId(command.getGroupID(), command.getArtifactID(), command.getVersion());
             if(envConfig.isUpdatableKJar()) {
                 try {
