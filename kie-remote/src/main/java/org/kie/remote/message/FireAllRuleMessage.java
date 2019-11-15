@@ -13,37 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.hacep.message;
+package org.kie.remote.message;
 
 import java.io.Serializable;
 
+import org.kie.remote.message.AbstractMessage;
 import org.kie.remote.message.ResultMessage;
 
-public class GetKJarGAVMessage extends AbstractMessage implements Serializable, ResultMessage<String> {
+public class FireAllRuleMessage extends AbstractMessage
+        implements Serializable, ResultMessage<Long> {
 
-    private String kJarGAV;
+    private long counter;
 
     /* Empty constructor for serialization */
-    public GetKJarGAVMessage(){}
+    public FireAllRuleMessage(){}
 
-    public GetKJarGAVMessage(String id, String kJarGAV){
+    public FireAllRuleMessage(String id, long counter) {
         super(id);
-        this.kJarGAV = kJarGAV;
+        this.counter = counter;
     }
 
     @Override
-    public String getResult() {
-        return getkJarGAV();
+    public Long getResult() {
+        return getCounter();
     }
 
-    public String getkJarGAV(){
-        return kJarGAV;
+    public long getCounter() {
+        return counter;
     }
 
     @Override
     public String toString() {
-        return "KJarGAVMessage{" +
-                " kJarGAV=" + kJarGAV +
+        return "FireAllRuleMessage{" +
+                "counter=" + counter +
                 ", id='" + id + '\'' +
                 ", timestamp=" + timestamp +
                 '}';

@@ -28,7 +28,7 @@ import org.kie.hacep.core.infra.consumer.ConsumerHandler;
 import org.kie.hacep.core.infra.consumer.ItemToProcess;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.core.infra.utils.SnapshotOnDemandUtils;
-import org.kie.hacep.message.ControlMessage;
+import org.kie.remote.message.ControlMessage;
 import org.kie.hacep.util.PrinterUtil;
 import org.kie.remote.DroolsExecutor;
 import org.kie.remote.command.RemoteCommand;

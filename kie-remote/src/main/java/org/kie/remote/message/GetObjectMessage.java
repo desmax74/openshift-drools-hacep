@@ -13,41 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.hacep.message;
+package org.kie.remote.message;
 
 import java.io.Serializable;
-import java.util.Collection;
 
+import org.kie.remote.message.AbstractMessage;
 import org.kie.remote.message.ResultMessage;
 
-public class ListKieSessionObjectMessage extends AbstractMessage
+public class GetObjectMessage extends AbstractMessage
         implements Serializable,
-                   ResultMessage<Collection<? extends Object>> {
+                   ResultMessage<Object> {
 
-    private Collection<? extends Object> objects;
+    private Object object;
 
     /* Empty constructor for serialization */
-    public ListKieSessionObjectMessage() {
+    public GetObjectMessage() {
     }
 
-    public ListKieSessionObjectMessage(String id, Collection<? extends Object> objects) {
+    public GetObjectMessage(String id, Object object) {
         super(id);
-        this.objects = objects;
+        this.object = object;
     }
 
     @Override
-    public Collection<? extends Object> getResult() {
-        return getObjects();
+    public Object getResult() {
+        return getObject();
     }
 
-    public Collection<? extends Object> getObjects() {
-        return objects;
+    public Object getObject() {
+        return object;
     }
 
     @Override
     public String toString() {
-        return "ListKieSessionObjectMessage{" +
-                "objects=" + objects +
+        return "GetObjectMessage{" +
+                "object=" + object +
                 ", id='" + id + '\'' +
                 ", timestamp=" + timestamp +
                 '}';

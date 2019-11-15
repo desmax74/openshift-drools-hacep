@@ -17,7 +17,6 @@ package org.kie.hacep;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,7 +28,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
-import org.kie.hacep.message.ControlMessage;
+import org.kie.remote.message.ControlMessage;
 import org.kie.remote.RemoteKieSession;
 import org.kie.remote.command.FireUntilHaltCommand;
 import org.kie.remote.command.InsertCommand;
@@ -152,5 +151,4 @@ public class PodAsLeaderTest extends KafkaFullTopicsTests {
             logger.warn("Control consumer closed");
         }
     }
-
 }

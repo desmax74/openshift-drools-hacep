@@ -13,33 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.hacep.message;
+package org.kie.remote.message;
 
 import java.io.Serializable;
 
+import org.kie.remote.message.AbstractMessage;
 import org.kie.remote.message.ResultMessage;
 
-public class UpdateKjarMessage extends AbstractMessage implements Serializable, ResultMessage<Boolean> {
+public class GetKJarGAVMessage extends AbstractMessage implements Serializable, ResultMessage<String> {
 
-    private boolean updateResult;
+    private String kJarGAV;
 
     /* Empty constructor for serialization */
-    public UpdateKjarMessage(){}
+    public GetKJarGAVMessage(){}
 
-    public UpdateKjarMessage(String id, boolean updateResult) {
+    public GetKJarGAVMessage(String id, String kJarGAV){
         super(id);
-        this.updateResult = updateResult;
+        this.kJarGAV = kJarGAV;
     }
 
     @Override
-    public Boolean getResult() {
-        return updateResult;
+    public String getResult() {
+        return getkJarGAV();
+    }
+
+    public String getkJarGAV(){
+        return kJarGAV;
     }
 
     @Override
     public String toString() {
-        return "UpdateKjarMessage{" +
-                "result=" + updateResult +
+        return "KJarGAVMessage{" +
+                " kJarGAV=" + kJarGAV +
                 ", id='" + id + '\'' +
                 ", timestamp=" + timestamp +
                 '}';

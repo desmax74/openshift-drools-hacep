@@ -38,7 +38,7 @@ import org.kie.hacep.core.infra.OffsetManager;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.core.infra.utils.ConsumerUtils;
-import org.kie.hacep.message.ControlMessage;
+import org.kie.remote.message.ControlMessage;
 import org.kie.hacep.util.Printer;
 import org.kie.hacep.util.PrinterUtil;
 import org.kie.remote.DroolsExecutor;

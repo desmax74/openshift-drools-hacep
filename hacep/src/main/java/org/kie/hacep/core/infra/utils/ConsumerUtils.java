@@ -32,8 +32,8 @@ import org.apache.kafka.common.TopicPartition;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
-import org.kie.hacep.message.ControlMessage;
-import org.kie.hacep.message.FactCountMessage;
+import org.kie.remote.message.ControlMessage;
+import org.kie.remote.message.FactCountMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

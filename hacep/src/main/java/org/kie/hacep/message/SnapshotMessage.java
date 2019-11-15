@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.kie.hacep.consumer.FactHandlesManager;
 import org.kie.remote.RemoteFactHandle;
+import org.kie.remote.message.AbstractMessage;
 
 public class SnapshotMessage extends AbstractMessage implements Serializable {
 

@@ -13,39 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.hacep.message;
+package org.kie.remote.message;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.Queue;
 
-import org.kie.remote.message.ResultMessage;
+import org.kie.remote.message.AbstractMessage;
+import org.kie.remote.message.Message;
 
-public class FireAllRuleMessage extends AbstractMessage
-        implements Serializable, ResultMessage<Long> {
+public class ControlMessage extends AbstractMessage implements Serializable, Message {
 
-    private long counter;
+    protected long offset;
+    protected Queue<Object> sideEffects;
 
     /* Empty constructor for serialization */
-    public FireAllRuleMessage(){}
+    public ControlMessage() {}
 
-    public FireAllRuleMessage(String id, long counter) {
+    public ControlMessage( String id,
+                           Queue<Object> sideEffects) {
         super(id);
-        this.counter = counter;
+        this.sideEffects = sideEffects;
     }
 
-    @Override
-    public Long getResult() {
-        return getCounter();
+    public long getOffset() {
+        return offset;
     }
 
-    public long getCounter() {
-        return counter;
+    public void setOffset(long offset) {
+        this.offset = offset;
+    }
+
+    public Queue<Object> getSideEffects() {
+        return sideEffects;
     }
 
     @Override
     public String toString() {
-        return "FireAllRuleMessage{" +
-                "counter=" + counter +
+        return "ControlMessage{" +
+                "offset=" + offset +
+                ", sideEffects=" + sideEffects +
                 ", id='" + id + '\'' +
                 ", timestamp=" + timestamp +
                 '}';
