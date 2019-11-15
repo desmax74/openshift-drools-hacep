@@ -146,9 +146,7 @@ public class CommandHandlerTest {
         doReturn(Collections.singletonList(myObject)).when(kieSessionMock).getObjects(any());
         when(kieSessionMock.getObject(any())).thenReturn(myObject);
         when(factHandlesManagerMock.mapRemoteFactHandle(any(RemoteFactHandle.class))).thenReturn(factHandleMock);
-        when(kieSessionContextMock.getKjarGAVUsed()).thenReturn(Optional.of(kJarGAV));
-        when(kieSessionContextMock.getKieContainer()).thenReturn(kieContainerMock);
-        when(kieServicesMock.newReleaseId("org.kie","fake-jar","0.1-SNAPSHOT")).thenReturn(releaseIdMock);
+
         commandHandler = new CommandHandler(kieSessionContextMock,
                                             envConfig,
                                             producerMock,
@@ -293,8 +291,12 @@ public class CommandHandlerTest {
 
     @Test
     public void visitUpdateKJarCommand() {
+        envConfig.withUpdatableKJar("true");
         PowerMockito.mockStatic(KieServices.class);
         when(KieServices.get()).thenReturn(kieServicesMock);
+        when(kieSessionContextMock.getKjarGAVUsed()).thenReturn(Optional.of(kJarGAV));
+        when(kieSessionContextMock.getKieContainer()).thenReturn(kieContainerMock);
+        when(kieServicesMock.newReleaseId("org.kie","fake-jar","0.1-SNAPSHOT")).thenReturn(releaseIdMock);
         executeAndVerify(new UpdateKJarCommand(kJarGAV),
                          commandHandler::visit,
                          () ->{
