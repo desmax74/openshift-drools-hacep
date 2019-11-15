@@ -36,6 +36,6 @@ public interface RemoteKieSession extends Closeable, RemoteEntryPoint, RemoteSta
 
     CompletableFuture<String> getKJarGAV();
 
-    void updateKJarGAV(String kjar);
+    CompletableFuture<Boolean> updateKJarGAV(String kjar);
 
 }

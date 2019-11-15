@@ -40,6 +40,7 @@ import org.kie.hacep.message.FireAllRuleMessage;
 import org.kie.hacep.message.GetKJarGAVMessage;
 import org.kie.hacep.message.GetObjectMessage;
 import org.kie.hacep.message.ListKieSessionObjectMessage;
+import org.kie.hacep.message.UpdateKjarMessage;
 import org.kie.remote.CommonConfig;
 import org.kie.remote.DroolsExecutor;
 import org.kie.remote.RemoteFactHandle;
@@ -141,12 +142,12 @@ public class CommandHandlerTest {
         when(kieSessionMock.getFactCount()).thenReturn(factCount);
         when(kieSessionMock.getEntryPoint(anyString())).thenReturn(entryPointMock);
         when(kieSessionMock.getQueryResults(anyString())).thenReturn(queryResultsMock);
+        when(kieSessionContextMock.getKjarGAVUsed()).thenReturn(Optional.of(kJarGAV));
         when(queryResultsMock.iterator()).thenReturn(Collections.emptyIterator());
         doReturn(Collections.singletonList(myObject)).when(entryPointMock).getObjects();
         doReturn(Collections.singletonList(myObject)).when(kieSessionMock).getObjects(any());
         when(kieSessionMock.getObject(any())).thenReturn(myObject);
         when(factHandlesManagerMock.mapRemoteFactHandle(any(RemoteFactHandle.class))).thenReturn(factHandleMock);
-
         commandHandler = new CommandHandler(kieSessionContextMock,
                                             envConfig,
                                             producerMock,
@@ -297,13 +298,10 @@ public class CommandHandlerTest {
         when(kieSessionContextMock.getKjarGAVUsed()).thenReturn(Optional.of(kJarGAV));
         when(kieSessionContextMock.getKieContainer()).thenReturn(kieContainerMock);
         when(kieServicesMock.newReleaseId("org.kie","fake-jar","0.1-SNAPSHOT")).thenReturn(releaseIdMock);
-        executeAndVerify(new UpdateKJarCommand(kJarGAV),
+        executeAndVerifyResponseMessage(new UpdateKJarCommand(kJarGAV),
                          commandHandler::visit,
-                         () ->{
-                            verify(kieServicesMock, times(1)).newReleaseId(eq("org.kie"),eq("fake-jar"),eq("0.1-SNAPSHOT"));
-                            verify(kieSessionContextMock, times(1)).getKieContainer();
-                            verify(kieContainerMock, times(1)).updateToVersion(releaseIdMock);
-                         });
+                         UpdateKjarMessage.class,
+                         result -> Boolean.TRUE);
         PowerMockito.verifyStatic(KieServices.class, atLeast(1));
     }
 
@@ -349,8 +347,8 @@ public class CommandHandlerTest {
             ResultMessage value = messageArgumentCaptor.getValue();
 
             // if command has a return message, it should not performed on replica
-            // (FireAllRulesCommand is an exception)
-            assertFalse(command.isPermittedForReplicas() && !(command instanceof FireAllRulesCommand));
+            // (FireAllRulesCommand and UpdateKjarCommand are an exception)
+            assertFalse(command.isPermittedForReplicas() && !((command instanceof FireAllRulesCommand) || (command instanceof UpdateKJarCommand)));
             assertTrue(expectedMessageClass.isAssignableFrom(value.getClass()));
             assertEquals(command.getId(), value.getId());
             assertTrue(predicate.apply(value.getResult()));

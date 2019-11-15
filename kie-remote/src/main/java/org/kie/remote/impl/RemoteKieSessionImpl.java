@@ -70,9 +70,9 @@ public class RemoteKieSessionImpl extends RemoteEntryPointImpl implements Remote
     }
 
     @Override
-    public void updateKJarGAV(String kJar) {
+    public CompletableFuture<Boolean> updateKJarGAV(String kJar) {
         UpdateKJarCommand command = new UpdateKJarCommand(kJar);
-        executeCommand(command);
+        return executeCommand(command);
     }
 
     @Override

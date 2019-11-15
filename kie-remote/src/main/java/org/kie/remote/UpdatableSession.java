@@ -21,5 +21,5 @@ public interface UpdatableSession {
 
     CompletableFuture<String> getKJarGAV();
 
-    void updateKJarGAV(String kjar);
+    CompletableFuture<Boolean> updateKJarGAV(String kjar);
 }

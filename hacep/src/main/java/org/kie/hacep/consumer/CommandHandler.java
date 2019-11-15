@@ -37,6 +37,7 @@ import org.kie.hacep.message.FireAllRuleMessage;
 import org.kie.hacep.message.GetObjectMessage;
 import org.kie.hacep.message.GetKJarGAVMessage;
 import org.kie.hacep.message.ListKieSessionObjectMessage;
+import org.kie.hacep.message.UpdateKjarMessage;
 import org.kie.remote.DroolsExecutor;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.command.DeleteCommand;
@@ -260,12 +261,14 @@ public class CommandHandler implements VisitorCommand {
     @Override
     public void visit(UpdateKJarCommand command) {
         KieServices ks = KieServices.get();
+        UpdateKjarMessage msg = new UpdateKjarMessage(command.getId(), Boolean.FALSE);
         if (ks != null) {
             logger.info("Updating KieContainer with KJar:{}", command.getKJarGAV());
             ReleaseId releaseId = ks.newReleaseId(command.getGroupID(), command.getArtifactID(), command.getVersion());
             if(envConfig.isUpdatableKJar()) {
                 try {
                     kieSessionContext.getKieContainer().updateToVersion(releaseId);
+                    msg = new UpdateKjarMessage(command.getId(), Boolean.TRUE);
                 } catch (java.lang.UnsupportedOperationException ex) {
                     logger.info("It isn't possible update a classpath container to a new version");
                 }
@@ -273,6 +276,7 @@ public class CommandHandler implements VisitorCommand {
         } else {
             logger.error("KieService is null");
         }
+        producer.produceSync(envConfig.getKieSessionInfosTopicName(), command.getId(), msg);
     }
 
     @Override
