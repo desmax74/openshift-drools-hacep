@@ -21,13 +21,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.maven.repository.metadata.ClasspathContainer;
-import org.drools.compiler.kie.builder.impl.ClasspathKieProject;
-import org.drools.compiler.kie.builder.impl.KieContainerImpl;
 import org.drools.core.common.EventFactHandle;
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
-import org.kie.api.builder.Results;
 import org.kie.api.definition.type.Role;
 import org.kie.api.definition.type.Timestamp;
 import org.kie.api.runtime.rule.FactHandle;
@@ -267,10 +263,12 @@ public class CommandHandler implements VisitorCommand {
         if (ks != null) {
             logger.info("Updating KieContainer with KJar:{}", command.getKJarGAV());
             ReleaseId releaseId = ks.newReleaseId(command.getGroupID(), command.getArtifactID(), command.getVersion());
-            try {
-                kieSessionContext.getKieContainer().updateToVersion(releaseId);
-            }catch (java.lang.UnsupportedOperationException ex){
-                logger.info("It isn't possible update a classpath container to a new version");
+            if(envConfig.isUpdatableKJar()) {
+                try {
+                    kieSessionContext.getKieContainer().updateToVersion(releaseId);
+                } catch (java.lang.UnsupportedOperationException ex) {
+                    logger.info("It isn't possible update a classpath container to a new version");
+                }
             }
         } else {
             logger.error("KieService is null");

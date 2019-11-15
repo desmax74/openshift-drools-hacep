@@ -35,7 +35,7 @@ import org.kie.api.runtime.KieSessionConfiguration;
 import org.kie.api.runtime.conf.ClockTypeOption;
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
-import org.kie.hacep.consumer.GAVUtils;
+
 import org.kie.hacep.consumer.KieContainerUtils;
 import org.kie.hacep.core.GlobalStatus;
 import org.kie.hacep.core.infra.SessionSnapshooter;

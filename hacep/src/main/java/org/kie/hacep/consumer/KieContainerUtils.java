@@ -19,6 +19,7 @@ import org.kie.api.KieServices;
 import org.kie.api.builder.KieScanner;
 import org.kie.api.runtime.KieContainer;
 import org.kie.hacep.EnvConfig;
+import org.kie.remote.util.GAVUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

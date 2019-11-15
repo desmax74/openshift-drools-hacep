@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.kie.remote.impl.RemoteStreamingKieSessionImpl;
 
-public interface RemoteStreamingKieSession extends Closeable, RemoteStreamingEntryPoint, RemoteStatefulSession {
+public interface RemoteStreamingKieSession extends Closeable, RemoteStreamingEntryPoint, RemoteStatefulSession, UpdatableSession {
 
     RemoteStreamingEntryPoint getEntryPoint( String name);
 
@@ -33,7 +33,5 @@ public interface RemoteStreamingKieSession extends Closeable, RemoteStreamingEnt
         return new RemoteStreamingKieSessionImpl( configuration, envConfig );
     }
 
-    CompletableFuture<String> getKJarGAV();
 
-    void updateKJarGAV(String kjar);
 }

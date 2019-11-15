@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.hacep.consumer;
+package org.kie.remote.util;
 
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class GAVUtils {
-
-    private static final Logger logger = LoggerFactory.getLogger(GAVUtils.class);
 
     public static ReleaseId getReleaseID(String gav, KieServices srv){
         String parts[] = getSplittedGav(gav);

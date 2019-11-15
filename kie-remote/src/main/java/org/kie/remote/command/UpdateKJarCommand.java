@@ -18,6 +18,8 @@ package org.kie.remote.command;
 import java.io.Serializable;
 import java.util.UUID;
 
+import org.kie.remote.util.GAVUtils;
+
 public class UpdateKJarCommand extends AbstractCommand implements VisitableCommand, RemoteCommand, Serializable {
 
     private String kJarGAV;
@@ -26,7 +28,7 @@ public class UpdateKJarCommand extends AbstractCommand implements VisitableComma
     public UpdateKJarCommand(String kjarGAV){
         super(UUID.randomUUID().toString());
         this.kJarGAV = kjarGAV;
-        String parts[]= kjarGAV.split(":");
+        String parts[]= GAVUtils.getSplittedGav(this.kJarGAV);
         groupID = parts[0];
         artifactID = parts[1];
         version = parts[2];

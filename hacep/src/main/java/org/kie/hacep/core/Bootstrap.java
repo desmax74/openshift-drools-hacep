@@ -19,10 +19,11 @@ import java.util.Arrays;
 
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
-import org.kie.hacep.consumer.GAVUtils;
+
 import org.kie.hacep.core.infra.consumer.ConsumerController;
 import org.kie.hacep.core.infra.election.LeaderElection;
 import org.kie.remote.impl.producer.Producer;
+import org.kie.remote.util.GAVUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
