@@ -18,6 +18,7 @@ package org.kie.hacep.core;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import org.kie.api.builder.ReleaseId;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.time.SessionClock;
@@ -35,8 +36,6 @@ public class KieSessionContext {
 
     private KieContainer kieContainer;
 
-    private String kjarGAVUsed;
-
     public KieSession getKieSession() {
         return kieSession;
     }
@@ -46,13 +45,19 @@ public class KieSessionContext {
     }
 
     public Optional<String> getKjarGAVUsed(){
-        return Optional.ofNullable(kjarGAVUsed);
+        ReleaseId releaseId = kieContainer.getReleaseId();
+        String gav = null;
+        if(releaseId!= null) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(releaseId.getGroupId()).append(":").append(releaseId.getArtifactId()).append(":").append(releaseId.getVersion());
+            gav = sb.toString();
+        }
+        return Optional.ofNullable(gav);
     }
 
     public void initFromSnapshot(SnapshotInfos infos) {
         setKieSessionAndKieContainer(infos.getKieSession(), infos.getKieContainer());
         this.fhManager = infos.getFhManager();
-        this.kjarGAVUsed = infos.getkJarGAV();
     }
 
     public void init(KieContainer kieContainer, KieSession newKiesession) {
