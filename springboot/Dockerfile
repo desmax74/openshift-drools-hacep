@@ -1,5 +1,5 @@
-FROM registry.access.redhat.com/ubi8/ubi-minimal
-RUN microdnf install --nodocs java-1.8.0-openjdk-headless && microdnf clean all
+FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
+RUN microdnf install java-1.8.0-openjdk-headless && microdnf clean all
 COPY target/*-springboot.jar /deployments/app.jar
 COPY ./scripts/jboss-settings.xml /root/.m2/settings.xml
 COPY ./scripts/logging.sh /deployments/logging.sh
