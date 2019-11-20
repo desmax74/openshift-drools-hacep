@@ -18,79 +18,12 @@ and the dependency
 must be removed from you maven module,
 some other configuration are described in the following steps
 
+
+
+
 ##### The prerequisites
 To have an updatable Kjar at startup and later, is mandatory to add two env vars 
-at the startup time and the presence of the specific jar in a Nexus repo. 
-
-Install a Nexus sonatype , and provide a maven-group to
-group together your maven repos needed by your project,
-copy the Nexus url, something like:
-```sh
-http://nexus3-my-kafka-project.192.168.99.133.nip.io/repository/maven-public/
-```
-replace the NEXUS_URL in the sprinboot/settings.xml with this url, something like:
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
-  <localRepository>/opt/.m2/repository</localRepository>
-  <pluginGroups></pluginGroups>
-  <proxies></proxies>
-  <servers></servers>
-  <mirrors>
-    <mirror>
-      <id>central</id>
-      <mirrorOf>central</mirrorOf>
-      <name>nexus</name>
-      <url>http://nexus3-my-kafka-project.192.168.99.133.nip.io/repository/maven-public/</url>
-    </mirror>
-  </mirrors>
-  <profiles></profiles>
-</settings>
-```
-
-this file will be copied in the
-```sh 
-/root/.m2/settings.xml 
-```
-by the Dockerfile
-```sh 
-COPY target/*-springboot.jar /deployments/app.jar
-COPY settings.xml /root/.m2/settings.xml
-EXPOSE 8080
-```
-and in this way the local cahced maven repo will be 
-```sh 
-/opt/.m2/repository
-```
-Now we need to create a storage mounted as /opt/.m2/repository by the pods
-at the startup time.
-
-Create a storage called 'maven-repo' with write and read many access mode
-
-In the deployment.yaml we add
-the volume mount
-```yaml
-volumeMounts:
-            - mountPath: /opt/.m2/repository
-              name: maven-repo
-          securityContext:
-            privileged: false
-```
-Add the volume
-```yaml
-volumes:
-        - name: maven-repo
-          persistentVolumeClaim:
-            claimName: maven-repo
-            privileged: false
-```
-
-and add the env vars
-UPDATABLEKJAR with value "true"
-and the desidered GAV of the KJar to use at the start up:
+at the startup time and the presence of the specific jar in a Maven repo. 
 
 ```yaml
 containers:
@@ -98,72 +31,45 @@ containers:
           - name: UPDATABLEKJAR
             value: "true"
           - name: KJARGAV
-            value: "org.kie:sample-hacep-project:7.29.0-SNAPSHOT" 
+            value: "org.kie:sample-hacep-project:7.30.0.Final" 
 ```
 
-At the end the deployment,yaml will be
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app: openshift-kie-springboot
-    version: v1
-  name: openshift-kie-springboot
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: openshift-kie-springboot
-      version: v1
-  template:
-    metadata:
-      labels:
-        app: openshift-kie-springboot
-        version: v1
-    spec:
-      serviceAccountName: openshift-kie-springboot
-      containers:
-        - env:
-          - name: UPDATABLEKJAR
-            value: "true"
-          - name: KJARGAV
-            value: "org.kie:sample-hacep-project:7.29.0-SNAPSHOT"
-          name: openshift-kie-springboot
-          image: quickstarter/openshift-kie-springboot:latest
-          imagePullPolicy: IfNotPresent
-          livenessProbe:
-            exec:
-              command:
-                - curl
-                - localhost:8080/liveness
-            initialDelaySeconds: 20
-            periodSeconds: 10
-            timeoutSeconds: 1
-          ports:
-            - containerPort: 8080
-              name: http
-              protocol: TCP
-          readinessProbe:
-            exec:
-              command:
-                - curl
-                - localhost:8080/readiness
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            timeoutSeconds: 1
-          volumeMounts:
-            - mountPath: /opt/.m2/repository
-              name: maven-repo
-          securityContext:
-            privileged: false
-      volumes:
-        - name: maven-repo
-          persistentVolumeClaim:
-            claimName: maven-repo          
-```
+and add the env vars
+UPDATABLEKJAR with value "true"
+and the desidered GAV of the KJar to use at the start up, then add to the yaml ,
+the needed env vars to configure the settings.xml using the following variables.
 
-the kjar must be present in the nexus repo accessed by our Aether before the start, 
-Aether will ask the jar to NExus and the jar will be putted inside /opt/.m2/repository 
+
+| Name                | Description                                                  |  Example            |
+|---------------------| ------------------------------------------------------------ |---------------------|
+|MAVEN\_LOCAL\_REPO   | Directory to use as the local Maven repository.              | /root/.m2/repository                                                         |
+|MAVEN\_MIRROR\_URL   | The base URL of a mirror used for retrieving artifacts. | http://nexus3-my-kafka-project.192.168.99.133.nip.io/repository/maven-public/|
+|MAVEN\_MIRRORS       | If set, multi-mirror support is enabled, and other MAVEN\_MIRROR\_\* variables will be prefixed. For example: DEV\_ONE\_MAVEN\_MIRROR\_URL and QE\_TWO\_MAVEN\_MIRROR\_URL  | dev-one,qe-two
+|MAVEN\_REPOS         |If set, multi-repo support is enabled, and other MAVEN\_REPO\_\* variables will be prefixed. For example: DEV\_ONE\_MAVEN\_REPO\_URL and QE\_TWO\_MAVEN\_REPO\_URL |dev-one,qe-two
+|MAVEN\_SETTINGS\_XML |Location of custom Maven settings.xml file to use. | /root/.m2/settings.xml
+|prefix\_MAVEN\_MIRROR\_ID |ID to be used for the specified mirror.  If ommitted, a unique ID will be generated. |internal-mirror
+|prefix\_MAVEN\_MIRROR\_OF |Repository IDs mirrored by this entry.  Defaults to external:\* |
+|prefix\_MAVEN\_MIRROR\_URL |The URL of the mirror. |http://10.0.0.1:8080/repository/internal
+|prefix\_MAVEN\_REPO\_HOST |Maven repository host (if not using fully defined url; will fallback to service) |repo.example.com
+|prefix\_MAVEN\_REPO\_ID |Maven repository id |my-repo
+|prefix\_MAVEN\_REPO\_LAYOUT |Maven repository layout |default
+|prefix\_MAVEN\_REPO\_PASSPHRASE |Maven repository passphrase |maven1!
+|prefix\_MAVEN\_REPO\_PASSWORD |Maven repository password |maven1!
+|prefix\_MAVEN\_REPO\_PATH |Maven repository path (if not using fully defined url; will fallback to service) |/maven2/
+|prefix\_MAVEN\_REPO\_PORT |Maven repository port (if not using fully defined url; will fallback to service) |8080
+|prefix\_MAVEN\_REPO\_PRIVATE\_KEY |Maven repository private key |${user.home}/.ssh/id\_dsa
+|prefix\_MAVEN\_REPO\_PROTOCOL |Maven repository protocol (if not using fully defined url; will fallback to service) |http
+|prefix\_MAVEN\_REPO\_RELEASES\_ENABLED |Maven repository releases enabled |true
+|prefix\_MAVEN\_REPO\_RELEASES\_UPDATE\_POLICY |Maven repository releases update policy |always
+|prefix\_MAVEN\_REPO\_SERVICE |Maven repository service to lookup if prefix\_MAVEN\_REPO\_URL not specified |buscentr-myapp
+|prefix\_MAVEN\_REPO\_SNAPSHOTS\_ENABLED        |Maven repository snapshots enabled |true
+|prefix\_MAVEN\_REPO\_SNAPSHOTS\_UPDATE\_POLICY |Maven repository snapshots update policy |always
+|prefix\_MAVEN\_REPO\_URL                       |Maven repository url (fully defined) |http://repo.example.com:8080/maven2/
+|prefix\_MAVEN\_REPO\_USERNAME                  |Maven repository username |mavenUser
+                                                        
+                                                        
+
+The kjar must be present in the Maven/Nexus repo accessed by  Aether before the start, 
+Aether will ask the jar to Maven/Nexus and the jar will be placed inside maven local repo 
 and loaded by Drools at the startup and on every UpdateCommand jar.
 
