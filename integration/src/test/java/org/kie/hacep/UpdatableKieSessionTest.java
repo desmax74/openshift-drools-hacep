@@ -15,64 +15,52 @@
  */
 package org.kie.hacep;
 
-import java.io.File;
-import java.util.HashMap;
+import java.io.ByteArrayInputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 
-import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
-import org.apache.maven.wagon.Wagon;
-import org.apache.maven.wagon.providers.http.HttpWagon;
-import org.eclipse.aether.DefaultRepositorySystemSession;
-import org.eclipse.aether.RepositorySystem;
-import org.eclipse.aether.RepositorySystemSession;
-import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.artifact.DefaultArtifact;
-import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory;
-import org.eclipse.aether.impl.DefaultServiceLocator;
-import org.eclipse.aether.installation.InstallRequest;
-import org.eclipse.aether.repository.LocalRepository;
-import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
-import org.eclipse.aether.spi.connector.transport.TransporterFactory;
-import org.eclipse.aether.transport.file.FileTransporterFactory;
-import org.eclipse.aether.transport.http.HttpTransporterFactory;
-import org.eclipse.aether.transport.wagon.WagonProvider;
-import org.eclipse.aether.util.artifact.SubArtifact;
+import org.apache.maven.project.MavenProject;
+import org.appformer.maven.integration.MavenRepository;
+import org.appformer.maven.integration.embedder.MavenProjectLoader;
+import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.KieServices;
+import org.kie.api.builder.KieFileSystem;
 import org.kie.api.builder.ReleaseId;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.hacep.consumer.KieContainerUtils;
 import org.kie.hacep.core.KieSessionContext;
 import org.kie.remote.util.GAVUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.kie.scanner.KieMavenRepository;
 
 public class UpdatableKieSessionTest {
 
-    private Logger logger = LoggerFactory.getLogger(UpdatableKieSessionTest.class);
-    private RepositorySystem system;
-    private RepositorySystemSession session;
     private KieSessionContext ksCtx ;
     private KieSession kieSession;
     private KieContainer kieContainer;
-    private final String gav = "org.kie:sample-hacep-project-kjar:7.28.0.Final";
-    private final String updatedGav = "org.kie:sample-hacep-project-kjar:7.29.0.Final";
-    private KieServices srv;
+    private final String gav = "org.kie:sample-hacep-project-kjar:800.Final";
+    private final String updatedGav = "org.kie:sample-hacep-project-kjar:900.Final";
+    private KieServices ks;
 
     @Before
-    public void init() {
-        srv = KieServices.get();
-        installArtifact(gav, "target/test-classes/sample-hacep-project-kjar-7.28.0.Final.jar", "target/test-classes/sample-hacep-project-kjar-7.28.0.Final.pom");
-        installArtifact(gav, "target/test-classes/sample-hacep-project-kjar-7.29.0.Final.jar", "target/test-classes/sample-hacep-project-kjar-7.29.0.Final.pom");
+    public void init() throws Exception{
+        ks = KieServices.get();
+        String drl1 = new String(Files.readAllBytes(Paths.get("target/test-classes/drl1.drl")));
+        String drl2 = new String(Files.readAllBytes(Paths.get("target/test-classes/drl2.drl")));
+        createAndDeployKJar(GAVUtils.getReleaseID(gav, KieServices.get()), Collections.singletonMap("src/main/resources/org/pkg1/r0.drl", drl1));
+        createAndDeployKJar(GAVUtils.getReleaseID(updatedGav, KieServices.get()), Collections.singletonMap("src/main/resources/org/pkg1/r0.drl", drl2));
         ksCtx = new KieSessionContext();
     }
 
     private void initSessionContextFromEmbeddKjar() {
         EnvConfig envConfig = EnvConfig.getDefaultEnvConfig();
-        kieContainer = KieContainerUtils.getKieContainer(envConfig, srv);
+        kieContainer = KieContainerUtils.getKieContainer(envConfig, ks);
         kieSession = kieContainer.newKieSession();
         ksCtx.init(kieContainer, kieSession);
     }
@@ -82,20 +70,20 @@ public class UpdatableKieSessionTest {
         envConfig.withUpdatableKJar("true");
         envConfig.withKJarGAV(gav);
         envConfig.skipOnDemandSnapshot("true");
-        kieContainer = KieContainerUtils.getKieContainer(envConfig, srv);
+        kieContainer = KieContainerUtils.getKieContainer(envConfig, ks);
         kieSession = kieContainer.newKieSession();
         ksCtx.init(kieContainer, kieSession);
     }
 
     @Test
-    public void testEmbeddedKjar() {
+    public void testEmbeddedKJar() {
         initSessionContextFromEmbeddKjar();
         Optional<String> gavUSed = ksCtx.getKjarGAVUsed();
         Assert.assertFalse(gavUSed.isPresent());
     }
 
     @Test
-    public void testWithSpecificKjar() {
+    public void testWithSpecificKJar() {
         initSessionContextFromSpecificKjar();;
         Optional<String> gavUSed = ksCtx.getKjarGAVUsed();
         Assert.assertTrue(gavUSed.isPresent());
@@ -103,69 +91,35 @@ public class UpdatableKieSessionTest {
     }
 
     @Test
-    public void testUpdateWithSpecificKjar() {
+    public void testUpdateWithSpecificKJar() {
         initSessionContextFromSpecificKjar();;
         Optional<String> gavUSed = ksCtx.getKjarGAVUsed();
         Assert.assertTrue(gavUSed.isPresent());
         Assert.assertEquals(gavUSed.get(), gav);
-        ReleaseId releaseId=  GAVUtils.getReleaseID(updatedGav, srv);
+        ReleaseId releaseId=  GAVUtils.getReleaseID(updatedGav, ks);
         ksCtx.getKieContainer().updateToVersion(releaseId);
         gavUSed = ksCtx.getKjarGAVUsed();
         Assert.assertTrue(gavUSed.isPresent());
         Assert.assertEquals(updatedGav, gavUSed.get());
     }
 
-    ///Aether methods
 
-    private static RepositorySystemSession newSession(RepositorySystem system) {
-        DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
-        LocalRepository localRepo = new LocalRepository(System.getenv("HOME")+"/.m2/repository");
-        session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
-        return session;
+    public void createAndDeployKJar(ReleaseId releaseId, Map<String, String> files) {
+        KieFileSystem kfs = ks.newKieFileSystem().generateAndWritePomXML(releaseId);
+
+        for (Map.Entry<String, String> file : files.entrySet()) {
+            kfs.write(file.getKey(), file.getValue());
+        }
+        ks.newKieBuilder(kfs).buildAll();
+        InternalKieModule kieModule = (InternalKieModule) ks.getRepository().getKieModule(releaseId);
+        getRepository(ks).installArtifact(releaseId, kieModule.getBytes(), kfs.read("pom.xml"));
+        ks.getRepository().removeKieModule(releaseId);
     }
 
-    private RepositorySystem newRepositorySystem() {
-        DefaultServiceLocator locator = MavenRepositorySystemUtils.newServiceLocator();
-        locator.addService(RepositoryConnectorFactory.class, BasicRepositoryConnectorFactory.class);
-        locator.addService(TransporterFactory.class, FileTransporterFactory.class);
-        locator.addService(TransporterFactory.class, HttpTransporterFactory.class);
-        locator.setServices(WagonProvider.class, new ManualWagonProvider());
-        return locator.getService(RepositorySystem.class);
-    }
-
-    private class ManualWagonProvider implements WagonProvider {
-
-        public Wagon lookup(String roleHint) {
-            if ("http".equals(roleHint) || "https".equals(roleHint)) {
-                return new HttpWagon();
-            }
-            return null;
-        }
-
-        public void release(Wagon wagon) { }
-    }
-
-    private void installArtifact(String gav, String fileName, String pomName) {
-        system = newRepositorySystem();
-        session = newSession(system);
-        InstallRequest req = new InstallRequest();
-        String[] gavs = GAVUtils.getSplittedGav(gav);
-        File jar = new File(fileName);
-        if(!jar.exists()){
-            throw new RuntimeException("File not found");
-        }
-
-        Artifact jarArtifact = new DefaultArtifact(gavs[0], gavs[1],null, "jar", gavs[2],new HashMap<>(), jar);
-        Artifact pom = new SubArtifact(jarArtifact, null, "pom" );
-        pom = pom.setFile( new File( pomName ) );
-        req.addArtifact(jarArtifact).addArtifact( pom );;
-
-        try {
-            system.install(session, req);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error(e.getMessage(), e);
-        }
+    public MavenRepository getRepository(KieServices srv) {
+            ReleaseId initReleaseId = GAVUtils.getReleaseID("org.kie.server.initial:init-maven-repo:42", srv);
+            KieFileSystem kfs = ks.newKieFileSystem().generateAndWritePomXML(initReleaseId);
+            MavenProject minimalMavenProject = MavenProjectLoader.parseMavenPom(new ByteArrayInputStream(kfs.read("pom.xml")) );
+            return KieMavenRepository.getKieMavenRepository(minimalMavenProject);
     }
 }
