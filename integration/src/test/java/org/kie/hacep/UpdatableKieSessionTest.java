@@ -42,7 +42,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
-import org.kie.api.builder.Results;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.hacep.consumer.KieContainerUtils;
@@ -59,15 +58,15 @@ public class UpdatableKieSessionTest {
     private KieSessionContext ksCtx ;
     private KieSession kieSession;
     private KieContainer kieContainer;
-    private final String gav = "org.kie:sample-hacep-project-kjar:7.29.0-SNAPSHOT";
-    private final String updatedGav = "org.kie:sample-hacep-project-kjar:7.30.0-SNAPSHOT";
+    private final String gav = "org.kie:sample-hacep-project-kjar:7.28.0.Final";
+    private final String updatedGav = "org.kie:sample-hacep-project-kjar:7.29.0.Final";
     private KieServices srv;
 
     @Before
     public void init() {
         srv = KieServices.get();
-        installArtifact(gav, "target/test-classes/sample-hacep-project-kjar-7.29.0-SNAPSHOT.jar", "target/test-classes/sample-hacep-project-kjar-7.29.0-SNAPSHOT.pom");
-        installArtifact(gav, "target/test-classes/sample-hacep-project-kjar-7.30.0-SNAPSHOT.jar", "target/test-classes/sample-hacep-project-kjar-7.30.0-SNAPSHOT.pom");
+        installArtifact(gav, "target/test-classes/sample-hacep-project-kjar-7.28.0.Final.jar", "target/test-classes/sample-hacep-project-kjar-7.28.0.Final.pom");
+        installArtifact(gav, "target/test-classes/sample-hacep-project-kjar-7.29.0.Final.jar", "target/test-classes/sample-hacep-project-kjar-7.29.0.Final.pom");
         ksCtx = new KieSessionContext();
     }
 
