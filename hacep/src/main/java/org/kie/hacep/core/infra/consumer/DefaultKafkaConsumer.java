@@ -38,7 +38,7 @@ import org.kie.hacep.core.infra.OffsetManager;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.core.infra.utils.ConsumerUtils;
-import org.kie.hacep.message.ControlMessage;
+import org.kie.remote.message.ControlMessage;
 import org.kie.hacep.util.Printer;
 import org.kie.hacep.util.PrinterUtil;
 import org.kie.remote.DroolsExecutor;
@@ -74,7 +74,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
 
     public DefaultKafkaConsumer(EnvConfig config) {
         this.envConfig = config;
-        if(this.envConfig.isSkipOnDemanSnapshot()){
+        if(this.envConfig.isSkipOnDemandSnapshot()){
             counter = new AtomicInteger(0);
         }
         iterationBetweenSnapshot = this.envConfig.getIterationBetweenSnapshot();
@@ -86,7 +86,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
 
     public void initConsumer(ConsumerHandler consumerHandler) {
         this.consumerHandler = (DroolsConsumerHandler) consumerHandler;
-        this.snapShooter = this.consumerHandler.getSnapshooter();
+        this.snapShooter = this.consumerHandler.getSessionSnapShooter();
         this.kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));
         if (currentState.equals(State.REPLICA)) {
             this.kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
@@ -129,7 +129,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         } else if(!started) {
             if (state.equals(State.REPLICA)) {
                 //ask and wait a snapshot before start
-                if (!envConfig.isSkipOnDemanSnapshot() && !askedSnapshotOnDemand) {
+                if (!envConfig.isSkipOnDemandSnapshot() && !askedSnapshotOnDemand) {
                     if (logger.isInfoEnabled()) {
                         logger.info("askAndProcessSnapshotOnDemand:");
                     }
@@ -337,7 +337,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
 
     protected void processLeader(ConsumerRecord<String, T> record) {
 
-        if (envConfig.isSkipOnDemanSnapshot()) {
+        if (envConfig.isSkipOnDemandSnapshot()) {
             handleSnapshotBetweenIteration(record);
         } else {
             consumerHandler.process(ItemToProcess.getItemToProcess(record), currentState);

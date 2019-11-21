@@ -41,6 +41,8 @@ public final class EnvConfig {
     private Duration pollDuration, pollSnapshotDuration;
     private final static String sec ="sec";
     private final static String millisec ="millisec";
+    private boolean updatableKJar;
+    private String kjarGAV;//groupid:artifactid:version
 
 
     private EnvConfig() { }
@@ -61,6 +63,8 @@ public final class EnvConfig {
                 withIterationBetweenSnapshot(Optional.ofNullable(System.getenv(Config.ITERATION_BETWEEN_SNAPSHOT)).orElse(String.valueOf(Config.DEFAULT_ITERATION_BETWEEN_SNAPSHOT))).
                 withMaxSnapshotAgeSeconds(Optional.ofNullable(System.getenv(Config.MAX_SNAPSHOT_AGE)).orElse(Config.DEFAULT_MAX_SNAPSHOT_AGE_SEC)).
                 withMaxSnapshotRequestAttempts(Optional.ofNullable(System.getenv(Config.MAX_SNAPSHOT_REQUEST_ATTEMPTS)).orElse(Config.DEFAULT_MAX_SNAPSHOT_REQUEST_ATTEMPTS)).
+                withUpdatableKJar(Optional.ofNullable(System.getenv(Config.UPDATABLE_KJAR)).orElse(Boolean.FALSE.toString())).
+                withKJarGAV(Optional.ofNullable(System.getenv(Config.KJAR_GAV)).orElse(null)).
                 underTest(Optional.ofNullable(System.getenv(Config.UNDER_TEST)).orElse(Config.TEST));
     }
 
@@ -174,6 +178,16 @@ public final class EnvConfig {
         return this;
     }
 
+    public EnvConfig withUpdatableKJar(String updatableKJar){
+        this.updatableKJar = Boolean.valueOf(updatableKJar);
+        return this;
+    }
+
+    public EnvConfig withKJarGAV(String kjarGAV){
+        this.kjarGAV = kjarGAV;
+        return this;
+    }
+
     public EnvConfig clone() {
         EnvConfig envConfig = new EnvConfig();
         envConfig.eventsTopicName = this.eventsTopicName;
@@ -192,6 +206,8 @@ public final class EnvConfig {
         envConfig.maxSnapshotRequestAttempts = this.maxSnapshotRequestAttempts;
         envConfig.pollUnit = this.pollUnit;
         envConfig.pollUnitSnapshot = this.pollUnitSnapshot;
+        envConfig.updatableKJar = this.updatableKJar;
+        envConfig.kjarGAV = this.kjarGAV;
         return envConfig;
     }
 
@@ -235,7 +251,7 @@ public final class EnvConfig {
         return iterationBetweenSnapshot;
     }
 
-    public boolean isSkipOnDemanSnapshot() {
+    public boolean isSkipOnDemandSnapshot() {
         return skipOnDemanSnapshot;
     }
 
@@ -259,6 +275,11 @@ public final class EnvConfig {
 
     public Duration getPollSnapshotDuration(){ return pollSnapshotDuration; }
 
+    public boolean isUpdatableKJar(){ return updatableKJar;}
+
+    public String getKJarGAV(){ return kjarGAV;}
+
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("EnvConfig{");
@@ -278,6 +299,8 @@ public final class EnvConfig {
         sb.append(", skipOnDemanSnapshot='").append(skipOnDemanSnapshot).append('\'');
         sb.append(", maxSnapshotAge='").append(maxSnapshotAge).append('\'');
         sb.append(", maxSnapshotRequestAttempts='").append(maxSnapshotRequestAttempts).append('\'');
+        sb.append(", updatableKJar='").append(updatableKJar).append('\'');
+        sb.append(", kjarGAV='").append(kjarGAV).append('\'');
         sb.append(", underTest='").append(test).append('\'');
         sb.append('}');
         return sb.toString();

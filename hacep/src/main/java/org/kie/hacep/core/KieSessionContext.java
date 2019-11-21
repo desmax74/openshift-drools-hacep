@@ -15,8 +15,11 @@
  */
 package org.kie.hacep.core;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import org.kie.api.builder.ReleaseId;
+import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.time.SessionClock;
 import org.kie.api.time.SessionPseudoClock;
@@ -31,22 +34,40 @@ public class KieSessionContext {
 
     private FactHandlesManager fhManager;
 
+    private KieContainer kieContainer;
+
     public KieSession getKieSession() {
         return kieSession;
     }
 
+    public KieContainer getKieContainer(){
+        return kieContainer;
+    }
+
+    public Optional<String> getKjarGAVUsed(){
+        ReleaseId releaseId = kieContainer.getReleaseId();
+        String gav = null;
+        if(releaseId!= null) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(releaseId.getGroupId()).append(":").append(releaseId.getArtifactId()).append(":").append(releaseId.getVersion());
+            gav = sb.toString();
+        }
+        return Optional.ofNullable(gav);
+    }
+
     public void initFromSnapshot(SnapshotInfos infos) {
-        setKieSession(infos.getKieSession());
+        setKieSessionAndKieContainer(infos.getKieSession(), infos.getKieContainer());
         this.fhManager = infos.getFhManager();
     }
 
-    public void init(KieSession newKiession) {
-        setKieSession(newKiession);
-        this.fhManager = new FactHandlesManager(newKiession);
+    public void init(KieContainer kieContainer, KieSession newKiesession) {
+        setKieSessionAndKieContainer(newKiesession, kieContainer);
+        this.fhManager = new FactHandlesManager(newKiesession);
     }
 
-    private void setKieSession(KieSession kieSession) {
+    private void setKieSessionAndKieContainer(KieSession kieSession, KieContainer kieContainer) {
         this.kieSession = kieSession;
+        this.kieContainer = kieContainer;
         SessionClock clock = kieSession.getSessionClock();
         if (clock instanceof SessionPseudoClock) {
             this.clock = (SessionPseudoClock) clock;

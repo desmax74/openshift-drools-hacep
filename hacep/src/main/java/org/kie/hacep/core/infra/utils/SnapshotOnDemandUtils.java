@@ -17,9 +17,7 @@ package org.kie.hacep.core.infra.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -37,6 +35,8 @@ import org.kie.api.runtime.KieSessionConfiguration;
 import org.kie.api.runtime.conf.ClockTypeOption;
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
+
+import org.kie.hacep.consumer.KieContainerUtils;
 import org.kie.hacep.core.GlobalStatus;
 import org.kie.hacep.core.infra.SessionSnapshooter;
 import org.kie.hacep.core.infra.SnapshotInfos;
@@ -52,10 +52,8 @@ public class SnapshotOnDemandUtils {
 
     private final static Logger logger = LoggerFactory.getLogger(SnapshotOnDemandUtils.class);
 
-    public static SnapshotInfos askASnapshotOnDemand(EnvConfig config,
-                                                     SessionSnapshooter snapshooter) {
+    public static SnapshotInfos askASnapshotOnDemand(EnvConfig config, SessionSnapshooter snapshooter) {
         LocalDateTime infosTime = snapshooter.getLastSnapshotTime();
-
         LocalDateTime limitAge = LocalDateTime.now().minusSeconds(config.getMaxSnapshotAge());
         if (infosTime != null && limitAge.isBefore(infosTime)) { //included in the max age
             if (logger.isInfoEnabled()) {
@@ -70,39 +68,29 @@ public class SnapshotOnDemandUtils {
         }
     }
 
-    private static SnapshotInfos buildNewSnapshotOnDemand(EnvConfig config,
-                                                          LocalDateTime limitAge) {
-        SnapshotMessage snapshotMsg = askAndReadSnapshotOnDemand(config,
-                                                                 limitAge);
+    private static SnapshotInfos buildNewSnapshotOnDemand(EnvConfig envConfig, LocalDateTime limitAge) {
+        SnapshotMessage snapshotMsg = askAndReadSnapshotOnDemand(envConfig, limitAge);
         KieSession kSession = null;
+        KieContainer kieContainer = null;
         try (ByteArrayInputStream in = new ByteArrayInputStream(snapshotMsg.getSerializedSession())) {
-            KieSessionConfiguration conf = KieServices.get().newKieSessionConfiguration();
+            KieServices ks = KieServices.get();
+            kieContainer = KieContainerUtils.getKieContainer(envConfig, ks);
+            KieSessionConfiguration conf = ks.newKieSessionConfiguration();
             conf.setOption(ClockTypeOption.get("pseudo"));
-            kSession = KieServices.get().getMarshallers().newMarshaller(getKieContainer().getKieBase()).unmarshall(in,
-                                                                                                                   conf,
-                                                                                                                   null);
+            kSession = ks.getMarshallers().newMarshaller(kieContainer.getKieBase()).unmarshall(in, conf,null);
         } catch (IOException | ClassNotFoundException e) {
-            logger.error(e.getMessage(),
-                         e);
+            throw new RuntimeException(e.getMessage(), e);
         }
         return new SnapshotInfos(kSession,
+                                 kieContainer,
                                  snapshotMsg.getFhManager(),
                                  snapshotMsg.getLastInsertedEventkey(),
                                  snapshotMsg.getLastInsertedEventOffset(),
-                                 snapshotMsg.getTime());
+                                 snapshotMsg.getTime(),
+                                 snapshotMsg.getKjarGAV());
     }
 
-    private static KieContainer getKieContainer() {
-        KieServices srv = KieServices.get();
-        if (srv != null) {
-            return srv.newKieClasspathContainer();
-        } else {
-            throw new RuntimeException("KieServices is null");
-        }
-    }
-
-    private static SnapshotMessage askAndReadSnapshotOnDemand(EnvConfig envConfig,
-                                                              LocalDateTime limitAge) {
+    private static SnapshotMessage askAndReadSnapshotOnDemand(EnvConfig envConfig, LocalDateTime limitAge) {
         Properties props = Config.getProducerConfig("SnapshotOnDemandUtils.askASnapshotOnDemand");
         Sender sender = new Sender(props);
         sender.start();

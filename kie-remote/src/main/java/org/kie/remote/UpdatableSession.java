@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Red Hat
+ * Copyright 2019 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,29 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.kie.remote;
 
-import java.io.Closeable;
-import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 
-import org.kie.remote.impl.RemoteKieSessionImpl;
-
-public interface RemoteKieSession extends Closeable, RemoteEntryPoint, RemoteStatefulSession, UpdatableSession {
-
-    RemoteEntryPoint getEntryPoint(String name);
-
-    static RemoteKieSession create(Properties configuration) {
-        return new RemoteKieSessionImpl( configuration );
-    }
-
-    static RemoteKieSession create(Properties configuration, TopicsConfig envConfig) {
-        return new RemoteKieSessionImpl( configuration, envConfig );
-    }
+public interface UpdatableSession {
 
     CompletableFuture<String> getKJarGAV();
 
     CompletableFuture<Boolean> updateKJarGAV(String kjar);
-
 }

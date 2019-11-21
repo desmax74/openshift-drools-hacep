@@ -78,6 +78,8 @@ public abstract class AbstractRemoteEntryPoint implements RemoteWorkingMemory {
         return executeCommand(command);
     }
 
+
+
     protected <T> CompletableFuture<T> executeCommand(AbstractCommand command ) {
         CompletableFuture callback = new CompletableFuture<>();
         getRequestsStore().put( command.getId(), callback );

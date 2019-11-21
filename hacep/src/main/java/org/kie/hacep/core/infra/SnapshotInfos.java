@@ -15,39 +15,44 @@
  */
 package org.kie.hacep.core.infra;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
+import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.hacep.consumer.FactHandlesManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SnapshotInfos {
 
-    private static final Logger logger = LoggerFactory.getLogger(SnapshotInfos.class);
-
     private KieSession kieSession;
+    private KieContainer kieContainer;
     private FactHandlesManager fhManager;
     private String keyDuringSnaphot;
     private long offsetDuringSnapshot;
     private LocalDateTime time;
+    private String kJarGAV;
 
     public SnapshotInfos(KieSession kieSession,
+                         KieContainer kieContainer,
                          FactHandlesManager fhManager,
                          String keyDuringSnaphot,
                          long offsetDuringSnapshot,
-                         LocalDateTime time) {
+                         LocalDateTime time,
+                         String kjarGAV) {
         this.kieSession = kieSession;
+        this.kieContainer = kieContainer;
         this.fhManager = fhManager.initFromKieSession( kieSession );
         this.keyDuringSnaphot = keyDuringSnaphot;
         this.offsetDuringSnapshot = offsetDuringSnapshot;
         this.time = time;
+        this.kJarGAV = kjarGAV;
     }
 
     public KieSession getKieSession() {
         return kieSession;
+    }
+
+    public KieContainer getKieContainer(){
+        return  kieContainer;
     }
 
     public FactHandlesManager getFhManager() {
@@ -66,10 +71,15 @@ public class SnapshotInfos {
         return time;
     }
 
+    public String getkJarGAV(){
+        return kJarGAV;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SnapshotInfos{");
         sb.append("kieSession=").append(kieSession);
+        sb.append(", kieContainer=").append(kieContainer);
         sb.append(", keyDuringSnaphot='").append(keyDuringSnaphot).append('\'');
         sb.append(", offsetDuringSnapshot=").append(offsetDuringSnapshot);
         sb.append(", time=").append(time);

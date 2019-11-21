@@ -23,6 +23,8 @@ import java.util.concurrent.CompletableFuture;
 import org.kie.remote.RemoteStreamingEntryPoint;
 import org.kie.remote.RemoteStreamingKieSession;
 import org.kie.remote.TopicsConfig;
+import org.kie.remote.command.GetKJarGAVCommand;
+import org.kie.remote.command.UpdateKJarCommand;
 import org.kie.remote.impl.consumer.Listener;
 import org.kie.remote.impl.producer.Sender;
 
@@ -67,5 +69,17 @@ public class RemoteStreamingKieSessionImpl extends RemoteStreamingEntryPointImpl
     @Override
     public void halt() {
         delegate.halt();
+    }
+
+    @Override
+    public CompletableFuture<Boolean> updateKJarGAV(String kJar) {
+        UpdateKJarCommand command = new UpdateKJarCommand(kJar);
+        return executeCommand(command);
+    }
+
+    @Override
+    public CompletableFuture<String> getKJarGAV() {
+        GetKJarGAVCommand command = new GetKJarGAVCommand(entryPoint);
+        return executeCommand(command);
     }
 }

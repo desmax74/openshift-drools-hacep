@@ -16,7 +16,6 @@
     <alphanetworkCompilerEnabled>false</alphanetworkCompilerEnabled>
     <dockerImageName>quickstarter/openshift-kie-springboot</dockerImageName>
     <failOnMissingWebXml>false</failOnMissingWebXml>
-    <generateModel>YES</generateModel>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <version.annotations>2.0.1.Final</version.annotations>
     <version.fabric8.plugin>4.2.0</version.fabric8.plugin>
@@ -74,6 +73,17 @@
         <groupId>org.kie</groupId>
         <artifactId>kie-maven-plugin</artifactId>
         <version>${version.org.kie}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.kie</groupId>
+        <artifactId>kie-ci</artifactId>
+        <version>${version.org.kie}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>aopalliance</groupId>
+            <artifactId>aopalliance</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.drools</groupId>
@@ -134,6 +144,12 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>
         <version>${version.org.spring-boot}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jcl</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
@@ -179,6 +195,19 @@
         <groupId>com.github.danielwegener</groupId>
         <artifactId>logback-kafka-appender</artifactId>
         <version>${version.logback.kafka.appender}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-module-junit4</artifactId>
+        <version>${version.org.powermock}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-api-mockito</artifactId>
+        <version>${version.org.powermock}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>

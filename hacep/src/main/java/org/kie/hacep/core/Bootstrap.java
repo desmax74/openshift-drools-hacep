@@ -16,10 +16,10 @@
 package org.kie.hacep.core;
 
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
+
 import org.kie.hacep.core.infra.consumer.ConsumerController;
 import org.kie.hacep.core.infra.election.LeaderElection;
 import org.kie.remote.impl.producer.Producer;
@@ -38,7 +38,11 @@ public class Bootstrap {
 
     public static void startEngine(EnvConfig envConfig) {
         //order matter
-        coreKube = new CoreKube(envConfig.getNamespace(), null);
+        checkKJarVersion(envConfig);
+        if(!envConfig.isUnderTest()) {
+            coreKube = new CoreKube(envConfig.getNamespace(),
+                                    null);
+        }
         eventProducer = startProducer(envConfig);
         startConsumers(envConfig, eventProducer);
         if(!envConfig.isUnderTest()) {
@@ -97,5 +101,18 @@ public class Bootstrap {
     private static void startConsumers(EnvConfig envConfig, Producer producer) {
         consumerController = new ConsumerController(envConfig, producer);
         consumerController.start();
+    }
+
+    private static void checkKJarVersion(EnvConfig envConfig){
+        if(envConfig.isUpdatableKJar()){
+            String gav = envConfig.getKJarGAV();
+            if(gav == null){
+                throw new RuntimeException("The KJar GAV is missing and must be in the format groupdID:artifactID:version");
+            }
+            String parts[]= gav.split(":");
+            if(parts.length != 3){
+                throw new RuntimeException("The KJar GAV must be in the format groupdID:artifactID:version");
+            }
+        }
     }
 }

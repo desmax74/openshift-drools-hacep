@@ -18,9 +18,7 @@ package org.kie.hacep.core.infra;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,6 +37,7 @@ import org.kie.api.runtime.KieSessionConfiguration;
 import org.kie.api.runtime.conf.ClockTypeOption;
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
+import org.kie.hacep.consumer.KieContainerUtils;
 import org.kie.hacep.core.KieSessionContext;
 import org.kie.hacep.message.SnapshotMessage;
 import org.kie.remote.impl.producer.EventProducer;
@@ -50,22 +49,13 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
 
     private final String key = "LAST-SNAPSHOT";
     private final Logger logger = LoggerFactory.getLogger(DefaultSessionSnapShooter.class);
-    private KieContainer kieContainer;
     private EnvConfig envConfig;
 
     public DefaultSessionSnapShooter(EnvConfig envConfig) {
         this.envConfig = envConfig;
-        KieServices srv = KieServices.get();
-        if (srv != null) {
-            kieContainer = srv.newKieClasspathContainer();
-        } else {
-            logger.error("KieServices is null");
-        }
     }
 
-    public void serialize(KieSessionContext kieSessionContext,
-                          String lastInsertedEventkey,
-                          long lastInsertedEventOffset) {
+    public void serialize(KieSessionContext kieSessionContext, String lastInsertedEventkey, long lastInsertedEventOffset) {
         KieMarshallers marshallers = KieServices.get().getMarshallers();
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             EventProducer<byte[]> producer = new EventProducer<>();
@@ -75,6 +65,7 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
             /* We are storing the last inserted key and offset together with the session's bytes */
             byte[] bytes = out.toByteArray();
             SnapshotMessage message = new SnapshotMessage(UUID.randomUUID().toString(),
+                                                          envConfig.getKJarGAV(),
                                                           bytes,
                                                           kieSessionContext.getFhManager(),
                                                           lastInsertedEventkey,
@@ -94,33 +85,40 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
         KieServices srv = KieServices.get();
         if (srv != null) {
             KafkaConsumer<String, byte[]> consumer = getConfiguredSnapshotConsumer();
-            KieMarshallers marshallers = KieServices.get().getMarshallers();
-            KieSession kSession = null;
             ConsumerRecords<String, byte[]> records = consumer.poll(envConfig.getPollSnapshotDuration());
             byte[] bytes = null;
             for (ConsumerRecord record : records) {
                 bytes = (byte[]) record.value();
             }
             consumer.close();
-            SnapshotMessage snapshotMsg = bytes != null ? SerializationUtil.deserialize(bytes) : null;
 
+            SnapshotMessage snapshotMsg = bytes != null ? SerializationUtil.deserialize(bytes) : null;
             if (snapshotMsg != null) {
+                KieContainer kieContainer = null;
+                KieSession kSession = null;
                 try (ByteArrayInputStream in = new ByteArrayInputStream(snapshotMsg.getSerializedSession())) {
-                    KieSessionConfiguration conf = KieServices.get().newKieSessionConfiguration();
+
+                    KieSessionConfiguration conf = srv.newKieSessionConfiguration();
                     conf.setOption(ClockTypeOption.get("pseudo"));
-                    kSession = marshallers.newMarshaller(kieContainer.getKieBase()).unmarshall(in,
-                                                                                               conf,
-                                                                                               null);
+                    kieContainer = KieContainerUtils.getKieContainer(envConfig, srv);
+                    kSession = srv.getMarshallers().newMarshaller(kieContainer.getKieBase()).unmarshall(in, conf,null);
+
                 } catch (IOException | ClassNotFoundException e) {
-                    logger.error(e.getMessage(),
-                                 e);
+                    logger.error(e.getMessage(), e);
+                }
+                if(kSession == null) {//Snapshot topic empty
+                    kSession = kieContainer.newKieSession();
                 }
                 return new SnapshotInfos(kSession,
+                                         kieContainer,
                                          snapshotMsg.getFhManager(),
                                          snapshotMsg.getLastInsertedEventkey(),
                                          snapshotMsg.getLastInsertedEventOffset(),
-                                         snapshotMsg.getTime());
+                                         snapshotMsg.getTime(),
+                                         snapshotMsg.getKjarGAV());
             }
+        }else{
+            throw new RuntimeException("KieServices is null");
         }
         return null;
     }
