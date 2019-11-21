@@ -271,7 +271,10 @@ public class CommandHandler implements VisitorCommand {
                 } catch (java.lang.UnsupportedOperationException ex) {
                     logger.info("It isn't possible update a classpath container to a new version");
                 }
+            }else{
+                logger.info("Kjar isn't updatable");
             }
+
         } else {
             logger.error("KieService is null");
         }

@@ -36,7 +36,8 @@ import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.hacep.consumer.KieContainerUtils;
 import org.kie.hacep.core.KieSessionContext;
-import org.kie.remote.util.GAVUtils;
+
+import org.kie.hacep.util.GAVUtils;
 import org.kie.scanner.KieMavenRepository;
 
 public class UpdatableKieSessionTest {

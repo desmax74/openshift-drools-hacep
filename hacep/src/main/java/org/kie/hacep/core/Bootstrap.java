@@ -23,7 +23,6 @@ import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.infra.consumer.ConsumerController;
 import org.kie.hacep.core.infra.election.LeaderElection;
 import org.kie.remote.impl.producer.Producer;
-import org.kie.remote.util.GAVUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,7 +109,7 @@ public class Bootstrap {
             if(gav == null){
                 throw new RuntimeException("The KJar GAV is missing and must be in the format groupdID:artifactID:version");
             }
-            String parts[]= GAVUtils.getSplittedGav(gav);
+            String parts[]= gav.split(":");
             if(parts.length != 3){
                 throw new RuntimeException("The KJar GAV must be in the format groupdID:artifactID:version");
             }
