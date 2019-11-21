@@ -51,8 +51,7 @@ public class ConsumerController {
     }
 
     private void consumeEvents() {
-        thread = new Thread(
-                new ConsumerThread(this));
+        thread = new Thread(new ConsumerThread(this));
         thread.start();
     }
 

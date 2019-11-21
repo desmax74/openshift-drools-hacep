@@ -55,6 +55,8 @@ public class Config {
     public static final String TEST = Boolean.FALSE.toString();
     public static final String UNDER_TEST = "undertest";
     public static final String MAX_SNAPSHOT_REQUEST_ATTEMPTS = "max.snapshot.request.attempts";
+    public static final String UPDATABLE_KJAR = "UPDATABLEKJAR";
+    public static final String KJAR_GAV = "KJARGAV";
     public static final String DEFAULT_MAX_SNAPSHOT_REQUEST_ATTEMPTS = "10";
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
     private static Properties config;
@@ -122,6 +124,7 @@ public class Config {
             config.put(ENABLE_AUTOCOMMIT_KEY, "false");
             config.put(METADATA_MAX_AGE_MS_KEY, "10000");
             config.put(ITERATION_BETWEEN_SNAPSHOT, "10");
+            config.put(UPDATABLE_KJAR, "false");
         }
         return config;
     }

@@ -66,4 +66,5 @@ public interface RemoteWorkingMemory {
      * @@return CompletableFuture of <? extends Object> to read related RemoteFactHandle.
      */
     <T> CompletableFuture<T> getObject(RemoteFactHandle<T> remoteFactHandle);
+
 }

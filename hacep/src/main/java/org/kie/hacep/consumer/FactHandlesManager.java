@@ -30,17 +30,20 @@ import org.kie.api.runtime.rule.FactHandle;
 import org.kie.remote.RemoteFactHandle;
 
 public class FactHandlesManager implements Serializable {
-    private BidirectionalMap<RemoteFactHandle, Long> fhIdMap = new BidirectionalMap<>();
+
+    private BidirectionalMap<RemoteFactHandle, Long> fhIdMap ;
 
     private transient KieSession kieSession;
 
-    private transient Map<RemoteFactHandle, InternalFactHandle> fhMap = new HashMap<>();
+    private transient Map<RemoteFactHandle, InternalFactHandle> fhMap ;
 
     //for serialization purpose
     public FactHandlesManager() { }
 
     public FactHandlesManager(KieSession kieSession) {
         this.kieSession = kieSession;
+        fhMap = new HashMap<>();
+        fhIdMap = new BidirectionalMap<>();
     }
 
     public Set<RemoteFactHandle> getFhMapKeys() {

@@ -292,6 +292,7 @@ public class KafkaUtilTest implements AutoCloseable {
                 withMaxSnapshotAgeSeconds("60000").
                 withPollSnapshotTimeUnit("sec").
                 withPollSnapshotTimeout("10").
+                withUpdatableKJar("false").
                 underTest(true);
     }
 

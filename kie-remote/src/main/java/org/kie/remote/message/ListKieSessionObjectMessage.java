@@ -13,39 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.hacep.message;
+package org.kie.remote.message;
 
 import java.io.Serializable;
 import java.util.Collection;
 
+import org.kie.remote.message.AbstractMessage;
 import org.kie.remote.message.ResultMessage;
 
-public class FireAllRuleMessage extends AbstractMessage
-        implements Serializable, ResultMessage<Long> {
+public class ListKieSessionObjectMessage extends AbstractMessage
+        implements Serializable,
+                   ResultMessage<Collection<? extends Object>> {
 
-    private long counter;
+    private Collection<? extends Object> objects;
 
     /* Empty constructor for serialization */
-    public FireAllRuleMessage(){}
+    public ListKieSessionObjectMessage() {
+    }
 
-    public FireAllRuleMessage(String id, long counter) {
+    public ListKieSessionObjectMessage(String id, Collection<? extends Object> objects) {
         super(id);
-        this.counter = counter;
+        this.objects = objects;
     }
 
     @Override
-    public Long getResult() {
-        return getCounter();
+    public Collection<? extends Object> getResult() {
+        return getObjects();
     }
 
-    public long getCounter() {
-        return counter;
+    public Collection<? extends Object> getObjects() {
+        return objects;
     }
 
     @Override
     public String toString() {
-        return "FireAllRuleMessage{" +
-                "counter=" + counter +
+        return "ListKieSessionObjectMessage{" +
+                "objects=" + objects +
                 ", id='" + id + '\'' +
                 ", timestamp=" + timestamp +
                 '}';

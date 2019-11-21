@@ -13,41 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.hacep.message;
+package org.kie.remote.message;
 
 import java.io.Serializable;
 
-import org.kie.remote.message.Message;
+public class UpdateKjarMessage extends AbstractMessage implements Serializable, ResultMessage<Boolean> {
 
-public abstract class AbstractMessage implements Serializable,
-                                                 Message {
-
-    protected String id;
-    protected long timestamp;
+    private boolean updateResult;
 
     /* Empty constructor for serialization */
-    public AbstractMessage() {
-    }
+    public UpdateKjarMessage(){}
 
-    public AbstractMessage(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+    public UpdateKjarMessage(String id, boolean updateResult) {
+        super(id);
+        this.updateResult = updateResult;
     }
 
     @Override
-    public String getId() {
-        return id;
+    public Boolean getResult() {
+        return updateResult;
+    }
+
+    @Override
+    public String toString() {
+        return "UpdateKjarMessage{" +
+                "result=" + updateResult +
+                ", id='" + id + '\'' +
+                ", timestamp=" + timestamp +
+                '}';
     }
 }

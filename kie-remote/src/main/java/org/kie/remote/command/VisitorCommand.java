@@ -43,4 +43,7 @@ public interface VisitorCommand {
 
     void visit(GetObjectCommand command);
 
+    void visit(UpdateKJarCommand command);
+
+    void visit(GetKJarGAVCommand command);
 }

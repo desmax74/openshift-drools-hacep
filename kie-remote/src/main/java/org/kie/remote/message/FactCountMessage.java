@@ -13,40 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.hacep.message;
+package org.kie.remote.message;
 
 import java.io.Serializable;
 
+import org.kie.remote.message.AbstractMessage;
 import org.kie.remote.message.ResultMessage;
 
-public class GetObjectMessage extends AbstractMessage
-        implements Serializable,
-                   ResultMessage<Object> {
+public class FactCountMessage extends AbstractMessage implements Serializable, ResultMessage<Long> {
 
-    private Object object;
+    private long factCount;
 
     /* Empty constructor for serialization */
-    public GetObjectMessage() {
-    }
+    public FactCountMessage(){}
 
-    public GetObjectMessage(String id, Object object) {
+    public FactCountMessage(String id,
+                            long factCount) {
         super(id);
-        this.object = object;
+        this.factCount = factCount;
     }
 
     @Override
-    public Object getResult() {
-        return getObject();
+    public Long getResult() {
+        return getFactCount();
     }
 
-    public Object getObject() {
-        return object;
+    public long getFactCount() {
+        return factCount;
     }
 
     @Override
     public String toString() {
-        return "GetObjectMessage{" +
-                "object=" + object +
+        return "FactCountMessage{" +
+                "factCount=" + factCount +
                 ", id='" + id + '\'' +
                 ", timestamp=" + timestamp +
                 '}';

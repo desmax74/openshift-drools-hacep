@@ -21,7 +21,7 @@ spec:
       containers:
         - env:
           name: openshift-kie-jdkhttp
-          image: quickstarter/openshift-kie-jdkhttp:latest
+          image: <user>/openshift-kie-jdkhttp:<tag>
           imagePullPolicy: IfNotPresent
           livenessProbe:
             exec:

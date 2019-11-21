@@ -44,7 +44,6 @@ public class LocalStorageStreamingKieSessionTest {
     @Before
     public void initTest() {
         EnvConfig config = EnvConfig.getDefaultEnvConfig().underTest(true).local(true);
-
         Bootstrap.startEngine(config);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
         session = RemoteStreamingKieSession.create(getTestProperties());

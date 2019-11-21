@@ -6,5 +6,6 @@
   </root>
   <logger name="org.springframework.web" level="ERROR"/>
   <logger name="org.kie.hacep" level="INFO"/>
+  <logger name="org.kie.api.builder.KieScanner " level="INFO"/>
   <logger name="org.apache.kafka" level="WARN"/>
 </configuration>

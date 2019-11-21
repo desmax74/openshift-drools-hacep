@@ -22,19 +22,22 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.drools.core.common.EventFactHandle;
+import org.kie.api.KieServices;
+import org.kie.api.builder.ReleaseId;
 import org.kie.api.definition.type.Role;
 import org.kie.api.definition.type.Timestamp;
 import org.kie.api.runtime.rule.FactHandle;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.KieSessionContext;
 import org.kie.hacep.core.infra.SessionSnapshooter;
-import org.kie.hacep.core.infra.consumer.ConsumerController;
 import org.kie.hacep.core.infra.utils.ConsumerUtils;
-import org.kie.hacep.message.ControlMessage;
-import org.kie.hacep.message.FactCountMessage;
-import org.kie.hacep.message.FireAllRuleMessage;
-import org.kie.hacep.message.GetObjectMessage;
-import org.kie.hacep.message.ListKieSessionObjectMessage;
+import org.kie.remote.message.ControlMessage;
+import org.kie.remote.message.FactCountMessage;
+import org.kie.remote.message.FireAllRuleMessage;
+import org.kie.remote.message.GetObjectMessage;
+import org.kie.remote.message.GetKJarGAVMessage;
+import org.kie.remote.message.ListKieSessionObjectMessage;
+import org.kie.remote.message.UpdateKjarMessage;
 import org.kie.remote.DroolsExecutor;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.command.DeleteCommand;
@@ -42,6 +45,7 @@ import org.kie.remote.command.EventInsertCommand;
 import org.kie.remote.command.FactCountCommand;
 import org.kie.remote.command.FireAllRulesCommand;
 import org.kie.remote.command.FireUntilHaltCommand;
+import org.kie.remote.command.GetKJarGAVCommand;
 import org.kie.remote.command.GetObjectCommand;
 import org.kie.remote.command.HaltCommand;
 import org.kie.remote.command.InsertCommand;
@@ -50,6 +54,7 @@ import org.kie.remote.command.ListObjectsCommandClassType;
 import org.kie.remote.command.ListObjectsCommandNamedQuery;
 import org.kie.remote.command.SnapshotOnDemandCommand;
 import org.kie.remote.command.UpdateCommand;
+import org.kie.remote.command.UpdateKJarCommand;
 import org.kie.remote.command.VisitorCommand;
 import org.kie.remote.command.WorkingMemoryActionCommand;
 import org.kie.remote.impl.producer.Producer;
@@ -251,6 +256,35 @@ public class CommandHandler implements VisitorCommand {
                 sessionSnapshooter.serialize(kieSessionContext, command.getId(), 0l);
             }
         }
+    }
+
+    @Override
+    public void visit(UpdateKJarCommand command) {
+        KieServices ks = KieServices.get();
+        UpdateKjarMessage msg = new UpdateKjarMessage(command.getId(), Boolean.FALSE);
+        if (ks != null) {
+            ReleaseId releaseId = ks.newReleaseId(command.getGroupID(), command.getArtifactID(), command.getVersion());
+            if(envConfig.isUpdatableKJar()) {
+                try {
+                    kieSessionContext.getKieContainer().updateToVersion(releaseId);
+                    msg = new UpdateKjarMessage(command.getId(), Boolean.TRUE);
+                } catch (java.lang.UnsupportedOperationException ex) {
+                    logger.info("It isn't possible update a classpath container to a new version");
+                }
+            }else{
+                logger.info("Kjar isn't updatable");
+            }
+
+        } else {
+            logger.error("KieService is null");
+        }
+        producer.produceSync(envConfig.getKieSessionInfosTopicName(), command.getId(), msg);
+    }
+
+    @Override
+    public void visit(GetKJarGAVCommand command) {
+        GetKJarGAVMessage msg = new GetKJarGAVMessage(command.getId(), kieSessionContext.getKjarGAVUsed().orElse("KJar GAV NotDefined"));
+        producer.produceSync(envConfig.getKieSessionInfosTopicName(), command.getId(), msg);
     }
 
     public static boolean isEvent(Object obj) {
