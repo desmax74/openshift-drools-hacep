@@ -1,37 +1,26 @@
 #### Login into Openshift cluster
 ```sh
-oc login -u system:admin
-eval $(minishift oc-env) 
-eval $(minishift docker-env)
+oc login -u kubeadmin -p <XXXXX-XXXX-XXXXX-XXXXX> https://api.crc.testing:6443'
 oc project my-kafka-project
+
 ```
+
 #### RBAC for configmap
 ```sh
 oc create -f kubernetes/service-account.yaml
 oc create -f kubernetes/role.yaml
 oc create -f kubernetes/role-binding.yaml
+
 ```
 #### Build Container and deploy
 In the springboot module.
 
 ##### Deploy on Openshift 4
-After installed AMQ Streams/Strimzi with operator, 
+After installed Strimzi with operator, 
 
 create the topics with the yaml in the kafka-topics
 
 from th UI (Kafka Topic) or from cli
-
-then build the docker image and push into docker hub  
-```sh
-docker login --username=<user username>
-docker build -t <user_username>/openshift-kie-springboot:<tag> .  
-docker push <user_username>/openshift-kie-springboot:<tag>
-```
-then create a yaml from the UI using the content 
-
-of kubernetes/deployment.yaml
-
-changing the image with the name of your docker image.
 
 #### Build and using a local registry 
 

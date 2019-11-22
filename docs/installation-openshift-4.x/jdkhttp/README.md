@@ -1,9 +1,8 @@
 #### Login into Openshift cluster
 ```sh
-oc login -u system:admin
-eval $(minishift oc-env) 
-eval $(minishift docker-env)
+oc login -u kubeadmin -p <XXXXX-XXXX-XXXXX-XXXXX> https://api.crc.testing:6443'
 oc project my-kafka-project
+```
 ```
 #### RBAC for configmap
 ```sh
