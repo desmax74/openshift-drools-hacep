@@ -48,12 +48,14 @@ to avoid inconsistencies when processing 2 events inserted by 2 different client
 
 - Openshift 3.11, 4.X or Minishift, CRC
 
-- A Kafka Cluster on Openshift with AMQ Streams or Strimzi https://strimzi.io/
-(tested on Openshift 3.11, 4.x and strimzi 0.11.1, 0.12.1)
+- A Kafka Cluster on Openshift with Strimzi https://strimzi.io/
+(tested on Openshift 3.11, 4.x and strimzi 0.12.1)
 
 ### Kafka Cluster
-[Kafka Topics](docs/kafka-topics/README.md)
-
+It is necessary to have a Kafka cluster runing to use HA-CEP.
+Kafka cluster can be deployed on Openshift using Strimzi operator.
+For more details about instalaltion and configuration of Kafka cluster
+[see](docs/kafka-topics/README.md)
 
 
 #### Implementing the HA CEP server on Openshift 4.2
@@ -62,23 +64,22 @@ The high-availability (HA) CEP server runs on the Red Hat OpenShift Container Pl
 
 You must prepare the source, build it, and then deploy it on Red Hat OpenShift Container Platform. 
 
-- 1) Change to the openshift-drools-hacep-distribution/sources directory.
+1) Change to the openshift-drools-hacep-distribution/sources directory.
 Review and modify the server code based on the sample project in the sample-hacep-project/sample-hacep-project-kjar directory. 
 The complex event processing logic is defined by the DRL rules in the src/main/resources/org.drools.cep subdirectory.
-- 2) Build the project using the standard Maven command: 
+If you want to deploy a kjar on startup or update at runtime from a maven repo [see](docs/kjar/README.md) 
+
+2) Build the project using the standard Maven command: 
 
 ```sh
 mvn clean install -DskipTests
 ```
-- 3)
-Use the OpenShift operator infrastructure to install [Red Hat AMQ Streams](https://access.redhat.com/documentation/en-us/red_hat_amq/7.3/html/using_amq_streams_on_openshift_container_platform/index) .
+3) Use the OpenShift operator infrastructure to install [Strimzi](https://strimzi.io/) .
 
-- 4)
-Using the KafkaTopic resource on Red Hat OpenShift Container Platform, create the topics from all the YAML files in the kafka-topics subdirectory. 
-For instructions about creating topics using the KafkaTopic resource, see [Using the topic operator](https://access.redhat.com/documentation/en-us/red_hat_amq/7.4/html/using_amq_streams_on_openshift_container_platform/using-the-topic-operator-str) in the Red Hat AMQ documentation.
+4) Using the KafkaTopic resource on Red Hat OpenShift Container Platform, create the topics from all the YAML files in the kafka-topics subdirectory. 
+For instructions about creating topics using the KafkaTopic resource, see [Strimzi docs](https://strimzi.io/docs/latest).
 
-- 5)
-In order to enable application access to the ConfigMap that is used in the leader election, you must configure role-based access control. 
+5) In order to enable application access to the ConfigMap that is used in the leader election, you must configure role-based access control. 
 Change to the springboot directory and enter the following commands: 
 ```sh
 oc create -f kubernetes/service-account.yaml
@@ -86,9 +87,9 @@ oc create -f kubernetes/role.yaml
 oc create -f kubernetes/role-binding.yaml
 ```
   
-  For more information about configuring role-based access control in Red Hat OpenShift Container Platform, see [Using RBAC to define and apply permissions](https://access.redhat.com/documentation/en-us/openshift_container_platform/4.1/html/authentication/using-rbac) in the Red Hat OpenShift Container Platform product documentation.
+  For more information about configuring role-based access control in Red Hat OpenShift Container Platform, see [Using RBAC to define and apply permissions](https://docs.okd.io/latest/admin_guide/manage_rbac.html) in the Red Hat OpenShift Container Platform product documentation.
 
-- 6) In the springboot directory, enter the following commands to build the Docker image and push it into the Docker registry that is configured on your system. (Consider configuring a private registry before running these commands). This build imports the built sample-hacep-project-kjar code as a Maven dependency and includes it in the BOOT-INF/lib directory of the openshift-kie-springboot.jar file. 
+6) In the springboot directory, enter the following commands to build the Docker image and push it into the Docker registry that is configured on your system. (Consider configuring a private registry before running these commands). This build imports the built sample-hacep-project-kjar code as a Maven dependency and includes it in the BOOT-INF/lib directory of the openshift-kie-springboot.jar file. 
 The Docker build then uses the JAR file to create the image.
 ```sh
 docker login --username=<user username>

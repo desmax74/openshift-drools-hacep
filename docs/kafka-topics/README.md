@@ -1,7 +1,7 @@
 ### Kafka cluster
 
-- A Kafka Cluster on Openshift with AMQ Streams or Strimzi https://strimzi.io/
-(tested on Openshift 3.11, 4.x and strimzi 0.11.1, 0.12.1)
+- A Kafka Cluster on Openshift with Strimzi [strimzi](https://strimzi.io/)
+(tested on Openshift 3.11, 4.x and strimzi 0.12.1)
 
 ### Creation of Kafka's topics
 Create the kafka topics using the files in the kafka-topics folder of the module used (springboot/jdkhttp), 

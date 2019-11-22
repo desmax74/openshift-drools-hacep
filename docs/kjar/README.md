@@ -1,12 +1,10 @@
 ### Kjar
 
 #### Deploy kjar at startup from the fat jar
-
 This is the default configuration using the sample-hacep-project/sample-hacep-project-kjar maven module, 
 no env vars are required but it can't be updated at runtime.
 
 #### Deploy kjar at startup from Maven Repo
-
 To enable the update at startup and at runtime some ENV VArs are needed in the deployment.yaml
 and the dependency 
 ```xml
@@ -15,16 +13,16 @@ and the dependency
       <artifactId>sample-hacep-project-kjar</artifactId>
 </dependency>
 ```
-must be removed from you maven module,
+must be removed from your maven module,
 some other configuration are described in the following steps
-
-
-
 
 ##### The prerequisites
 To have an updatable Kjar at startup and later, is mandatory to add two env vars 
 at the startup time and the presence of the specific jar in a Maven repo. 
-
+Accordingly to your used module change 
+[springboot module](springboot/kubernetes/deployment.yaml)
+or
+[jdkhttp module](jdkhttp/kubernetes/deployment.yaml)
 ```yaml
 containers:
         - env:
@@ -33,12 +31,10 @@ containers:
           - name: KJARGAV
             value: "org.kie:sample-hacep-project:7.30.0.Final" 
 ```
-
 and add the env vars
 UPDATABLEKJAR with value "true"
 and the desidered GAV of the KJar to use at the start up, then add to the yaml ,
 the needed env vars to configure the settings.xml using the following variables.
-
 
 | Name                | Description                                                  |  Example            |
 |---------------------| ------------------------------------------------------------ |---------------------|
@@ -67,9 +63,6 @@ the needed env vars to configure the settings.xml using the following variables.
 |prefix\_MAVEN\_REPO\_URL                       |Maven repository url (fully defined) |http://repo.example.com:8080/maven2/
 |prefix\_MAVEN\_REPO\_USERNAME                  |Maven repository username |mavenUser
                                                         
-                                                        
-
 The kjar must be present in the Maven/Nexus repo accessed by  Aether before the start, 
 Aether will ask the jar to Maven/Nexus and the jar will be placed inside maven local repo 
 and loaded by Drools at the startup and on every UpdateCommand jar.
-
