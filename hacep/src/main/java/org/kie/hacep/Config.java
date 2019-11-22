@@ -22,10 +22,11 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.kie.remote.CommonConfig;
+
 
 public class Config {
 
-    private static final Logger logger = LoggerFactory.getLogger(Config.class);
     public static final String BOOTSTRAP_SERVERS_KEY = "bootstrap.servers";
     public static final String BATCH_SIZE_KEY = "batch.size";
     public static final String ENABLE_AUTOCOMMIT_KEY = "enable.auto.commit";
