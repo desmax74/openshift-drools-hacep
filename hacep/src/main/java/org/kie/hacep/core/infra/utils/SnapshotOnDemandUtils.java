@@ -140,9 +140,9 @@ public class SnapshotOnDemandUtils {
 
         if (partitionsInfo != null) {
             for (PartitionInfo partition : partitionsInfo) {
-                TopicPartition topicPartition = new TopicPartition(partition.topic(), partition.partition());
-                if (partitions == null || partitions.contains(topicPartition)) {
-                    partitionCollection.add(topicPartition);
+                if (partitions == null || partitions.contains(partition.partition())) {
+                    partitionCollection.add(new TopicPartition(partition.topic(),
+                                                               partition.partition()));
                 }
             }
             if (!partitionCollection.isEmpty()) {
