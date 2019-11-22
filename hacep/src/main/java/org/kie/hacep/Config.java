@@ -27,10 +27,6 @@ import org.slf4j.LoggerFactory;
 public class Config {
 
     public static final String BOOTSTRAP_SERVERS_KEY = "bootstrap.servers";
-    public static final String BATCH_SIZE_KEY = "batch.size";
-    public static final String ENABLE_AUTOCOMMIT_KEY = "enable.auto.commit";
-    public static final String MAX_POLL_INTERVALS_MS_KEY = "max.poll.interval.ms";
-    public static final String METADATA_MAX_AGE_MS_KEY ="metadata.max.age.ms";
     public static final String DEFAULT_KAFKA_PORT ="9092";
     public static final String NAMESPACE = "namespace";
     public static final String DEFAULT_CONTROL_TOPIC = "control";
@@ -59,7 +55,6 @@ public class Config {
     public static final String KJAR_GAV = "KJARGAV";
     public static final String DEFAULT_MAX_SNAPSHOT_REQUEST_ATTEMPTS = "10";
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
-    private static Properties config;
     private static Properties consumerConf, producerConf, snapshotConsumerConf, snapshotProducerConf;
     private static final String CONSUMER_CONF = "consumer.properties";
     private static final String PRODUCER_CONF = "producer.properties";
@@ -110,26 +105,6 @@ public class Config {
         logConfig("SnapshotProducer",snapshotProducerConf);
         return snapshotProducerConf;
     }
-
-    public static Properties getStatic() {
-        if(config == null) {
-            config = new Properties();
-            config.put(CommonConfig.KEY_SERIALIZER_KEY, "org.apache.kafka.common.serialization.StringSerializer");
-            config.put(CommonConfig.VALUE_SERIALIZER_KEY, "org.apache.kafka.common.serialization.ByteArraySerializer");
-            config.put(BOOTSTRAP_SERVERS_KEY, getBootStrapServers());
-            config.put(CommonConfig.KEY_DESERIALIZER_KEY, "org.apache.kafka.common.serialization.StringDeserializer");
-            config.put(CommonConfig.VALUE_DESERIALIZER_KEY, "org.apache.kafka.common.serialization.ByteArrayDeserializer");
-            config.put(MAX_POLL_INTERVALS_MS_KEY, "10000");//time to discover the new consumer after a changetopic default 5 min 300000
-            config.put(BATCH_SIZE_KEY, "16384");
-            config.put(ENABLE_AUTOCOMMIT_KEY, "false");
-            config.put(METADATA_MAX_AGE_MS_KEY, "10000");
-            config.put(ITERATION_BETWEEN_SNAPSHOT, "10");
-            config.put(UPDATABLE_KJAR, "false");
-        }
-        return config;
-    }
-
-
 
     public static Properties getDefaultConfigFromProps(String fileName) {
             Properties config = new Properties();
