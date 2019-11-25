@@ -40,7 +40,7 @@ events in the same session, will be necessary to synchronize the machine clocks 
 to avoid inconsistencies when processing 2 events inserted by 2 different clients. 
 
 ### Architectural
-[Diagrams](docs/diagrams)
+[Diagrams](/docs/diagrams)
 
 
 ## Installation Guide
@@ -55,7 +55,7 @@ to avoid inconsistencies when processing 2 events inserted by 2 different client
 It is necessary to have a Kafka cluster runing to use HA-CEP.
 Kafka cluster can be deployed on Openshift using Strimzi operator.
 For more details about instalaltion and configuration of Kafka cluster
-[see](docs/kafka-topics/README.md)
+[see](/docs/kafka-topics/README.md)
 
 
 #### Implementing the HA CEP server on Openshift 4.2
@@ -67,7 +67,7 @@ You must prepare the source, build it, and then deploy it on Red Hat OpenShift C
 1) Change to the openshift-drools-hacep-distribution/sources directory.
 Review and modify the server code based on the sample project in the sample-hacep-project/sample-hacep-project-kjar directory. 
 The complex event processing logic is defined by the DRL rules in the src/main/resources/org.drools.cep subdirectory.
-If you want to deploy a kjar on startup or update at runtime from a maven repo [see](docs/kjar/README.md) 
+If you want to deploy a kjar on startup or update at runtime from a maven repo [see](/docs/kjar/README.md) 
 
 2) Build the project using the standard Maven command: 
 
@@ -100,7 +100,7 @@ docker push <user_username>/openshift-kie-springboot:<tag>
 ### Detailed docs
 Detailed docs about kjar customization, kafka-topics, available modules and openshift versions
 
-- [Docs](docs/README.md)
+- [Docs](/docs/README.md)
 
   
   

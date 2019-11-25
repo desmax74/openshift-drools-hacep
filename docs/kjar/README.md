@@ -20,9 +20,9 @@ some other configuration are described in the following steps
 To have an updatable Kjar at startup and later, is mandatory to add two env vars 
 at the startup time and the presence of the specific jar in a Maven repo. 
 Accordingly to your used module change 
-[springboot module](springboot/kubernetes/deployment.yaml)
+[springboot module](/springboot/kubernetes/deployment.yaml)
 or
-[jdkhttp module](jdkhttp/kubernetes/deployment.yaml)
+[jdkhttp module](/jdkhttp/kubernetes/deployment.yaml)
 ```yaml
 containers:
         - env:

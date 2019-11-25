@@ -2,7 +2,7 @@
 [Diagrams](diagrams/)
 
 #### kjar customization
-[Customize](dkjar/README.md)
+[Customize](kjar/README.md)
 
 #### Springboot deploy 
 [Openshift 4.x](installation-openshift-4.x/springboot/README.md)
