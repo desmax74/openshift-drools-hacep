@@ -64,7 +64,7 @@ public class JdkHttpServer {
     }
 
     private static void initResponse(HttpExchange httpExchange, boolean isOk) throws IOException {
-        int returnCode = isOk ? 200 : 400;
+        int returnCode = isOk ? 200 : 503;
         int returnLength = isOk ? OK.length() : KO.length();
         byte[] returnBytes = isOk ? OK.getBytes() : KO.getBytes();
         httpExchange.sendResponseHeaders(returnCode, returnLength);
