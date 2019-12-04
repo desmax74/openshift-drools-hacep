@@ -24,10 +24,9 @@ spec:
           image: <user>/openshift-kie-jdkhttp:<tag>
           imagePullPolicy: IfNotPresent
           livenessProbe:
-            exec:
-              command:
-                - curl
-                - localhost:8080/liveness
+            httpGet:
+              path: /liveness
+              port: 8080
             initialDelaySeconds: 20
             periodSeconds: 10
             timeoutSeconds: 1
@@ -36,10 +35,9 @@ spec:
               name: http
               protocol: TCP
           readinessProbe:
-            exec:
-              command:
-                - curl
-                - localhost:8080/readiness
+            httpGet:
+              path: /readiness
+              port: 8080
             initialDelaySeconds: 10
             periodSeconds: 5
             timeoutSeconds: 1
