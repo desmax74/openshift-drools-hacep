@@ -24,11 +24,9 @@ import java.util.Set;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ConsumerUtils {
-  
+
   private ConsumerUtils() { }
 
   public static KafkaConsumer getConsumer(String topic, Properties properties) {

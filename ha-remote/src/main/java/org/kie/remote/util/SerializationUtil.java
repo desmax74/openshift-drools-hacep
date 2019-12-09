@@ -23,9 +23,6 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class SerializationUtil {
 
   private SerializationUtil(){}

@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class BidirectionalMap<K, V> extends HashMap<K, V> implements Serializable {
 
-  private final Map<V, K> inversedMap = new HashMap<V, K>();
+  private final Map<V, K> inversedMap = new HashMap();
 
   @Override
   public V remove(Object key) {
