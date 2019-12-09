@@ -28,8 +28,6 @@ import org.slf4j.LoggerFactory;
 
 public class SerializationUtil {
 
-  private static Logger logger = LoggerFactory.getLogger(SerializationUtil.class);
-
   private SerializationUtil(){}
 
   public static byte[] serialize(Object obj) {
@@ -48,7 +46,7 @@ public class SerializationUtil {
       ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(bytez));
       return (T) in.readObject();
     } catch (IOException | ClassNotFoundException e) {
-      throw new RuntimeException(e.getMessage(), e);
+      throw new SerializationException(e.getMessage(), e);
     }
   }
 }

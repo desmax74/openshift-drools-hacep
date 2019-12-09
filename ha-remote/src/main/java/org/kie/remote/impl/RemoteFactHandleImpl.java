@@ -16,7 +16,6 @@
 
 package org.kie.remote.impl;
 
-import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
