@@ -76,6 +76,8 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
   private EnvConfig envConfig;
   private Logger loggerForTest;
   private volatile boolean askedSnapshotOnDemand;
+  private final String labelSecondaryConsumer = "SecondaryConsumer";
+  private final String labelPrimaryConsumer = "PrimaryConsumer";
 
   public DefaultKafkaConsumer(EnvConfig config) {
     this.envConfig = config;
@@ -92,9 +94,9 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
   public void initConsumer(ConsumerHandler consumerHandler) {
     this.consumerHandler = (DroolsConsumerHandler) consumerHandler;
     this.snapShooter = this.consumerHandler.getSessionSnapShooter();
-    this.kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));
+    this.kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig(labelPrimaryConsumer));
     if (currentState.equals(State.REPLICA)) {
-      this.kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
+      this.kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig(labelSecondaryConsumer));
     }
   }
 
@@ -103,10 +105,10 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
       logger.info("Restart Consumers");
     }
     snapshotInfos = snapShooter.deserialize();//is still useful ?
-    kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig("PrimaryConsumer"));
+    kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig(labelPrimaryConsumer));
     assign();
     if (currentState.equals(State.REPLICA)) {
-      kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
+      kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig(labelSecondaryConsumer));
     } else {
       kafkaSecondaryConsumer = null;
     }
@@ -166,27 +168,22 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
   }
 
   protected void assignAsALeader() {
-    assignConsumer(kafkaConsumer,
-                   envConfig.getEventsTopicName());
+    assignConsumer(kafkaConsumer, envConfig.getEventsTopicName());
   }
 
   protected void assignReplica() {
-    assignConsumer(kafkaConsumer,
-                   envConfig.getEventsTopicName());
-    assignConsumer(kafkaSecondaryConsumer,
-                   envConfig.getControlTopicName());
+    assignConsumer(kafkaConsumer, envConfig.getEventsTopicName());
+    assignConsumer(kafkaSecondaryConsumer, envConfig.getControlTopicName());
   }
 
-  protected void assignConsumer(Consumer<String, T> kafkaConsumer,
-                                String topic) {
+  protected void assignConsumer(Consumer<String, T> kafkaConsumer, String topic) {
 
     List<PartitionInfo> partitionsInfo = kafkaConsumer.partitionsFor(topic);
     Collection<TopicPartition> partitionCollection = new ArrayList<>();
 
     if (partitionsInfo != null) {
       for (PartitionInfo partition : partitionsInfo) {
-        partitionCollection.add(new TopicPartition(partition.topic(),
-                                                   partition.partition()));
+        partitionCollection.add(new TopicPartition(partition.topic(), partition.partition()));
       }
 
       if (!partitionCollection.isEmpty()) {
@@ -263,7 +260,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
   }
 
   protected void updateOnRunningConsumer(State state) {
-    logger.info("updateOnRunning COnsumer");
+    logger.info("updateOnRunning Consumer");
     if (state.equals(State.LEADER)) {
       DroolsExecutor.setAsLeader();
       restart(state);
@@ -285,7 +282,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
       DroolsExecutor.setAsLeader();
     } else if (state.equals(State.REPLICA)) {
       currentState = State.REPLICA;
-      kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig("SecondaryConsumer"));
+      kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig(labelSecondaryConsumer));
       DroolsExecutor.setAsReplica();
     }
     setLastProcessedKey();
