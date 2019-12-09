@@ -28,9 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConsumerUtils {
-
-  private static Logger logger = LoggerFactory.getLogger(ConsumerUtils.class);
-
+  
   private ConsumerUtils() { }
 
   public static KafkaConsumer getConsumer(String topic, Properties properties) {
