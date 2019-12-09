@@ -53,8 +53,8 @@ import static org.kie.remote.util.SerializationUtil.deserialize;
  */
 public class DefaultKafkaConsumer<T> implements EventConsumer {
 
-    public final static String labelSecondaryConsumer = "SecondaryConsumer";
-    public final static String labelPrimaryConsumer = "PrimaryConsumer";
+    public static final String secondaryConsumerIdentifier = "SecondaryConsumer";
+    public static final String labelPrimaryConsumer = "PrimaryConsumer";
     private Logger logger = LoggerFactory.getLogger(DefaultKafkaConsumer.class);
     private Map<TopicPartition, OffsetAndMetadata> offsetsEvents = new HashMap<>();
     private Consumer<String, T> kafkaConsumer;
@@ -96,7 +96,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         this.snapShooter = this.consumerHandler.getSessionSnapShooter();
         this.kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig(labelPrimaryConsumer));
         if (currentState.equals(State.REPLICA)) {
-            this.kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig(labelSecondaryConsumer));
+            this.kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig(secondaryConsumerIdentifier));
         }
     }
 
@@ -108,7 +108,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig(labelPrimaryConsumer));
         assign();
         if (currentState.equals(State.REPLICA)) {
-            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig(labelSecondaryConsumer));
+            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig(secondaryConsumerIdentifier));
         } else {
             kafkaSecondaryConsumer = null;
         }
@@ -280,7 +280,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
             DroolsExecutor.setAsLeader();
         } else if (state.equals(State.REPLICA)) {
             currentState = State.REPLICA;
-            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig(labelSecondaryConsumer));
+            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig(secondaryConsumerIdentifier));
             DroolsExecutor.setAsReplica();
         }
         setLastProcessedKey();
