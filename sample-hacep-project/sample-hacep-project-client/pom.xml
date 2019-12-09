@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>org.kie</groupId>
-            <artifactId>kie-remote</artifactId>
+            <artifactId>ha-remote</artifactId>
         </dependency>
         <dependency>
             <groupId>org.kie</groupId>

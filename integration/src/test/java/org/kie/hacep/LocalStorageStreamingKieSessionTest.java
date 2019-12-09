@@ -35,7 +35,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.kie.remote.CommonConfig.getTestProperties;
-import static org.kie.remote.impl.RemoteKieSessionImpl.DEFAULT_ENTRY_POINT;
+import static org.kie.remote.impl.EntryPointUtil.DEFAULT_ENTRY_POINT;
 
 public class LocalStorageStreamingKieSessionTest {
 
@@ -111,9 +111,9 @@ public class LocalStorageStreamingKieSessionTest {
         Collection<?> getObjects = session.getObjects().get();
         assertEquals(2, getObjects.size());
 
-        CompletableFuture<Collection<?>> getObjectByQueryIBM = session.getObjects("stockTickEventQuery", "stock", "IBM");
+        CompletableFuture<Collection> getObjectByQueryIBM = session.getObjects("stockTickEventQuery", "stock", "IBM");
         assertEquals(0, getObjectByQueryIBM.get().size());
-        CompletableFuture<Collection<?>> getObjectsByQueryRHT = session.getObjects("stockTickEventQuery", "stock", "RHT");
+        CompletableFuture<Collection> getObjectsByQueryRHT = session.getObjects("stockTickEventQuery", "stock", "RHT");
         assertEquals(2, getObjectsByQueryRHT.get().size());
 
         RemoteStreamingEntryPoint defaultEntryPoint = session.getEntryPoint(DEFAULT_ENTRY_POINT);

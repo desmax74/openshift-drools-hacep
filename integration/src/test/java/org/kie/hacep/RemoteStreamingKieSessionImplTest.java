@@ -60,8 +60,8 @@ public class RemoteStreamingKieSessionImplTest extends KafkaFullTopicsTests{
         RemoteStreamingKieSessionImpl client = new RemoteStreamingKieSessionImpl(CommonConfig.getProducerConfig("ListKieSessionObjectsConsumerTest"),
                                                                      topicsConfig);
         try {
-            CompletableFuture<Collection<? extends Object>> listKieObjectsFuture = client.getObjects();
-            Collection<? extends Object> listKieObjects = listKieObjectsFuture.get(5,
+            CompletableFuture<Collection> listKieObjectsFuture = client.getObjects();
+            Collection listKieObjects = listKieObjectsFuture.get(5,
                                                                                    TimeUnit.SECONDS);
             assertTrue(listKieObjects.size() == 1);
             StockTickEvent event = (StockTickEvent) listKieObjects.iterator().next();
@@ -114,8 +114,8 @@ public class RemoteStreamingKieSessionImplTest extends KafkaFullTopicsTests{
     }
 
     private Collection<?> doQuery( RemoteStreamingKieSessionImpl client, String stockName, int expectedResult) throws InterruptedException, java.util.concurrent.ExecutionException, java.util.concurrent.TimeoutException {
-        CompletableFuture<Collection<?>> listKieObjectsFuture;
-        Collection<?> listKieObjects;
+        CompletableFuture<Collection> listKieObjectsFuture;
+        Collection listKieObjects;
         listKieObjectsFuture = client.getObjects("stockTickEventQuery" , "stock", stockName);
         listKieObjects = listKieObjectsFuture.get(5, TimeUnit.SECONDS);
         assertEquals(expectedResult, listKieObjects.size());
