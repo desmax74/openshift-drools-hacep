@@ -204,7 +204,9 @@ public class LeaderElectionImpl implements LeaderElection {
   }
 
   private void refreshStatusLeader() {
-    logger.debug("{} Pod should be the leader, pulling new data from the cluster", logPrefix());
+    if(logger.isDebugEnabled()) {
+      logger.debug("{} Pod should be the leader, pulling new data from the cluster", logPrefix());
+    }
     boolean pulled = lookupNewLeaderInfo();
     if (!pulled) {
       rescheduleAfterDelay();
@@ -278,7 +280,11 @@ public class LeaderElectionImpl implements LeaderElection {
       }
       return false;
     } else if (!members.contains(this.lockConfiguration.getPodName())) {
-      logger.warn("{} The list of cluster members {} does not contain the current Pod. Cannot acquire leadership.", logPrefix(), latestLeaderInfoLocal.getMembers());
+      if(logger.isWarnEnabled()) {
+        logger.warn("{} The list of cluster members {} does not contain the current Pod. Cannot acquire leadership.",
+                    logPrefix(),
+                    latestLeaderInfoLocal.getMembers());
+      }
       return false;
     }
 
@@ -350,11 +356,15 @@ public class LeaderElectionImpl implements LeaderElection {
   }
 
   private void updateLatestLeaderInfo(ConfigMap configMap, Set<String> members) {
-    logger.debug("{} Updating internal status about the current leader", logPrefix());
+    if(logger.isDebugEnabled()) {
+      logger.debug("{} Updating internal status about the current leader", logPrefix());
+    }
     this.latestConfigMap = configMap;
     this.latestMembers = members;
     this.latestLeaderInfo = ConfigMapLockUtils.getLeaderInfo(configMap, members, this.lockConfiguration.getGroupName());
-    logger.debug("{} Current leader info: {}", logPrefix(), this.latestLeaderInfo);
+    if(logger.isDebugEnabled()) {
+      logger.debug("{} Current leader info: {}", logPrefix(), this.latestLeaderInfo);
+    }
   }
 
   private ConfigMap pullConfigMap() {
