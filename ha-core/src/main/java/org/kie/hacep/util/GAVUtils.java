@@ -20,15 +20,11 @@ import org.kie.api.builder.ReleaseId;
 
 public class GAVUtils {
 
-  private GAVUtils() {
-  }
+  private GAVUtils() { }
 
-  public static ReleaseId getReleaseID(String gav,
-                                       KieServices srv) {
+  public static ReleaseId getReleaseID(String gav, KieServices srv) {
     String[] parts = getSplittedGav(gav);
-    return srv.newReleaseId(parts[0],
-                            parts[1],
-                            parts[2]);
+    return srv.newReleaseId(parts[0], parts[1], parts[2]);
   }
 
   public static String[] getSplittedGav(String gav) {

@@ -13,22 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.hacep;
+package org.kie.hacep.util;
 
 import org.junit.Test;
+import org.kie.hacep.EnvConfig;
+import org.slf4j.Logger;
 
 import static org.junit.Assert.*;
 
-public class EnvConfigTest {
+public class PrinterUtilTest {
 
-  @Test
-  public void defaultConfigEnvTest() {
-    EnvConfig config = EnvConfig.getDefaultEnvConfig();
-    assertEquals("default", config.getNamespace());
-    assertEquals("control", config.getControlTopicName());
-    assertEquals("events", config.getEventsTopicName());
-    assertEquals("kiesessioninfos", config.getKieSessionInfosTopicName());
-    assertEquals("snapshot", config.getSnapshotTopicName());
-  }
+    @Test
+    public void getPrinterTest() {
+        EnvConfig config = EnvConfig.getDefaultEnvConfig();
+        Printer printer = PrinterUtil.getPrinter(config);
+        assertNotNull(printer);
+    }
 
+    @Test
+    public void getKafkaLoggerTest() {
+        EnvConfig config = EnvConfig.getDefaultEnvConfig();
+        config.underTest(true);
+        config.withPrinterType("org.kie.hacep.util.fake.PrinterLogImpl");
+        Logger logger = PrinterUtil.getKafkaLoggerForTest(config);
+        assertNotNull(logger);
+    }
 }

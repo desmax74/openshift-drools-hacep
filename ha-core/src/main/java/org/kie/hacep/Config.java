@@ -24,8 +24,7 @@ import org.slf4j.LoggerFactory;
 
 public class Config {
 
-  private Config() {
-  }
+  private Config() { }
 
   public static final String BOOTSTRAP_SERVERS_KEY = "bootstrap.servers";
   public static final String DEFAULT_KAFKA_PORT = "9092";
@@ -82,8 +81,7 @@ public class Config {
     if (consumerConf == null) {
       consumerConf = getDefaultConfigFromProps(CONSUMER_CONF);
     }
-    logConfig(caller,
-              consumerConf);
+    logConfig(caller, consumerConf);
     return consumerConf;
   }
 
@@ -91,8 +89,7 @@ public class Config {
     if (producerConf == null) {
       producerConf = getDefaultConfigFromProps(PRODUCER_CONF);
     }
-    logConfig(caller,
-              producerConf);
+    logConfig(caller, producerConf);
     return producerConf;
   }
 
@@ -100,8 +97,7 @@ public class Config {
     if (snapshotConsumerConf == null) {
       snapshotConsumerConf = getDefaultConfigFromProps(SNAPSHOT_CONSUMER_CONF);
     }
-    logConfig("SnapshotConsumer",
-              snapshotConsumerConf);
+    logConfig("SnapshotConsumer", snapshotConsumerConf);
     return snapshotConsumerConf;
   }
 
@@ -109,8 +105,7 @@ public class Config {
     if (snapshotProducerConf == null) {
       snapshotProducerConf = getDefaultConfigFromProps(SNAPSHOT_PRODUCER_CONF);
     }
-    logConfig("SnapshotProducer",
-              snapshotProducerConf);
+    logConfig("SnapshotProducer", snapshotProducerConf);
     return snapshotProducerConf;
   }
 
@@ -119,17 +114,13 @@ public class Config {
     try (InputStream in = Config.class.getClassLoader().getResourceAsStream(fileName);) {
       config.load(in);
     } catch (Exception ex) {
-      logger.error(ex.getMessage(),
-                   ex);
+      logger.error(ex.getMessage(), ex);
     }
-    config.put(BOOTSTRAP_SERVERS_KEY,
-               config.getOrDefault(BOOTSTRAP_SERVERS_KEY,
-                                   getBootStrapServers()));
+    config.put(BOOTSTRAP_SERVERS_KEY, config.getOrDefault(BOOTSTRAP_SERVERS_KEY, getBootStrapServers()));
     return config;
   }
 
-  private static void logConfig(String subject,
-                                Properties producerProperties) {
+  private static void logConfig(String subject, Properties producerProperties) {
     if (logger.isDebugEnabled()) {
       StringBuilder sb = new StringBuilder();
       sb.append("\n");
