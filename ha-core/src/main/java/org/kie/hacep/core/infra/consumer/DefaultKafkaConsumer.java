@@ -53,8 +53,8 @@ import static org.kie.remote.util.SerializationUtil.deserialize;
  */
 public class DefaultKafkaConsumer<T> implements EventConsumer {
 
-    public static final String secondaryConsumerIdentifier = "SecondaryConsumer";
-    public static final String labelPrimaryConsumer = "PrimaryConsumer";
+    public static final String SECONDARY_CONSUMER = "SecondaryConsumer";
+    public static final String PRIMARY_CONSUMER = "PrimaryConsumer";
     private Logger logger = LoggerFactory.getLogger(DefaultKafkaConsumer.class);
     private Map<TopicPartition, OffsetAndMetadata> offsetsEvents = new HashMap<>();
     private Consumer<String, T> kafkaConsumer;
@@ -94,9 +94,9 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
     public void initConsumer(ConsumerHandler consumerHandler) {
         this.consumerHandler = (DroolsConsumerHandler) consumerHandler;
         this.snapShooter = this.consumerHandler.getSessionSnapShooter();
-        this.kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig(labelPrimaryConsumer));
+        this.kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig(PRIMARY_CONSUMER));
         if (currentState.equals(State.REPLICA)) {
-            this.kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig(secondaryConsumerIdentifier));
+            this.kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig(SECONDARY_CONSUMER));
         }
     }
 
@@ -105,10 +105,10 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
             logger.info("Restart Consumers");
         }
         snapshotInfos = snapShooter.deserialize();//is still useful ?
-        kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig(labelPrimaryConsumer));
+        kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig(PRIMARY_CONSUMER));
         assign();
         if (currentState.equals(State.REPLICA)) {
-            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig(secondaryConsumerIdentifier));
+            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig(SECONDARY_CONSUMER));
         } else {
             kafkaSecondaryConsumer = null;
         }
@@ -280,7 +280,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
             DroolsExecutor.setAsLeader();
         } else if (state.equals(State.REPLICA)) {
             currentState = State.REPLICA;
-            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig(secondaryConsumerIdentifier));
+            kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig(SECONDARY_CONSUMER));
             DroolsExecutor.setAsReplica();
         }
         setLastProcessedKey();
