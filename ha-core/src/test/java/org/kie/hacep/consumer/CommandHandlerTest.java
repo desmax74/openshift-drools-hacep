@@ -69,6 +69,8 @@ import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
@@ -82,6 +84,7 @@ import static org.mockito.internal.verification.VerificationModeFactory.atLeast;
 @PrepareForTest(KieServices.class)
 public class CommandHandlerTest {
 
+  private static final Logger logger = LoggerFactory.getLogger(CommandHandlerTest.class);
   protected static final EnvConfig envConfig = EnvConfig.getDefaultEnvConfig();
   protected static final int fireAllRule = 4;
   protected static final long factCount = fireAllRule;
@@ -173,21 +176,26 @@ public class CommandHandlerTest {
 
   @Test
   public void visitFireUntilHaltCommand() {
-    executeAndVerify(new FireUntilHaltCommand(),
+    FireUntilHaltCommand command = new FireUntilHaltCommand();
+    executeAndVerify(command,
                      commandHandler::visit,
                      () -> assertTrue(commandHandler.isFiringUntilHalt()));
+    logger.info("FireUntilHaltCommand:{}",command.toString());
   }
 
   @Test
   public void visitHaltCommand() {
-    executeAndVerify(new HaltCommand(),
+    HaltCommand command = new HaltCommand();
+    executeAndVerify(command,
                      commandHandler::visit,
                      () -> assertFalse(commandHandler.isFiringUntilHalt()));
+    logger.info("HaltCommand:{}",command.toString());
   }
 
   @Test
   public void visitInsertCommand() {
-    executeAndVerify(new InsertCommand(remoteFactHandle, myEntryPoint),
+    InsertCommand command = new InsertCommand(remoteFactHandle, myEntryPoint);
+    executeAndVerify(command,
                      commandHandler::visit,
                      () -> {
                        verify(factHandlesManagerMock, times(1))
@@ -195,92 +203,112 @@ public class CommandHandlerTest {
                        verify(entryPointMock, times(1))
                                .insert(eq(myObject));
                      });
+    logger.info("InsertCommand:{}",command.toString());
   }
 
   @Test
   public void visitEventInsertCommand() {
-    executeAndVerify(new EventInsertCommand(myObject, myEntryPoint),
+    EventInsertCommand command = new EventInsertCommand(myObject, myEntryPoint);
+    executeAndVerify(command,
                      commandHandler::visit,
                      () -> verify(entryPointMock, times(1)).insert(eq(myObject)));
+    logger.info("EventInsertCommand:{}",command.toString());
   }
 
   @Test
   public void visitDeleteCommand() {
-    executeAndVerify(new DeleteCommand(remoteFactHandle,
-                                       myEntryPoint),
+    DeleteCommand command = new DeleteCommand(remoteFactHandle, myEntryPoint);
+    executeAndVerify(command,
                      commandHandler::visit,
                      () -> {
                        verify(kieSessionMock, times(1)).getEntryPoint(eq(myEntryPoint));
                        verify(entryPointMock, times(1)).delete(eq(factHandleMock));
                      });
+    logger.info("DeleteCommand:{}",command.toString());
   }
 
   @Test
   public void visitUpdateCommand() {
-    executeAndVerify(new UpdateCommand(remoteFactHandle, myObject, myEntryPoint),
+    UpdateCommand command = new UpdateCommand(remoteFactHandle, myObject, myEntryPoint);
+    executeAndVerify(command,
                      commandHandler::visit,
                      () -> {
                        verify(kieSessionMock, times(1)).getEntryPoint(eq(myEntryPoint));
                        verify(entryPointMock, times(1)).update(eq(factHandleMock), eq(myObject));
                      });
+    logger.info("UpdateCommand:{}",command.toString());
   }
 
   @Test
   public void visitListObjectsCommand() {
-    executeAndVerifyResponseMessage(new ListObjectsCommand(myEntryPoint),
+    ListObjectsCommand command = new ListObjectsCommand(myEntryPoint);
+    executeAndVerifyResponseMessage(command,
                                     commandHandler::visit,
                                     ListKieSessionObjectMessage.class,
                                     result -> myObject.equals(((List) result).get(0)));
+    logger.info("ListObjectsCommand:{}",command.toString());
   }
 
   @Test
   public void visitListObjectsCommandClassType() {
-    executeAndVerifyResponseMessage(new ListObjectsCommandClassType(myEntryPoint, String.class),
+    ListObjectsCommandClassType command = new ListObjectsCommandClassType(myEntryPoint, String.class);
+    executeAndVerifyResponseMessage(command,
                                     commandHandler::visit,
                                     ListKieSessionObjectMessage.class,
                                     result -> myObject.equals(((List) result).get(0)));
+    logger.info("ListObjectsCommandClassType:{}",command.toString());
   }
 
   @Test
   public void visitGetObjectCommand() {
-    executeAndVerifyResponseMessage(new GetObjectCommand(remoteFactHandle),
+    GetObjectCommand command = new GetObjectCommand(remoteFactHandle);
+    executeAndVerifyResponseMessage(command,
                                     commandHandler::visit,
                                     GetObjectMessage.class,
                                     myObject::equals);
+    logger.info("GetObjectCommand:{}",command.toString());
   }
 
   @Test
   public void visitListObjectsCommandNamedQuery() {
-    executeAndVerifyResponseMessage(new ListObjectsCommandNamedQuery(myEntryPoint, namedQuery, objectName),
+    ListObjectsCommandNamedQuery command = new ListObjectsCommandNamedQuery(myEntryPoint, namedQuery, objectName);
+    executeAndVerifyResponseMessage(command,
                                     commandHandler::visit,
                                     ListKieSessionObjectMessage.class,
                                     result -> ((List) result).size() == 0);
+    logger.info("ListObjectsCommandNamedQuery:{}",command.toString());
   }
 
   @Test
   public void visitFactCountCommand() {
-    executeAndVerifyResponseMessage(new FactCountCommand(myEntryPoint),
+    FactCountCommand command = new FactCountCommand(myEntryPoint);
+    executeAndVerifyResponseMessage(command,
                                     commandHandler::visit,
                                     FactCountMessage.class,
                                     result -> new Long(factCount).equals(result));
+    logger.info("FactCountCommand:{}",command.toString());
   }
 
   @Test
   public void visitSnapshotOnDemandCommand() {
-    executeAndVerify(new SnapshotOnDemandCommand(),
+    SnapshotOnDemandCommand command = new SnapshotOnDemandCommand();
+    executeAndVerify(command,
                      commandHandler::visit,
                      () -> {
                        verify(sessionSnapshooterMock, times(1))
                                .serialize(eq(kieSessionContextMock), anyString(), anyLong());
                      });
+    logger.info("SnapshotOnDemandCommand:{}",command.toString());
   }
 
   @Test
   public void visitGetKJarGAVCommand() {
-    executeAndVerifyResponseMessage(new GetKJarGAVCommand(myEntryPoint),
+    GetKJarGAVCommand command = new GetKJarGAVCommand(myEntryPoint);
+    executeAndVerifyResponseMessage(command,
                                     commandHandler::visit,
                                     GetKJarGAVMessage.class,
                                     result -> kJarGAV.equals(result));
+    logger.info("GetKJarGAVCommand:{}",command.toString());
   }
 
   @Test
@@ -291,11 +319,13 @@ public class CommandHandlerTest {
     when(kieSessionContextMock.getKjarGAVUsed()).thenReturn(Optional.of(kJarGAV));
     when(kieSessionContextMock.getKieContainer()).thenReturn(kieContainerMock);
     when(kieServicesMock.newReleaseId("org.kie", "fake-jar", "0.1-SNAPSHOT")).thenReturn(releaseIdMock);
-    executeAndVerifyResponseMessage(new UpdateKJarCommand(kJarGAV),
+    UpdateKJarCommand command = new UpdateKJarCommand(kJarGAV);
+    executeAndVerifyResponseMessage(command,
                                     commandHandler::visit,
                                     UpdateKjarMessage.class,
                                     result -> Boolean.TRUE);
     PowerMockito.verifyStatic(KieServices.class, atLeast(1));
+    logger.info("UpdateKJarCommand:{}",command.toString());
   }
 
   private <T extends RemoteCommand> void executeAndVerify(T command, Consumer<T> consumer, Runnable assertions) {
