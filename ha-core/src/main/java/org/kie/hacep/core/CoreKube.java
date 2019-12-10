@@ -31,13 +31,10 @@ public class CoreKube {
   private KubernetesLockConfiguration configuration;
   private LeaderElection leadership;
 
-  public CoreKube(String namespace,
-                  State initialState) {
+  public CoreKube(String namespace, State initialState) {
     kubernetesClient = new DefaultKubernetesClient();
     configuration = createKubeConfiguration(namespace);
-    leadership = new LeaderElectionImpl(kubernetesClient,
-                                        configuration,
-                                        initialState);
+    leadership = new LeaderElectionImpl(kubernetesClient, configuration, initialState);
   }
 
   private KubernetesLockConfiguration createKubeConfiguration(String namespace) {
@@ -46,8 +43,7 @@ public class CoreKube {
       podName = System.getenv("HOSTNAME");
     }
     if (logger.isInfoEnabled()) {
-      logger.info("PodName: {}",
-                  podName);
+      logger.info("PodName: {}", podName);
     }
     KubernetesLockConfiguration newConfiguration = new KubernetesLockConfiguration(namespace);
     newConfiguration.setPodName(podName);
