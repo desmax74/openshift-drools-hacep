@@ -38,51 +38,35 @@ public final class ConfigMapLockUtils {
 
   private static final String LOCAL_TIMESTAMP_PREFIX = "leader.local.timestamp.";
 
-  private ConfigMapLockUtils() {
-  }
+  private ConfigMapLockUtils() { }
 
-  public static ConfigMap createNewConfigMap(String configMapName,
-                                             LeaderInfo leaderInfo) {
+  public static ConfigMap createNewConfigMap(String configMapName, LeaderInfo leaderInfo) {
     return new ConfigMapBuilder().
             withNewMetadata()
             .withName(configMapName)
-            .addToLabels("provider",
-                         "drools")
-            .addToLabels("kind",
-                         "locks").
-                    endMetadata()
-            .addToData(LEADER_PREFIX + leaderInfo.getGroupName(),
-                       leaderInfo.getLeader())
-            .addToData(LOCAL_TIMESTAMP_PREFIX + leaderInfo.getGroupName(),
-                       formatDate(leaderInfo.getLocalTimestamp()))
+            .addToLabels("provider", "drools")
+            .addToLabels("kind", "locks").endMetadata()
+            .addToData(LEADER_PREFIX + leaderInfo.getGroupName(), leaderInfo.getLeader())
+            .addToData(LOCAL_TIMESTAMP_PREFIX + leaderInfo.getGroupName(), formatDate(leaderInfo.getLocalTimestamp()))
             .build();
   }
 
-  public static ConfigMap getConfigMapWithNewLeader(ConfigMap configMap,
-                                                    LeaderInfo leaderInfo) {
+  public static ConfigMap getConfigMapWithNewLeader(ConfigMap configMap, LeaderInfo leaderInfo) {
     return new ConfigMapBuilder(configMap)
-            .addToData(LEADER_PREFIX + leaderInfo.getGroupName(),
-                       leaderInfo.getLeader())
-            .addToData(LOCAL_TIMESTAMP_PREFIX + leaderInfo.getGroupName(),
-                       formatDate(leaderInfo.getLocalTimestamp()))
+            .addToData(LEADER_PREFIX + leaderInfo.getGroupName(), leaderInfo.getLeader())
+            .addToData(LOCAL_TIMESTAMP_PREFIX + leaderInfo.getGroupName(), formatDate(leaderInfo.getLocalTimestamp()))
             .build();
   }
 
-  public static LeaderInfo getLeaderInfo(ConfigMap configMap,
-                                         Set<String> members,
-                                         String group) {
+  public static LeaderInfo getLeaderInfo(ConfigMap configMap, Set<String> members, String group) {
     return new LeaderInfo(group,
-                          getLeader(configMap,
-                                    group),
-                          getLocalTimestamp(configMap,
-                                            group),
+                          getLeader(configMap, group),
+                          getLocalTimestamp(configMap, group),
                           members);
   }
 
-  private static String getLeader(ConfigMap configMap,
-                                  String group) {
-    return getConfigMapValue(configMap,
-                             LEADER_PREFIX + group);
+  private static String getLeader(ConfigMap configMap, String group) {
+    return getConfigMapValue(configMap, LEADER_PREFIX + group);
   }
 
   private static String formatDate(Date date) {
@@ -92,17 +76,14 @@ public final class ConfigMapLockUtils {
     try {
       return new SimpleDateFormat(DATE_TIME_FORMAT).format(date);
     } catch (Exception e) {
-      logger.warn("Unable to format date '" + date + "' using format " + DATE_TIME_FORMAT,
-                  e);
+      logger.warn("Unable to format date '" + date + "' using format " + DATE_TIME_FORMAT, e);
     }
 
     return null;
   }
 
-  private static Date getLocalTimestamp(ConfigMap configMap,
-                                        String group) {
-    String timestamp = getConfigMapValue(configMap,
-                                         LOCAL_TIMESTAMP_PREFIX + group);
+  private static Date getLocalTimestamp(ConfigMap configMap, String group) {
+    String timestamp = getConfigMapValue(configMap, LOCAL_TIMESTAMP_PREFIX + group);
     if (timestamp == null) {
       return null;
     }
@@ -110,15 +91,12 @@ public final class ConfigMapLockUtils {
     try {
       return new SimpleDateFormat(DATE_TIME_FORMAT).parse(timestamp);
     } catch (Exception e) {
-      logger.warn("Unable to parse time string '" + timestamp + "' using format " + DATE_TIME_FORMAT,
-                  e);
+      logger.warn("Unable to parse time string '" + timestamp + "' using format " + DATE_TIME_FORMAT, e);
     }
-
     return null;
   }
 
-  private static String getConfigMapValue(ConfigMap configMap,
-                                          String key) {
+  private static String getConfigMapValue(ConfigMap configMap, String key) {
     if (configMap == null || configMap.getData() == null) {
       return null;
     }
