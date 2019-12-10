@@ -217,9 +217,7 @@ public class LeaderElectionImpl implements LeaderElection {
       if (logger.isDebugEnabled()) {
         logger.debug("{} Current Pod is still the leader", logPrefix());
       }
-
       rescheduleAfterDelay();
-      return;
     } else {
       if (logger.isDebugEnabled()) {
         logger.debug("{} Current Pod has lost the leadership", logPrefix());
