@@ -35,9 +35,7 @@ public class RemoteStreamingKieSessionImplTest extends KafkaFullTopicsTests{
     public void getFactCountTest() throws Exception {
         Bootstrap.startEngine(envConfig);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
-        kafkaServerTest.insertBatchStockTicketEvent(7,
-                                                    topicsConfig,
-                                                    RemoteStreamingKieSession.class);
+        kafkaServerTest.insertBatchStockTicketEvent(7, topicsConfig, RemoteStreamingKieSession.class);
         RemoteStreamingKieSessionImpl client = new RemoteStreamingKieSessionImpl(Config.getProducerConfig("FactCountConsumerTest"),
                                                                      topicsConfig);
         try {
@@ -53,16 +51,13 @@ public class RemoteStreamingKieSessionImplTest extends KafkaFullTopicsTests{
     public void getListKieSessionObjectsTest() throws Exception {
         Bootstrap.startEngine(envConfig);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
-        kafkaServerTest.insertBatchStockTicketEvent(1,
-                                                    topicsConfig,
-                                                    RemoteStreamingKieSession.class);
+        kafkaServerTest.insertBatchStockTicketEvent(1, topicsConfig, RemoteStreamingKieSession.class);
 
         RemoteStreamingKieSessionImpl client = new RemoteStreamingKieSessionImpl(CommonConfig.getProducerConfig("ListKieSessionObjectsConsumerTest"),
                                                                      topicsConfig);
         try {
             CompletableFuture<Collection> listKieObjectsFuture = client.getObjects();
-            Collection listKieObjects = listKieObjectsFuture.get(5,
-                                                                                   TimeUnit.SECONDS);
+            Collection listKieObjects = listKieObjectsFuture.get(5, TimeUnit.SECONDS);
             assertTrue(listKieObjects.size() == 1);
             StockTickEvent event = (StockTickEvent) listKieObjects.iterator().next();
             assertTrue(event.getCompany().equals("RHT"));
@@ -76,9 +71,7 @@ public class RemoteStreamingKieSessionImplTest extends KafkaFullTopicsTests{
     public void getListKieSessionObjectsWithClassTypeTest() throws Exception {
         Bootstrap.startEngine(envConfig);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
-        kafkaServerTest.insertBatchStockTicketEvent(1,
-                                                    topicsConfig,
-                                                    RemoteStreamingKieSession.class);
+        kafkaServerTest.insertBatchStockTicketEvent(1, topicsConfig, RemoteStreamingKieSession.class);
         RemoteStreamingKieSessionImpl client = new RemoteStreamingKieSessionImpl(Config.getProducerConfig("ListKieSessionObjectsWithClassTypeTest"),
                                                                      topicsConfig);
         try {
@@ -96,9 +89,7 @@ public class RemoteStreamingKieSessionImplTest extends KafkaFullTopicsTests{
     public void getListKieSessionObjectsWithNamedQueryTest() throws Exception {
         Bootstrap.startEngine(envConfig);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
-        kafkaServerTest.insertBatchStockTicketEvent(1,
-                                                    topicsConfig,
-                                                    RemoteStreamingKieSession.class);
+        kafkaServerTest.insertBatchStockTicketEvent(1, topicsConfig, RemoteStreamingKieSession.class);
         RemoteStreamingKieSessionImpl client = new RemoteStreamingKieSessionImpl(Config.getProducerConfig("ListKieSessionObjectsWithNamedQueryTest"),
                                                                      topicsConfig);
         try{

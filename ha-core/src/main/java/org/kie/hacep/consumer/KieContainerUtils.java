@@ -28,11 +28,9 @@ public class KieContainerUtils {
 
   private static final Logger logger = LoggerFactory.getLogger(KieContainerUtils.class);
 
-  private KieContainerUtils() {
-  }
+  private KieContainerUtils() { }
 
-  public static KieContainer getKieContainer(EnvConfig envConfig,
-                                             KieServices srv) {
+  public static KieContainer getKieContainer(EnvConfig envConfig, KieServices srv) {
     KieContainer kieContainer;
     if (srv != null) {
       if (envConfig.isUpdatableKJar()) {
@@ -41,8 +39,7 @@ public class KieContainerUtils {
         KieScanner scanner = srv.newKieScanner(kieContainer);
         scanner.scanNow();
         if (logger.isInfoEnabled()) {
-          logger.info("Created new KieContainer with KJar:{} from maven repo",
-                      envConfig.getKJarGAV());
+          logger.info("Created new KieContainer with KJar:{} from maven repo", envConfig.getKJarGAV());
         }
       } else {
         if (logger.isInfoEnabled()) {

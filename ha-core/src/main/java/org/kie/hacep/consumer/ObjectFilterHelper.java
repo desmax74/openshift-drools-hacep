@@ -28,15 +28,10 @@ import org.kie.api.runtime.rule.QueryResultsRow;
 
 public class ObjectFilterHelper {
 
-  private ObjectFilterHelper() {
-  }
+  private ObjectFilterHelper() { }
 
-  public static Collection getObjectsFilterByNamedQuery(String namedQuery,
-                                                        String objectName,
-                                                        Object[] params,
-                                                        KieSession kieSession) {
-    QueryResults results = kieSession.getQueryResults(namedQuery,
-                                                      params);
+  public static Collection getObjectsFilterByNamedQuery(String namedQuery, String objectName, Object[] params, KieSession kieSession) {
+    QueryResults results = kieSession.getQueryResults(namedQuery, params);
     Iterator<QueryResultsRow> rowsIter = results.iterator();
     List objects = new ArrayList(results.size());
     while (rowsIter.hasNext()) {
@@ -46,8 +41,7 @@ public class ObjectFilterHelper {
     return objects;
   }
 
-  public static Collection getObjectsFilterByClassType(Class clazzType,
-                                                       KieSession kieSession) {
+  public static Collection getObjectsFilterByClassType(Class clazzType, KieSession kieSession) {
     return kieSession.getObjects(new ClassObjectFilter(clazzType));
   }
 }

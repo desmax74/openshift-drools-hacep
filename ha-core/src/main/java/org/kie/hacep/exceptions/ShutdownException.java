@@ -21,9 +21,7 @@ public class ShutdownException extends RuntimeException {
     super(msg);
   }
 
-  public ShutdownException(String msg,
-                           Throwable t) {
-    super(msg,
-          t);
+  public ShutdownException(String msg, Throwable t) {
+    super(msg, t);
   }
 }

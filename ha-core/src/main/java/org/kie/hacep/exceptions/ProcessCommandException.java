@@ -21,9 +21,7 @@ public class ProcessCommandException extends RuntimeException {
     super(msg);
   }
 
-  public ProcessCommandException(String msg,
-                                 Throwable t) {
-    super(msg,
-          t);
+  public ProcessCommandException(String msg, Throwable t) {
+    super(msg, t);
   }
 }

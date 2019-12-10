@@ -32,11 +32,8 @@ public class RemoteKieSessionImplTest extends KafkaFullTopicsTests{
     public void getFactCountTest() {
         Bootstrap.startEngine(envConfig);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
-        kafkaServerTest.insertBatchStockTicketEvent(7,
-                                                    topicsConfig,
-                                                    RemoteKieSession.class);
-        RemoteKieSessionImpl client = new RemoteKieSessionImpl(Config.getProducerConfig("getFactCountTest"),
-                                                               topicsConfig);
+        kafkaServerTest.insertBatchStockTicketEvent(7, topicsConfig, RemoteKieSession.class);
+        RemoteKieSessionImpl client = new RemoteKieSessionImpl(Config.getProducerConfig("getFactCountTest"), topicsConfig);
         try {
             client.fireUntilHalt();
             CompletableFuture<Long> factCountFuture = client.getFactCount();

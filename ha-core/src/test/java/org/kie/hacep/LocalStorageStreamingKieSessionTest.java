@@ -28,26 +28,23 @@ import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.sample.kjar.Result;
 import org.kie.hacep.sample.kjar.StockTickEvent;
-import org.kie.remote.RemoteEntryPoint;
-import org.kie.remote.RemoteFactHandle;
-import org.kie.remote.RemoteKieSession;
+import org.kie.remote.RemoteStreamingEntryPoint;
+import org.kie.remote.RemoteStreamingKieSession;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.kie.remote.CommonConfig.getTestProperties;
 import static org.kie.remote.impl.EntryPointUtil.DEFAULT_ENTRY_POINT;
 
-public class LocalStorageKieSessionTest {
+public class LocalStorageStreamingKieSessionTest {
 
-    RemoteKieSession session;
+    RemoteStreamingKieSession session;
 
     @Before
     public void initTest() {
         EnvConfig config = EnvConfig.getDefaultEnvConfig().underTest(true).local(true);
         Bootstrap.startEngine(config);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
-        session = RemoteKieSession.create(getTestProperties());
+        session = RemoteStreamingKieSession.create(getTestProperties());
     }
 
     @After
@@ -60,96 +57,50 @@ public class LocalStorageKieSessionTest {
     public void insertTest() throws ExecutionException, InterruptedException {
 
         assertEquals((Long) 0L, session.getFactCount().get());
-        assertEquals((Long) 0L, session.fireAllRules().get());
 
-        RemoteFactHandle<Result> resultRFH = session.insert(new Result("RHT"));
-        assertEquals((Long) 0L, session.fireAllRules().get());
+        session.insert(new Result("RHT"));
 
-        RemoteFactHandle<StockTickEvent> stockRFH = session.insert(new StockTickEvent("RHT", 9.0));
+        session.insert(new StockTickEvent("RHT", 9.0));
         session.insert(new StockTickEvent("RHT", 14.0));
 
-        assertFalse(session.getObject(stockRFH).get().isProcessed());
-
+        assertEquals(3, session.getObjects().get().size());
         assertEquals((Long) 3L, session.getFactCount().get());
-        assertEquals((Long) 3L, session.fireAllRules().get());
 
-        assertTrue(session.getObject(stockRFH).get().isProcessed());
-
-        assertEquals(11.5, session.getObject(resultRFH).get().getValue());
-    }
-
-    @Test(timeout = 10000)
-    public void updateTest() throws ExecutionException, InterruptedException {
-
-        assertEquals((Long) 0L, session.getFactCount().get());
-        assertEquals((Long) 0L, session.fireAllRules().get());
-
-        StockTickEvent stock = new StockTickEvent("RHT", 9.0);
-        RemoteFactHandle<StockTickEvent> stockRFH = session.insert(stock);
-
-        assertFalse(session.getObject(stockRFH).get().isProcessed());
-
-        assertEquals((Long) 1L, session.fireAllRules().get());
-
-        assertTrue(session.getObject(stockRFH).get().isProcessed());
-
-        stock.setPrice(10.0);
-        session.update(stockRFH, stock);
-
-        assertEquals(stock.getPrice(), session.getObject(stockRFH).get().getPrice(), 0.1);
-    }
-
-    @Test(timeout = 10000)
-    public void deleteTest() throws ExecutionException, InterruptedException {
-
-        assertEquals((Long) 0L, session.getFactCount().get());
-        assertEquals((Long) 0L, session.fireAllRules().get());
-
-        StockTickEvent stock = new StockTickEvent("RHT", 9.0);
-        RemoteFactHandle<StockTickEvent> stockRFH = session.insert(stock);
-
-        assertFalse(session.getObject(stockRFH).get().isProcessed());
-
-        assertEquals((Long) 1L, session.fireAllRules().get());
-
-        assertTrue(session.getObject(stockRFH).get().isProcessed());
-
-        assertEquals((Long) 1L, session.getFactCount().get());
-        session.delete(stockRFH);
-        assertEquals((Long) 0L, session.getFactCount().get());
+        assertEquals(11.5, session.getObjects(Result.class).get().iterator().next().getValue());
     }
 
     @Test(timeout = 10000)
     public void fireUntilHaltTest() throws ExecutionException, InterruptedException {
 
         assertEquals((Long) 0L, session.getFactCount().get());
-        session.fireUntilHalt();
 
         StockTickEvent stock1 = new StockTickEvent("RHT", 9.0);
         assertFalse(stock1.isProcessed());
 
-        RemoteFactHandle<StockTickEvent> stock1RFH = session.insert(stock1);
+        session.insert(stock1);
 
-        assertTrue(session.getObject(stock1RFH).get().isProcessed());
+        assertTrue(session.getObjects(StockTickEvent.class).get().iterator().next().isProcessed());
 
         session.halt();
 
         StockTickEvent stock2 = new StockTickEvent("RHT", 11.0);
         assertFalse(stock2.isProcessed());
 
-        RemoteFactHandle<StockTickEvent> stock2RFH = session.insert(stock2);
+        session.insert(stock2);
 
-        assertFalse(session.getObject(stock2RFH).get().isProcessed());
+        assertEquals(1, session.getObjects(StockTickEvent.class).get()
+                .stream().filter(stock -> !stock.isProcessed()).count());
 
         assertEquals((Long) 1L, session.fireAllRules().get());
 
-        assertTrue(session.getObject(stock2RFH).get().isProcessed());
+        assertEquals(0, session.getObjects(StockTickEvent.class).get()
+                .stream().filter(stock -> !stock.isProcessed()).count());
     }
 
     @Test(timeout = 10000)
     public void getCommandsTest() throws ExecutionException, InterruptedException {
 
-        RemoteFactHandle<StockTickEvent> stock1FH = session.insert(new StockTickEvent("RHT", 9.0));
+        session.insert(new StockTickEvent("RHT", 9.0));
         session.insert(new StockTickEvent("RHT", 19.0));
 
         Collection<StockTickEvent> getObjectsByClass = session.getObjects(StockTickEvent.class).get();
@@ -163,9 +114,7 @@ public class LocalStorageKieSessionTest {
         CompletableFuture<Collection> getObjectsByQueryRHT = session.getObjects("stockTickEventQuery", "stock", "RHT");
         assertEquals(2, getObjectsByQueryRHT.get().size());
 
-        assertEquals("RHT", session.getObject(stock1FH).get().getCompany());
-
-        RemoteEntryPoint defaultEntryPoint = session.getEntryPoint(DEFAULT_ENTRY_POINT);
+        RemoteStreamingEntryPoint defaultEntryPoint = session.getEntryPoint(DEFAULT_ENTRY_POINT);
         assertEquals((Long) 2L, defaultEntryPoint.getFactCount().get());
 
         assertEquals(DEFAULT_ENTRY_POINT, defaultEntryPoint.getEntryPointId());

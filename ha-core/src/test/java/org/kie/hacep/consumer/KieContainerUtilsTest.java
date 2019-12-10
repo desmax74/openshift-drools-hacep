@@ -13,15 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.hacep.exceptions;
+package org.kie.hacep.consumer;
 
-public class InitializeException extends RuntimeException {
+import org.junit.Test;
+import org.kie.api.KieServices;
+import org.kie.api.runtime.KieContainer;
+import org.kie.hacep.EnvConfig;
 
-  public InitializeException(String msg) {
-    super(msg);
-  }
+import static org.junit.Assert.*;
 
-  public InitializeException(String msg, Throwable t) {
-    super(msg, t);
-  }
+public class KieContainerUtilsTest {
+
+    @Test
+    public void getKieContainerTest() {
+        EnvConfig config = EnvConfig.getDefaultEnvConfig();
+        KieServices srv = KieServices.get();
+        KieContainer container = KieContainerUtils.getKieContainer(config, srv);
+        assertNotNull(container);
+    }
 }
