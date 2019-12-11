@@ -36,6 +36,10 @@ public class ConfigMapLockUtilsTest {
         Date timestamp = Calendar.getInstance().getTime();
         Set<String> members = new HashSet<>(Arrays.asList("Qui", "Quo", "Qua"));
         LeaderInfo info = new LeaderInfo(groupName, leader, timestamp,members);
+        Assert.assertEquals(groupName,info.getGroupName());
+        Assert.assertEquals(leader,info.getLeader());
+        Assert.assertEquals(timestamp,info.getLocalTimestamp());
+        Assert.assertEquals(members,info.getMembers());
         ConfigMap configMap = ConfigMapLockUtils.createNewConfigMap("my-map",info);
         Assert.assertNotNull(configMap);
         LeaderInfo leaderInfo = ConfigMapLockUtils.getLeaderInfo(configMap, members,groupName);

@@ -32,13 +32,7 @@ public class LeaderInfo {
 
   private Set<String> members;
 
-  public LeaderInfo() {
-  }
-
-  public LeaderInfo(String groupName,
-                    String leader,
-                    Date timestamp,
-                    Set<String> members) {
+  public LeaderInfo(String groupName, String leader, Date timestamp, Set<String> members) {
     this.groupName = groupName;
     this.leader = leader;
     this.localTimestamp = timestamp;
@@ -64,33 +58,18 @@ public class LeaderInfo {
     return groupName;
   }
 
-  public void setGroupName(String groupName) {
-    this.groupName = groupName;
-  }
-
   public String getLeader() {
     return leader;
-  }
-
-  public void setLeader(String leader) {
-    this.leader = leader;
   }
 
   public Date getLocalTimestamp() {
     return localTimestamp;
   }
 
-  public void setLocalTimestamp(Date localTimestamp) {
-    this.localTimestamp = localTimestamp;
-  }
-
   public Set<String> getMembers() {
     return members;
   }
 
-  public void setMembers(Set<String> members) {
-    this.members = members;
-  }
 
   @Override
   public String toString() {

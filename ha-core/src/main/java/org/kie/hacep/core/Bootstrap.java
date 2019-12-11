@@ -37,25 +37,21 @@ public class Bootstrap {
   private static ConsumerController consumerController;
   private static CoreKube coreKube;
 
-  private Bootstrap() {
-  }
+  private Bootstrap() { }
 
   public static void startEngine(EnvConfig envConfig) {
     //order matter
     checkKJarVersion(envConfig);
     if (!envConfig.isUnderTest()) {
-      coreKube = new CoreKube(envConfig.getNamespace(),
-                              null);
+      coreKube = new CoreKube(envConfig.getNamespace(), null);
     }
     eventProducer = startProducer(envConfig);
-    startConsumers(envConfig,
-                   eventProducer);
+    startConsumers(envConfig, eventProducer);
     if (!envConfig.isUnderTest()) {
       leaderElection();
     }
     GlobalStatus.setNodeReady(true);
-    logger.info("CONFIGURE on start engine:{}",
-                envConfig);
+    logger.info("CONFIGURE on start engine:{}", envConfig);
   }
 
   public static void stopEngine() {
@@ -94,8 +90,7 @@ public class Bootstrap {
     try {
       leadership.start();
     } catch (Exception e) {
-      logger.error(e.getMessage(),
-                   e);
+      logger.error(e.getMessage(), e);
     }
   }
 
@@ -105,10 +100,8 @@ public class Bootstrap {
     return producer;
   }
 
-  private static void startConsumers(EnvConfig envConfig,
-                                     Producer producer) {
-    consumerController = new ConsumerController(envConfig,
-                                                producer);
+  private static void startConsumers(EnvConfig envConfig, Producer producer) {
+    consumerController = new ConsumerController(envConfig, producer);
     consumerController.start();
   }
 
