@@ -67,7 +67,7 @@ public class Config {
 
   public static String getBootStrapServers() {
     StringBuilder sb = new StringBuilder();
-    sb.append(Config.BROKER_URL).append(":").append(DEFAULT_KAFKA_PORT);
+    sb.append(BROKER_URL).append(":").append(DEFAULT_KAFKA_PORT);
     //append("my-cluster-kafka-bootstrap.my-kafka-project.svc:9092");//plain
     //.append(",").append("my-cluster-kafka-brokers.my-kafka-project.svc").append(":9093");//tls
     return sb.toString();

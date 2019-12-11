@@ -15,6 +15,7 @@
  */
 package org.kie.hacep.util;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Test;
 import org.kie.hacep.EnvConfig;
 import org.slf4j.Logger;
@@ -28,6 +29,8 @@ public class PrinterUtilTest {
         EnvConfig config = EnvConfig.getDefaultEnvConfig();
         Printer printer = PrinterUtil.getPrinter(config);
         assertNotNull(printer);
+        ConsumerRecord record = new ConsumerRecord("events", 1, 1l, "1", "boh");
+        printer.prettyPrinter("PrinterUtilTest.getPrinterTest", record, false);
     }
 
     @Test

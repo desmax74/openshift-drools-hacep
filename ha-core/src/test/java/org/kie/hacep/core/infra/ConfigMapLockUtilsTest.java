@@ -26,8 +26,12 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.kie.hacep.core.infra.election.ConfigMapLockUtils;
 import org.kie.hacep.core.infra.election.LeaderInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfigMapLockUtilsTest {
+
+    static Logger logger = LoggerFactory.getLogger(ConfigMapLockUtilsTest.class);
 
     @Test
     public void methodsTest(){
@@ -36,6 +40,10 @@ public class ConfigMapLockUtilsTest {
         Date timestamp = Calendar.getInstance().getTime();
         Set<String> members = new HashSet<>(Arrays.asList("Qui", "Quo", "Qua"));
         LeaderInfo info = new LeaderInfo(groupName, leader, timestamp,members);
+        logger.info("leaderInfo:{}", info.toString());
+        Assert.assertFalse(info.hasEmptyLeader());
+        Assert.assertFalse(info.isValidLeader(null));
+        Assert.assertFalse(info.hasValidLeader());
         Assert.assertEquals(groupName,info.getGroupName());
         Assert.assertEquals(leader,info.getLeader());
         Assert.assertEquals(timestamp,info.getLocalTimestamp());
@@ -43,6 +51,7 @@ public class ConfigMapLockUtilsTest {
         ConfigMap configMap = ConfigMapLockUtils.createNewConfigMap("my-map",info);
         Assert.assertNotNull(configMap);
         LeaderInfo leaderInfo = ConfigMapLockUtils.getLeaderInfo(configMap, members,groupName);
+        logger.info("leaderInfo:{}", leaderInfo.toString());
         Assert.assertNotNull(leaderInfo);
         ConfigMap newConfigMap = ConfigMapLockUtils.getConfigMapWithNewLeader(configMap, leaderInfo);
         Assert.assertNotNull(newConfigMap);
