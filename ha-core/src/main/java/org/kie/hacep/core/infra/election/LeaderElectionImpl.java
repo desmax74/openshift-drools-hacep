@@ -86,7 +86,7 @@ public class LeaderElectionImpl implements LeaderElection {
     this.callbacks.addAll(callbacks);
   }
 
-  private void refreshStatus() {
+  public void refreshStatus() {
     switch (currentState) {
       case REPLICA:
         refreshStatusNotLeader();
@@ -110,7 +110,7 @@ public class LeaderElectionImpl implements LeaderElection {
    * This pod is currently not leader. It should monitor the leader configuration and try
    * to acquire the leadership if possible.
    */
-  private void refreshStatusNotLeader() {
+  public void refreshStatusNotLeader() {
     if (logger.isDebugEnabled()) {
       logger.debug("{} Pod is not leader, pulling new data from the cluster", logPrefix());
     }
@@ -181,7 +181,7 @@ public class LeaderElectionImpl implements LeaderElection {
    * This pod has acquired the leadership but it should wait for the old leader
    * to tear down resources before starting the local services.
    */
-  private void refreshStatusBecomingLeader() {
+  public void refreshStatusBecomingLeader() {
     // Wait always the same amount of time before becoming the leader
     // Even if the current pod is already leader, we should let a possible old version of the pod to shut down
     long delay = this.lockConfiguration.getLeaseDurationMillis();
@@ -203,7 +203,7 @@ public class LeaderElectionImpl implements LeaderElection {
     this.serializedExecutor.execute(this::refreshStatus);
   }
 
-  private void refreshStatusLeader() {
+  public void refreshStatusLeader() {
     if(logger.isDebugEnabled()) {
       logger.debug("{} Pod should be the leader, pulling new data from the cluster", logPrefix());
     }
@@ -229,14 +229,14 @@ public class LeaderElectionImpl implements LeaderElection {
     }
   }
 
-  private void rescheduleAfterDelay() {
+  public void rescheduleAfterDelay() {
     this.serializedExecutor.schedule(this::refreshStatus,
                                      jitter(this.lockConfiguration.getRetryPeriodMillis(),
                                             this.lockConfiguration.getJitterFactor()),
                                      TimeUnit.MILLISECONDS);
   }
 
-  private boolean lookupNewLeaderInfo() {
+  public boolean lookupNewLeaderInfo() {
     if (logger.isDebugEnabled()) {
       logger.debug("{} Looking up leadership information...", logPrefix());
     }
@@ -263,7 +263,7 @@ public class LeaderElectionImpl implements LeaderElection {
     return true;
   }
 
-  private boolean tryAcquireLeadership() {
+  public boolean tryAcquireLeadership() {
     if (logger.isDebugEnabled()) {
       logger.debug("{} Trying to acquire the leadership...", logPrefix());
     }
@@ -353,7 +353,7 @@ public class LeaderElectionImpl implements LeaderElection {
     }
   }
 
-  private void updateLatestLeaderInfo(ConfigMap configMap, Set<String> members) {
+  public void updateLatestLeaderInfo(ConfigMap configMap, Set<String> members) {
     if(logger.isDebugEnabled()) {
       logger.debug("{} Updating internal status about the current leader", logPrefix());
     }
@@ -365,14 +365,14 @@ public class LeaderElectionImpl implements LeaderElection {
     }
   }
 
-  private ConfigMap pullConfigMap() {
+  public ConfigMap pullConfigMap() {
     return kubernetesClient.configMaps()
             .inNamespace(this.lockConfiguration.getKubernetesResourcesNamespaceOrDefault(kubernetesClient))
             .withName(this.lockConfiguration.getConfigMapName())
             .get();
   }
 
-  private Set<String> pullClusterMembers() {
+  public Set<String> pullClusterMembers() {
     List<Pod> pods = kubernetesClient.pods()
             .inNamespace(this.lockConfiguration.getKubernetesResourcesNamespaceOrDefault(kubernetesClient))
             .withLabels(this.lockConfiguration.getClusterLabels())
