@@ -29,7 +29,7 @@ import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpPrincipal;
-import org.junit.Assert;
+import static org.junit.Assert.*;
 import org.junit.Test;
 import org.kie.hacep.core.GlobalStatus;
 import org.kie.hacep.endpoint.bootstrap.JdkHttpServer;
@@ -41,7 +41,7 @@ public class EndpointsTest {
         HttpHandler handler = new JdkHttpServer.EnvHandler();
         HttpExchange exchange = getHttpExchange();
         handler.handle(exchange);
-        Assert.assertNotNull(exchange);
+        assertNotNull(exchange);
     }
 
     @Test
@@ -50,15 +50,15 @@ public class EndpointsTest {
         HttpHandler handler = new JdkHttpServer.LivenessHandler();
         HttpExchange exchange = getHttpExchange();
         handler.handle(exchange);
-        Assert.assertNotNull(exchange);
-        Assert.assertTrue(200 == Integer.valueOf(exchange.getResponseHeaders().get("return-code").get(0)));
+        assertNotNull(exchange);
+        assertTrue(200 == Integer.valueOf(exchange.getResponseHeaders().get("return-code").get(0)));
 
         GlobalStatus.setNodeLive(false);
         handler = new JdkHttpServer.LivenessHandler();
         exchange = getHttpExchange();
         handler.handle(exchange);
-        Assert.assertNotNull(exchange);
-        Assert.assertTrue(503 == Integer.valueOf(exchange.getResponseHeaders().get("return-code").get(0)));
+        assertNotNull(exchange);
+        assertTrue(503 == Integer.valueOf(exchange.getResponseHeaders().get("return-code").get(0)));
     }
 
     @Test
@@ -67,15 +67,15 @@ public class EndpointsTest {
         HttpHandler handler = new JdkHttpServer.ReadinessHandler();
         HttpExchange exchange = getHttpExchange();
         handler.handle(exchange);
-        Assert.assertNotNull(exchange);
-        Assert.assertTrue(200 == Integer.valueOf(exchange.getResponseHeaders().get("return-code").get(0)));
+        assertNotNull(exchange);
+        assertTrue(200 == Integer.valueOf(exchange.getResponseHeaders().get("return-code").get(0)));
 
         GlobalStatus.setNodeReady(false);
         handler = new JdkHttpServer.ReadinessHandler();
         exchange = getHttpExchange();
         handler.handle(exchange);
-        Assert.assertNotNull(exchange);
-        Assert.assertTrue(503 == Integer.valueOf(exchange.getResponseHeaders().get("return-code").get(0)));
+        assertNotNull(exchange);
+        assertTrue(503 == Integer.valueOf(exchange.getResponseHeaders().get("return-code").get(0)));
     }
 
 
@@ -166,16 +166,10 @@ public class EndpointsTest {
             }
 
             @Override
-            public void setAttribute(String name,
-                                     Object value) {
-
-            }
+            public void setAttribute(String name, Object value) { }
 
             @Override
-            public void setStreams(InputStream i,
-                                   OutputStream o) {
-
-            }
+            public void setStreams(InputStream i, OutputStream o) { }
 
             @Override
             public HttpPrincipal getPrincipal() {

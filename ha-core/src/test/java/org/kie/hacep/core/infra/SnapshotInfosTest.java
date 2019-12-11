@@ -17,7 +17,7 @@ package org.kie.hacep.core.infra;
 
 import java.time.LocalDateTime;
 
-import org.junit.Assert;
+import static org.junit.Assert.*;
 import org.junit.Test;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
@@ -43,13 +43,13 @@ public class SnapshotInfosTest {
         SnapshotInfos infos = new SnapshotInfos(kieSession,
                                                 kieContainer, fhManager, keyDuringSnapshot, offsetDuringSnapshot,
                                                 time, kjarGAV);
-        Assert.assertNotNull(infos);
-        Assert.assertEquals(infos.getFhManager(), fhManager);
-        Assert.assertEquals(infos.getKeyDuringSnaphot(), keyDuringSnapshot);
-        Assert.assertEquals(infos.getKieContainer(), kieContainer);
-        Assert.assertEquals(infos.getKieSession(), kieSession);
-        Assert.assertEquals(infos.getOffsetDuringSnapshot(), offsetDuringSnapshot);
-        Assert.assertEquals(infos.getTime(), time);
-        Assert.assertEquals(infos.getkJarGAV(), kjarGAV);
+        assertNotNull(infos);
+        assertEquals(infos.getFhManager(), fhManager);
+        assertEquals(infos.getKeyDuringSnaphot(), keyDuringSnapshot);
+        assertEquals(infos.getKieContainer(), kieContainer);
+        assertEquals(infos.getKieSession(), kieSession);
+        assertEquals(infos.getOffsetDuringSnapshot(), offsetDuringSnapshot);
+        assertEquals(infos.getTime(), time);
+        assertEquals(infos.getkJarGAV(), kjarGAV);
     }
 }

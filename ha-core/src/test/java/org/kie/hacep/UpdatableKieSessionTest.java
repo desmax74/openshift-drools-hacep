@@ -26,7 +26,6 @@ import org.apache.maven.project.MavenProject;
 import org.appformer.maven.integration.MavenRepository;
 import org.appformer.maven.integration.embedder.MavenProjectLoader;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.KieServices;
@@ -36,9 +35,9 @@ import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.hacep.consumer.KieContainerUtils;
 import org.kie.hacep.core.KieSessionContext;
-
 import org.kie.hacep.util.GAVUtils;
 import org.kie.scanner.KieMavenRepository;
+import static org.junit.Assert.*;
 
 public class UpdatableKieSessionTest {
 
@@ -80,28 +79,28 @@ public class UpdatableKieSessionTest {
     public void testEmbeddedKJar() {
         initSessionContextFromEmbeddKjar();
         Optional<String> gavUSed = ksCtx.getKjarGAVUsed();
-        Assert.assertFalse(gavUSed.isPresent());
+        assertFalse(gavUSed.isPresent());
     }
 
     @Test
     public void testWithSpecificKJar() {
         initSessionContextFromSpecificKjar();;
         Optional<String> gavUSed = ksCtx.getKjarGAVUsed();
-        Assert.assertTrue(gavUSed.isPresent());
-        Assert.assertEquals(gavUSed.get(), gav);
+        assertTrue(gavUSed.isPresent());
+        assertEquals(gavUSed.get(), gav);
     }
 
     @Test
     public void testUpdateWithSpecificKJar() {
         initSessionContextFromSpecificKjar();;
         Optional<String> gavUSed = ksCtx.getKjarGAVUsed();
-        Assert.assertTrue(gavUSed.isPresent());
-        Assert.assertEquals(gavUSed.get(), gav);
+        assertTrue(gavUSed.isPresent());
+        assertEquals(gavUSed.get(), gav);
         ReleaseId releaseId=  GAVUtils.getReleaseID(updatedGav, ks);
         ksCtx.getKieContainer().updateToVersion(releaseId);
         gavUSed = ksCtx.getKjarGAVUsed();
-        Assert.assertTrue(gavUSed.isPresent());
-        Assert.assertEquals(updatedGav, gavUSed.get());
+        assertTrue(gavUSed.isPresent());
+        assertEquals(updatedGav, gavUSed.get());
     }
 
 

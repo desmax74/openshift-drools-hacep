@@ -15,7 +15,7 @@
  */
 package org.kie.hacep.core;
 
-import org.junit.Assert;
+import static org.junit.Assert.*;
 import org.junit.Test;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.infra.election.State;
@@ -29,7 +29,7 @@ public class BootstrapTest {
         envConfig.local(true);
         Bootstrap.startEngine(envConfig);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
-        Assert.assertNotNull(Bootstrap.getConsumerController());
+        assertNotNull(Bootstrap.getConsumerController());
     }
 
     @Test
@@ -39,7 +39,7 @@ public class BootstrapTest {
         envConfig.local(true);
         Bootstrap.startEngine(envConfig);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
-        Assert.assertNotNull(Bootstrap.getConsumerController());
+        assertNotNull(Bootstrap.getConsumerController());
     }
 
     @Test
@@ -49,9 +49,9 @@ public class BootstrapTest {
         envConfig.local(true);
         Bootstrap.startEngine(envConfig);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
-        Assert.assertNotNull(Bootstrap.getConsumerController());
+        assertNotNull(Bootstrap.getConsumerController());
         Bootstrap.stopEngine();
-        Assert.assertNull(Bootstrap.getConsumerController());
+        assertNull(Bootstrap.getConsumerController());
     }
 
     @Test
@@ -61,9 +61,9 @@ public class BootstrapTest {
         envConfig.local(true);
         Bootstrap.startEngine(envConfig);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
-        Assert.assertNotNull(Bootstrap.getConsumerController());
+        assertNotNull(Bootstrap.getConsumerController());
         Bootstrap.stopEngine();
-        Assert.assertNull(Bootstrap.getConsumerController());
+        assertNull(Bootstrap.getConsumerController());
     }
 
 }

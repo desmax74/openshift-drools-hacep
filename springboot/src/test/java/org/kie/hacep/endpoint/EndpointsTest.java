@@ -15,7 +15,7 @@
  */
 package org.kie.hacep.endpoint;
 
-import org.junit.Assert;
+import static org.junit.Assert.*;
 import org.junit.Test;
 import org.kie.hacep.core.GlobalStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +26,7 @@ public class EndpointsTest {
     public void allTest() {
         Endpoints endpoints = new Endpoints();
         ResponseEntity<String> result = endpoints.all();
-        Assert.assertNotNull(result);
+        assertNotNull(result);
     }
 
     @Test
@@ -34,12 +34,12 @@ public class EndpointsTest {
         GlobalStatus.setNodeReady(true);
         Endpoints endpoints = new Endpoints();
         ResponseEntity<Void> result = endpoints.getReadiness();
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.getStatusCode().is2xxSuccessful());
+        assertNotNull(result);
+        assertTrue(result.getStatusCode().is2xxSuccessful());
         GlobalStatus.setNodeReady(false);
         result = endpoints.getReadiness();
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.getStatusCode().is5xxServerError());
+        assertNotNull(result);
+        assertTrue(result.getStatusCode().is5xxServerError());
     }
 
     @Test
@@ -47,11 +47,11 @@ public class EndpointsTest {
         GlobalStatus.setNodeLive(true);
         Endpoints endpoints = new Endpoints();
         ResponseEntity<Void> result = endpoints.getLiveness();
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.getStatusCode().is2xxSuccessful());
+        assertNotNull(result);
+        assertTrue(result.getStatusCode().is2xxSuccessful());
         GlobalStatus.setNodeLive(false);
         result = endpoints.getLiveness();
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.getStatusCode().is5xxServerError());
+        assertNotNull(result);
+        assertTrue(result.getStatusCode().is5xxServerError());
     }
 }

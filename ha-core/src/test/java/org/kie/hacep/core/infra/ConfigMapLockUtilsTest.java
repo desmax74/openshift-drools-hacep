@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import io.fabric8.kubernetes.api.model.ConfigMap;
-import org.junit.Assert;
+import static org.junit.Assert.*;
 import org.junit.Test;
 import org.kie.hacep.core.infra.election.ConfigMapLockUtils;
 import org.kie.hacep.core.infra.election.LeaderInfo;
@@ -41,19 +41,19 @@ public class ConfigMapLockUtilsTest {
         Set<String> members = new HashSet<>(Arrays.asList("Qui", "Quo", "Qua"));
         LeaderInfo info = new LeaderInfo(groupName, leader, timestamp,members);
         logger.info("leaderInfo:{}", info.toString());
-        Assert.assertFalse(info.hasEmptyLeader());
-        Assert.assertFalse(info.isValidLeader(null));
-        Assert.assertFalse(info.hasValidLeader());
-        Assert.assertEquals(groupName,info.getGroupName());
-        Assert.assertEquals(leader,info.getLeader());
-        Assert.assertEquals(timestamp,info.getLocalTimestamp());
-        Assert.assertEquals(members,info.getMembers());
+        assertFalse(info.hasEmptyLeader());
+        assertFalse(info.isValidLeader(null));
+        assertFalse(info.hasValidLeader());
+        assertEquals(groupName,info.getGroupName());
+        assertEquals(leader,info.getLeader());
+        assertEquals(timestamp,info.getLocalTimestamp());
+        assertEquals(members,info.getMembers());
         ConfigMap configMap = ConfigMapLockUtils.createNewConfigMap("my-map",info);
-        Assert.assertNotNull(configMap);
+        assertNotNull(configMap);
         LeaderInfo leaderInfo = ConfigMapLockUtils.getLeaderInfo(configMap, members,groupName);
         logger.info("leaderInfo:{}", leaderInfo.toString());
-        Assert.assertNotNull(leaderInfo);
+        assertNotNull(leaderInfo);
         ConfigMap newConfigMap = ConfigMapLockUtils.getConfigMapWithNewLeader(configMap, leaderInfo);
-        Assert.assertNotNull(newConfigMap);
+        assertNotNull(newConfigMap);
     }
 }

@@ -16,7 +16,7 @@
 package org.kie.hacep.core;
 
 import io.fabric8.kubernetes.client.KubernetesClientException;
-import org.junit.Assert;
+import static org.junit.Assert.*;
 import org.junit.Test;
 import org.kie.hacep.core.infra.election.LeaderElection;
 import org.kie.hacep.core.infra.election.LeaderElectionImpl;
@@ -27,7 +27,7 @@ public class CoreKubeTest {
     public void leaderElectionTest() {
         CoreKube kube = new CoreKube("default", null);
         LeaderElection election =kube.getLeaderElection();
-        Assert.assertNotNull(election);
+        assertNotNull(election);
         election.start();
         election.stop();
     }
@@ -36,7 +36,7 @@ public class CoreKubeTest {
     public void lookupNewLeaderInfoTest() {
         CoreKube kube = new CoreKube("default", null);
         LeaderElection election =kube.getLeaderElection();
-        Assert.assertNotNull(election);
+        assertNotNull(election);
         election.start();
         LeaderElectionImpl impl = (LeaderElectionImpl) election;
         impl.lookupNewLeaderInfo();
@@ -47,7 +47,7 @@ public class CoreKubeTest {
     public void pullClusterMembersTest() {
         CoreKube kube = new CoreKube("default", null);
         LeaderElection election =kube.getLeaderElection();
-        Assert.assertNotNull(election);
+        assertNotNull(election);
         election.start();
         LeaderElectionImpl impl = (LeaderElectionImpl) election;
         impl.pullClusterMembers();
@@ -58,7 +58,7 @@ public class CoreKubeTest {
     public void pullConfigMapTest() {
         CoreKube kube = new CoreKube("default", null);
         LeaderElection election =kube.getLeaderElection();
-        Assert.assertNotNull(election);
+        assertNotNull(election);
         election.start();
         LeaderElectionImpl impl = (LeaderElectionImpl) election;
         impl.pullConfigMap();
@@ -69,7 +69,7 @@ public class CoreKubeTest {
     public void refreshStatusTest() {
         CoreKube kube = new CoreKube("default", null);
         LeaderElection election =kube.getLeaderElection();
-        Assert.assertNotNull(election);
+        assertNotNull(election);
         election.start();
         LeaderElectionImpl impl = (LeaderElectionImpl) election;
         impl.refreshStatus();;
@@ -80,7 +80,7 @@ public class CoreKubeTest {
     public void refreshStatusBecomingLeaderTest() {
         CoreKube kube = new CoreKube("default", null);
         LeaderElection election =kube.getLeaderElection();
-        Assert.assertNotNull(election);
+        assertNotNull(election);
         election.start();
         LeaderElectionImpl impl = (LeaderElectionImpl) election;
         impl.refreshStatusBecomingLeader();;
@@ -91,7 +91,7 @@ public class CoreKubeTest {
     public void refreshStatusLeaderTest() {
         CoreKube kube = new CoreKube("default", null);
         LeaderElection election =kube.getLeaderElection();
-        Assert.assertNotNull(election);
+        assertNotNull(election);
         election.start();
         LeaderElectionImpl impl = (LeaderElectionImpl) election;
         impl.refreshStatusLeader();;
@@ -102,7 +102,7 @@ public class CoreKubeTest {
     public void refreshStatusNotLeaderTest() {
         CoreKube kube = new CoreKube("default", null);
         LeaderElection election =kube.getLeaderElection();
-        Assert.assertNotNull(election);
+        assertNotNull(election);
         election.start();
         LeaderElectionImpl impl = (LeaderElectionImpl) election;
         impl.refreshStatusNotLeader();;
@@ -113,7 +113,7 @@ public class CoreKubeTest {
     public void rescheduleAfterDelayTest() {
         CoreKube kube = new CoreKube("default", null);
         LeaderElection election =kube.getLeaderElection();
-        Assert.assertNotNull(election);
+        assertNotNull(election);
         election.start();
         LeaderElectionImpl impl = (LeaderElectionImpl) election;
         impl.rescheduleAfterDelay();;
@@ -124,7 +124,7 @@ public class CoreKubeTest {
     public void tryAcquireLeadershipTest() {
         CoreKube kube = new CoreKube("default", null);
         LeaderElection election =kube.getLeaderElection();
-        Assert.assertNotNull(election);
+        assertNotNull(election);
         election.start();
         LeaderElectionImpl impl = (LeaderElectionImpl) election;
         impl.tryAcquireLeadership();
