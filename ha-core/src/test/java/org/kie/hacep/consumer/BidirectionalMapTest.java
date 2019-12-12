@@ -21,7 +21,7 @@ import org.junit.Test;
 public class BidirectionalMapTest {
 
     @Test
-    public void methodTest(){
+    public void test(){
         BidirectionalMap map = new BidirectionalMap();
         map.put("one", 1);
         Object res = map.getKey(1);

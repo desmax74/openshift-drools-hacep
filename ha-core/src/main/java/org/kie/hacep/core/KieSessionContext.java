@@ -56,20 +56,16 @@ public class KieSessionContext {
   }
 
   public void initFromSnapshot(SnapshotInfos infos) {
-    setKieSessionAndKieContainer(infos.getKieSession(),
-                                 infos.getKieContainer());
+    setKieSessionAndKieContainer(infos.getKieSession(), infos.getKieContainer());
     this.fhManager = infos.getFhManager();
   }
 
-  public void init(KieContainer kieContainer,
-                   KieSession newKiesession) {
-    setKieSessionAndKieContainer(newKiesession,
-                                 kieContainer);
+  public void init(KieContainer kieContainer, KieSession newKiesession) {
+    setKieSessionAndKieContainer(newKiesession, kieContainer);
     this.fhManager = new FactHandlesManager(newKiesession);
   }
 
-  private void setKieSessionAndKieContainer(KieSession kieSession,
-                                            KieContainer kieContainer) {
+  private void setKieSessionAndKieContainer(KieSession kieSession, KieContainer kieContainer) {
     this.kieSession = kieSession;
     this.kieContainer = kieContainer;
     SessionClock sessionClock = kieSession.getSessionClock();
@@ -86,7 +82,6 @@ public class KieSessionContext {
     if (clock == null) {
       throw new IllegalStateException("Drools HACEP is not running with a pseudo-clock");
     }
-    clock.advanceTime(time - clock.getCurrentTime(),
-                      TimeUnit.MILLISECONDS);
+    clock.advanceTime(time - clock.getCurrentTime(), TimeUnit.MILLISECONDS);
   }
 }

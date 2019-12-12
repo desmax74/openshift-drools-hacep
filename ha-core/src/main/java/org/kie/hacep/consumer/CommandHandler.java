@@ -110,8 +110,7 @@ public class CommandHandler implements VisitorCommand {
     internalInsert(command, command.getObject());
   }
 
-  private FactHandle internalInsert(WorkingMemoryActionCommand command,
-                                    Object obj) {
+  private FactHandle internalInsert(WorkingMemoryActionCommand command, Object obj) {
     FactHandle fh = isEvent(obj) ? insertEvent(command, obj) : insertFact(command, obj);
     if (firingUntilHalt) {
       kieSessionContext.getKieSession().fireAllRules();
@@ -139,8 +138,7 @@ public class CommandHandler implements VisitorCommand {
     return fh;
   }
 
-  private FactHandle insertFact(WorkingMemoryActionCommand command,
-                                Object obj) {
+  private FactHandle insertFact(WorkingMemoryActionCommand command, Object obj) {
     return kieSessionContext.getKieSession().getEntryPoint(command.getEntryPoint()).insert(obj);
   }
 

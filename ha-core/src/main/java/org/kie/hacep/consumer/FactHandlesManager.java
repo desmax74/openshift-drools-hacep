@@ -70,7 +70,8 @@ public class FactHandlesManager implements Serializable {
     return fhMap.computeIfAbsent(remoteFH, this::getFactHandleById);
   }
 
-  private InternalFactHandle getFactHandleById(RemoteFactHandle remoteFH) {
+  /*public for test*/
+  public InternalFactHandle getFactHandleById(RemoteFactHandle remoteFH) {
     long id = fhIdMap.get(remoteFH);
     for (FactHandle fh : kieSession.getFactHandles(new ClassObjectFilter(remoteFH.getObject().getClass()))) {
       InternalFactHandle ifh = (InternalFactHandle) fh;
