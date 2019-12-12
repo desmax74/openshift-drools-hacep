@@ -33,7 +33,7 @@ public final class EnvConfig {
   private int iterationBetweenSnapshot = Config.DEFAULT_ITERATION_BETWEEN_SNAPSHOT;
   private int pollTimeout = 1000;
   private int pollSnapshotTimeout = 1;
-  private int maxSnapshotRequestAttempts = 10;
+  private int maxSnapshotRequestAttempts = 30;
   private boolean skipOnDemanSnapshot;
   private long maxSnapshotAge;
   private boolean test;

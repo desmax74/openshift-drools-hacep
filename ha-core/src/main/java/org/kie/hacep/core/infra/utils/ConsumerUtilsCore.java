@@ -42,10 +42,8 @@ public class ConsumerUtilsCore {
   }
 
   public static ControlMessage getLastEvent(String topic, Properties properties, Integer pollTimeout) {
-    KafkaConsumer consumer = ConsumerUtils.getConsumer(topic, properties);
-
     ControlMessage lastMessage = new ControlMessage();
-    try {
+    try(KafkaConsumer consumer = ConsumerUtils.getConsumer(topic, properties)) {
       ConsumerRecords records = consumer.poll(Duration.of(pollTimeout, ChronoUnit.MILLIS));
       Iterator<ConsumerRecord<String, byte[]>> iterator = records.iterator();
       while(iterator.hasNext()){
@@ -54,8 +52,6 @@ public class ConsumerUtilsCore {
       }
     } catch (Exception ex) {
       logger.error(ex.getMessage(), ex);
-    } finally {
-      consumer.close();
     }
     return lastMessage;
   }

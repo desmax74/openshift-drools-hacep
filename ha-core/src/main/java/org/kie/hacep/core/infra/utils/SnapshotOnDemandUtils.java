@@ -52,8 +52,7 @@ public class SnapshotOnDemandUtils {
 
   private static final Logger logger = LoggerFactory.getLogger(SnapshotOnDemandUtils.class);
 
-  private SnapshotOnDemandUtils() {
-  }
+  private SnapshotOnDemandUtils() { }
 
   public static SnapshotInfos askASnapshotOnDemand(EnvConfig config, SessionSnapshooter snapshooter) {
     LocalDateTime infosTime = snapshooter.getLastSnapshotTime();

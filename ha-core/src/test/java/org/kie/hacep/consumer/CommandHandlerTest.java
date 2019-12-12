@@ -172,6 +172,7 @@ public class CommandHandlerTest {
     executeAndVerify(command,
                      commandHandler::visit,
                      () -> verify(kieSessionMock, times(1)).fireAllRules());
+    logger.info("FireAllRulesCommand:{}", command.toString());
   }
 
   @Test
@@ -256,7 +257,7 @@ public class CommandHandlerTest {
                                     commandHandler::visit,
                                     ListKieSessionObjectMessage.class,
                                     result -> myObject.equals(((List) result).get(0)));
-    logger.info("ListObjectsCommandClassType:{}",command.toString());
+    logger.info("ListObjectsCommandClassType:{} ListKieSessionObjectMessage:{}",command.toString());
   }
 
   @Test
@@ -266,7 +267,7 @@ public class CommandHandlerTest {
                                     commandHandler::visit,
                                     GetObjectMessage.class,
                                     myObject::equals);
-    logger.info("GetObjectCommand:{}",command.toString());
+    logger.info("GetObjectCommand:{} GetObjectMessage:{}",command.toString(), GetObjectMessage.class.toString());
   }
 
   @Test
