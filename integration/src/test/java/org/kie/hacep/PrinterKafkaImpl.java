@@ -37,4 +37,13 @@ public class PrinterKafkaImpl implements Printer {
         }
     }
 
+    @Override
+    public boolean prettyPrinter(String caller,
+                                 String topic,
+                                 int partition,
+                                 long offset,
+                                 String value,
+                                 boolean processed) {
+        return false;
+    }
 }

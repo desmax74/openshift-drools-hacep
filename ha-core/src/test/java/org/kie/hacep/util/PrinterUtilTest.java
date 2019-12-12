@@ -30,7 +30,12 @@ public class PrinterUtilTest {
         Printer printer = PrinterUtil.getPrinter(config);
         assertNotNull(printer);
         ConsumerRecord record = new ConsumerRecord("events", 1, 1l, "1", "boh");
-        printer.prettyPrinter("PrinterUtilTest.getPrinterTest", record, false);
+        assertTrue(printer.prettyPrinter("PrinterUtilTest.getPrinterTest",
+                                         record.topic(),
+                                         record.partition(),
+                                         record.offset(),
+                                         record.value().toString(),
+                                         false));
     }
 
     @Test
