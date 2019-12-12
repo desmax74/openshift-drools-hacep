@@ -31,8 +31,7 @@ public class ConsumerController {
     this.callback = new InfraCallback();
     this.consumer = EventConsumer.get(envConfig);
     this.callback.setConsumer(consumer);
-    this.consumer.initConsumer(new DroolsConsumerHandler(producer,
-                                                         envConfig));
+    this.consumer.initConsumer(new DroolsConsumerHandler(producer, envConfig));
   }
 
   public void start() {

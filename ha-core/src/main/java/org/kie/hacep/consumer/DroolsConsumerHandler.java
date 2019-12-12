@@ -53,16 +53,12 @@ public class DroolsConsumerHandler implements ConsumerHandler {
   private SnapshotInfos snapshotInfos;
   private boolean shutdown;
 
-  public DroolsConsumerHandler(Producer producer,
-                               EnvConfig envConfig) {
+  public DroolsConsumerHandler(Producer producer, EnvConfig envConfig) {
     this.envConfig = envConfig;
     this.sessionSnapShooter = new DefaultSessionSnapShooter(this.envConfig);
     initializeKieSessionContext();
     this.producer = producer;
-    this.commandHandler = new CommandHandler(this.kieSessionContext,
-                                             this.envConfig,
-                                             producer,
-                                             this.sessionSnapShooter);
+    this.commandHandler = new CommandHandler(this.kieSessionContext, this.envConfig, producer, this.sessionSnapShooter);
     if (this.envConfig.isUnderTest()) {
       loggerForTest = PrinterUtil.getKafkaLoggerForTest(envConfig);
     }
@@ -151,8 +147,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         loggerForTest.warn("sideEffectOnLeader:{}", sideEffectsResults);
       }
     } else {
-      processCommand(command,
-                     state);
+      processCommand(command, state);
     }
   }
 
@@ -182,8 +177,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     }
   }
 
-  private void processCommand(RemoteCommand command,
-                              State state) {
+  private void processCommand(RemoteCommand command, State state) {
     boolean execute = state.equals(State.LEADER) || command.isPermittedForReplicas();
     if (execute) {
       VisitableCommand visitable = (VisitableCommand) command;

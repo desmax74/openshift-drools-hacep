@@ -16,6 +16,8 @@
 package org.kie.hacep;
 
 import org.junit.Test;
+import org.kie.hacep.exceptions.ConfigurationException;
+import org.kie.remote.CommonConfig;
 
 import static org.junit.Assert.*;
 
@@ -29,6 +31,16 @@ public class EnvConfigTest {
     assertEquals("events", config.getEventsTopicName());
     assertEquals("kiesessioninfos", config.getKieSessionInfosTopicName());
     assertEquals("snapshot", config.getSnapshotTopicName());
+  }
+
+  @Test(expected = ConfigurationException.class)
+  public void pollTimeUnitExceptionTest() {
+    EnvConfig.anEnvConfig().withPollTimeUnit(null);
+  }
+
+  @Test(expected = ConfigurationException.class)
+  public void pollSnapshotTimeUnitExceptionTest() {
+    EnvConfig.anEnvConfig().withPollSnapshotTimeUnit(null);
   }
 
 }

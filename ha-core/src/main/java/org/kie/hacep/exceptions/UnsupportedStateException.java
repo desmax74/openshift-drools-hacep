@@ -20,8 +20,4 @@ public class UnsupportedStateException extends RuntimeException{
     public UnsupportedStateException(String msg){
         super(msg);
     }
-
-    public UnsupportedStateException(String msg, Throwable t){
-        super(msg, t);
-    }
 }

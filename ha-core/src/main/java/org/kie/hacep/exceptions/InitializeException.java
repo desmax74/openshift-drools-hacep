@@ -21,7 +21,4 @@ public class InitializeException extends RuntimeException {
     super(msg);
   }
 
-  public InitializeException(String msg, Throwable t) {
-    super(msg, t);
-  }
 }

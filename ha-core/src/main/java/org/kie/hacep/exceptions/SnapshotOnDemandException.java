@@ -17,10 +17,6 @@ package org.kie.hacep.exceptions;
 
 public class SnapshotOnDemandException extends RuntimeException {
 
-    public SnapshotOnDemandException(String msg){
-        super(msg);
-    }
-
     public SnapshotOnDemandException(String msg, Throwable t){
         super(msg, t);
     }

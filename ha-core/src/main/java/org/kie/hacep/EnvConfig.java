@@ -47,8 +47,7 @@ public final class EnvConfig {
   public static final String SECONDS = "sec";
   public static final String MILLISEC = "millisec";
 
-  private EnvConfig() {
-  }
+  private EnvConfig() { }
 
   public static EnvConfig getDefaultEnvConfig() {
     return anEnvConfig().
@@ -150,6 +149,9 @@ public final class EnvConfig {
   }
 
   public EnvConfig withPollTimeUnit(String pollTimeUnit) {
+    if(pollTimeUnit == null){
+      throw new ConfigurationException("No pollTimeUnit provided");
+    }
     switch (pollTimeUnit) {
       case MILLISEC:
         this.pollUnit = PollUnit.MILLISECOND;
@@ -166,6 +168,9 @@ public final class EnvConfig {
   }
 
   public EnvConfig withPollSnapshotTimeUnit(String pollSnapshotTimeUnit) {
+    if(pollSnapshotTimeUnit == null){
+      throw new ConfigurationException("No pollSnapshotTimeUnit provided");
+    }
     switch (pollSnapshotTimeUnit) {
       case MILLISEC:
         this.pollUnitSnapshot = PollUnit.MILLISECOND;
