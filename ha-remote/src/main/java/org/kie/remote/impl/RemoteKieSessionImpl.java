@@ -39,10 +39,7 @@ public class RemoteKieSessionImpl extends RemoteEntryPointImpl implements Remote
 
   public RemoteKieSessionImpl(Properties configuration,
                               TopicsConfig envConfig) {
-    super(new Sender(configuration),
-          EntryPointUtil.DEFAULT_ENTRY_POINT,
-          envConfig,
-          new Listener(configuration));
+    super(new Sender(configuration), EntryPointUtil.DEFAULT_ENTRY_POINT, envConfig, new Listener(configuration));
     sender.start();
   }
 
@@ -54,11 +51,7 @@ public class RemoteKieSessionImpl extends RemoteEntryPointImpl implements Remote
 
   @Override
   public RemoteEntryPoint getEntryPoint(String name) {
-    return entryPoints.computeIfAbsent(name,
-                                       k -> new RemoteEntryPointImpl(sender,
-                                                                     k,
-                                                                     topicsConfig,
-                                                                     delegate));
+    return entryPoints.computeIfAbsent(name, k -> new RemoteEntryPointImpl(sender, k, topicsConfig, delegate));
   }
 
   @Override

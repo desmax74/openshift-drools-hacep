@@ -168,4 +168,12 @@ public class LocalStorageKieSessionTest {
 
         assertEquals(DEFAULT_ENTRY_POINT, defaultEntryPoint.getEntryPointId());
     }
+
+    @Test(timeout = 10000)
+    public void getKJarNotDefinedTest() throws ExecutionException, InterruptedException {
+        CompletableFuture<String> cfGav = session.getKJarGAV();
+        String gav = cfGav.get();
+        assertNotNull(gav);
+        assertEquals("KJar GAV NotDefined", gav);
+    }
 }
