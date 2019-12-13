@@ -176,4 +176,5 @@ public class LocalStorageKieSessionTest {
         assertNotNull(gav);
         assertEquals("KJar GAV NotDefined", gav);
     }
+
 }

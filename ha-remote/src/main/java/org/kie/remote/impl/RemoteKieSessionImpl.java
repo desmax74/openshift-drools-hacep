@@ -33,12 +33,10 @@ public class RemoteKieSessionImpl extends RemoteEntryPointImpl implements Remote
   private final Map<String, RemoteEntryPoint> entryPoints = new HashMap<>();
 
   public RemoteKieSessionImpl(Properties configuration) {
-    this(configuration,
-         TopicsConfig.getDefaultTopicsConfig());
+    this(configuration, TopicsConfig.getDefaultTopicsConfig());
   }
 
-  public RemoteKieSessionImpl(Properties configuration,
-                              TopicsConfig envConfig) {
+  public RemoteKieSessionImpl(Properties configuration, TopicsConfig envConfig) {
     super(new Sender(configuration), EntryPointUtil.DEFAULT_ENTRY_POINT, envConfig, new Listener(configuration));
     sender.start();
   }

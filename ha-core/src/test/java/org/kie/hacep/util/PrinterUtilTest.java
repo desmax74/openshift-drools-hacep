@@ -16,6 +16,7 @@
 package org.kie.hacep.util;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.hacep.EnvConfig;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import static org.junit.Assert.*;
 
 public class PrinterUtilTest {
 
+    @Ignore
     @Test
     public void getPrinterTest() {
         EnvConfig config = EnvConfig.getDefaultEnvConfig();

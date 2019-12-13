@@ -56,11 +56,7 @@ public class RemoteStreamingKieSessionImpl extends RemoteStreamingEntryPointImpl
 
   @Override
   public RemoteStreamingEntryPoint getEntryPoint(String name) {
-    return entryPoints.computeIfAbsent(name,
-                                       k -> new RemoteStreamingEntryPointImpl(sender,
-                                                                              k,
-                                                                              topicsConfig,
-                                                                              delegate));
+    return entryPoints.computeIfAbsent(name, k -> new RemoteStreamingEntryPointImpl(sender, k, topicsConfig, delegate));
   }
 
   @Override
