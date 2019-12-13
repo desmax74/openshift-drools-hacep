@@ -35,6 +35,8 @@ import org.kie.api.runtime.rule.QueryResults;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.KieSessionContext;
 import org.kie.hacep.core.infra.SessionSnapshooter;
+import org.kie.hacep.sample.kjar.Result;
+import org.kie.hacep.sample.kjar.StockTickEvent;
 import org.kie.remote.CommonConfig;
 import org.kie.remote.DroolsExecutor;
 import org.kie.remote.RemoteFactHandle;
@@ -385,5 +387,17 @@ public class CommandHandlerTest {
       assertTrue(command.isPermittedForReplicas() || command instanceof SnapshotOnDemandCommand);
       assertTrue(predicate.apply(null));
     }
+  }
+
+  @Test
+  public void hasTimeStampTest(){
+    assertFalse(CommandHandler.hasTimestamp(new Result()));
+    assertTrue(CommandHandler.hasTimestamp(new StockTickEvent()));
+  }
+
+  @Test
+  public void isEventTest(){
+    assertFalse(CommandHandler.isEvent(new Result()));
+    assertTrue(CommandHandler.isEvent(new StockTickEvent()));
   }
 }
