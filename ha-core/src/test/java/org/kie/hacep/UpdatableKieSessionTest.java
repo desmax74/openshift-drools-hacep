@@ -18,6 +18,7 @@ package org.kie.hacep;
 import java.io.ByteArrayInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -33,8 +34,10 @@ import org.kie.api.builder.KieFileSystem;
 import org.kie.api.builder.ReleaseId;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
+import org.kie.hacep.consumer.FactHandlesManager;
 import org.kie.hacep.consumer.KieContainerUtils;
 import org.kie.hacep.core.KieSessionContext;
+import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.util.GAVUtils;
 import org.kie.scanner.KieMavenRepository;
 import static org.junit.Assert.*;
@@ -84,7 +87,7 @@ public class UpdatableKieSessionTest {
 
     @Test
     public void testWithSpecificKJar() {
-        initSessionContextFromSpecificKjar();;
+        initSessionContextFromSpecificKjar();
         Optional<String> gavUSed = ksCtx.getKjarGAVUsed();
         assertTrue(gavUSed.isPresent());
         assertEquals(gavUSed.get(), gav);
@@ -92,7 +95,7 @@ public class UpdatableKieSessionTest {
 
     @Test
     public void testUpdateWithSpecificKJar() {
-        initSessionContextFromSpecificKjar();;
+        initSessionContextFromSpecificKjar();
         Optional<String> gavUSed = ksCtx.getKjarGAVUsed();
         assertTrue(gavUSed.isPresent());
         assertEquals(gavUSed.get(), gav);
@@ -101,6 +104,33 @@ public class UpdatableKieSessionTest {
         gavUSed = ksCtx.getKjarGAVUsed();
         assertTrue(gavUSed.isPresent());
         assertEquals(updatedGav, gavUSed.get());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void setClockWithoutPseudoClockTest(){
+        initSessionContextFromSpecificKjar();
+        ksCtx.setClockAt(1000l);
+    }
+
+    @Test
+    public void initFromASnapshotTest(){
+        EnvConfig envConfig = EnvConfig.getDefaultEnvConfig();
+        envConfig.withUpdatableKJar("true");
+        envConfig.withKJarGAV(gav);
+        envConfig.skipOnDemandSnapshot("true");
+        KieServices ks = KieServices.get();
+        KieContainer kieContainer = KieContainerUtils.getKieContainer(envConfig, ks);
+        KieSession kieSession = kieContainer.newKieSession();
+        FactHandlesManager fhManager = new FactHandlesManager(kieSession);
+
+        String keyDuringSnapshot = "111";
+        long offsetDuringSnapshot = 10l;
+        LocalDateTime time = LocalDateTime.now();
+        String kjarGAV = "org.kie:fake:1.0.0.Snapshot";
+        SnapshotInfos infos = new SnapshotInfos(kieSession,
+                                                kieContainer, fhManager, keyDuringSnapshot, offsetDuringSnapshot,
+                                                time, kjarGAV);
+        ksCtx.initFromSnapshot(infos);
     }
 
 
