@@ -20,6 +20,9 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 public class BidirectionalMap<K, V> extends HashMap<K, V> implements Serializable {
 
   private final Map<V, K> inversedMap = new HashMap();
@@ -47,4 +50,29 @@ public class BidirectionalMap<K, V> extends HashMap<K, V> implements Serializabl
     return key;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+
+    if (!(o instanceof BidirectionalMap)) {
+      return false;
+    }
+
+    BidirectionalMap<?, ?> map = (BidirectionalMap<?, ?>) o;
+
+    return new EqualsBuilder()
+            .appendSuper(super.equals(o))
+            .append(inversedMap, map.inversedMap)
+            .isEquals();
+  }
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder(17, 37)
+            .appendSuper(super.hashCode())
+            .append(inversedMap)
+            .toHashCode();
+  }
 }
