@@ -26,12 +26,37 @@ public class KubernetesLockConfigurationTest {
         assertNotNull(configuration);
         assertTrue(configuration.getClusterLabels().isEmpty());
         assertEquals("default-leaders",configuration.getConfigMapName());
+
         assertNull(configuration.getGroupName());
+        configuration.setGroupName("Group test");
+        assertEquals("Group test", configuration.getGroupName());
+
         assertNull(configuration.getPodName());
+        configuration.setPodName("Pod test");
+        assertEquals("Pod test",configuration.getPodName());
+
         assertNull(configuration.getKubernetesResourcesNamespace());
+        configuration.setKubernetesResourcesNamespace("Resource name Test");
+        assertEquals("Resource name Test", configuration.getKubernetesResourcesNamespace());
+
         assertTrue(20000 == configuration.getRenewDeadlineMillis());
+        configuration.setRenewDeadlineMillis(10000l);
+        assertTrue(10000 == configuration.getRenewDeadlineMillis());
+
         assertTrue(5000 == configuration.getRetryPeriodMillis());
+        configuration.setRetryPeriodMillis(3000l);
+        assertTrue(3000 == configuration.getRetryPeriodMillis());
+
         assertTrue(30000 == configuration.getLeaseDurationMillis());
+        configuration.setLeaseDurationMillis(20000l);
+        assertTrue(20000 == configuration.getLeaseDurationMillis());
+
         assertTrue(1.2 == configuration.getJitterFactor());
+        configuration.setJitterFactor(2.4);
+        assertTrue(2.4 == configuration.getJitterFactor());
+
+        assertNotNull(configuration.copy());
+
+        assertNotNull(configuration.toString());
     }
 }
