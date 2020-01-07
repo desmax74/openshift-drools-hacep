@@ -15,6 +15,9 @@
  */
 package org.kie.hacep.core.infra.election;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -38,6 +41,12 @@ public class KubernetesLockConfigurationTest {
         assertNull(configuration.getKubernetesResourcesNamespace());
         configuration.setKubernetesResourcesNamespace("Resource name Test");
         assertEquals("Resource name Test", configuration.getKubernetesResourcesNamespace());
+
+        assertTrue(configuration.getClusterLabels().isEmpty());
+        Map map = new HashMap();
+        map.put("key", "value");
+        configuration.setClusterLabels(map);
+        assertFalse(configuration.getClusterLabels().isEmpty());
 
         assertTrue(20000 == configuration.getRenewDeadlineMillis());
         configuration.setRenewDeadlineMillis(10000l);

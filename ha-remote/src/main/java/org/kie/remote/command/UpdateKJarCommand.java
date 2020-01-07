@@ -34,10 +34,6 @@ public class UpdateKJarCommand extends AbstractCommand implements VisitableComma
     version = parts[2];
   }
 
-  public String getKJarGAV() {
-    return kJarGAV;
-  }
-
   public String getGroupID() {
     return groupID;
   }
