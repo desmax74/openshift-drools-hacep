@@ -177,6 +177,11 @@ public class KubernetesLockConfiguration implements Cloneable {
   }
 
   @Override
+  protected Object clone() throws CloneNotSupportedException {
+    return copy();
+  }
+
+  @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder("KubernetesLockConfiguration{");
     sb.append("kubernetesResourcesNamespace='").append(kubernetesResourcesNamespace).append('\'');
