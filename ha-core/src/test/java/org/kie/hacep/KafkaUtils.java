@@ -61,12 +61,12 @@ import org.kie.remote.impl.producer.Sender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class KafkaUtilTest implements AutoCloseable {
+public class KafkaUtils implements AutoCloseable {
 
     private static final String ZOOKEEPER_HOST = "127.0.0.1";
     private static final String BROKER_HOST = "127.0.0.1";
     private static final String BROKER_PORT = "9092";
-    private final static Logger logger = LoggerFactory.getLogger(KafkaUtilTest.class);
+    private final static Logger logger = LoggerFactory.getLogger(KafkaUtils.class);
     private KafkaServer kafkaServer;
     private EmbeddedZookeeper zkServer;
     private String tmpDir;

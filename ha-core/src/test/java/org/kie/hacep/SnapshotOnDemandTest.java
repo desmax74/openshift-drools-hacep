@@ -39,7 +39,7 @@ import static org.kie.remote.util.SerializationUtil.deserialize;
 
 public class SnapshotOnDemandTest {
 
-    private KafkaUtilTest kafkaServerTest;
+    private KafkaUtils kafkaServerTest;
     private EnvConfig config;
     private Logger logger = LoggerFactory.getLogger(SnapshotOnDemandTest.class);
 
@@ -62,7 +62,7 @@ public class SnapshotOnDemandTest {
     @Before
     public void setUp() throws Exception {
         config = getEnvConfig();
-        kafkaServerTest = new KafkaUtilTest();
+        kafkaServerTest = new KafkaUtils();
         kafkaServerTest.startServer();
     }
 
@@ -94,7 +94,7 @@ public class SnapshotOnDemandTest {
             ConsumerRecords snapshotRecords = snapshotConsumer.poll(Duration.ofSeconds(2));
             assertEquals(0, snapshotRecords.count());
 
-            KafkaUtilTest.insertSnapshotOnDemandCommand();
+            KafkaUtils.insertSnapshotOnDemandCommand();
 
             List<SnapshotMessage> messages = new ArrayList<>();
             final AtomicInteger attempts = new AtomicInteger(0);

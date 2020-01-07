@@ -25,7 +25,6 @@ import static org.junit.Assert.*;
 
 public class PrinterUtilTest {
 
-    @Ignore
     @Test
     public void getPrinterTest() {
         EnvConfig config = EnvConfig.getDefaultEnvConfig();
