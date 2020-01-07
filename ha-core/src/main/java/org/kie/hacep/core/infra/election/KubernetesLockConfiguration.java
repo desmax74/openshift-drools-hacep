@@ -178,7 +178,7 @@ public class KubernetesLockConfiguration implements Cloneable {
 
   @Override
   protected Object clone() throws CloneNotSupportedException {
-    return copy();
+    return this.clone();
   }
 
   @Override
