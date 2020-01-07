@@ -119,9 +119,13 @@ public class UpdatableKieSessionTest {
         envConfig.withKJarGAV(gav);
         envConfig.skipOnDemandSnapshot("true");
         KieServices ks = KieServices.get();
+        assertNotNull(ks);
         KieContainer kieContainer = KieContainerUtils.getKieContainer(envConfig, ks);
+        assertNotNull(kieContainer);
         KieSession kieSession = kieContainer.newKieSession();
+        assertNotNull(kieSession);
         FactHandlesManager fhManager = new FactHandlesManager(kieSession);
+        assertNotNull(fhManager);
 
         String keyDuringSnapshot = "111";
         long offsetDuringSnapshot = 10l;
@@ -131,6 +135,9 @@ public class UpdatableKieSessionTest {
                                                 kieContainer, fhManager, keyDuringSnapshot, offsetDuringSnapshot,
                                                 time, kjarGAV);
         ksCtx.initFromSnapshot(infos);
+
+        assertNotNull(ksCtx.getKieContainer());
+        assertNotNull(ksCtx.getKieSession());
     }
 
 
