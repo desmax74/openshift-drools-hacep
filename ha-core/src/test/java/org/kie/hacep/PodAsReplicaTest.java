@@ -64,12 +64,12 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
                     if (index.get() == 1) {
                         assertTrue(remoteCommand instanceof InsertCommand);
                         InsertCommand insertCommand = (InsertCommand) remoteCommand;
-                        assertEquals(insertCommand.getEntryPoint(), "DEFAULT");
+                        assertEquals("DEFAULT", insertCommand.getEntryPoint());
                         assertNotNull(insertCommand.getId());
                         assertNotNull(insertCommand.getFactHandle());
                         RemoteFactHandle remoteFactHandle = insertCommand.getFactHandle();
                         StockTickEvent eventsTicket = (StockTickEvent) remoteFactHandle.getObject();
-                        assertEquals(eventsTicket.getCompany(), "RHT");
+                        assertEquals("RHT", eventsTicket.getCompany());
                     }
 
                     index.incrementAndGet();
@@ -164,7 +164,7 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
     private void checkInsertSideEffects(ConsumerRecord<String, byte[]> eventsRecord, ConsumerRecord<String, byte[]> controlRecord) {
         assertEquals(controlRecord.topic(), envConfig.getControlTopicName());
         ControlMessage controlMessage = deserialize(controlRecord.value());
-        assertEquals(controlRecord.offset(), 1);
+        assertEquals(1, controlRecord.offset());
         assertTrue(!controlMessage.getSideEffects().isEmpty());
         assertTrue(controlMessage.getSideEffects().size() == 1);
         //Same msg content on Events topic and control topics

@@ -28,8 +28,10 @@ import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.sample.kjar.Result;
 import org.kie.hacep.sample.kjar.StockTickEvent;
+import org.kie.remote.RemoteKieSession;
 import org.kie.remote.RemoteStreamingEntryPoint;
 import org.kie.remote.RemoteStreamingKieSession;
+import org.kie.remote.TopicsConfig;
 
 import static org.junit.Assert.*;
 import static org.kie.remote.CommonConfig.getTestProperties;
@@ -119,4 +121,5 @@ public class LocalStorageStreamingKieSessionTest {
 
         assertEquals(DEFAULT_ENTRY_POINT, defaultEntryPoint.getEntryPointId());
     }
+
 }

@@ -31,9 +31,7 @@ public interface RemoteStreamingKieSession extends Closeable,
     return new RemoteStreamingKieSessionImpl(configuration);
   }
 
-  static RemoteStreamingKieSession create(Properties configuration,
-                                          TopicsConfig envConfig) {
-    return new RemoteStreamingKieSessionImpl(configuration,
-                                             envConfig);
+  static RemoteStreamingKieSession create(Properties configuration,TopicsConfig envConfig) {
+    return new RemoteStreamingKieSessionImpl(configuration, envConfig);
   }
 }

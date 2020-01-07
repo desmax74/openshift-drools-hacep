@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.kie.api.runtime.KieSession;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.sample.kjar.Result;
@@ -31,6 +32,7 @@ import org.kie.hacep.sample.kjar.StockTickEvent;
 import org.kie.remote.RemoteEntryPoint;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.RemoteKieSession;
+import org.kie.remote.TopicsConfig;
 
 import static org.junit.Assert.*;
 import static org.kie.remote.CommonConfig.getTestProperties;
