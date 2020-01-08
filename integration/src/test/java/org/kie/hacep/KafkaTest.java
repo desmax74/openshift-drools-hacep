@@ -17,11 +17,8 @@ package org.kie.hacep;
 
 import java.nio.charset.Charset;
 import java.time.Duration;
-import java.util.Iterator;
-import java.util.function.Consumer;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;

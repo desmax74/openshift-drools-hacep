@@ -11,13 +11,13 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
-import org.kie.remote.message.ControlMessage;
 import org.kie.hacep.sample.kjar.StockTickEvent;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.RemoteKieSession;
 import org.kie.remote.command.FireUntilHaltCommand;
 import org.kie.remote.command.InsertCommand;
 import org.kie.remote.command.RemoteCommand;
+import org.kie.remote.message.ControlMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +37,7 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
         KafkaConsumer controlConsumer = kafkaServerTest.getConsumer(envConfig.getControlTopicName(),
                                                                     Config.getConsumerConfig("controlConsumerProcessOneSentMessageAsLeaderTest"));
 
-        KafkaConsumer<byte[], java.lang.String> kafkaLogConsumer = kafkaServerTest.getStringConsumer(TEST_KAFKA_LOGGER_TOPIC);
+        KafkaConsumer<byte[], String> kafkaLogConsumer = kafkaServerTest.getStringConsumer(TEST_KAFKA_LOGGER_TOPIC);
         kafkaServerTest.insertBatchStockTicketEvent(1, topicsConfig, RemoteKieSession.class);
 
         try {
@@ -124,7 +124,7 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
             logger.warn("Switch as a replica");
             Bootstrap.getConsumerController().getCallback().updateStatus(State.REPLICA);
             ConsumerRecords<byte[], String> recordsLog = kafkaLogConsumer.poll(Duration.ofSeconds(5));
-            java.util.List<java.lang.String> kafkaLoggerMsgs = new ArrayList<>();
+            java.util.List<String> kafkaLoggerMsgs = new ArrayList<>();
             recordsLog.forEach(stringConsumerRecord -> {
                 assertNotNull(stringConsumerRecord);
                 kafkaLoggerMsgs.add(stringConsumerRecord.value());

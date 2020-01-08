@@ -28,11 +28,11 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
-import org.kie.remote.message.ControlMessage;
 import org.kie.remote.RemoteKieSession;
 import org.kie.remote.command.FireUntilHaltCommand;
 import org.kie.remote.command.InsertCommand;
 import org.kie.remote.command.RemoteCommand;
+import org.kie.remote.message.ControlMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
