@@ -18,7 +18,6 @@ package org.kie.hacep.message;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Set;
 
 import org.kie.hacep.consumer.FactHandlesManager;
@@ -81,17 +80,4 @@ public class SnapshotMessage extends AbstractMessage implements Serializable {
     return kjarGAV;
   }
 
-  @Override
-  public String toString() {
-    return "SnapshotMessage{" +
-            "serializedSession=" + Arrays.toString(serializedSession) +
-            ", fhManager=" + fhManager +
-            ", lastInsertedEventkey='" + lastInsertedEventkey + '\'' +
-            ", lastInsertedEventOffset=" + lastInsertedEventOffset +
-            ", time=" + time +
-            ", id='" + id + '\'' +
-            ", kjarGAV='" + kjarGAV + '\'' +
-            ", timestamp=" + timestamp +
-            '}';
-  }
 }

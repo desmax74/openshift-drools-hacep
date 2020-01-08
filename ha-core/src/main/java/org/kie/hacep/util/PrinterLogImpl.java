@@ -15,7 +15,6 @@
  */
 package org.kie.hacep.util;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,21 +22,6 @@ public class PrinterLogImpl implements Printer {
 
   private static Logger logger = LoggerFactory.getLogger(PrinterLogImpl.class);
 
-  @Override
-  public void prettyPrinter(String caller, ConsumerRecord consumerRecord, boolean processed) {
-    if (consumerRecord != null) {
-      String value = !(consumerRecord.value() instanceof byte[]) ? consumerRecord.value().toString() : "bytes[]";
-      this.prettyPrinter(caller,
-                    consumerRecord.topic(),
-                    consumerRecord.partition(),
-                    consumerRecord.offset(),
-                    value,
-                    processed);
-
-      }
-  }
-
-  @Override
   public boolean prettyPrinter(String caller, String topic, int partition, long offset, String value,  boolean processed) {
     if (logger.isInfoEnabled()) {
       logger.info("Caller:{} - Processed:{} - Topic: {} - Partition: {} - Offset: {} - Value: {}\n",

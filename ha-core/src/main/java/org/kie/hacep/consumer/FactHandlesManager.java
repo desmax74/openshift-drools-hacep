@@ -36,7 +36,10 @@ public class FactHandlesManager implements Serializable {
   private transient Map<RemoteFactHandle, InternalFactHandle> fhMap;
 
   //for serialization purpose
-  public FactHandlesManager() { }
+  public FactHandlesManager() {
+    fhMap = new HashMap<>();
+    fhIdMap = new BidirectionalMap<>();
+  }
 
   public FactHandlesManager(KieSession kieSession) {
     this.kieSession = kieSession;

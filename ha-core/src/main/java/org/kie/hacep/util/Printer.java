@@ -15,11 +15,7 @@
  */
 package org.kie.hacep.util;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-
 public interface Printer {
-
-  void prettyPrinter(String caller, ConsumerRecord consumerRecord, boolean processed);
 
   boolean prettyPrinter(String caller, String topic, int partition, long offset, String value,  boolean processed);
 }

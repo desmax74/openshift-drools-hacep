@@ -31,6 +31,9 @@ public class EnvConfigTest {
     assertEquals("events", config.getEventsTopicName());
     assertEquals("kiesessioninfos", config.getKieSessionInfosTopicName());
     assertEquals("snapshot", config.getSnapshotTopicName());
+    assertEquals(PollUnit.MILLISECOND, config.getPollUnit());
+    assertEquals(PollUnit.SECOND, config.getPollSnapshotUnit());
+    assertTrue(1 == config.getPollSnapshotTimeout());
   }
 
   @Test(expected = ConfigurationException.class)
@@ -41,6 +44,12 @@ public class EnvConfigTest {
   @Test(expected = ConfigurationException.class)
   public void pollSnapshotTimeUnitExceptionTest() {
     EnvConfig.anEnvConfig().withPollSnapshotTimeUnit(null);
+  }
+
+  @Test
+  public void pollSnapshotTimeUnitMillisTest() {
+    EnvConfig config = EnvConfig.anEnvConfig().withPollSnapshotTimeUnit(EnvConfig.MILLISEC);
+    assertEquals(PollUnit.MILLISECOND, config.getPollSnapshotUnit());
   }
 
 }

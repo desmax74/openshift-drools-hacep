@@ -276,30 +276,5 @@ public final class EnvConfig {
     return kJarGAV;
   }
 
-  @Override
-  public String toString() {
-    final StringBuilder sb = new StringBuilder("EnvConfig{");
-    sb.append("namespace='").append(namespace).append('\'');
-    sb.append(", eventsTopicName='").append(eventsTopicName).append('\'');
-    sb.append(", controlTopicName='").append(controlTopicName).append('\'');
-    sb.append(", snapshotTopicName='").append(snapshotTopicName).append('\'');
-    sb.append(", kieSessionInfosTopicName='").append(kieSessionInfosTopicName).append('\'');
-    sb.append(", printerType='").append(printerType).append('\'');
-    sb.append(", pollTimeUnit='").append(pollUnit).append('\'');
-    sb.append(", pollTimeout='").append(pollTimeout).append('\'');
-    sb.append(", pollDuration='").append(pollDuration).append('\'');
-    sb.append(", pollSnapshotUnit='").append(pollUnitSnapshot).append('\'');
-    sb.append(", pollSnapshotDuration='").append(pollSnapshotDuration).append('\'');
-    sb.append(", pollSnapshotTimeout='").append(pollSnapshotTimeout).append('\'');
-    sb.append(", iterationBetweenSnapshot='").append(iterationBetweenSnapshot).append('\'');
-    sb.append(", skipOnDemanSnapshot='").append(skipOnDemanSnapshot).append('\'');
-    sb.append(", maxSnapshotAge='").append(maxSnapshotAge).append('\'');
-    sb.append(", maxSnapshotRequestAttempts='").append(maxSnapshotRequestAttempts).append('\'');
-    sb.append(", updatableKJar='").append(updatableKJar).append('\'');
-    sb.append(", kjarGAV='").append(kJarGAV).append('\'');
-    sb.append(", underTest='").append(test).append('\'');
-    sb.append('}');
-    return sb.toString();
-  }
 }
 

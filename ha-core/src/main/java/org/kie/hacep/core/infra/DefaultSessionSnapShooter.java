@@ -53,9 +53,7 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
     this.envConfig = envConfig;
   }
 
-  public void serialize(KieSessionContext kieSessionContext,
-                        String lastInsertedEventkey,
-                        long lastInsertedEventOffset) {
+  public void serialize(KieSessionContext kieSessionContext, String lastInsertedEventkey, long lastInsertedEventOffset) {
     KieMarshallers marshallers = KieServices.get().getMarshallers();
     try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       EventProducer<byte[]> producer = new EventProducer<>();
@@ -71,9 +69,7 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
                                                     lastInsertedEventkey,
                                                     lastInsertedEventOffset,
                                                     LocalDateTime.now());
-      producer.produceSync(envConfig.getSnapshotTopicName(),
-                           KEY,
-                           message);
+      producer.produceSync(envConfig.getSnapshotTopicName(), KEY, message);
       producer.stop();
     } catch (IOException e) {
       logger.error(e.getMessage(),
@@ -102,12 +98,9 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
           conf.setOption(ClockTypeOption.get("pseudo"));
           kieContainer = KieContainerUtils.getKieContainer(envConfig,
                                                            srv);
-          kSession = srv.getMarshallers().newMarshaller(kieContainer.getKieBase()).unmarshall(in,
-                                                                                              conf,
-                                                                                              null);
+          kSession = srv.getMarshallers().newMarshaller(kieContainer.getKieBase()).unmarshall(in, conf, null);
         } catch (IOException | ClassNotFoundException e) {
-          logger.error(e.getMessage(),
-                       e);
+          logger.error(e.getMessage(), e);
         }
         if (kSession == null && kieContainer != null) {//Snapshot topic empty
           kSession = kieContainer.newKieSession();

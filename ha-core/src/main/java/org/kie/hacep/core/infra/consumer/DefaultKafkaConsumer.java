@@ -342,9 +342,9 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         processingKey = record.key();// the new processed became the new processingKey
         saveOffset(record, kafkaConsumer);
 
-        if (logger.isInfoEnabled() || envConfig.isUnderTest()) {
+        /*if (logger.isInfoEnabled() || envConfig.isUnderTest()) {
             printer.prettyPrinter("DefaulImprovedKafkaConsumer.processLeader record:{}", record, true);
-        }
+        }*/
     }
 
     protected void consumeEventsFromBufferAsALeader() {

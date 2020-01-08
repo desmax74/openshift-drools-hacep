@@ -75,15 +75,4 @@ public class SnapshotInfos {
     return kJarGAV;
   }
 
-  @Override
-  public String toString() {
-    final StringBuilder sb = new StringBuilder("SnapshotInfos{");
-    sb.append("kieSession=").append(kieSession);
-    sb.append(", kieContainer=").append(kieContainer);
-    sb.append(", keyDuringSnaphot='").append(keyDuringSnaphot).append('\'');
-    sb.append(", offsetDuringSnapshot=").append(offsetDuringSnapshot);
-    sb.append(", time=").append(time);
-    sb.append('}');
-    return sb.toString();
-  }
 }
