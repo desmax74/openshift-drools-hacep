@@ -56,7 +56,7 @@ import org.kie.remote.message.FireAllRuleMessage;
 import org.kie.remote.message.GetKJarGAVMessage;
 import org.kie.remote.message.GetObjectMessage;
 import org.kie.remote.message.ListKieSessionObjectMessage;
-import org.kie.remote.message.UpdateKjarMessage;
+import org.kie.remote.message.UpdateKJarMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -239,13 +239,13 @@ public class CommandHandler implements VisitorCommand {
   @Override
   public void visit(UpdateKJarCommand command) {
     KieServices ks = KieServices.get();
-    UpdateKjarMessage msg = new UpdateKjarMessage(command.getId(), Boolean.FALSE);
+    UpdateKJarMessage msg = new UpdateKJarMessage(command.getId(), Boolean.FALSE);
     if (ks != null) {
       ReleaseId releaseId = ks.newReleaseId(command.getGroupID(), command.getArtifactID(), command.getVersion());
       if (envConfig.isUpdatableKJar()) {
         try {
           kieSessionContext.getKieContainer().updateToVersion(releaseId);
-          msg = new UpdateKjarMessage(command.getId(), Boolean.TRUE);
+          msg = new UpdateKJarMessage(command.getId(), Boolean.TRUE);
         } catch (java.lang.UnsupportedOperationException ex) {
           logger.info("It isn't possible update a classpath container to a new version");
         }

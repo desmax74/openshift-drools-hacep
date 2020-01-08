@@ -17,16 +17,16 @@ package org.kie.remote.message;
 
 import java.io.Serializable;
 
-public class UpdateKjarMessage extends AbstractMessage implements Serializable,
+public class UpdateKJarMessage extends AbstractMessage implements Serializable,
                                                                   ResultMessage<Boolean> {
 
   private boolean updateResult;
 
   /* Empty constructor for serialization */
-  public UpdateKjarMessage() {
+  public UpdateKJarMessage() {
   }
 
-  public UpdateKjarMessage(String id,
+  public UpdateKJarMessage(String id,
                            boolean updateResult) {
     super(id);
     this.updateResult = updateResult;

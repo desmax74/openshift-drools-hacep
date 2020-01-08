@@ -64,7 +64,7 @@ import org.kie.remote.message.GetKJarGAVMessage;
 import org.kie.remote.message.GetObjectMessage;
 import org.kie.remote.message.ListKieSessionObjectMessage;
 import org.kie.remote.message.ResultMessage;
-import org.kie.remote.message.UpdateKjarMessage;
+import org.kie.remote.message.UpdateKJarMessage;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -325,7 +325,7 @@ public class CommandHandlerTest {
     UpdateKJarCommand command = new UpdateKJarCommand(kJarGAV);
     executeAndVerifyResponseMessage(command,
                                     commandHandler::visit,
-                                    UpdateKjarMessage.class,
+                                    UpdateKJarMessage.class,
                                     result -> Boolean.TRUE);
     PowerMockito.verifyStatic(KieServices.class, atLeast(1));
     logger.info("UpdateKJarCommand:{}",command.toString());
