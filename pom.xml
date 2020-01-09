@@ -221,7 +221,7 @@
     <profile>
       <id>run-code-coverage</id>
       <properties>
-        <jacoco.excludes></jacoco.excludes>
+        <jacoco.excludes>*Lexer</jacoco.excludes>
 
         <!-- jacoco.exec.file is defined in kie-parent -->
         <!--suppress UnresolvedMavenProperty -->
