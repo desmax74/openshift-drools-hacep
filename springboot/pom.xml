@@ -16,7 +16,7 @@
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
-        <version>${version.org.spring-boot}</version>
+        <version>${version.org.springframework.boot}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -93,7 +93,7 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>${version.org.spring-boot}</version>
+        <version>${version.org.springframework.boot}</version>
         <configuration>
           <executable>true</executable>
         </configuration>
