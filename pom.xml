@@ -21,7 +21,6 @@
     <version.fabric8.plugin>4.2.0</version.fabric8.plugin>
     <version.fabric8.docker-plugin>0.30.0</version.fabric8.docker-plugin>
     <surefire.forkCount>1</surefire.forkCount>
-    <version.hibernate.validator>6.1.0.Final</version.hibernate.validator>
     <version.javax.el>3.0.1-b08</version.javax.el>
     <version.javax.ws.rs>2.0.0.Final</version.javax.ws.rs>
     <version.junit>4.12</version.junit>
@@ -167,7 +166,7 @@
       <dependency>
         <groupId>org.hibernate.validator</groupId>
         <artifactId>hibernate-validator</artifactId>
-        <version>${version.hibernate.validator}</version>
+        <version>${version.org.hibernate.validator}</version>
       </dependency>
       <!-- -->
       <dependency>
