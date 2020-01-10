@@ -62,7 +62,7 @@ public class PodAsLeaderSnapshotTest extends KafkaFullTopicsTests{
                 events = events + eventsRecords.count();
                 int attemptNumber = attempts.incrementAndGet();
                 logger.warn("Attempt number on events topic:{}", attemptNumber);
-                if(attemptNumber == 11){
+                if(attemptNumber == 30){
                     throw new RuntimeException("No enough Events message available "+ events +" after "+attempts + "attempts.");
                 }
             }
@@ -77,7 +77,7 @@ public class PodAsLeaderSnapshotTest extends KafkaFullTopicsTests{
                 events = events + records.count();
                 int attemptNumber = attempts.incrementAndGet();
                 logger.warn("Attempt number on control topic:{}", attemptNumber);
-                if(attemptNumber == 11){
+                if(attemptNumber == 30){
                     throw new RuntimeException("No enough Control message available "+ events +" after "+attempts + "attempts.");
                 }
             }
@@ -103,7 +103,7 @@ public class PodAsLeaderSnapshotTest extends KafkaFullTopicsTests{
                 });
                 int attemptNumber = attempts.incrementAndGet();
                 logger.warn("Attempt number on snapshot topic:{}", attemptNumber);
-                if(attemptNumber == 11){
+                if(attemptNumber == 30){
                     throw new RuntimeException("No enough Snapshot message available "+ events +" after "+attempts + "attempts.");
                 }
             }
