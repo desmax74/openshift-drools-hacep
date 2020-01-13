@@ -21,7 +21,6 @@
     <version.fabric8.plugin>4.2.0</version.fabric8.plugin>
     <version.fabric8.docker-plugin>0.30.0</version.fabric8.docker-plugin>
     <surefire.forkCount>1</surefire.forkCount>
-    <version.hibernate.validator>6.0.17.Final</version.hibernate.validator>
     <version.javax.el>3.0.1-b08</version.javax.el>
     <version.javax.ws.rs>2.0.0.Final</version.javax.ws.rs>
     <version.junit>4.12</version.junit>
@@ -32,7 +31,6 @@
     <version.slf4j>1.7.26</version.slf4j>
     <version.org.springframework>5.1.3.RELEASE</version.org.springframework>
     <version.org.spring-boot>2.1.1.RELEASE</version.org.spring-boot>
-    <version.validation.api>2.0.1.Final</version.validation.api>
   </properties>
 
   <modules>
@@ -160,14 +158,9 @@
 
       <!-- Validation used by fabric8 client-->
       <dependency>
-        <groupId>javax.validation</groupId>
-        <artifactId>validation-api</artifactId>
-        <version>${version.validation.api}</version>
-      </dependency>
-      <dependency>
         <groupId>org.hibernate.validator</groupId>
         <artifactId>hibernate-validator</artifactId>
-        <version>${version.hibernate.validator}</version>
+        <version>${version.org.hibernate.validator}</version>
       </dependency>
       <!-- -->
       <dependency>
@@ -221,7 +214,7 @@
     <profile>
       <id>run-code-coverage</id>
       <properties>
-        <jacoco.excludes></jacoco.excludes>
+        <jacoco.excludes>*Lexer</jacoco.excludes>
 
         <!-- jacoco.exec.file is defined in kie-parent -->
         <!--suppress UnresolvedMavenProperty -->
