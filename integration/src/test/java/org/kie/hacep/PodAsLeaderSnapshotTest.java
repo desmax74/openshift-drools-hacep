@@ -103,7 +103,7 @@ public class PodAsLeaderSnapshotTest extends KafkaFullTopicsTests{
                 });
                 int attemptNumber = attempts.incrementAndGet();
                 logger.warn("Attempt number on snapshot topic:{}", attemptNumber);
-                if(attemptNumber == 11){
+                if(attemptNumber == 30){
                     throw new RuntimeException("No enough Snapshot message available "+ events +" after "+attempts + "attempts.");
                 }
             }
