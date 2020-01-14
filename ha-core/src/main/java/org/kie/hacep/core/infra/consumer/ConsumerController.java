@@ -15,7 +15,6 @@
  */
 package org.kie.hacep.core.infra.consumer;
 
-import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.infra.election.LeadershipCallback;
 import org.kie.hacep.exceptions.ShutdownException;
 
