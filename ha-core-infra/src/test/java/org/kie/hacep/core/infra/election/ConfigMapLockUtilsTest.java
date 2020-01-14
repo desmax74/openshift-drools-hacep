@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.hacep.core.infra;
+package org.kie.hacep.core.infra.election;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -24,8 +24,6 @@ import java.util.Set;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import org.kie.hacep.core.infra.election.ConfigMapLockUtils;
-import org.kie.hacep.core.infra.election.LeaderInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -22,16 +22,15 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.sample.kjar.Result;
 import org.kie.hacep.sample.kjar.StockTickEvent;
-import org.kie.remote.RemoteKieSession;
 import org.kie.remote.RemoteStreamingEntryPoint;
 import org.kie.remote.RemoteStreamingKieSession;
-import org.kie.remote.TopicsConfig;
 
 import static org.junit.Assert.*;
 import static org.kie.remote.CommonConfig.getTestProperties;
@@ -68,7 +67,7 @@ public class LocalStorageStreamingKieSessionTest {
         assertEquals(3, session.getObjects().get().size());
         assertEquals((Long) 3L, session.getFactCount().get());
 
-        assertEquals(11.5, session.getObjects(Result.class).get().iterator().next().getValue());
+        Assert.assertEquals(11.5, session.getObjects(Result.class).get().iterator().next().getValue());
     }
 
     @Test(timeout = 10000)

@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.junit.Assert;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
@@ -52,7 +53,7 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
                 eventsRecords.forEach(o -> {
                     ConsumerRecord<String, byte[]> eventsRecord = (ConsumerRecord<String, byte[]>) o;
                     assertNotNull(eventsRecord);
-                    assertEquals(eventsRecord.topic(), envConfig.getEventsTopicName());
+                    Assert.assertEquals(eventsRecord.topic(), envConfig.getEventsTopicName());
                     RemoteCommand remoteCommand = deserialize(eventsRecord.value());
                     assertEquals(eventsRecord.offset(), index.get());
                     assertNotNull(remoteCommand.getId());
@@ -69,7 +70,7 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
                         assertNotNull(insertCommand.getFactHandle());
                         RemoteFactHandle remoteFactHandle = insertCommand.getFactHandle();
                         StockTickEvent eventsTicket = (StockTickEvent) remoteFactHandle.getObject();
-                        assertEquals("RHT", eventsTicket.getCompany());
+                        Assert.assertEquals("RHT", eventsTicket.getCompany());
                     }
 
                     index.incrementAndGet();
@@ -95,7 +96,7 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
                     ConsumerRecord<String, byte[]> control = (ConsumerRecord<String, byte[]>)o;
                     // FireUntilHalt command has no side effects
                     logger.warn("Control message found:{}", control);
-                    assertEquals(control.topic(), envConfig.getControlTopicName());
+                    Assert.assertEquals(control.topic(), envConfig.getControlTopicName());
                     ControlMessage controlMessage = deserialize(control.value());
                     assertEquals(control.offset(), index.get());
                     if(index.get()== 0) {
@@ -162,7 +163,7 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
     }
     
     private void checkInsertSideEffects(ConsumerRecord<String, byte[]> eventsRecord, ConsumerRecord<String, byte[]> controlRecord) {
-        assertEquals(controlRecord.topic(), envConfig.getControlTopicName());
+        Assert.assertEquals(controlRecord.topic(), envConfig.getControlTopicName());
         ControlMessage controlMessage = deserialize(controlRecord.value());
         assertEquals(1, controlRecord.offset());
         assertTrue(!controlMessage.getSideEffects().isEmpty());

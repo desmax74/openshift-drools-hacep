@@ -34,6 +34,7 @@ import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.consumer.DroolsConsumerHandler;
 import org.kie.hacep.core.infra.DefaultSessionSnapShooter;
+import org.kie.hacep.core.InfraFactory;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.core.infra.utils.ConsumerUtilsCore;
@@ -74,7 +75,6 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
     private AtomicInteger counter;
     private SnapshotInfos snapshotInfos;
     private DefaultSessionSnapShooter snapShooter;
-    private Printer printer;
     private EnvConfig envConfig;
     private Logger loggerForTest;
     private volatile boolean askedSnapshotOnDemand;
@@ -85,7 +85,6 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
             counter = new AtomicInteger(0);
         }
         iterationBetweenSnapshot = this.envConfig.getIterationBetweenSnapshot();
-        this.printer = PrinterUtil.getPrinter(this.envConfig);
         if (this.envConfig.isUnderTest()) {
             loggerForTest = PrinterUtil.getKafkaLoggerForTest(this.envConfig);
         }
@@ -93,7 +92,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
 
     public void initConsumer(ConsumerHandler consumerHandler) {
         this.consumerHandler = (DroolsConsumerHandler) consumerHandler;
-        this.snapShooter = this.consumerHandler.getSessionSnapShooter();
+        this.snapShooter = (DefaultSessionSnapShooter) InfraFactory.getSnapshooter(envConfig);
         this.kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig(PRIMARY_CONSUMER));
         if (currentState.equals(State.REPLICA)) {
             this.kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig(SECONDARY_CONSUMER));
@@ -341,10 +340,6 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         }
         processingKey = record.key();// the new processed became the new processingKey
         saveOffset(record, kafkaConsumer);
-
-        /*if (logger.isInfoEnabled() || envConfig.isUnderTest()) {
-            printer.prettyPrinter("DefaulImprovedKafkaConsumer.processLeader record:{}", record, true);
-        }*/
     }
 
     protected void consumeEventsFromBufferAsALeader() {

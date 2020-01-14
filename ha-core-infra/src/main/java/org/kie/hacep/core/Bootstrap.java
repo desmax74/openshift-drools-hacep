@@ -21,6 +21,7 @@ import org.apache.kafka.common.config.ConfigException;
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.infra.consumer.ConsumerController;
+import org.kie.hacep.core.infra.consumer.ConsumerHandler;
 import org.kie.hacep.core.infra.election.LeaderElection;
 import org.kie.hacep.exceptions.ShutdownException;
 import org.kie.remote.impl.producer.Producer;
@@ -101,7 +102,8 @@ public class Bootstrap {
   }
 
   private static void startConsumers(EnvConfig envConfig, Producer producer) {
-    consumerController = new ConsumerController(envConfig, producer);
+    ConsumerHandler handler = InfraFactory.getConsumerHandler(producer, envConfig);
+    consumerController = new ConsumerController(handler, InfraFactory.getEventConsumer(envConfig));
     consumerController.start();
   }
 

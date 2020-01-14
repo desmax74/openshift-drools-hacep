@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.junit.Assert;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
@@ -73,7 +74,7 @@ public class PodAsLeaderTest extends KafkaFullTopicsTests {
                 eventsRecords.forEach(o -> {
                     ConsumerRecord<String, byte[]> event = (ConsumerRecord<String, byte[]>) o;
                     assertNotNull(event);
-                    assertEquals(event.topic(), envConfig.getEventsTopicName());
+                    Assert.assertEquals(event.topic(), envConfig.getEventsTopicName());
                     assertEquals(event.offset(), index.get());
                     RemoteCommand remoteCommand = deserialize(event.value());
                     logger.warn("Event {}:{} offset:{}", index.get(), remoteCommand, event.offset());

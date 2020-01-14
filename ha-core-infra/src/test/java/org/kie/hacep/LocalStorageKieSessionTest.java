@@ -22,9 +22,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.kie.api.runtime.KieSession;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.sample.kjar.Result;
@@ -32,7 +32,6 @@ import org.kie.hacep.sample.kjar.StockTickEvent;
 import org.kie.remote.RemoteEntryPoint;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.RemoteKieSession;
-import org.kie.remote.TopicsConfig;
 
 import static org.junit.Assert.*;
 import static org.kie.remote.CommonConfig.getTestProperties;
@@ -75,7 +74,7 @@ public class LocalStorageKieSessionTest {
 
         assertTrue(session.getObject(stockRFH).get().isProcessed());
 
-        assertEquals(11.5, session.getObject(resultRFH).get().getValue());
+        Assert.assertEquals(11.5, session.getObject(resultRFH).get().getValue());
     }
 
     @Test(timeout = 10000)
@@ -96,7 +95,7 @@ public class LocalStorageKieSessionTest {
         stock.setPrice(10.0);
         session.update(stockRFH, stock);
 
-        assertEquals(stock.getPrice(), session.getObject(stockRFH).get().getPrice(), 0.1);
+        Assert.assertEquals(stock.getPrice(), session.getObject(stockRFH).get().getPrice(), 0.1);
     }
 
     @Test(timeout = 10000)
@@ -163,7 +162,7 @@ public class LocalStorageKieSessionTest {
         CompletableFuture<Collection> getObjectsByQueryRHT = session.getObjects("stockTickEventQuery", "stock", "RHT");
         assertEquals(2, getObjectsByQueryRHT.get().size());
 
-        assertEquals("RHT", session.getObject(stock1FH).get().getCompany());
+        Assert.assertEquals("RHT", session.getObject(stock1FH).get().getCompany());
 
         RemoteEntryPoint defaultEntryPoint = session.getEntryPoint(DEFAULT_ENTRY_POINT);
         assertEquals((Long) 2L, defaultEntryPoint.getFactCount().get());

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.hacep.core.infra.utils;
+package org.kie.hacep.core.infra;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import static org.junit.Assert.*;
@@ -22,6 +22,7 @@ import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.infra.DefaultSessionSnapShooter;
 import org.kie.hacep.core.infra.SessionSnapshooter;
 import org.kie.hacep.core.infra.SnapshotInfos;
+import org.kie.hacep.core.infra.utils.SnapshotOnDemandUtils;
 
 public class SnapshotOnDemandUtilsTest {
 

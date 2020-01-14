@@ -16,10 +16,8 @@
 package org.kie.hacep.core.infra.consumer;
 
 import org.kie.hacep.EnvConfig;
-import org.kie.hacep.consumer.DroolsConsumerHandler;
 import org.kie.hacep.core.infra.election.LeadershipCallback;
 import org.kie.hacep.exceptions.ShutdownException;
-import org.kie.remote.impl.producer.Producer;
 
 public class ConsumerController {
 
@@ -27,11 +25,11 @@ public class ConsumerController {
   private InfraCallback callback;
   private Thread thread;
 
-  public ConsumerController(EnvConfig envConfig, Producer producer) {
+  public ConsumerController(ConsumerHandler consumerHandler, EventConsumer consumer) {
     this.callback = new InfraCallback();
-    this.consumer = EventConsumer.get(envConfig);
+    this.consumer = consumer;
     this.callback.setConsumer(consumer);
-    this.consumer.initConsumer(new DroolsConsumerHandler(producer, envConfig));
+    this.consumer.initConsumer(consumerHandler);
   }
 
   public void start() {

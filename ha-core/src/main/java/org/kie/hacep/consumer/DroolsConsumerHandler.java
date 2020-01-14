@@ -20,9 +20,9 @@ import java.util.Queue;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.hacep.EnvConfig;
-import org.kie.hacep.core.GlobalStatus;
 import org.kie.hacep.core.KieSessionContext;
-import org.kie.hacep.core.infra.DefaultSessionSnapShooter;
+import org.kie.hacep.core.GlobalStatus;
+import org.kie.hacep.core.infra.SessionSnapshooter;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.consumer.ConsumerHandler;
 import org.kie.hacep.core.infra.consumer.ItemToProcess;
@@ -46,16 +46,16 @@ public class DroolsConsumerHandler implements ConsumerHandler {
   private static final Logger logger = LoggerFactory.getLogger(DroolsConsumerHandler.class);
   private Logger loggerForTest;
   private Producer producer;
-  private DefaultSessionSnapShooter sessionSnapShooter;
+  private SessionSnapshooter sessionSnapShooter;
   private EnvConfig envConfig;
   private KieSessionContext kieSessionContext;
   private CommandHandler commandHandler;
   private SnapshotInfos snapshotInfos;
   private boolean shutdown;
 
-  public DroolsConsumerHandler(Producer producer, EnvConfig envConfig) {
+  public DroolsConsumerHandler(Producer producer, EnvConfig envConfig, SessionSnapshooter snapShooter) {
     this.envConfig = envConfig;
-    this.sessionSnapShooter = new DefaultSessionSnapShooter(this.envConfig);
+    this.sessionSnapShooter = snapShooter;
     initializeKieSessionContext();
     this.producer = producer;
     this.commandHandler = new CommandHandler(this.kieSessionContext, this.envConfig, producer, this.sessionSnapShooter);
@@ -106,20 +106,16 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     }
   }
 
-  //This is called from the Default KafkaCOnsumer
+  //This is called from the Default KafkaConsumer
   public boolean initializeKieSessionFromSnapshotOnDemand(EnvConfig config) {
     if (!config.isSkipOnDemandSnapshot()) {// if true we reads the snapshots and wait until the first leaderElectionUpdate
       this.snapshotInfos = SnapshotOnDemandUtils.askASnapshotOnDemand(config, sessionSnapShooter);
       initializeSessionContextFromSnapshot();
-      this.sessionSnapShooter = new DefaultSessionSnapShooter(this.envConfig);
       return true;
     }
     return false;
   }
 
-  public DefaultSessionSnapShooter getSessionSnapShooter() {
-    return sessionSnapShooter;
-  }
 
   @Override
   public void process(ItemToProcess item, State state) {
