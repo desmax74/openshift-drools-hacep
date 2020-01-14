@@ -29,8 +29,6 @@
     <version.logback.kafka.appender>0.2.0-RC2</version.logback.kafka.appender>
     <version.servlet>2.0.0.Final</version.servlet>
     <version.slf4j>1.7.26</version.slf4j>
-    <version.org.springframework>5.1.3.RELEASE</version.org.springframework>
-    <version.org.spring-boot>2.1.1.RELEASE</version.org.spring-boot>
   </properties>
 
   <modules>
@@ -48,12 +46,17 @@
     <dependencies>
       <dependency>
         <groupId>org.kie</groupId>
-        <artifactId>kie-remote</artifactId>
+        <artifactId>ha-core</artifactId>
         <version>${version.org.kie}</version>
       </dependency>
       <dependency>
         <groupId>org.kie</groupId>
-        <artifactId>openshift-kie-hacep</artifactId>
+        <artifactId>ha-remote</artifactId>
+        <version>${version.org.kie}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.kie</groupId>
+        <artifactId>ha-core-infra</artifactId>
         <version>${version.org.kie}</version>
       </dependency>
       <dependency>
@@ -161,7 +164,7 @@
       <dependency>
         <groupId>javax.validation</groupId>
         <artifactId>validation-api</artifactId>
-        <version>${version.validation.api}</version>
+        <version>${version.javax.validation}</version>
       </dependency>
       <dependency>
         <groupId>org.hibernate.validator</groupId>
@@ -193,7 +196,7 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-core</artifactId>
-        <version>${version.logback}</version>
+        <version>${version.ch.qos.logback}</version>
       </dependency>
 
       <dependency>
