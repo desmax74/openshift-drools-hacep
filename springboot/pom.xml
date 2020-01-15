@@ -16,7 +16,7 @@
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
-        <version>${version.org.spring-boot}</version>
+        <version>${version.org.springframework.boot}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -27,6 +27,12 @@
     <dependency>
       <groupId>org.kie</groupId>
       <artifactId>openshift-kie-hacep</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.validation</groupId>
+          <artifactId>validation-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.kie</groupId>
@@ -36,6 +42,12 @@
     <dependency>
       <groupId>org.hibernate.validator</groupId>
       <artifactId>hibernate-validator</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.validation</groupId>
+          <artifactId>validation-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -89,7 +101,7 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>${version.org.spring-boot}</version>
+        <version>${version.org.springframework.boot}</version>
         <configuration>
           <executable>true</executable>
         </configuration>
