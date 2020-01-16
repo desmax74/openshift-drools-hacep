@@ -390,6 +390,7 @@ function _add_maven_repo_server() {
     </server>\n\
     <!-- ### configured servers ### -->"
   sed -i "s|<!-- ### configured servers ### -->|${xml}|" "${settings}"
+   log_info "settings.xml:${xml}"
 }
 
 # private
