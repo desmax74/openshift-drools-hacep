@@ -1,6 +1,6 @@
 FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
 RUN microdnf install java-1.8.0-openjdk-headless && microdnf install shadow-utils && microdnf clean all
-RUN groupadd -r app -g 2000 && useradd -u 1000170000 -r -g app -m -d /app -s /sbin/nologin -c "App user" app && chmod 755 /app
+RUN groupadd -r app -g <id_group> && useradd -u <id_user> -r -g app -m -d /app -s /sbin/nologin -c "App user" app && chmod 755 /app
 WORKDIR /home/app/deployments
 USER app
 ENV HOME /app
