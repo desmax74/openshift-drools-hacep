@@ -19,16 +19,22 @@ spec:
     spec:
       serviceAccountName: openshift-kie-springboot
       securityContext:
-        runAsUser: <id_user>
+        runAsUser: 1000170000
         runAsNonRoot: true
       containers:
         - env:
+          - name: UPDATABLEKJAR
+            value: "true"
+          - name: KJARGAV
+            value: org.kie.cloud:test-hacep-cloud-kjar:1.0.0
           - name: MAVEN_LOCAL_REPO
             value: /app/.m2/repository
+          - name: MAVEN_MIRROR_URL
+            value: http://nexus-nexus.192.168.99.133.nip.io/repository/maven-releases/
           - name: MAVEN_SETTINGS_XML
             value: /app/.m2/settings.xml
           name: openshift-kie-springboot
-          image: <image>/openshift-kie-springboot:<tag>
+          image: quickstarter/openshift-kie-springboot:latest
           imagePullPolicy: IfNotPresent
           livenessProbe:
             httpGet:

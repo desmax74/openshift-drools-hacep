@@ -8,6 +8,4 @@
   <logger name="org.kie.hacep" level="INFO"/>
   <logger name="org.kie.api.builder.KieScanner " level="INFO"/>
   <logger name="org.apache.kafka" level="WARN"/>
-  <logger name="org.apache.maven" level="TRACE"/>
-  <logger name="org.appformer" level="TRACE"/>
 </configuration>
