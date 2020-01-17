@@ -23,10 +23,6 @@ spec:
         runAsNonRoot: true
       containers:
         - env:
-          - name: MAVEN_LOCAL_REPO
-            value: /app/.m2/repository
-          - name: MAVEN_SETTINGS_XML
-            value: /app/.m2/settings.xml
           name: openshift-kie-springboot
           image: <image>/openshift-kie-springboot:<tag>
           imagePullPolicy: IfNotPresent
