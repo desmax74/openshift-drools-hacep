@@ -18,10 +18,13 @@ spec:
         version: v1
     spec:
       serviceAccountName: openshift-kie-springboot
+      securityContext:
+        runAsUser: <id_user>
+        runAsNonRoot: true
       containers:
         - env:
           name: openshift-kie-springboot
-          image: <user>/openshift-kie-springboot:<tag>
+          image: <image>/openshift-kie-springboot:<tag>
           imagePullPolicy: IfNotPresent
           livenessProbe:
             httpGet:
