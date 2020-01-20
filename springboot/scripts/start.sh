@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "---------Starting Maven Script---------"
-/deployments/maven.sh
+/home/app/deployments/maven.sh
 echo "---------End Maven Script---------"
 echo "---------Starting App---------"
-java -jar /deployments/app.jar
+java -jar /home/app/deployments/app.jar

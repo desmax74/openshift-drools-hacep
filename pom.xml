@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.kie</groupId>
     <artifactId>kie-parent</artifactId>
-    <version>7.33.0-SNAPSHOT</version> <!-- change with every build -->
+    <version>7.32.0-SNAPSHOT</version> <!-- change with every build -->
   </parent>
 
   <groupId>org.kie</groupId>
@@ -27,6 +27,7 @@
     <version.k8s.client>4.6.0</version.k8s.client>
     <version.logback.kafka.appender>0.2.0-RC2</version.logback.kafka.appender>
     <version.servlet>2.0.0.Final</version.servlet>
+    <version.slf4j>1.7.26</version.slf4j>
   </properties>
 
   <modules>
@@ -82,6 +83,10 @@
           <exclusion>
             <groupId>aopalliance</groupId>
             <artifactId>aopalliance</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -159,11 +164,6 @@
       </dependency>
 
       <!-- Validation used by fabric8 client-->
-      <dependency>
-        <groupId>javax.validation</groupId>
-        <artifactId>validation-api</artifactId>
-        <version>${version.javax.validation}</version>
-      </dependency>
       <dependency>
         <groupId>org.hibernate.validator</groupId>
         <artifactId>hibernate-validator</artifactId>
