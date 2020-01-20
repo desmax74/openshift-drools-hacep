@@ -19,6 +19,7 @@ import java.io.Closeable;
 import java.util.Properties;
 
 import org.kie.remote.impl.RemoteStreamingKieSessionImpl;
+import org.kie.remote.impl.consumer.ListenerThread;
 
 public interface RemoteStreamingKieSession extends Closeable,
                                                    RemoteStreamingEntryPoint,
@@ -27,11 +28,11 @@ public interface RemoteStreamingKieSession extends Closeable,
 
   RemoteStreamingEntryPoint getEntryPoint(String name);
 
-  static RemoteStreamingKieSession create(Properties configuration) {
-    return new RemoteStreamingKieSessionImpl(configuration);
+  /*static RemoteStreamingKieSession create(Properties configuration, ListenerThread listenerThread) {
+    return new RemoteStreamingKieSessionImpl(configuration, listenerThread);
   }
 
-  static RemoteStreamingKieSession create(Properties configuration,TopicsConfig envConfig) {
-    return new RemoteStreamingKieSessionImpl(configuration, envConfig);
-  }
+  static RemoteStreamingKieSession create(Properties configuration,TopicsConfig envConfig, ListenerThread listenerThread) {
+    return new RemoteStreamingKieSessionImpl(configuration, envConfig, listenerThread);
+  }*/
 }

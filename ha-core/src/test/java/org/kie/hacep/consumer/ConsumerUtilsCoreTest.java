@@ -13,19 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.remote;
+package org.kie.hacep.consumer;
 
-import org.junit.Test;
+import java.util.Properties;
 
-import static org.junit.Assert.*;
-import static org.kie.remote.CommonConfig.getTestProperties;
+import org.kie.hacep.util.ConsumerUtilsCore;
+import org.kie.remote.message.ControlMessage;
 
-public class RemoteStreamingKieSessionTest {
+public class ConsumerUtilsCoreTest implements ConsumerUtilsCore {
 
-    @Test
-    public void createTest(){
-        TopicsConfig topicsConfig = TopicsConfig.getDefaultTopicsConfig();
-        RemoteStreamingKieSession session = RemoteStreamingKieSession.create(getTestProperties(), topicsConfig);
-        assertNotNull(session);
+    @Override
+    public ControlMessage getLastEvent(String topic,
+                                       Integer pollTimeout) {
+        return null;
+    }
+
+    @Override
+    public ControlMessage getLastEvent(String topic,
+                                       Properties properties,
+                                       Integer pollTimeout) {
+        return null;
     }
 }

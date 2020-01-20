@@ -43,18 +43,19 @@ import org.kie.hacep.exceptions.SnapshotOnDemandException;
 import org.kie.hacep.message.SnapshotMessage;
 import org.kie.remote.TopicsConfig;
 import org.kie.remote.command.SnapshotOnDemandCommand;
+import org.kie.remote.impl.producer.Producer;
 import org.kie.remote.impl.producer.Sender;
 import org.kie.remote.util.SerializationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SnapshotOnDemandUtils {
+public class SnapshotOnDemandUtilsImpl {
 
-  private static final Logger logger = LoggerFactory.getLogger(SnapshotOnDemandUtils.class);
+  private static final Logger logger = LoggerFactory.getLogger(SnapshotOnDemandUtilsImpl.class);
 
-  private SnapshotOnDemandUtils() { }
+  private SnapshotOnDemandUtilsImpl() { }
 
-  public static SnapshotInfos askASnapshotOnDemand(EnvConfig config, SessionSnapshooter snapshooter) {
+  public static SnapshotInfos askASnapshotOnDemand(EnvConfig config, SessionSnapshooter snapshooter, Producer producer) {
     LocalDateTime infosTime = snapshooter.getLastSnapshotTime();
     LocalDateTime limitAge = LocalDateTime.now().minusSeconds(config.getMaxSnapshotAge());
     if (infosTime != null && limitAge.isBefore(infosTime)) { //included in the max age
@@ -66,12 +67,12 @@ public class SnapshotOnDemandUtils {
       if (logger.isInfoEnabled()) {
         logger.info("Build NewSnapshotOnDemand ");
       }
-      return buildNewSnapshotOnDemand(config, limitAge);
+      return buildNewSnapshotOnDemand(config, limitAge, producer);
     }
   }
 
-  private static SnapshotInfos buildNewSnapshotOnDemand(EnvConfig envConfig, LocalDateTime limitAge) {
-    SnapshotMessage snapshotMsg = askAndReadSnapshotOnDemand(envConfig, limitAge);
+  private static SnapshotInfos buildNewSnapshotOnDemand(EnvConfig envConfig, LocalDateTime limitAge, Producer producer) {
+    SnapshotMessage snapshotMsg = askAndReadSnapshotOnDemand(envConfig, limitAge, producer);
     KieSession kSession = null;
     KieContainer kieContainer = null;
     try (ByteArrayInputStream in = new ByteArrayInputStream(snapshotMsg.getSerializedSession())) {
@@ -93,9 +94,9 @@ public class SnapshotOnDemandUtils {
                              snapshotMsg.getKjarGAV());
   }
 
-  private static SnapshotMessage askAndReadSnapshotOnDemand(EnvConfig envConfig, LocalDateTime limitAge) {
+  private static SnapshotMessage askAndReadSnapshotOnDemand(EnvConfig envConfig, LocalDateTime limitAge, Producer producer) {
     Properties props = Config.getProducerConfig("SnapshotOnDemandUtils.askASnapshotOnDemand");
-    Sender sender = new Sender(props);
+    Sender sender = new Sender(props, producer);
     sender.start();
     sender.sendCommand(new SnapshotOnDemandCommand(), TopicsConfig.getDefaultTopicsConfig().getEventsTopicName());
     sender.stop();

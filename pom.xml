@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.kie</groupId>
     <artifactId>kie-parent</artifactId>
-    <version>7.32.0-SNAPSHOT</version> <!-- change with every build -->
+    <version>7.33.0-SNAPSHOT</version> <!-- change with every build -->
   </parent>
 
   <groupId>org.kie</groupId>
@@ -23,12 +23,10 @@
     <surefire.forkCount>1</surefire.forkCount>
     <version.javax.el>3.0.1-b08</version.javax.el>
     <version.javax.ws.rs>2.0.0.Final</version.javax.ws.rs>
-    <version.junit>4.12</version.junit>
     <version.org.apache.kafka>2.2.1</version.org.apache.kafka>
     <version.k8s.client>4.6.0</version.k8s.client>
     <version.logback.kafka.appender>0.2.0-RC2</version.logback.kafka.appender>
     <version.servlet>2.0.0.Final</version.servlet>
-    <version.slf4j>1.7.26</version.slf4j>
   </properties>
 
   <modules>
@@ -264,11 +262,6 @@
 
   <repositories>
     <repository>
-      <id>central</id>
-      <name>Maven Central</name>
-      <url>https://repo.maven.apache.org/maven2</url>
-    </repository>
-    <repository>
       <id>jboss</id>
       <url>https://repository.jboss.org/nexus/content/groups/public/</url>
       <releases>
@@ -279,12 +272,5 @@
       </snapshots>
     </repository>
   </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>central</id>
-      <name>Maven Central</name>
-      <url>https://repo.maven.apache.org/maven2</url>
-    </pluginRepository>
-  </pluginRepositories>
 
 </project>

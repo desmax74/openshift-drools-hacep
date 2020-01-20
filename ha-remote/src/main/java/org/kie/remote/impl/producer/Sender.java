@@ -25,11 +25,11 @@ public class Sender {
   private Producer producer;
   private Properties configuration;
 
-  public Sender(Properties configuration) {
+  public Sender(Properties configuration, Producer producer) {
     this.configuration = configuration != null && !configuration.isEmpty() ?
             configuration :
             ClientUtils.getConfiguration(ClientUtils.PRODUCER_CONF);
-    this.producer = Producer.get(configuration);
+    this.producer = producer;
   }
 
   public void start() {

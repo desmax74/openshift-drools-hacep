@@ -37,12 +37,12 @@ public interface Producer {
                    String key,
                    Message object);
 
-  static Producer get(Properties configuration) {
+  /*static Producer get(Properties configuration) {
     return get(readBoolean(configuration,
                            LOCAL_MESSAGE_SYSTEM_CONF));
   }
 
   static Producer get(boolean isLocal) {
     return isLocal ? new LocalProducer() : new EventProducer();
-  }
+  }*/
 }

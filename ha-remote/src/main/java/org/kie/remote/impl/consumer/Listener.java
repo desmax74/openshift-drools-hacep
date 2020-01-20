@@ -32,8 +32,10 @@ public class Listener {
   private final ListenerThread listenerThread;
   private Thread t;
 
-  public Listener(Properties configuration) {
-    listenerThread = ListenerThread.get(TopicsConfig.getDefaultTopicsConfig(), requestsStore, configuration);
+  public Listener(Properties configuration, ListenerThread listenerThread) {
+    this.listenerThread = listenerThread;
+    this.listenerThread.init(requestsStore);
+    //listenerThread = ListenerThread.get(TopicsConfig.getDefaultTopicsConfig(), requestsStore, configuration);
     if (!readBoolean(configuration, SKIP_LISTENER_AUTOSTART)) {
       start();
     }

@@ -34,7 +34,7 @@ import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.consumer.KieContainerUtils;
 import org.kie.hacep.core.KieSessionContext;
-import org.kie.hacep.core.infra.utils.SnapshotOnDemandUtils;
+import org.kie.hacep.core.infra.utils.SnapshotOnDemandUtilsImpl;
 import org.kie.hacep.exceptions.InitializeException;
 import org.kie.hacep.message.SnapshotMessage;
 import org.kie.remote.impl.producer.EventProducer;
@@ -80,7 +80,7 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
   public SnapshotInfos deserialize() {
     KieServices srv = KieServices.get();
     if (srv != null) {
-      KafkaConsumer<String, byte[]> consumer = SnapshotOnDemandUtils.getConfiguredSnapshotConsumer(envConfig);
+      KafkaConsumer<String, byte[]> consumer = SnapshotOnDemandUtilsImpl.getConfiguredSnapshotConsumer(envConfig);
       ConsumerRecords<String, byte[]> records = consumer.poll(envConfig.getPollSnapshotDuration());
       byte[] bytes = null;
       for (ConsumerRecord record : records) {
@@ -121,7 +121,7 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
 
   @Override
   public LocalDateTime getLastSnapshotTime() {
-    KafkaConsumer<String, byte[]> consumer = SnapshotOnDemandUtils.getConfiguredSnapshotConsumer(envConfig);
+    KafkaConsumer<String, byte[]> consumer = SnapshotOnDemandUtilsImpl.getConfiguredSnapshotConsumer(envConfig);
     ConsumerRecords<String, byte[]> records = consumer.poll(envConfig.getPollSnapshotDuration());
     byte[] bytes = null;
     for (ConsumerRecord record : records) {
@@ -135,4 +135,5 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
       return null;
     }
   }
+
 }

@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import kafka.server.KafkaConfig;
@@ -49,6 +50,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.common.utils.SystemTime;
 import org.apache.kafka.common.utils.Time;
 import org.kie.hacep.core.Bootstrap;
+import org.kie.hacep.core.InfraFactory;
 import org.kie.hacep.sample.kjar.StockTickEvent;
 import org.kie.remote.CommonConfig;
 import org.kie.remote.RemoteKieSession;
@@ -57,9 +59,14 @@ import org.kie.remote.TopicsConfig;
 import org.kie.remote.command.SnapshotOnDemandCommand;
 import org.kie.remote.impl.RemoteKieSessionImpl;
 import org.kie.remote.impl.RemoteStreamingKieSessionImpl;
+import org.kie.remote.impl.consumer.Listener;
+import org.kie.remote.impl.consumer.ListenerThread;
+import org.kie.remote.impl.producer.Producer;
 import org.kie.remote.impl.producer.Sender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.kie.remote.CommonConfig.getTestProperties;
 
 public class KafkaUtilTest implements AutoCloseable {
 
@@ -237,8 +244,11 @@ public class KafkaUtilTest implements AutoCloseable {
                                             TopicsConfig topicsConfig,
                                             Class sessionType,
                                             Properties props) {
+        ListenerThread listenerThread = InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), false, getTestProperties());
+        Listener listener = new Listener(getTestProperties(), listenerThread);
+        Producer prod = InfraFactory.getProducer(false);
         if (sessionType.equals(RemoteKieSession.class)) {
-            RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props, topicsConfig);
+            RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props, topicsConfig, listenerThread, prod);
             producer.fireUntilHalt();
             try{
                 for (int i = 0; i < items; i++) {
@@ -253,7 +263,7 @@ public class KafkaUtilTest implements AutoCloseable {
 
         }
         if (sessionType.equals( RemoteStreamingKieSession.class)) {
-            RemoteStreamingKieSessionImpl producer = new RemoteStreamingKieSessionImpl(props, topicsConfig);
+            RemoteStreamingKieSessionImpl producer = new RemoteStreamingKieSessionImpl(props, topicsConfig, listenerThread, prod);
             producer.fireUntilHalt();
             try {
                 for (int i = 0; i < items; i++) {
@@ -271,7 +281,7 @@ public class KafkaUtilTest implements AutoCloseable {
     public static void insertSnapshotOnDemandCommand() {
         Properties props = Config.getProducerConfig("insertSnapshotOnDemandCommand");
 
-        Sender sender = new Sender(props);
+        Sender sender = new Sender(props, InfraFactory.getProducer(false));
         sender.start();
         SnapshotOnDemandCommand command = new SnapshotOnDemandCommand();
         sender.sendCommand(command, TopicsConfig.getDefaultTopicsConfig().getEventsTopicName());

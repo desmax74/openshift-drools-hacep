@@ -18,7 +18,6 @@ package org.kie.remote;
 
 import java.util.Properties;
 
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
@@ -34,7 +33,7 @@ public class CommonConfigTest {
                                                CommonConfig.VALUE_SERIALIZER_KEY,
                                                CommonConfig.KEY_DESERIALIZER_KEY,
                                                CommonConfig.VALUE_DESERIALIZER_KEY,
-                                               ConsumerConfig.GROUP_ID_CONFIG);
+                                               CommonConfig.GROUP_ID_CONFIG);
   }
 
   @Test

@@ -15,17 +15,24 @@
  */
 package org.kie.remote;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.junit.Test;
+import org.kie.hacep.core.InfraFactory;
+import org.kie.remote.impl.consumer.ListenerThread;
 
 import static org.junit.Assert.*;
 import static org.kie.remote.CommonConfig.getTestProperties;
 
-public class RemoteKieSessionTest {
+public class RemoteStreamingKieSessionTest {
 
-    @Test
+    /*@Test
     public void createTest(){
         TopicsConfig topicsConfig = TopicsConfig.getDefaultTopicsConfig();
-        RemoteKieSession session = RemoteKieSession.create(getTestProperties(), topicsConfig);
+        ListenerThread listenerThread = InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), new ConcurrentHashMap<>(), false, getTestProperties());
+        RemoteStreamingKieSession session = InfraFactory.createRemoteStreamingKieSession(getTestProperties(), topicsConfig, listenerThread, InfraFactory.getProducer(false));//RemoteStreamingKieSession.create(getTestProperties(), topicsConfig);
         assertNotNull(session);
     }
+    */
+
 }

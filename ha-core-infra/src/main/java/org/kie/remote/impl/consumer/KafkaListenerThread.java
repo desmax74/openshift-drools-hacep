@@ -25,10 +25,11 @@ import java.util.concurrent.CompletableFuture;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.kie.hacep.core.InfraFactory;
+import org.kie.hacep.exceptions.InitializeException;
 import org.kie.remote.CommonConfig;
 import org.kie.remote.TopicsConfig;
 import org.kie.remote.message.ResultMessage;
-import org.kie.remote.util.ConsumerUtils;
 import org.kie.remote.util.SerializationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,14 +43,20 @@ public class KafkaListenerThread implements ListenerThread {
 
   private volatile boolean running = true;
 
-  public KafkaListenerThread(Properties configuration, TopicsConfig config, Map<String, CompletableFuture<Object>> requestsStore) {
+  public KafkaListenerThread(Properties configuration, TopicsConfig config) {
     this.topicsConfig = config;
+    consumer = InfraFactory.getConsumer(topicsConfig.getKieSessionInfosTopicName(), configuration);
+  }
+
+  public void init(Map<String, CompletableFuture<Object>> requestsStore){
     this.requestsStore = requestsStore;
-    consumer = ConsumerUtils.getConsumer(topicsConfig.getKieSessionInfosTopicName(), configuration);
   }
 
   @Override
   public void run() {
+    if(requestsStore == null){
+      throw new InitializeException("Request store not initialized");
+    }
     try {
       while (running) {
         ConsumerRecords records = consumer.poll(Duration.of(CommonConfig.DEFAULT_POLL_TIMEOUT_MS, ChronoUnit.MILLIS));
@@ -71,6 +78,18 @@ public class KafkaListenerThread implements ListenerThread {
       logger.error(ex.getMessage(), ex);
     } finally {
       consumer.close();
+    }
+  }
+
+  private void complete(Map<String, CompletableFuture<Object>> requestsStore,
+                        ResultMessage message,
+                        Logger logger) {
+    CompletableFuture<Object> completableFuture = requestsStore.get(message.getId());
+    if (completableFuture != null) {
+      completableFuture.complete(message.getResult());
+      if (logger.isDebugEnabled()) {
+        logger.debug("completed msg with key {}", message.getId());
+      }
     }
   }
 

@@ -96,7 +96,7 @@ public class Bootstrap {
   }
 
   private static Producer startProducer(EnvConfig envConfig) {
-    Producer producer = Producer.get(envConfig.isLocal());
+    Producer producer = InfraFactory.getProducer(envConfig.isLocal());
     producer.start(Config.getProducerConfig("EventProducer"));
     return producer;
   }

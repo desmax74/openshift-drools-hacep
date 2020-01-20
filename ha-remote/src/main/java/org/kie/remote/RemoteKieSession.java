@@ -21,18 +21,19 @@ import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 
 import org.kie.remote.impl.RemoteKieSessionImpl;
+import org.kie.remote.impl.consumer.ListenerThread;
 
 public interface RemoteKieSession extends Closeable, RemoteEntryPoint, RemoteStatefulSession, UpdatableSession {
 
   RemoteEntryPoint getEntryPoint(String name);
-
-  static RemoteKieSession create(Properties configuration) {
-    return new RemoteKieSessionImpl(configuration);
+/*
+  static RemoteKieSession create(Properties configuration, ListenerThread listenerThread) {
+    return new RemoteKieSessionImpl(configuration, listenerThread);
   }
 
-  static RemoteKieSession create(Properties configuration, TopicsConfig envConfig) {
-    return new RemoteKieSessionImpl(configuration, envConfig);
-  }
+  static RemoteKieSession create(Properties configuration, TopicsConfig envConfig, ListenerThread listenerThread) {
+    return new RemoteKieSessionImpl(configuration, envConfig, listenerThread);
+  }*/
 
   CompletableFuture<String> getKJarGAV();
 

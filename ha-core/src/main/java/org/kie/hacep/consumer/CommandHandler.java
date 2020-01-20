@@ -29,7 +29,7 @@ import org.kie.api.runtime.rule.FactHandle;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.KieSessionContext;
 import org.kie.hacep.core.infra.SessionSnapshooter;
-import org.kie.hacep.core.infra.utils.ConsumerUtilsCore;
+import org.kie.hacep.util.ConsumerUtilsCore;
 import org.kie.remote.DroolsExecutor;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.command.DeleteCommand;
@@ -69,12 +69,14 @@ public class CommandHandler implements VisitorCommand {
   private Producer producer;
   private SessionSnapshooter sessionSnapshooter;
   private volatile boolean firingUntilHalt;
+  private ConsumerUtilsCore consumerUtilsCore;
 
-  public CommandHandler(KieSessionContext kieSessionContext, EnvConfig envConfig, Producer producer, SessionSnapshooter sessionSnapshooter) {
+  public CommandHandler(KieSessionContext kieSessionContext, EnvConfig envConfig, Producer producer, SessionSnapshooter sessionSnapshooter, ConsumerUtilsCore consumerUtilsCore) {
     this.kieSessionContext = kieSessionContext;
     this.envConfig = envConfig;
     this.producer = producer;
     this.sessionSnapshooter = sessionSnapshooter;
+    this.consumerUtilsCore = consumerUtilsCore;
   }
 
   @Override
@@ -226,7 +228,7 @@ public class CommandHandler implements VisitorCommand {
       sessionSnapshooter.serialize(kieSessionContext, command.getId(), 0l);
     } else if (LocalDateTime.now().minusSeconds(envConfig.getMaxSnapshotAge()).isAfter(lastSnapshotTime)) {
 
-      ControlMessage lastControlMessage = ConsumerUtilsCore.getLastEvent(envConfig.getControlTopicName(),
+      ControlMessage lastControlMessage = consumerUtilsCore.getLastEvent(envConfig.getControlTopicName(),
                                                                          envConfig.getPollTimeout());
       if (lastControlMessage != null) {
         sessionSnapshooter.serialize(kieSessionContext, lastControlMessage.getId(), lastControlMessage.getOffset());

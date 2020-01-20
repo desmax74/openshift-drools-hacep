@@ -36,9 +36,13 @@ public class LocalListenerThread implements ListenerThread {
 
   private volatile boolean running = true;
 
-  public LocalListenerThread(TopicsConfig topicsConfig,
-                             Map<String, CompletableFuture<Object>> requestsStore) {
+  public LocalListenerThread(TopicsConfig topicsConfig) {
     this.topicsConfig = topicsConfig;
+
+  }
+
+  @Override
+  public void init(Map<String, CompletableFuture<Object>> requestsStore) {
     this.requestsStore = requestsStore;
   }
 
@@ -55,6 +59,18 @@ public class LocalListenerThread implements ListenerThread {
                                                 msg.getClass().getCanonicalName() +
                                                 " instead of " +
                                                 ResultMessage.class.getCanonicalName());
+      }
+    }
+  }
+
+  private void complete(Map<String, CompletableFuture<Object>> requestsStore,
+                        ResultMessage message,
+                        Logger logger) {
+    CompletableFuture<Object> completableFuture = requestsStore.get(message.getId());
+    if (completableFuture != null) {
+      completableFuture.complete(message.getResult());
+      if (logger.isDebugEnabled()) {
+        logger.debug("completed msg with key {}", message.getId());
       }
     }
   }

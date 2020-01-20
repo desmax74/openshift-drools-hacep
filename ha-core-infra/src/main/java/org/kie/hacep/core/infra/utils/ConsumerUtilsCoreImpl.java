@@ -24,26 +24,27 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.kie.hacep.Config;
+import org.kie.hacep.core.InfraFactory;
+import org.kie.hacep.util.ConsumerUtilsCore;
 import org.kie.remote.message.ControlMessage;
-import org.kie.remote.util.ConsumerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.kie.remote.util.SerializationUtil.deserialize;
 
-public class ConsumerUtilsCore {
+public class ConsumerUtilsCoreImpl implements ConsumerUtilsCore {
 
-  private static Logger logger = LoggerFactory.getLogger(ConsumerUtilsCore.class);
+  private Logger logger = LoggerFactory.getLogger(ConsumerUtilsCoreImpl.class);
 
-  private ConsumerUtilsCore() { }
+  public ConsumerUtilsCoreImpl() { }
 
-  public static ControlMessage getLastEvent(String topic, Integer pollTimeout) {
+  public ControlMessage getLastEvent(String topic, Integer pollTimeout) {
     return getLastEvent(topic, Config.getConsumerConfig("LastEventConsumer"), pollTimeout);
   }
 
-  public static ControlMessage getLastEvent(String topic, Properties properties, Integer pollTimeout) {
+  public ControlMessage getLastEvent(String topic, Properties properties, Integer pollTimeout) {
     ControlMessage lastMessage = new ControlMessage();
-    try(KafkaConsumer consumer = ConsumerUtils.getConsumer(topic, properties)) {
+    try(KafkaConsumer consumer = InfraFactory.getConsumer(topic, properties)) {
       ConsumerRecords records = consumer.poll(Duration.of(pollTimeout, ChronoUnit.MILLIS));
       Iterator<ConsumerRecord<String, byte[]>> iterator = records.iterator();
       while(iterator.hasNext()){

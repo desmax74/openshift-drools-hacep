@@ -27,9 +27,9 @@ import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.consumer.ConsumerHandler;
 import org.kie.hacep.core.infra.consumer.ItemToProcess;
 import org.kie.hacep.core.infra.election.State;
-import org.kie.hacep.core.infra.utils.SnapshotOnDemandUtils;
 import org.kie.hacep.exceptions.InitializeException;
 import org.kie.hacep.exceptions.ProcessCommandException;
+import org.kie.hacep.util.ConsumerUtilsCore;
 import org.kie.hacep.util.PrinterUtil;
 import org.kie.remote.DroolsExecutor;
 import org.kie.remote.command.RemoteCommand;
@@ -52,13 +52,15 @@ public class DroolsConsumerHandler implements ConsumerHandler {
   private CommandHandler commandHandler;
   private SnapshotInfos snapshotInfos;
   private boolean shutdown;
+  private ConsumerUtilsCore consumerUtilsCore;
 
-  public DroolsConsumerHandler(Producer producer, EnvConfig envConfig, SessionSnapshooter snapShooter) {
+  public DroolsConsumerHandler(Producer producer, EnvConfig envConfig, SessionSnapshooter snapShooter, ConsumerUtilsCore consumerUtilsCore) {
     this.envConfig = envConfig;
     this.sessionSnapShooter = snapShooter;
     initializeKieSessionContext();
     this.producer = producer;
-    this.commandHandler = new CommandHandler(this.kieSessionContext, this.envConfig, producer, this.sessionSnapShooter);
+    this.consumerUtilsCore = consumerUtilsCore;
+    this.commandHandler = new CommandHandler(this.kieSessionContext, this.envConfig, producer, this.sessionSnapShooter, consumerUtilsCore);
     if (this.envConfig.isUnderTest()) {
       loggerForTest = PrinterUtil.getKafkaLoggerForTest(envConfig);
     }
@@ -107,9 +109,9 @@ public class DroolsConsumerHandler implements ConsumerHandler {
   }
 
   //This is called from the Default KafkaConsumer
-  public boolean initializeKieSessionFromSnapshotOnDemand(EnvConfig config) {
+  public boolean initializeKieSessionFromSnapshotOnDemand(EnvConfig config, SnapshotInfos snapshotInfos) {
     if (!config.isSkipOnDemandSnapshot()) {// if true we reads the snapshots and wait until the first leaderElectionUpdate
-      this.snapshotInfos = SnapshotOnDemandUtils.askASnapshotOnDemand(config, sessionSnapShooter);
+      this.snapshotInfos = snapshotInfos;//SnapshotOnDemandUtils.askASnapshotOnDemand(config, sessionSnapShooter);
       initializeSessionContextFromSnapshot();
       return true;
     }

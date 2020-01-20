@@ -130,10 +130,8 @@ public class KubernetesLockConfiguration implements Cloneable {
     this.clusterLabels = clusterLabels;
   }
 
-  public void addToClusterLabels(String key,
-                                 String value) {
-    this.clusterLabels.put(key,
-                           value);
+  public void addToClusterLabels(String key, String value) {
+    this.clusterLabels.put(key, value);
   }
 
   public double getJitterFactor() {
@@ -174,11 +172,6 @@ public class KubernetesLockConfiguration implements Cloneable {
     } catch (CloneNotSupportedException e) {
       throw new IllegalStateException("Cannot clone", e);
     }
-  }
-
-  @Override
-  protected Object clone() throws CloneNotSupportedException {
-    return super.clone();
   }
 
   @Override

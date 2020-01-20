@@ -26,23 +26,20 @@ import org.kie.remote.TopicsConfig;
 import org.kie.remote.command.GetKJarGAVCommand;
 import org.kie.remote.command.UpdateKJarCommand;
 import org.kie.remote.impl.consumer.Listener;
+import org.kie.remote.impl.consumer.ListenerThread;
+import org.kie.remote.impl.producer.Producer;
 import org.kie.remote.impl.producer.Sender;
 
 public class RemoteStreamingKieSessionImpl extends RemoteStreamingEntryPointImpl implements RemoteStreamingKieSession {
 
   private final Map<String, RemoteStreamingEntryPoint> entryPoints = new HashMap<>();
 
-  public RemoteStreamingKieSessionImpl(Properties configuration) {
-    this(configuration,
-         TopicsConfig.getDefaultTopicsConfig());
+  public RemoteStreamingKieSessionImpl(Properties configuration, ListenerThread listenerThread, Producer producer) {
+    this(configuration, TopicsConfig.getDefaultTopicsConfig(), listenerThread, producer);
   }
 
-  public RemoteStreamingKieSessionImpl(Properties configuration,
-                                       TopicsConfig envConfig) {
-    super(new Sender(configuration),
-          EntryPointUtil.DEFAULT_ENTRY_POINT,
-          envConfig,
-          new Listener(configuration));
+  public RemoteStreamingKieSessionImpl(Properties configuration, TopicsConfig envConfig, ListenerThread listenerThread, Producer producer) {
+    super(new Sender(configuration, producer), EntryPointUtil.DEFAULT_ENTRY_POINT, envConfig, new Listener(configuration, listenerThread));
     sender.start();
     // a streaming session is fireUntilHalt by default
     fireUntilHalt();

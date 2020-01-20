@@ -37,12 +37,15 @@ import org.kie.hacep.core.infra.DefaultSessionSnapShooter;
 import org.kie.hacep.core.InfraFactory;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.election.State;
-import org.kie.hacep.core.infra.utils.ConsumerUtilsCore;
+import org.kie.hacep.core.infra.utils.ConsumerUtilsCoreImpl;
+import org.kie.hacep.core.infra.utils.SnapshotOnDemandUtilsImpl;
 import org.kie.hacep.exceptions.InitializeException;
-import org.kie.hacep.util.Printer;
+import org.kie.hacep.util.ConsumerUtilsCore;
 import org.kie.hacep.util.PrinterUtil;
 import org.kie.remote.DroolsExecutor;
+import org.kie.remote.impl.producer.Producer;
 import org.kie.remote.message.ControlMessage;
+import org.kie.remote.util.ConsumerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,8 +81,10 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
     private EnvConfig envConfig;
     private Logger loggerForTest;
     private volatile boolean askedSnapshotOnDemand;
+    private Producer producer;
+    private ConsumerUtilsCore consumerUtilsCore;
 
-    public DefaultKafkaConsumer(EnvConfig config) {
+    public DefaultKafkaConsumer(EnvConfig config, Producer producer) {
         this.envConfig = config;
         if (this.envConfig.isSkipOnDemandSnapshot()) {
             counter = new AtomicInteger(0);
@@ -88,6 +93,8 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         if (this.envConfig.isUnderTest()) {
             loggerForTest = PrinterUtil.getKafkaLoggerForTest(this.envConfig);
         }
+        this.producer = producer;
+        this.consumerUtilsCore = new ConsumerUtilsCoreImpl();
     }
 
     public void initConsumer(ConsumerHandler consumerHandler) {
@@ -133,7 +140,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         if (started && changedState && !currentState.equals(State.BECOMING_LEADER)) {
             updateOnRunningConsumer(state);
         } else if (!started && state.equals(State.REPLICA) && !envConfig.isSkipOnDemandSnapshot() && !askedSnapshotOnDemand) {
-            askAndProcessSnapshotOnDemand();
+            askAndProcessSnapshotOnDemand(SnapshotOnDemandUtilsImpl.askASnapshotOnDemand(envConfig, snapShooter, producer));
         }
         //State.BECOMING_LEADER won't start the pod
         if (state.equals(State.LEADER) || state.equals(State.REPLICA)) {
@@ -144,9 +151,9 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         }
     }
 
-    protected void askAndProcessSnapshotOnDemand() {
+    protected void askAndProcessSnapshotOnDemand(SnapshotInfos snapshotInfos) {
         askedSnapshotOnDemand = true;
-        boolean completed = consumerHandler.initializeKieSessionFromSnapshotOnDemand(envConfig);
+        boolean completed = consumerHandler.initializeKieSessionFromSnapshotOnDemand(envConfig, snapshotInfos);
         if (logger.isInfoEnabled()) {
             logger.info("askAndProcessSnapshotOnDemand:{}", completed);
         }
@@ -287,8 +294,8 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
     }
 
     protected void setLastProcessedKey() {
-        ControlMessage lastControlMessage = ConsumerUtilsCore.getLastEvent(envConfig.getControlTopicName(),
-                                                                           envConfig.getPollTimeout());
+        ControlMessage lastControlMessage = consumerUtilsCore.getLastEvent(envConfig.getControlTopicName(),
+                                                                               envConfig.getPollTimeout());
         settingsOnAEmptyControlTopic(lastControlMessage);
         processingKey = lastControlMessage.getId();
         processingKeyOffset = lastControlMessage.getOffset();
@@ -336,7 +343,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         if (envConfig.isSkipOnDemandSnapshot()) {
             handleSnapshotBetweenIteration(record);
         } else {
-            consumerHandler.process(ItemToProcess.getItemToProcess(record), currentState);
+            consumerHandler.process(InfraFactory.getItemToProcess(record), currentState);
         }
         processingKey = record.key();// the new processed became the new processingKey
         saveOffset(record, kafkaConsumer);
@@ -353,9 +360,9 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         int iteration = counter.incrementAndGet();
         if (iteration == iterationBetweenSnapshot) {
             counter.set(0);
-            consumerHandler.processWithSnapshot(ItemToProcess.getItemToProcess(record), currentState);
+            consumerHandler.processWithSnapshot(InfraFactory.getItemToProcess(record), currentState);
         } else {
-            consumerHandler.process(ItemToProcess.getItemToProcess(record), currentState);
+            consumerHandler.process(InfraFactory.getItemToProcess(record), currentState);
         }
     }
 
@@ -419,7 +426,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
 
     protected void processEventsAsAReplica(ConsumerRecord<String, T> record) {
 
-        ItemToProcess item = ItemToProcess.getItemToProcess(record);
+        ItemToProcess item = InfraFactory.getItemToProcess(record);
         if (record.key().equals(processingKey)) {
             lastProcessedEventOffset = record.offset();
 
@@ -437,7 +444,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
                 logger.debug("processEventsAsAReplica still {} events in the eventsBuffer to consume and processing item:{}.",
                              eventsBuffer.size(), item);
             }
-            consumerHandler.process(ItemToProcess.getItemToProcess(record), currentState);
+            consumerHandler.process(InfraFactory.getItemToProcess(record), currentState);
             saveOffset(record, kafkaConsumer);
         }
     }

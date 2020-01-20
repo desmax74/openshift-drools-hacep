@@ -21,15 +21,12 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.PartitionInfo;
-import org.apache.kafka.common.TopicPartition;
 
 public class ConsumerUtils {
 
   private ConsumerUtils() { }
 
-  public static KafkaConsumer getConsumer(String topic, Properties properties) {
+  /*public static KafkaConsumer getConsumer(String topic, Properties properties) {
     KafkaConsumer consumer = new KafkaConsumer(properties);
     List<PartitionInfo> infos = consumer.partitionsFor(topic);
     List<TopicPartition> partitions = new ArrayList<>();
@@ -53,6 +50,6 @@ public class ConsumerUtils {
       consumer.seek(part, lastOffset - 1);
     }
     return consumer;
-  }
+  }*/
 
 }

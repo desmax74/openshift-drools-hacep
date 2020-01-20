@@ -18,13 +18,15 @@ package org.kie.hacep.core.infra.utils;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import org.kie.hacep.Config;
+import org.kie.hacep.util.ConsumerUtilsCore;
 import org.kie.remote.message.ControlMessage;
 
 public class ConsumerUtilsCoreTest {
 
     @Test()
     public void lastEventWithoutKafkaUptest(){
-        ControlMessage msg = ConsumerUtilsCore.getLastEvent(Config.DEFAULT_CONTROL_TOPIC, 1000);
+        ConsumerUtilsCore consumerUtilsCore = new ConsumerUtilsCoreImpl();
+        ControlMessage msg = consumerUtilsCore.getLastEvent(Config.DEFAULT_CONTROL_TOPIC, 1000);
         assertNotNull(msg);
         assertTrue(msg.getOffset() == 0);
         assertNull(msg.getSideEffects());
