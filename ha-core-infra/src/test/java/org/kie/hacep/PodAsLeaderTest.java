@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -64,9 +63,7 @@ public class PodAsLeaderTest extends KafkaFullTopicsTests {
         props.put(SKIP_LISTENER_AUTOSTART, true);
 
         logger.warn("Insert Stock Ticket event");
-        ListenerThread listenerThread = InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), envConfig.isLocal(), getTestProperties());
-        Listener listener = new Listener(props, listenerThread);
-        kafkaServerTest.insertBatchStockTicketEvent(1, topicsConfig, RemoteKieSession.class, props, listenerThread);
+        kafkaServerTest.insertBatchStockTicketEvent(1, topicsConfig, RemoteKieSession.class, props, InfraFactory.getListener(props, false));
         try {
             //EVENTS TOPIC
             logger.warn("Checks on Events topic");

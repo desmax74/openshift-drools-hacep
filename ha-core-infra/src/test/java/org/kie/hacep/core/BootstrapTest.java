@@ -15,10 +15,11 @@
  */
 package org.kie.hacep.core;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.infra.election.State;
+
+import static org.junit.Assert.*;
 
 public class BootstrapTest {
 

@@ -42,6 +42,7 @@ import org.kie.remote.impl.ClientUtils;
 import org.kie.remote.impl.RemoteKieSessionImpl;
 import org.kie.remote.impl.RemoteStreamingKieSessionImpl;
 import org.kie.remote.impl.consumer.KafkaListenerThread;
+import org.kie.remote.impl.consumer.Listener;
 import org.kie.remote.impl.consumer.ListenerThread;
 import org.kie.remote.impl.consumer.LocalListenerThread;
 import org.kie.remote.impl.producer.EventProducer;
@@ -93,6 +94,10 @@ public class InfraFactory {
         return consumer;
     }
 
+    public static Listener getListener(Properties props, boolean isLocal){
+        return new Listener(props, InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), isLocal, props));
+    }
+
     public static ListenerThread getListenerThread(TopicsConfig topicsConfig,
                                              boolean isLocal,
                                              Properties configuration) {
@@ -108,12 +113,12 @@ public class InfraFactory {
     }
 
 
-    public static RemoteKieSession createRemoteKieSession(Properties configuration, ListenerThread listenerThread, Producer producer) {
-        return new RemoteKieSessionImpl(configuration, listenerThread, producer);
+    public static RemoteKieSession createRemoteKieSession(Properties configuration, Listener listener, Producer producer) {
+        return new RemoteKieSessionImpl(configuration, listener, producer);
     }
 
-    public static RemoteKieSession createRemoteKieSession(Properties configuration, TopicsConfig envConfig, ListenerThread listenerThread, Producer producer) {
-        return new RemoteKieSessionImpl(configuration, envConfig, listenerThread, producer);
+    public static RemoteKieSession createRemoteKieSession(Properties configuration, TopicsConfig envConfig, Listener listener, Producer producer) {
+        return new RemoteKieSessionImpl(configuration, envConfig, listener, producer);
     }
 
     public static Producer getProducer(Properties configuration) {
@@ -124,12 +129,12 @@ public class InfraFactory {
         return isLocal ? new LocalProducer() : new EventProducer();
     }
 
-    public static RemoteStreamingKieSession createRemoteStreamingKieSession(Properties configuration, ListenerThread listenerThread, Producer producer) {
-        return new RemoteStreamingKieSessionImpl(configuration, listenerThread, producer);
+    public static RemoteStreamingKieSession createRemoteStreamingKieSession(Properties configuration, Listener listener, Producer producer) {
+        return new RemoteStreamingKieSessionImpl(configuration, listener, producer);
     }
 
-    public static RemoteStreamingKieSession createRemoteStreamingKieSession(Properties configuration,TopicsConfig envConfig, ListenerThread listenerThread, Producer producer) {
-        return new RemoteStreamingKieSessionImpl(configuration, envConfig, listenerThread, producer);
+    public static RemoteStreamingKieSession createRemoteStreamingKieSession(Properties configuration, TopicsConfig envConfig, Listener listener, Producer producer) {
+        return new RemoteStreamingKieSessionImpl(configuration, envConfig, listener, producer);
     }
 
     public static ItemToProcess getItemToProcess(ConsumerRecord record) {

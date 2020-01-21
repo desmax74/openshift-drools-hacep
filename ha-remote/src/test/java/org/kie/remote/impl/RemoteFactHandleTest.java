@@ -16,6 +16,7 @@
 package org.kie.remote.impl;
 
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 public class RemoteFactHandleTest {

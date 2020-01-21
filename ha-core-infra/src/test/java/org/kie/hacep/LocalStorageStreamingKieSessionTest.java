@@ -18,9 +18,7 @@ package org.kie.hacep;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.After;
@@ -37,7 +35,6 @@ import org.kie.remote.RemoteStreamingKieSession;
 import org.kie.remote.TopicsConfig;
 import org.kie.remote.impl.consumer.Listener;
 import org.kie.remote.impl.consumer.ListenerThread;
-import org.kie.remote.impl.producer.Producer;
 
 import static org.junit.Assert.*;
 import static org.kie.remote.CommonConfig.getTestProperties;
@@ -55,7 +52,7 @@ public class LocalStorageStreamingKieSessionTest {
 
         ListenerThread listenerThread = InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), config.isLocal(), getTestProperties());
         Listener listener = new Listener(getTestProperties(), listenerThread);
-        session = InfraFactory.createRemoteStreamingKieSession(getTestProperties(), listenerThread, InfraFactory.getProducer(true));
+        session = InfraFactory.createRemoteStreamingKieSession(getTestProperties(), listener, InfraFactory.getProducer(true));
     }
 
     @After

@@ -16,7 +16,6 @@
 package org.kie.hacep.consumer;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
@@ -24,6 +23,8 @@ import org.kie.api.runtime.rule.FactHandle;
 import org.kie.hacep.EnvConfig;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.impl.RemoteFactHandleImpl;
+
+import static org.junit.Assert.*;
 
 public class FactHandlesManagerTest {
 

@@ -33,8 +33,8 @@ import org.apache.kafka.common.errors.WakeupException;
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.consumer.DroolsConsumerHandler;
-import org.kie.hacep.core.infra.DefaultSessionSnapShooter;
 import org.kie.hacep.core.InfraFactory;
+import org.kie.hacep.core.infra.DefaultSessionSnapShooter;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.core.infra.utils.ConsumerUtilsCoreImpl;
@@ -45,7 +45,6 @@ import org.kie.hacep.util.PrinterUtil;
 import org.kie.remote.DroolsExecutor;
 import org.kie.remote.impl.producer.Producer;
 import org.kie.remote.message.ControlMessage;
-import org.kie.remote.util.ConsumerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

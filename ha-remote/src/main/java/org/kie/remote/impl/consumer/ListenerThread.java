@@ -17,16 +17,7 @@
 package org.kie.remote.impl.consumer;
 
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
-
-import org.kie.remote.TopicsConfig;
-import org.kie.remote.impl.ClientUtils;
-import org.kie.remote.message.ResultMessage;
-import org.slf4j.Logger;
-
-import static org.kie.remote.CommonConfig.LOCAL_MESSAGE_SYSTEM_CONF;
-import static org.kie.remote.util.ConfigurationUtil.readBoolean;
 
 public interface ListenerThread extends Runnable {
 

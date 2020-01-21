@@ -16,12 +16,13 @@
 package org.kie.hacep.core.infra;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import static org.junit.Assert.*;
 import org.junit.Test;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.InfraFactory;
 import org.kie.hacep.core.infra.utils.SnapshotOnDemandUtilsImpl;
 import org.kie.remote.impl.producer.Producer;
+
+import static org.junit.Assert.*;
 
 public class SnapshotOnDemandUtilsTest {
 

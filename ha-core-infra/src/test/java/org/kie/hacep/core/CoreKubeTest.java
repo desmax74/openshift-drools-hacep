@@ -16,10 +16,11 @@
 package org.kie.hacep.core;
 
 import io.fabric8.kubernetes.client.KubernetesClientException;
-import static org.junit.Assert.*;
 import org.junit.Test;
 import org.kie.hacep.core.infra.election.LeaderElection;
 import org.kie.hacep.core.infra.election.LeaderElectionImpl;
+
+import static org.junit.Assert.*;
 
 public class CoreKubeTest {
 

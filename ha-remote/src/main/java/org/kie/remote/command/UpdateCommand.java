@@ -17,6 +17,7 @@
 package org.kie.remote.command;
 
 import java.io.Serializable;
+
 import org.kie.remote.RemoteFactHandle;
 
 public class UpdateCommand extends WorkingMemoryActionCommand implements VisitableCommand, Serializable {

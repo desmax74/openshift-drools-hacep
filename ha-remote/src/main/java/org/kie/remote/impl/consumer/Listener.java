@@ -20,7 +20,6 @@ import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.kie.remote.TopicsConfig;
 import org.kie.remote.exceptions.StopConsumeException;
 
 import static org.kie.remote.CommonConfig.SKIP_LISTENER_AUTOSTART;
@@ -35,7 +34,6 @@ public class Listener {
   public Listener(Properties configuration, ListenerThread listenerThread) {
     this.listenerThread = listenerThread;
     this.listenerThread.init(requestsStore);
-    //listenerThread = ListenerThread.get(TopicsConfig.getDefaultTopicsConfig(), requestsStore, configuration);
     if (!readBoolean(configuration, SKIP_LISTENER_AUTOSTART)) {
       start();
     }

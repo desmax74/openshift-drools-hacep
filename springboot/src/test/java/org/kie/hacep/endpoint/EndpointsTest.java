@@ -15,10 +15,11 @@
  */
 package org.kie.hacep.endpoint;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
 import org.kie.hacep.core.GlobalStatus;
 import org.springframework.http.ResponseEntity;
+
+import static org.junit.Assert.*;
 
 public class EndpointsTest {
 

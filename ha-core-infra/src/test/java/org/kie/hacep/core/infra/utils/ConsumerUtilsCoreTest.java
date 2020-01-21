@@ -15,11 +15,12 @@
  */
 package org.kie.hacep.core.infra.utils;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
 import org.kie.hacep.Config;
 import org.kie.hacep.util.ConsumerUtilsCore;
 import org.kie.remote.message.ControlMessage;
+
+import static org.junit.Assert.*;
 
 public class ConsumerUtilsCoreTest {
 

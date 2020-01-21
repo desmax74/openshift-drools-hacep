@@ -75,7 +75,6 @@ public class CommonConfig {
     if (producerConf == null) {
       producerConf = getDefaultConfigFromProps(PRODUCER_CONF);
     }
-    //logConfig(caller, producerConf);
     return producerConf;
   }
 

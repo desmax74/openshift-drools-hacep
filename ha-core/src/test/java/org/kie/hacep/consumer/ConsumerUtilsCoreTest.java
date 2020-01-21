@@ -25,13 +25,13 @@ public class ConsumerUtilsCoreTest implements ConsumerUtilsCore {
     @Override
     public ControlMessage getLastEvent(String topic,
                                        Integer pollTimeout) {
-        return null;
+        return new ControlMessage();
     }
 
     @Override
     public ControlMessage getLastEvent(String topic,
                                        Properties properties,
                                        Integer pollTimeout) {
-        return null;
+        return new ControlMessage();
     }
 }

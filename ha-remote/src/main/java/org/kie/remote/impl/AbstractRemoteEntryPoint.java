@@ -37,9 +37,7 @@ public abstract class AbstractRemoteEntryPoint implements RemoteWorkingMemory {
   protected final String entryPoint;
   protected TopicsConfig topicsConfig;
 
-  public AbstractRemoteEntryPoint(Sender sender,
-                                  String entryPoint,
-                                  TopicsConfig topicsConfig) {
+  public AbstractRemoteEntryPoint(Sender sender, String entryPoint, TopicsConfig topicsConfig) {
     this.sender = sender;
     this.entryPoint = entryPoint;
     this.topicsConfig = topicsConfig;

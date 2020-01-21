@@ -20,9 +20,6 @@ import java.util.Properties;
 import org.kie.remote.message.Message;
 import org.kie.remote.message.ResultMessage;
 
-import static org.kie.remote.CommonConfig.LOCAL_MESSAGE_SYSTEM_CONF;
-import static org.kie.remote.util.ConfigurationUtil.readBoolean;
-
 public interface Producer {
 
   void start(Properties properties);

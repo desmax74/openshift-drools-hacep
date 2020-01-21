@@ -15,13 +15,14 @@
  */
 package org.kie.hacep.consumer;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class BidirectionalMapTest {
 
     @Test
-    public void test(){
+    public void bidirectionalMapTest(){
         BidirectionalMap map = new BidirectionalMap();
         map.put("one", 1);
         Object res = map.getKey(1);

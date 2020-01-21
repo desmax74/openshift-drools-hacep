@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import kafka.server.KafkaConfig;
@@ -60,13 +58,10 @@ import org.kie.remote.TopicsConfig;
 import org.kie.remote.command.SnapshotOnDemandCommand;
 import org.kie.remote.impl.RemoteKieSessionImpl;
 import org.kie.remote.impl.RemoteStreamingKieSessionImpl;
-import org.kie.remote.impl.consumer.ListenerThread;
-import org.kie.remote.impl.producer.Producer;
+import org.kie.remote.impl.consumer.Listener;
 import org.kie.remote.impl.producer.Sender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.kie.remote.CommonConfig.getTestProperties;
 
 public class KafkaUtils implements AutoCloseable {
 
@@ -167,8 +162,7 @@ public class KafkaUtils implements AutoCloseable {
         shutdownServer();
     }
 
-    public <K, V> void sendSingleMsg(KafkaProducer<K, V> producer,
-                                     ProducerRecord<K, V> data) {
+    public <K, V> void sendSingleMsg(KafkaProducer<K, V> producer, ProducerRecord<K, V> data) {
         producer.send(data);
         producer.close();
     }
@@ -193,8 +187,7 @@ public class KafkaUtils implements AutoCloseable {
 
     public <K, V> KafkaConsumer<K, V> getStringConsumer(String topic) {
         Properties consumerProps = getConsumerConfig();
-        consumerProps.setProperty("value.deserializer",
-                                  "org.apache.kafka.common.serialization.StringDeserializer");
+        consumerProps.setProperty("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         KafkaConsumer<K, V> consumer = new KafkaConsumer<>(consumerProps);
         consumer.subscribe(Arrays.asList(topic));
         return consumer;
@@ -203,8 +196,7 @@ public class KafkaUtils implements AutoCloseable {
 
     public <K, V> KafkaConsumer<K, V> getByteArrayConsumer(String topic) {
         Properties consumerProps = getConsumerConfig();
-        consumerProps.setProperty("value.deserializer",
-                                  "org.apache.kafka.common.serialization.ByteArrayDeserializer");
+        consumerProps.setProperty("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
         KafkaConsumer<K, V> consumer = new KafkaConsumer<>(consumerProps);
         consumer.subscribe(Arrays.asList(topic));
         return consumer;
@@ -212,20 +204,17 @@ public class KafkaUtils implements AutoCloseable {
 
     public <K, V> KafkaProducer<K, V> getByteArrayProducer() {
         Properties producerProps = getProducerConfig();
-        producerProps.setProperty("value.serializer",
-                                  "org.apache.kafka.common.serialization.ByteArraySerializer");
+        producerProps.setProperty("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
         return new KafkaProducer<>(producerProps);
     }
 
-    public KafkaConsumer getConsumer(String topic,
-                                     Properties props) {
+    public KafkaConsumer getConsumer(String topic, Properties props) {
         KafkaConsumer consumer = new KafkaConsumer(props);
         List<PartitionInfo> infos = consumer.partitionsFor(topic);
         List<TopicPartition> partitions = new ArrayList();
         if (infos != null) {
             for (PartitionInfo partition : infos) {
-                partitions.add(new TopicPartition(partition.topic(),
-                                                  partition.partition()));
+                partitions.add(new TopicPartition(partition.topic(), partition.partition()));
             }
         }
         consumer.assign(partitions);
@@ -234,24 +223,17 @@ public class KafkaUtils implements AutoCloseable {
         return consumer;
     }
 
-    public void insertBatchStockTicketEvent(int items,
-                                            TopicsConfig topicsConfig,
-                                            Class sessionType, ListenerThread listenerThread) {
-        insertBatchStockTicketEvent(items, topicsConfig, sessionType, Config.getProducerConfig( "InsertBatchStockTicketEvent" ), listenerThread);
+    public void insertBatchStockTicketEvent(int items, TopicsConfig topicsConfig, Class sessionType, Listener listener) {
+        insertBatchStockTicketEvent(items, topicsConfig, sessionType, Config.getProducerConfig( "InsertBatchStockTicketEvent" ), listener);
     }
 
-    public void insertBatchStockTicketEvent(int items,
-                                            TopicsConfig topicsConfig,
-                                            Class sessionType,
-                                            Properties props, ListenerThread listenerThread) {
+    public void insertBatchStockTicketEvent(int items, TopicsConfig topicsConfig, Class sessionType, Properties props, Listener listener) {
         if (sessionType.equals(RemoteKieSession.class)) {
-            RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props, topicsConfig, listenerThread,  InfraFactory.getProducer(false));
+            RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props, topicsConfig, listener,  InfraFactory.getProducer(false));
             producer.fireUntilHalt();
             try{
                 for (int i = 0; i < items; i++) {
-                    StockTickEvent ticket = new StockTickEvent("RHT",
-                                                               ThreadLocalRandom.current().nextLong(80,
-                                                                                                    100));
+                    StockTickEvent ticket = new StockTickEvent("RHT", ThreadLocalRandom.current().nextLong(80, 100));
                     producer.insert(ticket);
                 }
             }finally {
@@ -260,13 +242,11 @@ public class KafkaUtils implements AutoCloseable {
 
         }
         if (sessionType.equals( RemoteStreamingKieSession.class)) {
-            RemoteStreamingKieSessionImpl producer = new RemoteStreamingKieSessionImpl(props, topicsConfig, listenerThread, InfraFactory.getProducer(false));
+            RemoteStreamingKieSessionImpl producer = new RemoteStreamingKieSessionImpl(props, topicsConfig, listener, InfraFactory.getProducer(false));
             producer.fireUntilHalt();
             try {
                 for (int i = 0; i < items; i++) {
-                    StockTickEvent ticket = new StockTickEvent("RHT",
-                                                               ThreadLocalRandom.current().nextLong(80,
-                                                                                                    100));
+                    StockTickEvent ticket = new StockTickEvent("RHT", ThreadLocalRandom.current().nextLong(80, 100));
                     producer.insert(ticket);
                 }
             }finally {

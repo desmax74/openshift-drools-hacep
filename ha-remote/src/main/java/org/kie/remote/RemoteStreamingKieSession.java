@@ -16,10 +16,6 @@
 package org.kie.remote;
 
 import java.io.Closeable;
-import java.util.Properties;
-
-import org.kie.remote.impl.RemoteStreamingKieSessionImpl;
-import org.kie.remote.impl.consumer.ListenerThread;
 
 public interface RemoteStreamingKieSession extends Closeable,
                                                    RemoteStreamingEntryPoint,

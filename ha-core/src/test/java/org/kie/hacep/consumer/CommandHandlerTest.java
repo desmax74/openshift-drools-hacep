@@ -37,7 +37,6 @@ import org.kie.hacep.core.KieSessionContext;
 import org.kie.hacep.core.infra.SessionSnapshooter;
 import org.kie.hacep.sample.kjar.Result;
 import org.kie.hacep.sample.kjar.StockTickEvent;
-import org.kie.hacep.util.ConsumerUtilsCore;
 import org.kie.remote.CommonConfig;
 import org.kie.remote.DroolsExecutor;
 import org.kie.remote.RemoteFactHandle;

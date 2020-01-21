@@ -28,10 +28,11 @@ import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpPrincipal;
-import static org.junit.Assert.*;
 import org.junit.Test;
 import org.kie.hacep.core.GlobalStatus;
 import org.kie.hacep.endpoint.bootstrap.JdkHttpServer;
+
+import static org.junit.Assert.*;
 
 public class EndpointsTest {
 

@@ -15,10 +15,11 @@
  */
 package org.kie.hacep.util;
 
-import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
+
+import static org.junit.Assert.*;
 
 public class GavUtilsTest {
 

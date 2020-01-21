@@ -16,9 +16,7 @@
 package org.kie.hacep;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.kie.hacep.EnvConfig;
 import org.kie.hacep.util.Printer;
 import org.kie.hacep.util.PrinterUtil;
 import org.slf4j.Logger;

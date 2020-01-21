@@ -17,7 +17,6 @@ package org.kie.hacep.core.infra;
 
 import java.time.LocalDateTime;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
@@ -25,6 +24,8 @@ import org.kie.api.runtime.KieSession;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.consumer.FactHandlesManager;
 import org.kie.hacep.consumer.KieContainerUtils;
+
+import static org.junit.Assert.*;
 
 public class SnapshotInfosTest {
 

@@ -26,7 +26,6 @@ import org.kie.remote.TopicsConfig;
 import org.kie.remote.command.GetKJarGAVCommand;
 import org.kie.remote.command.UpdateKJarCommand;
 import org.kie.remote.impl.consumer.Listener;
-import org.kie.remote.impl.consumer.ListenerThread;
 import org.kie.remote.impl.producer.Producer;
 import org.kie.remote.impl.producer.Sender;
 
@@ -34,12 +33,12 @@ public class RemoteKieSessionImpl extends RemoteEntryPointImpl implements Remote
 
   private final Map<String, RemoteEntryPoint> entryPoints = new HashMap<>();
 
-  public RemoteKieSessionImpl(Properties configuration, ListenerThread listenerThread, Producer producer) {
-    this(configuration, TopicsConfig.getDefaultTopicsConfig(), listenerThread, producer);
+  public RemoteKieSessionImpl(Properties configuration, Listener listener, Producer producer) {
+    this(configuration, TopicsConfig.getDefaultTopicsConfig(), listener, producer);
   }
 
-  public RemoteKieSessionImpl(Properties configuration, TopicsConfig envConfig, ListenerThread listenerThread, Producer producer) {
-    super(new Sender(configuration, producer), EntryPointUtil.DEFAULT_ENTRY_POINT, envConfig, new Listener(configuration, listenerThread));
+  public RemoteKieSessionImpl(Properties configuration, TopicsConfig envConfig, Listener listener, Producer producer) {
+    super(new Sender(configuration, producer), EntryPointUtil.DEFAULT_ENTRY_POINT, envConfig, listener);
     sender.start();
   }
 

@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import kafka.server.KafkaConfig;
@@ -59,14 +58,10 @@ import org.kie.remote.TopicsConfig;
 import org.kie.remote.command.SnapshotOnDemandCommand;
 import org.kie.remote.impl.RemoteKieSessionImpl;
 import org.kie.remote.impl.RemoteStreamingKieSessionImpl;
-import org.kie.remote.impl.consumer.Listener;
-import org.kie.remote.impl.consumer.ListenerThread;
 import org.kie.remote.impl.producer.Producer;
 import org.kie.remote.impl.producer.Sender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.kie.remote.CommonConfig.getTestProperties;
 
 public class KafkaUtilTest implements AutoCloseable {
 
@@ -217,7 +212,7 @@ public class KafkaUtilTest implements AutoCloseable {
         return new KafkaProducer<>(producerProps);
     }
 
-    public KafkaConsumer getConsumer(String topic,
+    /*public KafkaConsumer getConsumer(String topic,
                                      Properties props) {
         KafkaConsumer consumer = new KafkaConsumer(props);
         List<PartitionInfo> infos = consumer.partitionsFor(topic);
@@ -240,15 +235,10 @@ public class KafkaUtilTest implements AutoCloseable {
         insertBatchStockTicketEvent(items, topicsConfig, sessionType, Config.getProducerConfig( "InsertBatchStockTicketEvent" ));
     }
 
-    public void insertBatchStockTicketEvent(int items,
-                                            TopicsConfig topicsConfig,
-                                            Class sessionType,
-                                            Properties props) {
-        ListenerThread listenerThread = InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), false, getTestProperties());
-        Listener listener = new Listener(getTestProperties(), listenerThread);
+    public void insertBatchStockTicketEvent(int items, TopicsConfig topicsConfig, Class sessionType, Properties props) {
         Producer prod = InfraFactory.getProducer(false);
         if (sessionType.equals(RemoteKieSession.class)) {
-            RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props, topicsConfig, listenerThread, prod);
+            RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props, topicsConfig, InfraFactory.getListener(props, false), prod);
             producer.fireUntilHalt();
             try{
                 for (int i = 0; i < items; i++) {
@@ -263,7 +253,7 @@ public class KafkaUtilTest implements AutoCloseable {
 
         }
         if (sessionType.equals( RemoteStreamingKieSession.class)) {
-            RemoteStreamingKieSessionImpl producer = new RemoteStreamingKieSessionImpl(props, topicsConfig, listenerThread, prod);
+            RemoteStreamingKieSessionImpl producer = new RemoteStreamingKieSessionImpl(props, topicsConfig, InfraFactory.getListener(props, false), prod);
             producer.fireUntilHalt();
             try {
                 for (int i = 0; i < items; i++) {
@@ -276,7 +266,7 @@ public class KafkaUtilTest implements AutoCloseable {
                 producer.close();
             }
         }
-    }
+    }*/
 
     public static void insertSnapshotOnDemandCommand() {
         Properties props = Config.getProducerConfig("insertSnapshotOnDemandCommand");

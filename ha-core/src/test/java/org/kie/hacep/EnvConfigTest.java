@@ -17,7 +17,6 @@ package org.kie.hacep;
 
 import org.junit.Test;
 import org.kie.hacep.exceptions.ConfigurationException;
-import org.kie.remote.CommonConfig;
 
 import static org.junit.Assert.*;
 

@@ -18,9 +18,7 @@ package org.kie.hacep;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.After;
@@ -37,10 +35,10 @@ import org.kie.remote.RemoteEntryPoint;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.RemoteKieSession;
 import org.kie.remote.TopicsConfig;
+import org.kie.remote.impl.consumer.Listener;
 import org.kie.remote.impl.consumer.ListenerThread;
 
 import static org.junit.Assert.*;
-
 import static org.kie.remote.CommonConfig.getTestProperties;
 import static org.kie.remote.impl.EntryPointUtil.DEFAULT_ENTRY_POINT;
 
@@ -54,7 +52,8 @@ public class LocalStorageKieSessionTest {
         Bootstrap.startEngine(config);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
         ListenerThread listenerThread = InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), config.isLocal(), getTestProperties());
-        session = InfraFactory.createRemoteKieSession(CommonConfig.getTestProperties(), listenerThread, InfraFactory.getProducer(config.isLocal())); //RemoteKieSession.create(getTestProperties());
+        Listener listener = new Listener(getTestProperties(), listenerThread);
+        session = InfraFactory.createRemoteKieSession(CommonConfig.getTestProperties(), listener, InfraFactory.getProducer(config.isLocal())); //RemoteKieSession.create(getTestProperties());
     }
 
 

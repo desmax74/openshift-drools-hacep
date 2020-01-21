@@ -40,6 +40,7 @@ import org.kie.hacep.core.KieSessionContext;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.util.GAVUtils;
 import org.kie.scanner.KieMavenRepository;
+
 import static org.junit.Assert.*;
 
 public class UpdatableKieSessionTest {

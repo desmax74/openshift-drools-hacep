@@ -20,6 +20,7 @@ import org.kie.remote.TopicsConfig;
 import org.kie.remote.command.FireUntilHaltCommand;
 import org.kie.remote.command.InsertCommand;
 import org.kie.remote.command.RemoteCommand;
+import org.kie.remote.impl.consumer.Listener;
 import org.kie.remote.impl.consumer.ListenerThread;
 import org.kie.remote.message.ControlMessage;
 import org.slf4j.Logger;
@@ -44,7 +45,8 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
 
         KafkaConsumer<byte[], String> kafkaLogConsumer = kafkaServerTest.getStringConsumer(TEST_KAFKA_LOGGER_TOPIC);
         ListenerThread listenerThread = InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), envConfig.isLocal(), getTestProperties());
-        kafkaServerTest.insertBatchStockTicketEvent(1, topicsConfig, RemoteKieSession.class, listenerThread);
+        Listener listener = new Listener(getTestProperties(), listenerThread);
+        kafkaServerTest.insertBatchStockTicketEvent(1, topicsConfig, RemoteKieSession.class, listener);
 
         try {
             //EVENTS TOPIC

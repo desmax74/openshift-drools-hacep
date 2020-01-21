@@ -15,43 +15,30 @@
  */
 package org.kie.hacep;
 
+import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.InfraFactory;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.remote.RemoteKieSession;
-import org.kie.remote.TopicsConfig;
 import org.kie.remote.impl.RemoteKieSessionImpl;
-import org.kie.remote.impl.consumer.Listener;
-import org.kie.remote.impl.consumer.ListenerThread;
 
 import static org.junit.Assert.*;
 import static org.kie.remote.CommonConfig.getTestProperties;
 
 public class RemoteKieSessionImplTest extends KafkaFullTopicsTests{
 
-    @Test
-    @Ignore
-    public void createTest(){
-        TopicsConfig topicsConfig = TopicsConfig.getDefaultTopicsConfig();
-        ListenerThread listenerThread = InfraFactory.getListenerThread(topicsConfig, false, getTestProperties());
-        Listener listener = new Listener(getTestProperties(), listenerThread);
-        RemoteKieSession session = InfraFactory.createRemoteKieSession(getTestProperties(), topicsConfig, listenerThread, InfraFactory.getProducer(false));
-        assertNotNull(session);
-    }
 
     @Test
     public void getFactCountTest() {
+        Properties props = getTestProperties();
         Bootstrap.startEngine(envConfig);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
-        kafkaServerTest.insertBatchStockTicketEvent(7, topicsConfig, RemoteKieSession.class);
-        ListenerThread listenerThread = InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), false, getTestProperties());
-        Listener listener = new Listener(getTestProperties(), listenerThread);
-        RemoteKieSessionImpl client = new RemoteKieSessionImpl(Config.getProducerConfig("getFactCountTest"), listenerThread , InfraFactory.getProducer(false));//new RemoteKieSessionImpl(Config.getProducerConfig("getFactCountTest"), topicsConfig);
+        kafkaServerTest.insertBatchStockTicketEvent(7, topicsConfig, RemoteKieSession.class, InfraFactory.getListener(props, false));
+        RemoteKieSessionImpl client = new RemoteKieSessionImpl(Config.getProducerConfig("getFactCountTest"), InfraFactory.getListener(props, false) , InfraFactory.getProducer(false));
         try {
             client.fireUntilHalt();
             CompletableFuture<Long> factCountFuture = client.getFactCount();

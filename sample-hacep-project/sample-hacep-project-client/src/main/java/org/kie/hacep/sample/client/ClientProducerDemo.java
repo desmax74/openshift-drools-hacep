@@ -25,8 +25,11 @@ import org.kie.hacep.sample.kjar.StockTickEvent;
 import org.kie.remote.CommonConfig;
 import org.kie.remote.RemoteStreamingKieSession;
 import org.kie.remote.TopicsConfig;
+import org.kie.remote.impl.consumer.Listener;
 import org.kie.remote.impl.consumer.ListenerThread;
 import org.kie.remote.impl.producer.Producer;
+
+import static org.kie.remote.CommonConfig.getTestProperties;
 
 public class ClientProducerDemo {
 
@@ -41,9 +44,10 @@ public class ClientProducerDemo {
     private static void insertBatchEvent(int items) throws IOException {
         TopicsConfig envConfig = TopicsConfig.getDefaultTopicsConfig();
         Properties props = getProperties();
-        ListenerThread listenerThread = null;
+        ListenerThread listenerThread = InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), false, getTestProperties());
+        Listener listener = new Listener(getTestProperties(), listenerThread);
         Producer prod = null;
-        try (RemoteStreamingKieSession producer = InfraFactory.createRemoteStreamingKieSession(props, envConfig, listenerThread, prod)){
+        try (RemoteStreamingKieSession producer = InfraFactory.createRemoteStreamingKieSession(props, envConfig, listener, prod)){
             for (int i = 0; i < items; i++) {
                 StockTickEvent eventA = new StockTickEvent("RHT",
                                                            ThreadLocalRandom.current().nextLong(80,
