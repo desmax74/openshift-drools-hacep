@@ -24,8 +24,7 @@ public abstract class AbstractCommand implements RemoteCommand, Serializable {
 
   private long timestamp;
 
-  protected AbstractCommand() {
-  }
+  protected AbstractCommand() {/*For serialization*/}
 
   protected AbstractCommand(String id) {
     this.id = id;

@@ -24,7 +24,7 @@ public class UpdateCommand extends WorkingMemoryActionCommand implements Visitab
 
   private Serializable object;
 
-  public UpdateCommand(){}
+  public UpdateCommand(){/*For serialization*/}
 
   public UpdateCommand(RemoteFactHandle factHandle, Object obj, String entryPoint) {
     super(factHandle, entryPoint);

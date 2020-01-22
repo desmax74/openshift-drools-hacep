@@ -22,7 +22,7 @@ public class ListObjectsCommand extends AbstractCommand implements VisitableComm
 
   protected String entryPoint;
 
-  public ListObjectsCommand() { }
+  public ListObjectsCommand() {/*For serialization*/ }
 
   public ListObjectsCommand(String entryPoint) {
     super(UUID.randomUUID().toString());

@@ -21,8 +21,7 @@ public class ListObjectsCommandClassType extends ListObjectsCommand implements V
 
   private Class clazzType;
 
-  public ListObjectsCommandClassType() {
-  }
+  public ListObjectsCommandClassType() { /*For serialization*/}
 
   public ListObjectsCommandClassType(String entryPoint,
                                      Class clazzType) {

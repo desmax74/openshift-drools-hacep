@@ -25,6 +25,8 @@ public class UpdateKJarCommand extends AbstractCommand implements VisitableComma
   private String artifactID;
   private String version;
 
+  public UpdateKJarCommand(){/*For serialization*/}
+
   public UpdateKJarCommand(String kjarGAV) {
     super(UUID.randomUUID().toString());
     this.kJarGAV = kjarGAV;

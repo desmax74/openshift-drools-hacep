@@ -20,11 +20,9 @@ import java.io.Serializable;
 
 import org.kie.remote.RemoteFactHandle;
 
-public class InsertCommand extends WorkingMemoryActionCommand implements VisitableCommand,
-                                                                         Serializable {
+public class InsertCommand extends WorkingMemoryActionCommand implements VisitableCommand, Serializable {
 
-  public InsertCommand() {
-  }
+  public InsertCommand() {/*For serialization*/}
 
   public InsertCommand(RemoteFactHandle factHandle,
                        String entryPoint) {

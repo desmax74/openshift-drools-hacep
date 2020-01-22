@@ -22,7 +22,7 @@ public class EventInsertCommand extends WorkingMemoryActionCommand implements Vi
 
   private Serializable object;
 
-  public EventInsertCommand() { }
+  public EventInsertCommand() { /*For serialization*/}
 
   public EventInsertCommand(Object object, String entryPoint) {
     super(null, entryPoint);

@@ -24,7 +24,7 @@ public class ListObjectsCommandNamedQuery extends ListObjectsCommand implements 
   private String objectName;
   private Object[] params;
 
-  public ListObjectsCommandNamedQuery() { }
+  public ListObjectsCommandNamedQuery() {/*For serialization*/ }
 
   public ListObjectsCommandNamedQuery(String entryPoint, String namedQuery, String objectName, Object... params) {
     super(entryPoint);
