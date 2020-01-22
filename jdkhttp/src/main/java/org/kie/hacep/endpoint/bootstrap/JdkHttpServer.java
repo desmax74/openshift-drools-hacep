@@ -47,19 +47,19 @@ public class JdkHttpServer {
         Runtime.getRuntime().addShutdownHook(new Thread(Bootstrap::stopEngine));
     }
 
-    static class ReadinessHandler implements HttpHandler {
+    public static class ReadinessHandler implements HttpHandler {
 
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
-            initResponse(httpExchange, GlobalStatus.nodeReady);
+            initResponse(httpExchange, GlobalStatus.isNodeReady());
         }
     }
 
-    static class LivenessHandler implements HttpHandler {
+    public static class LivenessHandler implements HttpHandler {
 
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
-            initResponse(httpExchange, GlobalStatus.nodeLive);
+            initResponse(httpExchange, GlobalStatus.isNodeLive());
         }
     }
 
@@ -73,7 +73,7 @@ public class JdkHttpServer {
         os.close();
     }
 
-    private static class EnvHandler implements HttpHandler {
+    public static class EnvHandler implements HttpHandler {
 
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {

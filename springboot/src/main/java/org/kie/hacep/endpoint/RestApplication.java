@@ -17,8 +17,6 @@ package org.kie.hacep.endpoint;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnCloudPlatform;
-import org.springframework.boot.cloud.CloudPlatform;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 
 @SpringBootApplication

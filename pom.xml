@@ -31,12 +31,12 @@
   </properties>
 
   <modules>
-    <module>kie-remote</module>
-    <module>hacep</module>
+    <module>ha-remote</module>
+    <module>ha-core</module>
+    <module>ha-core-infra</module>
     <module>springboot</module>
     <module>jdkhttp</module>
     <module>sample-hacep-project</module>
-    <module>integration</module>
     <module>distribution</module>
   </modules>
 
@@ -44,12 +44,17 @@
     <dependencies>
       <dependency>
         <groupId>org.kie</groupId>
-        <artifactId>kie-remote</artifactId>
+        <artifactId>ha-remote</artifactId>
         <version>${version.org.kie}</version>
       </dependency>
       <dependency>
         <groupId>org.kie</groupId>
-        <artifactId>openshift-kie-hacep</artifactId>
+        <artifactId>ha-core</artifactId>
+        <version>${version.org.kie}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.kie</groupId>
+        <artifactId>ha-core-infra</artifactId>
         <version>${version.org.kie}</version>
       </dependency>
       <dependency>
@@ -62,7 +67,6 @@
         <artifactId>openshift-kie-springboot</artifactId>
         <version>${version.org.kie}</version>
       </dependency>
-
       <!-- drools -->
       <dependency>
         <groupId>org.kie</groupId>
@@ -91,7 +95,6 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-
       <!-- kafka -->
       <dependency>
         <groupId>org.apache.kafka</groupId>
@@ -115,21 +118,18 @@
         <version>${version.org.apache.kafka}</version>
         <classifier>test</classifier>
       </dependency>
-
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
         <version>${version.com.fasterxml.jackson.databind}</version>
         <scope>compile</scope>
       </dependency>
-
       <!-- fabric8 -->
       <dependency>
         <groupId>io.fabric8</groupId>
         <artifactId>kubernetes-client</artifactId>
         <version>${version.k8s.client}</version>
       </dependency>
-
       <dependency>
         <!-- Spring Boot -->
         <groupId>org.springframework.boot</groupId>
@@ -138,7 +138,6 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>
@@ -150,7 +149,6 @@
           </exclusion>
         </exclusions>
       </dependency>
-
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-logging</artifactId>
@@ -170,28 +168,29 @@
         <version>${version.servlet}</version>
         <scope>provided</scope>
       </dependency>
-
       <dependency>
         <groupId>org.jboss.spec.javax.annotation</groupId>
         <artifactId>jboss-annotations-api_1.3_spec</artifactId>
         <version>${version.annotations}</version>
         <scope>compile</scope>
       </dependency>
-
       <dependency>
         <groupId>org.jboss.spec.javax.ws.rs</groupId>
         <artifactId>javax.ws.rs-api</artifactId>
         <version>${version.javax.ws.rs}</version>
         <scope>compile</scope>
       </dependency>
-
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>${version.ch.qos.logback}</version>
+      </dependency>
       <dependency>
         <groupId>com.github.danielwegener</groupId>
         <artifactId>logback-kafka-appender</artifactId>
         <version>${version.logback.kafka.appender}</version>
         <scope>test</scope>
       </dependency>
-
       <dependency>
         <groupId>org.powermock</groupId>
         <artifactId>powermock-module-junit4</artifactId>
@@ -250,11 +249,6 @@
 
   <repositories>
     <repository>
-      <id>central</id>
-      <name>Maven Central</name>
-      <url>https://repo.maven.apache.org/maven2</url>
-    </repository>
-    <repository>
       <id>jboss</id>
       <url>https://repository.jboss.org/nexus/content/groups/public/</url>
       <releases>
@@ -265,12 +259,5 @@
       </snapshots>
     </repository>
   </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>central</id>
-      <name>Maven Central</name>
-      <url>https://repo.maven.apache.org/maven2</url>
-    </pluginRepository>
-  </pluginRepositories>
 
 </project>
