@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kie.hacep.message;
+package org.kie.hacep.core.infra.message;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

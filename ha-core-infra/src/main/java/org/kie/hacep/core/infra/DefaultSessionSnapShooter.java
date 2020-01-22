@@ -36,7 +36,7 @@ import org.kie.hacep.consumer.KieContainerUtils;
 import org.kie.hacep.core.KieSessionContext;
 import org.kie.hacep.core.infra.utils.SnapshotOnDemandUtilsImpl;
 import org.kie.hacep.exceptions.InitializeException;
-import org.kie.hacep.message.SnapshotMessage;
+import org.kie.hacep.core.infra.message.SnapshotMessage;
 import org.kie.remote.impl.producer.EventProducer;
 import org.kie.remote.util.SerializationUtil;
 import org.slf4j.Logger;

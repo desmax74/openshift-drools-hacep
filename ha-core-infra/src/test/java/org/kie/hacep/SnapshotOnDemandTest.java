@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.infra.election.State;
-import org.kie.hacep.message.SnapshotMessage;
+import org.kie.hacep.core.infra.message.SnapshotMessage;
 import org.kie.remote.CommonConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
