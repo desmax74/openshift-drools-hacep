@@ -45,20 +45,15 @@ public class CommonConfig {
 
   private static Properties config;
 
-  private CommonConfig() {
-  }
+  private CommonConfig() { }
 
   public static synchronized Properties getStatic() {
     if (config == null) {
       config = new Properties();
-      config.put(KEY_SERIALIZER_KEY,
-                 "org.apache.kafka.common.serialization.StringSerializer");
-      config.put(VALUE_SERIALIZER_KEY,
-                 "org.apache.kafka.common.serialization.ByteArraySerializer");
-      config.put(KEY_DESERIALIZER_KEY,
-                 "org.apache.kafka.common.serialization.StringDeserializer");
-      config.put(VALUE_DESERIALIZER_KEY,
-                 "org.apache.kafka.common.serialization.ByteArrayDeserializer");
+      config.put(KEY_SERIALIZER_KEY, "org.apache.kafka.common.serialization.StringSerializer");
+      config.put(VALUE_SERIALIZER_KEY, "org.apache.kafka.common.serialization.ByteArraySerializer");
+      config.put(KEY_DESERIALIZER_KEY, "org.apache.kafka.common.serialization.StringDeserializer");
+      config.put(VALUE_DESERIALIZER_KEY, "org.apache.kafka.common.serialization.ByteArrayDeserializer");
       config.put(GROUP_ID_CONFIG, "drools");
     }
     return config;
@@ -71,7 +66,7 @@ public class CommonConfig {
     return props;
   }
 
-  public static Properties getProducerConfig(String caller) {
+  public static Properties getProducerConfig() {
     if (producerConf == null) {
       producerConf = getDefaultConfigFromProps(PRODUCER_CONF);
     }
@@ -88,17 +83,4 @@ public class CommonConfig {
     return config;
   }
 
-  private static void logConfig(String subject, Properties producerProperties) {
-    if (logger.isInfoEnabled()) {
-      StringBuilder sb = new StringBuilder();
-      sb.append("\n");
-      sb.append(subject);
-      sb.append("\n{\n");
-      for (Map.Entry<Object, Object> entry : producerProperties.entrySet()) {
-        sb.append(" ").append(entry.getKey().toString()).append(":").append(entry.getValue()).append("  \n");
-      }
-      sb.append("\n}\n");
-      logger.info(sb.toString());
-    }
-  }
 }

@@ -38,7 +38,7 @@ public class CommonConfigTest {
 
   @Test
   public void testProducerConfig() {
-    final Properties producerConfig = CommonConfig.getProducerConfig("test");
+    final Properties producerConfig = CommonConfig.getProducerConfig();
     Assertions.assertThat(producerConfig).isNotNull();
     Assertions.assertThat(producerConfig.getProperty(TEST_PROPERTY)).isEqualTo(TEST_PROPERTY_VALUE);
   }

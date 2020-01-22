@@ -36,8 +36,6 @@ public class ConsumerUtilsCoreImpl implements ConsumerUtilsCore {
 
   private Logger logger = LoggerFactory.getLogger(ConsumerUtilsCoreImpl.class);
 
-  public ConsumerUtilsCoreImpl() { }
-
   public ControlMessage getLastEvent(String topic, Integer pollTimeout) {
     return getLastEvent(topic, Config.getConsumerConfig("LastEventConsumer"), pollTimeout);
   }

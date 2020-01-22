@@ -60,7 +60,7 @@ public class RemoteStreamingKieSessionImplTest extends KafkaFullTopicsTests{
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
         kafkaServerTest.insertBatchStockTicketEvent(1, topicsConfig, RemoteStreamingKieSession.class, InfraFactory.getListener(props, false));
         Producer prod = InfraFactory.getProducer(false);
-        RemoteStreamingKieSessionImpl client = new RemoteStreamingKieSessionImpl(CommonConfig.getProducerConfig("ListKieSessionObjectsConsumerTest"),
+        RemoteStreamingKieSessionImpl client = new RemoteStreamingKieSessionImpl(CommonConfig.getProducerConfig(),
                                                                      topicsConfig, InfraFactory.getListener(props, false), prod);
         try {
             CompletableFuture<Collection> listKieObjectsFuture = client.getObjects();

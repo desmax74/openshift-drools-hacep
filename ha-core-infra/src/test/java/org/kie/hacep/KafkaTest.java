@@ -75,8 +75,8 @@ public class KafkaTest {
         ConsumerRecords<String, String> records = consumerKafkaLogger.poll(Duration.ofMillis(10000));
         assertEquals(1, records.count());
         records.forEach(record -> {
-            assertEquals(record.topic(), TEST_KAFKA_LOGGER_TOPIC);
-            assertEquals(record.value(), "test-message");
+            assertEquals(TEST_KAFKA_LOGGER_TOPIC, record.topic());
+            assertEquals("test-message", record.value());
         });
     }
 }

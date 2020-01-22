@@ -37,7 +37,6 @@
     <module>springboot</module>
     <module>jdkhttp</module>
     <module>sample-hacep-project</module>
-    <!--<module>integration</module>-->
     <module>distribution</module>
   </modules>
 

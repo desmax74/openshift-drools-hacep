@@ -52,14 +52,12 @@ public class DroolsConsumerHandler implements ConsumerHandler {
   private CommandHandler commandHandler;
   private SnapshotInfos snapshotInfos;
   private boolean shutdown;
-  private ConsumerUtilsCore consumerUtilsCore;
 
   public DroolsConsumerHandler(Producer producer, EnvConfig envConfig, SessionSnapshooter snapShooter, ConsumerUtilsCore consumerUtilsCore) {
     this.envConfig = envConfig;
     this.sessionSnapShooter = snapShooter;
     initializeKieSessionContext();
     this.producer = producer;
-    this.consumerUtilsCore = consumerUtilsCore;
     this.commandHandler = new CommandHandler(this.kieSessionContext, this.envConfig, producer, this.sessionSnapShooter, consumerUtilsCore);
     if (this.envConfig.isUnderTest()) {
       loggerForTest = PrinterUtil.getKafkaLoggerForTest(envConfig);
@@ -111,7 +109,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
   //This is called from the Default KafkaConsumer
   public boolean initializeKieSessionFromSnapshotOnDemand(EnvConfig config, SnapshotInfos snapshotInfos) {
     if (!config.isSkipOnDemandSnapshot()) {// if true we reads the snapshots and wait until the first leaderElectionUpdate
-      this.snapshotInfos = snapshotInfos;//SnapshotOnDemandUtils.askASnapshotOnDemand(config, sessionSnapShooter);
+      this.snapshotInfos = snapshotInfos;
       initializeSessionContextFromSnapshot();
       return true;
     }

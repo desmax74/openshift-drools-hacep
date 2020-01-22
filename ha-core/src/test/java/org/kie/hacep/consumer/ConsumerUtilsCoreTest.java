@@ -19,19 +19,16 @@ import java.util.Properties;
 
 import org.kie.hacep.util.ConsumerUtilsCore;
 import org.kie.remote.message.ControlMessage;
-
+/*Only for test*/
 public class ConsumerUtilsCoreTest implements ConsumerUtilsCore {
 
     @Override
-    public ControlMessage getLastEvent(String topic,
-                                       Integer pollTimeout) {
+    public ControlMessage getLastEvent(String topic, Integer pollTimeout) {
         return new ControlMessage();
     }
 
     @Override
-    public ControlMessage getLastEvent(String topic,
-                                       Properties properties,
-                                       Integer pollTimeout) {
+    public ControlMessage getLastEvent(String topic, Properties properties, Integer pollTimeout) {
         return new ControlMessage();
     }
 }

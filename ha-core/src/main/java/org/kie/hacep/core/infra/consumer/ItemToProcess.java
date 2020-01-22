@@ -28,10 +28,6 @@ public class ItemToProcess implements Serializable {
     this.object = object;
     this.offset = offset;
   }
-/*
-  public static ItemToProcess getItemToProcess(ConsumerRecord record) {
-    return new ItemToProcess(record.key().toString(), record.offset(), record.value());
-  }*/
 
   public String getKey() {
     return key;
