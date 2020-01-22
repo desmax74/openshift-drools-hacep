@@ -25,13 +25,14 @@ import org.kie.hacep.sample.kjar.StockTickEvent;
 import org.kie.remote.CommonConfig;
 import org.kie.remote.RemoteStreamingKieSession;
 import org.kie.remote.TopicsConfig;
-import org.kie.remote.impl.consumer.Listener;
-import org.kie.remote.impl.consumer.ListenerThread;
 import org.kie.remote.impl.producer.Producer;
-
-import static org.kie.remote.CommonConfig.getTestProperties;
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClientProducerDemo {
+
+    private static Logger logger = LoggerFactory.getLogger(ClientProducerDemo.class);
 
     public static void main(String[] args) {
         try {
@@ -44,10 +45,8 @@ public class ClientProducerDemo {
     private static void insertBatchEvent(int items) throws IOException {
         TopicsConfig envConfig = TopicsConfig.getDefaultTopicsConfig();
         Properties props = getProperties();
-        ListenerThread listenerThread = InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), false, getTestProperties());
-        Listener listener = new Listener(getTestProperties(), listenerThread);
-        Producer prod = null;
-        try (RemoteStreamingKieSession producer = InfraFactory.createRemoteStreamingKieSession(props, envConfig, listener, prod)){
+        Producer prod = InfraFactory.getProducer(false);
+        try (RemoteStreamingKieSession producer = InfraFactory.createRemoteStreamingKieSession(props, envConfig, InfraFactory.getListener(props, false), prod)){
             for (int i = 0; i < items; i++) {
                 StockTickEvent eventA = new StockTickEvent("RHT",
                                                            ThreadLocalRandom.current().nextLong(80,
@@ -59,14 +58,23 @@ public class ClientProducerDemo {
 
     private static Properties getProperties() throws IOException {
         Properties props = CommonConfig.getStatic();
-
         try (InputStream is = ClientProducerDemo.class.getClassLoader().getResourceAsStream("configuration.properties")) {
             props.load(is);
         } catch (IOException io) {
-            io.printStackTrace();
-            throw io;
+            logger.error(io.getMessage(), io);
+            props.putAll(getPropertiesFallback());
         }
+        return props;
+    }
 
+    private static Properties getPropertiesFallback() {
+        Properties props = CommonConfig.getStatic();
+        props.put("bootstrap.servers", "<bootstrapServers>");
+        props.put("security.protocol", "SSL");
+        props.put("ssl.keystore.location", "/<path>/openshift-drools-hacepl/sample-hacep-project/sample-hacep-project-client/src/main/resources/keystore.jks");
+        props.put("ssl.keystore.password", "<password>");
+        props.put("ssl.truststore.location", "/<path>/openshift-drools-hacep/sample-hacep-project/sample-hacep-project-client/src/main/resources/keystore.jks");
+        props.put("ssl.truststore.password", "<password>");
         return props;
     }
 }
