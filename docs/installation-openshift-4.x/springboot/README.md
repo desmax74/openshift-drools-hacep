@@ -37,8 +37,31 @@ Edit the Dockerfile and assign a value to the placeholder <id_group> and <id_use
 ```sh
 RUN groupadd -r app -g <id_group> && useradd -u <id_user> -r -g app -m -d /app -s /sbin/nologin -c "App user" app && chmod 755 /app
 ```
-before to build the docker container
+before to build the docker container.
 
+To find the range of the ids run the command
+```sh
+oc describe project <your project name>
+```
+The output will be something like this with id ranges for groups and user
+```sh
+oc describe project my-kafka-project
+Name:			my-kafka-project
+Created:		7 days ago
+Labels:			<none>
+Annotations:		openshift.io/description=
+			openshift.io/display-name=
+			openshift.io/requester=system:admin
+			openshift.io/sa.scc.mcs=s0:c13,c2
+			openshift.io/sa.scc.supplemental-groups=1000160000/10000
+			openshift.io/sa.scc.uid-range=1000160000/10000
+Display Name:		<none>
+Description:		<none>
+Status:			Active
+Node Selector:		<none>
+Quota:			<none>
+Resource limits:	<none>
+```
 
 Run the build from the dir with Dockerfile
 ```sh
