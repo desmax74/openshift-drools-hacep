@@ -33,6 +33,13 @@ Define the BuildConfig
 oc new-build --binary --strategy=docker --name openshift-kie-springboot
 ```
 
+Edit the Dockerfile and assign a value to the placeholder <id_group> and <id_user>
+```sh
+RUN groupadd -r app -g <id_group> && useradd -u <id_user> -r -g app -m -d /app -s /sbin/nologin -c "App user" app && chmod 755 /app
+```
+before to build the docker container
+
+
 Run the build from the dir with Dockerfile
 ```sh
 oc start-build openshift-kie-springboot --from-dir=. --follow
@@ -95,6 +102,14 @@ E.g. image:
    name: openshift-kie-springboot
    image: image-registry.openshift-image-registry.svc:5000/my-kafka-project/openshift-kie-springboot:latest
 ```
+
+and replace in the deployment.yaml the id_user used in the dockerfile
+```yaml
+securityContext:
+        runAsUser: <id_user>
+        runAsNonRoot: true
+```
+before to deploy
   
 ### REST API
 ```sh
