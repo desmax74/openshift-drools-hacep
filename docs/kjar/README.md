@@ -30,18 +30,18 @@ the MAVEN_LOCAL_REPO and MAVEN_SETTINGS_XML are the values with the default conf
 to enable the update of the kjar
 ```yaml
       securityContext:
-        runAsUser: 1000170000
+        runAsUser: <id_user>
         runAsNonRoot: true
       containers:
         - env:
           - name: UPDATABLEKJAR
             value: "true"
           - name: KJARGAV
-            value: org.kie.cloud:test-hacep-cloud-kjar:1.0.0
+            value: <GroupID>:<ArtifactID>:<Version>
           - name: MAVEN_LOCAL_REPO
             value: /app/.m2/repository
           - name: MAVEN_MIRROR_URL
-            value: http://nexus-nexus.192.168.99.133.nip.io/repository/maven-releases/
+            value: http://<nexus_url>/repository/maven-releases/
           - name: MAVEN_SETTINGS_XML
             value: /app/.m2/settings.xml
 ```
