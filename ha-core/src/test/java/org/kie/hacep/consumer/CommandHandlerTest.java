@@ -18,6 +18,7 @@ package org.kie.hacep.consumer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -37,6 +38,7 @@ import org.kie.hacep.core.KieSessionContext;
 import org.kie.hacep.core.infra.SessionSnapshooter;
 import org.kie.hacep.sample.kjar.Result;
 import org.kie.hacep.sample.kjar.StockTickEvent;
+import org.kie.hacep.util.ConsumerUtilsCore;
 import org.kie.remote.CommonConfig;
 import org.kie.remote.DroolsExecutor;
 import org.kie.remote.RemoteFactHandle;
@@ -58,6 +60,7 @@ import org.kie.remote.command.UpdateCommand;
 import org.kie.remote.command.UpdateKJarCommand;
 import org.kie.remote.impl.RemoteFactHandleImpl;
 import org.kie.remote.impl.producer.Producer;
+import org.kie.remote.message.ControlMessage;
 import org.kie.remote.message.FactCountMessage;
 import org.kie.remote.message.FireAllRuleMessage;
 import org.kie.remote.message.GetKJarGAVMessage;
@@ -149,7 +152,21 @@ public class CommandHandlerTest {
     doReturn(Collections.singletonList(myObject)).when(kieSessionMock).getObjects(any());
     when(kieSessionMock.getObject(any())).thenReturn(myObject);
     when(factHandlesManagerMock.mapRemoteFactHandle(any(RemoteFactHandle.class))).thenReturn(factHandleMock);
-    commandHandler = new CommandHandler(kieSessionContextMock, envConfig, producerMock, sessionSnapshooterMock, new ConsumerUtilsCoreTest());
+    commandHandler = new CommandHandler(kieSessionContextMock,
+                                        envConfig,
+                                        producerMock,
+                                        sessionSnapshooterMock,
+                                        new ConsumerUtilsCore() {
+                                          @Override
+                                          public ControlMessage getLastEvent(String topic, Integer pollTimeout) {
+                                            return new ControlMessage();
+                                          }
+
+                                          @Override
+                                          public ControlMessage getLastEvent(String topic, Properties properties, Integer pollTimeout) {
+                                            return new ControlMessage();
+                                          }
+                                        });
     DroolsExecutor.setAsLeader();
   }
 

@@ -26,7 +26,6 @@ import org.kie.remote.CommonConfig;
 import org.kie.remote.RemoteStreamingKieSession;
 import org.kie.remote.TopicsConfig;
 import org.kie.remote.impl.producer.Producer;
-import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
