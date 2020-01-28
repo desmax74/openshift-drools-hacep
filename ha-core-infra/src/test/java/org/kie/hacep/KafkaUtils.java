@@ -40,9 +40,7 @@ import kafka.zk.EmbeddedZookeeper;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -162,11 +160,6 @@ public class KafkaUtils implements AutoCloseable {
         shutdownServer();
     }
 
-    public <K, V> void sendSingleMsg(KafkaProducer<K, V> producer, ProducerRecord<K, V> data) {
-        producer.send(data);
-        producer.close();
-    }
-
     private Properties getConsumerConfig() {
         Properties consumerProps = new Properties();
         consumerProps.setProperty("bootstrap.servers", BROKER_HOST + ":" + BROKER_PORT);
@@ -193,20 +186,6 @@ public class KafkaUtils implements AutoCloseable {
         return consumer;
     }
 
-
-    public <K, V> KafkaConsumer<K, V> getByteArrayConsumer(String topic) {
-        Properties consumerProps = getConsumerConfig();
-        consumerProps.setProperty("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
-        KafkaConsumer<K, V> consumer = new KafkaConsumer<>(consumerProps);
-        consumer.subscribe(Arrays.asList(topic));
-        return consumer;
-    }
-
-    public <K, V> KafkaProducer<K, V> getByteArrayProducer() {
-        Properties producerProps = getProducerConfig();
-        producerProps.setProperty("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
-        return new KafkaProducer<>(producerProps);
-    }
 
     public KafkaConsumer getConsumer(String topic, Properties props) {
         KafkaConsumer consumer = new KafkaConsumer(props);
