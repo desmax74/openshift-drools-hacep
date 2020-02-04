@@ -53,7 +53,7 @@ public class Config {
   public static final String MAX_SNAPSHOT_REQUEST_ATTEMPTS = "max.snapshot.request.attempts";
   public static final String UPDATABLE_KJAR = "UPDATABLEKJAR";
   public static final String KJAR_GAV = "KJARGAV";
-  public static final String DEFAULT_MAX_SNAPSHOT_REQUEST_ATTEMPTS = "10";
+  public static final String DEFAULT_MAX_SNAPSHOT_REQUEST_ATTEMPTS = "30";
   private static final Logger logger = LoggerFactory.getLogger(Config.class);
   private static Properties consumerConf;
   private static Properties producerConf;

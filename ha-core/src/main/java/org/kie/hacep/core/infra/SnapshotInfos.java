@@ -40,7 +40,12 @@ public class SnapshotInfos {
                        String kjarGAV) {
     this.kieSession = kieSession;
     this.kieContainer = kieContainer;
-    this.fhManager = fhManager.initFromKieSession(kieSession);
+    if(fhManager == null || fhManager.getFhMapKeys().isEmpty()){
+      this.fhManager = new FactHandlesManager();
+      this.fhManager.initFromKieSession(kieSession);
+    }else {
+      this.fhManager = fhManager.initFromKieSession(kieSession);
+    }
     this.keyDuringSnaphot = keyDuringSnaphot;
     this.offsetDuringSnapshot = offsetDuringSnapshot;
     this.time = time;

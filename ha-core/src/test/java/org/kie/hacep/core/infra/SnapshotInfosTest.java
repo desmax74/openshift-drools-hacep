@@ -45,7 +45,7 @@ public class SnapshotInfosTest {
                                                 kieContainer, fhManager, keyDuringSnapshot, offsetDuringSnapshot,
                                                 time, kjarGAV);
         assertNotNull(infos);
-        assertEquals(infos.getFhManager(), fhManager);
+        assertTrue(infos.getFhManager().getFhMapKeys().size() == fhManager.getFhMapKeys().size());
         assertEquals(infos.getKeyDuringSnaphot(), keyDuringSnapshot);
         assertEquals(infos.getKieContainer(), kieContainer);
         assertEquals(infos.getKieSession(), kieSession);
