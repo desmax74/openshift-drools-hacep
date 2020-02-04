@@ -12,8 +12,9 @@
     <artifactId>sample-hacep-project-kjar</artifactId>
 
     <properties>
-        <generateModel>NO</generateModel>
+      <generateModel>NO</generateModel>
     </properties>
+
     <packaging>kjar</packaging>
 
     <dependencies>
