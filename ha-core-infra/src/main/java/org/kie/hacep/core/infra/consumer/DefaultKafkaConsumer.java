@@ -111,12 +111,12 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         }
         snapshotInfos = snapShooter.deserialize();//is still useful ?
         kafkaConsumer = new KafkaConsumer<>(Config.getConsumerConfig(PRIMARY_CONSUMER));
-        assign();
         if (currentState.equals(State.REPLICA)) {
             kafkaSecondaryConsumer = new KafkaConsumer<>(Config.getConsumerConfig(SECONDARY_CONSUMER));
         } else {
             kafkaSecondaryConsumer = null;
         }
+        assign();
     }
 
     @Override
@@ -139,18 +139,21 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         if (started && changedState && !currentState.equals(State.BECOMING_LEADER)) {
             updateOnRunningConsumer(state);
         } else if (!started && state.equals(State.REPLICA) && !envConfig.isSkipOnDemandSnapshot() && !askedSnapshotOnDemand) {
-            askAndProcessSnapshotOnDemand(SnapshotOnDemandUtilsImpl.askASnapshotOnDemand(envConfig, snapShooter, producer));
+            boolean completed = askAndProcessSnapshotOnDemand(SnapshotOnDemandUtilsImpl.askASnapshotOnDemand(envConfig, snapShooter, producer));
+            if(logger.isInfoEnabled()) {
+                logger.info("askAndProcessSnapshotOnDemand completed:{}", completed);
+            }
         }
         //State.BECOMING_LEADER won't start the pod
         if (state.equals(State.LEADER) || state.equals(State.REPLICA)) {
-            if (logger.isInfoEnabled()) {
-                logger.info("enableConsumeAndStartLoop:{}", state);
+            if (logger.isDebugEnabled()) {
+                logger.debug("enableConsumeAndStartLoop:{}", state);
             }
             enableConsumeAndStartLoop(state);
         }
     }
 
-    protected void askAndProcessSnapshotOnDemand(SnapshotInfos snapshotInfos) {
+    protected boolean askAndProcessSnapshotOnDemand(SnapshotInfos snapshotInfos) {
         askedSnapshotOnDemand = true;
         boolean completed = consumerHandler.initializeKieSessionFromSnapshotOnDemand(envConfig, snapshotInfos);
         if (logger.isInfoEnabled()) {
@@ -159,6 +162,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         if (!completed) {
             throw new InitializeException("Can't obtain a snapshot on demand");
         }
+        return  completed;
     }
 
     protected void assign() {
