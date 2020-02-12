@@ -23,18 +23,29 @@ Accordingly to your used module change
 [springboot module](/springboot/kubernetes/deployment.yaml)
 or
 [jdkhttp module](/jdkhttp/kubernetes/deployment.yaml)
+
+add the runAsAuser id and add the env vars
+change the value from the example with the correct runAsAUser ID, your KJARGAV and your MAVEN_MIRROR_URL with your nexus,  
+the MAVEN_LOCAL_REPO and MAVEN_SETTINGS_XML are the values with the default configuration in the docker container and UPDATABLEKJAR with value "true"
+to enable the update of the kjar
 ```yaml
-containers:
+      securityContext:
+        runAsUser: <id_user>
+        runAsNonRoot: true
+      containers:
         - env:
           - name: UPDATABLEKJAR
             value: "true"
           - name: KJARGAV
-            value: "org.kie:sample-hacep-project:7.30.0.Final" 
+            value: <GroupID>:<ArtifactID>:<Version>
+          - name: MAVEN_LOCAL_REPO
+            value: /app/.m2/repository
+          - name: MAVEN_MIRROR_URL
+            value: http://<nexus_url>/repository/maven-releases/
+          - name: MAVEN_SETTINGS_XML
+            value: /app/.m2/settings.xml
 ```
-and add the env vars
-UPDATABLEKJAR with value "true"
-and the desidered GAV of the KJar to use at the start up, then add to the yaml ,
-the needed env vars to configure the settings.xml using the following variables.
+then you could add other envs to configure Maven using the following variables.
 
 | Name                | Description                                                  |  Example            |
 |---------------------| ------------------------------------------------------------ |---------------------|
