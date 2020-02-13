@@ -22,33 +22,33 @@ import static org.junit.Assert.*;
 
 public class EnvConfigTest {
 
-  @Test
-  public void defaultConfigEnvTest() {
-    EnvConfig config = EnvConfig.getDefaultEnvConfig();
-    assertEquals("default", config.getNamespace());
-    assertEquals("control", config.getControlTopicName());
-    assertEquals("events", config.getEventsTopicName());
-    assertEquals("kiesessioninfos", config.getKieSessionInfosTopicName());
-    assertEquals("snapshot", config.getSnapshotTopicName());
-    assertEquals(PollUnit.MILLISECOND, config.getPollUnit());
-    assertEquals(PollUnit.SECOND, config.getPollSnapshotUnit());
-    assertTrue(1 == config.getPollSnapshotTimeout());
-  }
+    @Test
+    public void defaultConfigEnvTest() {
+        EnvConfig config = EnvConfig.getDefaultEnvConfig();
+        assertEquals("default", config.getNamespace());
+        assertEquals("control", config.getControlTopicName());
+        assertEquals("events", config.getEventsTopicName());
+        assertEquals("kiesessioninfos", config.getKieSessionInfosTopicName());
+        assertEquals("snapshot", config.getSnapshotTopicName());
+        assertEquals(PollUnit.MILLISECOND, config.getPollUnit());
+        assertEquals(PollUnit.SECOND, config.getPollSnapshotUnit());
+        assertTrue(1 == config.getPollSnapshotTimeout());
+    }
 
-  @Test(expected = ConfigurationException.class)
-  public void pollTimeUnitExceptionTest() {
-    EnvConfig.anEnvConfig().withPollTimeUnit(null);
-  }
+    @Test(expected = ConfigurationException.class)
+    public void pollTimeUnitExceptionTest() {
+        EnvConfig.anEnvConfig().withPollTimeUnit(null);
+    }
 
-  @Test(expected = ConfigurationException.class)
-  public void pollSnapshotTimeUnitExceptionTest() {
-    EnvConfig.anEnvConfig().withPollSnapshotTimeUnit(null);
-  }
+    @Test(expected = ConfigurationException.class)
+    public void pollSnapshotTimeUnitExceptionTest() {
+        EnvConfig.anEnvConfig().withPollSnapshotTimeUnit(null);
+    }
 
-  @Test
-  public void pollSnapshotTimeUnitMillisTest() {
-    EnvConfig config = EnvConfig.anEnvConfig().withPollSnapshotTimeUnit(EnvConfig.MILLISEC);
-    assertEquals(PollUnit.MILLISECOND, config.getPollSnapshotUnit());
-  }
-
+    @Test
+    public void pollSnapshotTimeUnitMillisTest() {
+        EnvConfig config = EnvConfig.anEnvConfig().withPollSnapshotTimeUnit(EnvConfig.MILLISEC);
+        assertEquals(PollUnit.MILLISECOND,
+                     config.getPollSnapshotUnit());
+    }
 }

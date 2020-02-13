@@ -17,5 +17,5 @@ package org.kie.hacep.util;
 
 public interface Printer {
 
-  boolean prettyPrinter(String caller, String topic, int partition, long offset, String value,  boolean processed);
+    boolean prettyPrinter(String caller, String topic, int partition, long offset, String value, boolean processed);
 }

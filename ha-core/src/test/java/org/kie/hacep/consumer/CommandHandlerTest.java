@@ -89,332 +89,359 @@ import static org.mockito.internal.verification.VerificationModeFactory.atLeast;
 @PrepareForTest(KieServices.class)
 public class CommandHandlerTest {
 
-  private static final Logger logger = LoggerFactory.getLogger(CommandHandlerTest.class);
-  protected static final EnvConfig envConfig = EnvConfig.getDefaultEnvConfig();
-  protected static final int fireAllRule = 4;
-  protected static final long factCount = fireAllRule;
-  protected static final String myObject = "myObject";
-  protected static final String myEntryPoint = "myEntryPoint";
-  protected static final String namedQuery = "namedQuery";
-  protected static final String objectName = "objectName";
-  protected static final String kJarGAV = "org.kie:fake-jar:0.1-SNAPSHOT";
-  protected static final RemoteFactHandle remoteFactHandle = new RemoteFactHandleImpl(myObject);
+    protected static final EnvConfig envConfig = EnvConfig.getDefaultEnvConfig();
+    protected static final int fireAllRule = 4;
+    protected static final long factCount = fireAllRule;
+    protected static final String myObject = "myObject";
+    protected static final String myEntryPoint = "myEntryPoint";
+    protected static final String namedQuery = "namedQuery";
+    protected static final String objectName = "objectName";
+    protected static final String kJarGAV = "org.kie:fake-jar:0.1-SNAPSHOT";
+    protected static final RemoteFactHandle remoteFactHandle = new RemoteFactHandleImpl(myObject);
+    private static final Logger logger = LoggerFactory.getLogger(CommandHandlerTest.class);
+    @Mock
+    protected KieSessionContext kieSessionContextMock;
 
-  @Mock
-  protected KieSessionContext kieSessionContextMock;
+    @Mock
+    protected Producer producerMock;
 
-  @Mock
-  protected Producer producerMock;
+    @Mock
+    protected SessionSnapshooter sessionSnapshooterMock;
 
-  @Mock
-  protected SessionSnapshooter sessionSnapshooterMock;
+    @Mock
+    protected KieSession kieSessionMock;
 
-  @Mock
-  protected KieSession kieSessionMock;
+    @Mock
+    protected EntryPoint entryPointMock;
 
-  @Mock
-  protected EntryPoint entryPointMock;
+    @Mock
+    protected FactHandlesManager factHandlesManagerMock;
 
-  @Mock
-  protected FactHandlesManager factHandlesManagerMock;
+    @Mock
+    protected FactHandle factHandleMock;
 
-  @Mock
-  protected FactHandle factHandleMock;
+    @Mock
+    protected QueryResults queryResultsMock;
 
-  @Mock
-  protected QueryResults queryResultsMock;
+    @Mock
+    protected ReleaseId releaseIdMock;
 
-  @Mock
-  protected ReleaseId releaseIdMock;
+    @Mock
+    protected KieServices kieServicesMock;
 
-  @Mock
-  protected KieServices kieServicesMock;
+    @Mock
+    protected KieContainer kieContainerMock;
 
-  @Mock
-  protected KieContainer kieContainerMock;
+    @Captor
+    protected ArgumentCaptor<ResultMessage<Object>> messageArgumentCaptor;
 
-  @Captor
-  protected ArgumentCaptor<ResultMessage<Object>> messageArgumentCaptor;
+    protected CommandHandler commandHandler;
 
-  protected CommandHandler commandHandler;
+    @Before
+    public void initTest() {
+        when(kieSessionContextMock.getKieSession()).thenReturn(kieSessionMock);
+        when(kieSessionContextMock.getFhManager()).thenReturn(factHandlesManagerMock);
+        when(kieSessionMock.fireAllRules()).thenReturn(fireAllRule);
+        when(kieSessionMock.getFactCount()).thenReturn(factCount);
+        when(kieSessionMock.getEntryPoint(anyString())).thenReturn(entryPointMock);
+        when(kieSessionMock.getQueryResults(anyString())).thenReturn(queryResultsMock);
+        when(kieSessionContextMock.getKjarGAVUsed()).thenReturn(Optional.of(kJarGAV));
+        when(queryResultsMock.iterator()).thenReturn(Collections.emptyIterator());
+        doReturn(Collections.singletonList(myObject)).when(entryPointMock).getObjects();
+        doReturn(Collections.singletonList(myObject)).when(kieSessionMock).getObjects(any());
+        when(kieSessionMock.getObject(any())).thenReturn(myObject);
+        when(factHandlesManagerMock.mapRemoteFactHandle(any(RemoteFactHandle.class))).thenReturn(factHandleMock);
+        commandHandler = new CommandHandler(kieSessionContextMock,
+                                            envConfig,
+                                            producerMock,
+                                            sessionSnapshooterMock,
+                                            new ConsumerUtilsCore() {
+                                                @Override
+                                                public ControlMessage getLastEvent(String topic,
+                                                                                   Integer pollTimeout) {
+                                                    return new ControlMessage();
+                                                }
 
-  @Before
-  public void initTest() {
-    when(kieSessionContextMock.getKieSession()).thenReturn(kieSessionMock);
-    when(kieSessionContextMock.getFhManager()).thenReturn(factHandlesManagerMock);
-    when(kieSessionMock.fireAllRules()).thenReturn(fireAllRule);
-    when(kieSessionMock.getFactCount()).thenReturn(factCount);
-    when(kieSessionMock.getEntryPoint(anyString())).thenReturn(entryPointMock);
-    when(kieSessionMock.getQueryResults(anyString())).thenReturn(queryResultsMock);
-    when(kieSessionContextMock.getKjarGAVUsed()).thenReturn(Optional.of(kJarGAV));
-    when(queryResultsMock.iterator()).thenReturn(Collections.emptyIterator());
-    doReturn(Collections.singletonList(myObject)).when(entryPointMock).getObjects();
-    doReturn(Collections.singletonList(myObject)).when(kieSessionMock).getObjects(any());
-    when(kieSessionMock.getObject(any())).thenReturn(myObject);
-    when(factHandlesManagerMock.mapRemoteFactHandle(any(RemoteFactHandle.class))).thenReturn(factHandleMock);
-    commandHandler = new CommandHandler(kieSessionContextMock,
-                                        envConfig,
-                                        producerMock,
-                                        sessionSnapshooterMock,
-                                        new ConsumerUtilsCore() {
-                                          @Override
-                                          public ControlMessage getLastEvent(String topic, Integer pollTimeout) {
-                                            return new ControlMessage();
-                                          }
-
-                                          @Override
-                                          public ControlMessage getLastEvent(String topic, Properties properties, Integer pollTimeout) {
-                                            return new ControlMessage();
-                                          }
-                                        });
-    DroolsExecutor.setAsLeader();
-  }
-
-  @After
-  public void endTest() {
-    DroolsExecutor.setAsLeader();
-  }
-
-  @Test
-  public void visitFireAllRulesCommand() {
-    FireAllRulesCommand command = new FireAllRulesCommand();
-
-    executeAndVerifyResponseMessage(command,
-                                    commandHandler::visit,
-                                    FireAllRuleMessage.class,
-                                    result -> result.equals(new Long(fireAllRule)));
-
-    reset(producerMock);
-    reset(kieSessionMock);
-    DroolsExecutor.setAsReplica();
-
-    executeAndVerify(command,
-                     commandHandler::visit,
-                     () -> verify(kieSessionMock, times(1)).fireAllRules());
-    logger.info("FireAllRulesCommand:{}", command.toString());
-  }
-
-  @Test
-  public void visitFireUntilHaltCommand() {
-    FireUntilHaltCommand command = new FireUntilHaltCommand();
-    executeAndVerify(command,
-                     commandHandler::visit,
-                     () -> assertTrue(commandHandler.isFiringUntilHalt()));
-    logger.info("FireUntilHaltCommand:{}",command.toString());
-  }
-
-  @Test
-  public void visitHaltCommand() {
-    HaltCommand command = new HaltCommand();
-    executeAndVerify(command,
-                     commandHandler::visit,
-                     () -> assertFalse(commandHandler.isFiringUntilHalt()));
-    logger.info("HaltCommand:{}",command.toString());
-  }
-
-  @Test
-  public void visitInsertCommand() {
-    InsertCommand command = new InsertCommand(remoteFactHandle, myEntryPoint);
-    executeAndVerify(command,
-                     commandHandler::visit,
-                     () -> {
-                       verify(factHandlesManagerMock, times(1))
-                               .registerHandle(eq(remoteFactHandle), any(FactHandle.class));
-                       verify(entryPointMock, times(1))
-                               .insert(eq(myObject));
-                     });
-    logger.info("InsertCommand:{}",command.toString());
-  }
-
-  @Test
-  public void visitEventInsertCommand() {
-    EventInsertCommand command = new EventInsertCommand(myObject, myEntryPoint);
-    executeAndVerify(command,
-                     commandHandler::visit,
-                     () -> verify(entryPointMock, times(1)).insert(eq(myObject)));
-    logger.info("EventInsertCommand:{}",command.toString());
-  }
-
-  @Test
-  public void visitDeleteCommand() {
-    DeleteCommand command = new DeleteCommand(remoteFactHandle, myEntryPoint);
-    executeAndVerify(command,
-                     commandHandler::visit,
-                     () -> {
-                       verify(kieSessionMock, times(1)).getEntryPoint(eq(myEntryPoint));
-                       verify(entryPointMock, times(1)).delete(eq(factHandleMock));
-                     });
-    logger.info("DeleteCommand:{}",command.toString());
-  }
-
-  @Test
-  public void visitUpdateCommand() {
-    UpdateCommand command = new UpdateCommand(remoteFactHandle, myObject, myEntryPoint);
-    executeAndVerify(command,
-                     commandHandler::visit,
-                     () -> {
-                       verify(kieSessionMock, times(1)).getEntryPoint(eq(myEntryPoint));
-                       verify(entryPointMock, times(1)).update(eq(factHandleMock), eq(myObject));
-                     });
-    logger.info("UpdateCommand:{}",command.toString());
-  }
-
-  @Test
-  public void visitListObjectsCommand() {
-    ListObjectsCommand command = new ListObjectsCommand(myEntryPoint);
-    executeAndVerifyResponseMessage(command,
-                                    commandHandler::visit,
-                                    ListKieSessionObjectMessage.class,
-                                    result -> myObject.equals(((List) result).get(0)));
-    logger.info("ListObjectsCommand:{}",command.toString());
-  }
-
-  @Test
-  public void visitListObjectsCommandClassType() {
-    ListObjectsCommandClassType command = new ListObjectsCommandClassType(myEntryPoint, String.class);
-    executeAndVerifyResponseMessage(command,
-                                    commandHandler::visit,
-                                    ListKieSessionObjectMessage.class,
-                                    result -> myObject.equals(((List) result).get(0)));
-    logger.info("ListObjectsCommandClassType:{} ListKieSessionObjectMessage:{}",command.toString());
-  }
-
-  @Test
-  public void visitGetObjectCommand() {
-    GetObjectCommand command = new GetObjectCommand(remoteFactHandle);
-    executeAndVerifyResponseMessage(command,
-                                    commandHandler::visit,
-                                    GetObjectMessage.class,
-                                    myObject::equals);
-    logger.info("GetObjectCommand:{} GetObjectMessage:{}",command.toString(), GetObjectMessage.class.toString());
-  }
-
-  @Test
-  public void visitListObjectsCommandNamedQuery() {
-    ListObjectsCommandNamedQuery command = new ListObjectsCommandNamedQuery(myEntryPoint, namedQuery, objectName);
-    executeAndVerifyResponseMessage(command,
-                                    commandHandler::visit,
-                                    ListKieSessionObjectMessage.class,
-                                    result -> ((List) result).size() == 0);
-    logger.info("ListObjectsCommandNamedQuery:{}",command.toString());
-  }
-
-  @Test
-  public void visitFactCountCommand() {
-    FactCountCommand command = new FactCountCommand(myEntryPoint);
-    executeAndVerifyResponseMessage(command,
-                                    commandHandler::visit,
-                                    FactCountMessage.class,
-                                    result -> new Long(factCount).equals(result));
-    logger.info("FactCountCommand:{}",command.toString());
-  }
-
-  @Test
-  public void visitSnapshotOnDemandCommand() {
-    SnapshotOnDemandCommand command = new SnapshotOnDemandCommand();
-    executeAndVerify(command,
-                     commandHandler::visit,
-                     () -> {
-                       verify(sessionSnapshooterMock, times(1))
-                               .serialize(eq(kieSessionContextMock), anyString(), anyLong());
-                     });
-    logger.info("SnapshotOnDemandCommand:{}",command.toString());
-  }
-
-  @Test
-  public void visitGetKJarGAVCommand() {
-    GetKJarGAVCommand command = new GetKJarGAVCommand(myEntryPoint);
-    executeAndVerifyResponseMessage(command,
-                                    commandHandler::visit,
-                                    GetKJarGAVMessage.class,
-                                    result -> kJarGAV.equals(result));
-    logger.info("GetKJarGAVCommand:{}",command.toString());
-  }
-
-  @Test
-  public void visitUpdateKJarCommand() {
-    envConfig.withUpdatableKJar("true");
-    PowerMockito.mockStatic(KieServices.class);
-    when(KieServices.get()).thenReturn(kieServicesMock);
-    when(kieSessionContextMock.getKjarGAVUsed()).thenReturn(Optional.of(kJarGAV));
-    when(kieSessionContextMock.getKieContainer()).thenReturn(kieContainerMock);
-    when(kieServicesMock.newReleaseId("org.kie", "fake-jar", "0.1-SNAPSHOT")).thenReturn(releaseIdMock);
-    UpdateKJarCommand command = new UpdateKJarCommand(kJarGAV);
-    executeAndVerifyResponseMessage(command,
-                                    commandHandler::visit,
-                                    UpdateKJarMessage.class,
-                                    result -> Boolean.TRUE);
-    PowerMockito.verifyStatic(KieServices.class, atLeast(1));
-    logger.info("UpdateKJarCommand:{}",command.toString());
-  }
-
-  private <T extends RemoteCommand> void executeAndVerify(T command, Consumer<T> consumer, Runnable assertions) {
-    internalExecuteAndVerify(false,
-                             command,
-                             consumer,
-                             null,
-                             result -> {
-                               assertions.run();
-                               return true;
-                             });
-  }
-
-  private <T extends RemoteCommand> void executeAndVerifyResponseMessage(T command,
-                                                                         Consumer<T> consumer,
-                                                                         Class<? extends ResultMessage<?>> expectedMessageClass,
-                                                                         Function<Object, Boolean> checkOnMessage) {
-    internalExecuteAndVerify(true,
-                             command,
-                             consumer,
-                             expectedMessageClass,
-                             checkOnMessage);
-  }
-
-  private <T extends RemoteCommand> void internalExecuteAndVerify(boolean hasReturnMessage,
-                                                                  T command,
-                                                                  Consumer<T> consumer,
-                                                                  Class<? extends ResultMessage<?>> expectedMessageClass,
-                                                                  Function<Object, Boolean> predicate) {
-
-    consumer.accept(command);
-
-    if (hasReturnMessage) {
-      verify(producerMock,
-             times(1))
-              .produceSync(eq(CommonConfig.DEFAULT_KIE_SESSION_INFOS_TOPIC),
-                           eq(command.getId()),
-                           messageArgumentCaptor.capture());
-
-      ResultMessage value = messageArgumentCaptor.getValue();
-
-      // if command has a return message, it should not performed on replica
-      // (FireAllRulesCommand and UpdateKjarCommand are an exception)
-      assertFalse(command.isPermittedForReplicas() && !((command instanceof FireAllRulesCommand) || (command instanceof UpdateKJarCommand)));
-      assertTrue(expectedMessageClass.isAssignableFrom(value.getClass()));
-      assertEquals(command.getId(),
-                   value.getId());
-      assertTrue(predicate.apply(value.getResult()));
-    } else {
-      verify(producerMock,
-             never())
-              .produceSync(eq(CommonConfig.DEFAULT_KIE_SESSION_INFOS_TOPIC),
-                           eq(command.getId()),
-                           messageArgumentCaptor.capture());
-
-      assertTrue(command.isPermittedForReplicas() || command instanceof SnapshotOnDemandCommand);
-      assertTrue(predicate.apply(null));
+                                                @Override
+                                                public ControlMessage getLastEvent(String topic,
+                                                                                   Properties properties,
+                                                                                   Integer pollTimeout) {
+                                                    return new ControlMessage();
+                                                }
+                                            });
+        DroolsExecutor.setAsLeader();
     }
-  }
 
-  @Test
-  public void hasTimeStampTest(){
-    assertFalse(CommandHandler.hasTimestamp(new Result()));
-    assertTrue(CommandHandler.hasTimestamp(new StockTickEvent()));
-  }
+    @After
+    public void endTest() {
+        DroolsExecutor.setAsLeader();
+    }
 
-  @Test
-  public void isEventTest(){
-    assertFalse(CommandHandler.isEvent(new Result()));
-    assertTrue(CommandHandler.isEvent(new StockTickEvent()));
-  }
+    @Test
+    public void visitFireAllRulesCommand() {
+        FireAllRulesCommand command = new FireAllRulesCommand();
+
+        executeAndVerifyResponseMessage(command,
+                                        commandHandler::visit,
+                                        FireAllRuleMessage.class,
+                                        result -> result.equals(new Long(fireAllRule)));
+
+        reset(producerMock);
+        reset(kieSessionMock);
+        DroolsExecutor.setAsReplica();
+
+        executeAndVerify(command,
+                         commandHandler::visit,
+                         () -> verify(kieSessionMock,
+                                      times(1)).fireAllRules());
+        logger.info("FireAllRulesCommand:{}", command.toString());
+    }
+
+    @Test
+    public void visitFireUntilHaltCommand() {
+        FireUntilHaltCommand command = new FireUntilHaltCommand();
+        executeAndVerify(command,
+                         commandHandler::visit,
+                         () -> assertTrue(commandHandler.isFiringUntilHalt()));
+        logger.info("FireUntilHaltCommand:{}", command.toString());
+    }
+
+    @Test
+    public void visitHaltCommand() {
+        HaltCommand command = new HaltCommand();
+        executeAndVerify(command,
+                         commandHandler::visit,
+                         () -> assertFalse(commandHandler.isFiringUntilHalt()));
+        logger.info("HaltCommand:{}", command.toString());
+    }
+
+    @Test
+    public void visitInsertCommand() {
+        InsertCommand command = new InsertCommand(remoteFactHandle,
+                                                  myEntryPoint);
+        executeAndVerify(command,
+                         commandHandler::visit,
+                         () -> {
+                             verify(factHandlesManagerMock,
+                                    times(1))
+                                     .registerHandle(eq(remoteFactHandle),
+                                                     any(FactHandle.class));
+                             verify(entryPointMock,
+                                    times(1))
+                                     .insert(eq(myObject));
+                         });
+        logger.info("InsertCommand:{}", command.toString());
+    }
+
+    @Test
+    public void visitEventInsertCommand() {
+        EventInsertCommand command = new EventInsertCommand(myObject,
+                                                            myEntryPoint);
+        executeAndVerify(command,
+                         commandHandler::visit,
+                         () -> verify(entryPointMock,
+                                      times(1)).insert(eq(myObject)));
+        logger.info("EventInsertCommand:{}", command.toString());
+    }
+
+    @Test
+    public void visitDeleteCommand() {
+        DeleteCommand command = new DeleteCommand(remoteFactHandle,
+                                                  myEntryPoint);
+        executeAndVerify(command,
+                         commandHandler::visit,
+                         () -> {
+                             verify(kieSessionMock,
+                                    times(1)).getEntryPoint(eq(myEntryPoint));
+                             verify(entryPointMock,
+                                    times(1)).delete(eq(factHandleMock));
+                         });
+        logger.info("DeleteCommand:{}", command.toString());
+    }
+
+    @Test
+    public void visitUpdateCommand() {
+        UpdateCommand command = new UpdateCommand(remoteFactHandle,
+                                                  myObject,
+                                                  myEntryPoint);
+        executeAndVerify(command,
+                         commandHandler::visit,
+                         () -> {
+                             verify(kieSessionMock,
+                                    times(1)).getEntryPoint(eq(myEntryPoint));
+                             verify(entryPointMock,
+                                    times(1)).update(eq(factHandleMock),
+                                                     eq(myObject));
+                         });
+        logger.info("UpdateCommand:{}", command.toString());
+    }
+
+    @Test
+    public void visitListObjectsCommand() {
+        ListObjectsCommand command = new ListObjectsCommand(myEntryPoint);
+        executeAndVerifyResponseMessage(command,
+                                        commandHandler::visit,
+                                        ListKieSessionObjectMessage.class,
+                                        result -> myObject.equals(((List) result).get(0)));
+        logger.info("ListObjectsCommand:{}", command.toString());
+    }
+
+    @Test
+    public void visitListObjectsCommandClassType() {
+        ListObjectsCommandClassType command = new ListObjectsCommandClassType(myEntryPoint,
+                                                                              String.class);
+        executeAndVerifyResponseMessage(command,
+                                        commandHandler::visit,
+                                        ListKieSessionObjectMessage.class,
+                                        result -> myObject.equals(((List) result).get(0)));
+        logger.info("ListObjectsCommandClassType:{} ListKieSessionObjectMessage:{}", command.toString());
+    }
+
+    @Test
+    public void visitGetObjectCommand() {
+        GetObjectCommand command = new GetObjectCommand(remoteFactHandle);
+        executeAndVerifyResponseMessage(command,
+                                        commandHandler::visit,
+                                        GetObjectMessage.class,
+                                        myObject::equals);
+        logger.info("GetObjectCommand:{} GetObjectMessage:{}", command.toString(), GetObjectMessage.class.toString());
+    }
+
+    @Test
+    public void visitListObjectsCommandNamedQuery() {
+        ListObjectsCommandNamedQuery command = new ListObjectsCommandNamedQuery(myEntryPoint,
+                                                                                namedQuery,
+                                                                                objectName);
+        executeAndVerifyResponseMessage(command,
+                                        commandHandler::visit,
+                                        ListKieSessionObjectMessage.class,
+                                        result -> ((List) result).size() == 0);
+        logger.info("ListObjectsCommandNamedQuery:{}", command.toString());
+    }
+
+    @Test
+    public void visitFactCountCommand() {
+        FactCountCommand command = new FactCountCommand(myEntryPoint);
+        executeAndVerifyResponseMessage(command,
+                                        commandHandler::visit,
+                                        FactCountMessage.class,
+                                        result -> new Long(factCount).equals(result));
+        logger.info("FactCountCommand:{}", command.toString());
+    }
+
+    @Test
+    public void visitSnapshotOnDemandCommand() {
+        SnapshotOnDemandCommand command = new SnapshotOnDemandCommand();
+        executeAndVerify(command,
+                         commandHandler::visit,
+                         () -> {
+                             verify(sessionSnapshooterMock,
+                                    times(1))
+                                     .serialize(eq(kieSessionContextMock),
+                                                anyString(),
+                                                anyLong());
+                         });
+        logger.info("SnapshotOnDemandCommand:{}", command.toString());
+    }
+
+    @Test
+    public void visitGetKJarGAVCommand() {
+        GetKJarGAVCommand command = new GetKJarGAVCommand(myEntryPoint);
+        executeAndVerifyResponseMessage(command,
+                                        commandHandler::visit,
+                                        GetKJarGAVMessage.class,
+                                        result -> kJarGAV.equals(result));
+        logger.info("GetKJarGAVCommand:{}", command.toString());
+    }
+
+    @Test
+    public void visitUpdateKJarCommand() {
+        envConfig.withUpdatableKJar("true");
+        PowerMockito.mockStatic(KieServices.class);
+        when(KieServices.get()).thenReturn(kieServicesMock);
+        when(kieSessionContextMock.getKjarGAVUsed()).thenReturn(Optional.of(kJarGAV));
+        when(kieSessionContextMock.getKieContainer()).thenReturn(kieContainerMock);
+        when(kieServicesMock.newReleaseId("org.kie",
+                                          "fake-jar",
+                                          "0.1-SNAPSHOT")).thenReturn(releaseIdMock);
+        UpdateKJarCommand command = new UpdateKJarCommand(kJarGAV);
+        executeAndVerifyResponseMessage(command,
+                                        commandHandler::visit,
+                                        UpdateKJarMessage.class,
+                                        result -> Boolean.TRUE);
+        PowerMockito.verifyStatic(KieServices.class,
+                                  atLeast(1));
+        logger.info("UpdateKJarCommand:{}", command.toString());
+    }
+
+    private <T extends RemoteCommand> void executeAndVerify(T command,
+                                                            Consumer<T> consumer,
+                                                            Runnable assertions) {
+        internalExecuteAndVerify(false,
+                                 command,
+                                 consumer,
+                                 null,
+                                 result -> {
+                                     assertions.run();
+                                     return true;
+                                 });
+    }
+
+    private <T extends RemoteCommand> void executeAndVerifyResponseMessage(T command,
+                                                                           Consumer<T> consumer,
+                                                                           Class<? extends ResultMessage<?>> expectedMessageClass,
+                                                                           Function<Object, Boolean> checkOnMessage) {
+        internalExecuteAndVerify(true,
+                                 command,
+                                 consumer,
+                                 expectedMessageClass,
+                                 checkOnMessage);
+    }
+
+    private <T extends RemoteCommand> void internalExecuteAndVerify(boolean hasReturnMessage,
+                                                                    T command,
+                                                                    Consumer<T> consumer,
+                                                                    Class<? extends ResultMessage<?>> expectedMessageClass,
+                                                                    Function<Object, Boolean> predicate) {
+
+        consumer.accept(command);
+
+        if (hasReturnMessage) {
+            verify(producerMock,
+                   times(1))
+                    .produceSync(eq(CommonConfig.DEFAULT_KIE_SESSION_INFOS_TOPIC),
+                                 eq(command.getId()),
+                                 messageArgumentCaptor.capture());
+
+            ResultMessage value = messageArgumentCaptor.getValue();
+
+            // if command has a return message, it should not performed on replica
+            // (FireAllRulesCommand and UpdateKjarCommand are an exception)
+            assertFalse(command.isPermittedForReplicas() && !((command instanceof FireAllRulesCommand) || (command instanceof UpdateKJarCommand)));
+            assertTrue(expectedMessageClass.isAssignableFrom(value.getClass()));
+            assertEquals(command.getId(), value.getId());
+            assertTrue(predicate.apply(value.getResult()));
+        } else {
+            verify(producerMock,
+                   never())
+                    .produceSync(eq(CommonConfig.DEFAULT_KIE_SESSION_INFOS_TOPIC),
+                                 eq(command.getId()),
+                                 messageArgumentCaptor.capture());
+
+            assertTrue(command.isPermittedForReplicas() || command instanceof SnapshotOnDemandCommand);
+            assertTrue(predicate.apply(null));
+        }
+    }
+
+    @Test
+    public void hasTimeStampTest() {
+        assertFalse(CommandHandler.hasTimestamp(new Result()));
+        assertTrue(CommandHandler.hasTimestamp(new StockTickEvent()));
+    }
+
+    @Test
+    public void isEventTest() {
+        assertFalse(CommandHandler.isEvent(new Result()));
+        assertTrue(CommandHandler.isEvent(new StockTickEvent()));
+    }
 }
