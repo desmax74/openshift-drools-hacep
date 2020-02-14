@@ -40,14 +40,14 @@ public class KieSessionContext {
         return kieSession;
     }
 
-    public KieContainer getKieContainer(){
+    public KieContainer getKieContainer() {
         return kieContainer;
     }
 
-    public Optional<String> getKjarGAVUsed(){
+    public Optional<String> getKjarGAVUsed() {
         ReleaseId releaseId = kieContainer.getReleaseId();
         String gav = null;
-        if(releaseId!= null) {
+        if (releaseId != null) {
             StringBuilder sb = new StringBuilder();
             sb.append(releaseId.getGroupId()).append(":").append(releaseId.getArtifactId()).append(":").append(releaseId.getVersion());
             gav = sb.toString();
@@ -68,9 +68,9 @@ public class KieSessionContext {
     private void setKieSessionAndKieContainer(KieSession kieSession, KieContainer kieContainer) {
         this.kieSession = kieSession;
         this.kieContainer = kieContainer;
-        SessionClock clock = kieSession.getSessionClock();
-        if (clock instanceof SessionPseudoClock) {
-            this.clock = (SessionPseudoClock) clock;
+        SessionClock sessionClock = kieSession.getSessionClock();
+        if (sessionClock instanceof SessionPseudoClock) {
+            this.clock = (SessionPseudoClock) sessionClock;
         }
     }
 
@@ -80,7 +80,7 @@ public class KieSessionContext {
 
     public void setClockAt(long time) {
         if (clock == null) {
-            throw new IllegalStateException( "Drools HACEP is not running with a pseudo-clock" );
+            throw new IllegalStateException("Drools HACEP is not running with a pseudo-clock");
         }
         clock.advanceTime(time - clock.getCurrentTime(), TimeUnit.MILLISECONDS);
     }

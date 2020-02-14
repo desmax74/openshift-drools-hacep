@@ -23,13 +23,16 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
+import org.kie.hacep.core.InfraFactory;
 import org.kie.hacep.core.infra.election.State;
+
 import org.kie.hacep.message.SnapshotMessage;
 import org.kie.remote.RemoteKieSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.*;
+import static org.kie.remote.CommonConfig.getTestProperties;
 import static org.kie.remote.util.SerializationUtil.deserialize;
 
 public class PodAsLeaderSnapshotTest extends KafkaFullTopicsTests{
@@ -49,7 +52,7 @@ public class PodAsLeaderSnapshotTest extends KafkaFullTopicsTests{
 
         kafkaServerTest.insertBatchStockTicketEvent(10,
                                                     topicsConfig,
-                                                    RemoteKieSession.class);
+                                                    RemoteKieSession.class, InfraFactory.getListener(getTestProperties(), false));
         try {
 
             final AtomicInteger attempts = new AtomicInteger(0);

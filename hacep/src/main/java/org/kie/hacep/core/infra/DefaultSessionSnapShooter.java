@@ -19,16 +19,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.PartitionInfo;
-import org.apache.kafka.common.TopicPartition;
 import org.kie.api.KieServices;
 import org.kie.api.marshalling.KieMarshallers;
 import org.kie.api.runtime.KieContainer;
@@ -39,7 +34,9 @@ import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
 import org.kie.hacep.consumer.KieContainerUtils;
 import org.kie.hacep.core.KieSessionContext;
+import org.kie.hacep.exceptions.InitializeException;
 import org.kie.hacep.message.SnapshotMessage;
+import org.kie.hacep.core.infra.utils.SnapshotOnDemandUtilsImpl;
 import org.kie.remote.impl.producer.EventProducer;
 import org.kie.remote.util.SerializationUtil;
 import org.slf4j.Logger;
@@ -47,9 +44,10 @@ import org.slf4j.LoggerFactory;
 
 public class DefaultSessionSnapShooter implements SessionSnapshooter {
 
-    private final String key = "LAST-SNAPSHOT";
     private final Logger logger = LoggerFactory.getLogger(DefaultSessionSnapShooter.class);
     private EnvConfig envConfig;
+
+    public static final String KEY = "LAST-SNAPSHOT";
 
     public DefaultSessionSnapShooter(EnvConfig envConfig) {
         this.envConfig = envConfig;
@@ -71,9 +69,7 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
                                                           lastInsertedEventkey,
                                                           lastInsertedEventOffset,
                                                           LocalDateTime.now());
-            producer.produceSync(envConfig.getSnapshotTopicName(),
-                                 key,
-                                 message);
+            producer.produceSync(envConfig.getSnapshotTopicName(), KEY, message);
             producer.stop();
         } catch (IOException e) {
             logger.error(e.getMessage(),
@@ -84,7 +80,7 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
     public SnapshotInfos deserialize() {
         KieServices srv = KieServices.get();
         if (srv != null) {
-            KafkaConsumer<String, byte[]> consumer = getConfiguredSnapshotConsumer();
+            KafkaConsumer<String, byte[]> consumer = SnapshotOnDemandUtilsImpl.getConfiguredSnapshotConsumer(envConfig);
             ConsumerRecords<String, byte[]> records = consumer.poll(envConfig.getPollSnapshotDuration());
             byte[] bytes = null;
             for (ConsumerRecord record : records) {
@@ -100,13 +96,13 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
 
                     KieSessionConfiguration conf = srv.newKieSessionConfiguration();
                     conf.setOption(ClockTypeOption.get("pseudo"));
-                    kieContainer = KieContainerUtils.getKieContainer(envConfig, srv);
-                    kSession = srv.getMarshallers().newMarshaller(kieContainer.getKieBase()).unmarshall(in, conf,null);
-
+                    kieContainer = KieContainerUtils.getKieContainer(envConfig,
+                                                                     srv);
+                    kSession = srv.getMarshallers().newMarshaller(kieContainer.getKieBase()).unmarshall(in, conf, null);
                 } catch (IOException | ClassNotFoundException e) {
                     logger.error(e.getMessage(), e);
                 }
-                if(kSession == null) {//Snapshot topic empty
+                if (kSession == null && kieContainer != null) {//Snapshot topic empty
                     kSession = kieContainer.newKieSession();
                 }
                 return new SnapshotInfos(kSession,
@@ -117,36 +113,15 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
                                          snapshotMsg.getTime(),
                                          snapshotMsg.getKjarGAV());
             }
-        }else{
-            throw new RuntimeException("KieServices is null");
+        } else {
+            throw new InitializeException("KieServices is null");
         }
         return null;
     }
 
-    private KafkaConsumer getConfiguredSnapshotConsumer() {
-        KafkaConsumer<String, byte[]> consumer = new KafkaConsumer(Config.getSnapshotConsumerConfig());
-        List<PartitionInfo> partitionsInfo = consumer.partitionsFor(envConfig.getSnapshotTopicName());
-        List<TopicPartition> partitions = null;
-        Collection<TopicPartition> partitionCollection = new ArrayList<>();
-
-        if (partitionsInfo != null) {
-            for (PartitionInfo partition : partitionsInfo) {
-                TopicPartition topicPartition = new TopicPartition(partition.topic(), partition.partition());
-                if (partitions == null || partitions.contains(topicPartition)) {
-                    partitionCollection.add(topicPartition);
-                }
-            }
-            if (!partitionCollection.isEmpty()) {
-                consumer.assign(partitionCollection);
-            }
-        }
-        consumer.assignment().forEach(topicPartition -> consumer.seekToBeginning(partitionCollection));
-        return consumer;
-    }
-
     @Override
     public LocalDateTime getLastSnapshotTime() {
-        KafkaConsumer<String, byte[]> consumer = getConfiguredSnapshotConsumer();
+        KafkaConsumer<String, byte[]> consumer = SnapshotOnDemandUtilsImpl.getConfiguredSnapshotConsumer(envConfig);
         ConsumerRecords<String, byte[]> records = consumer.poll(envConfig.getPollSnapshotDuration());
         byte[] bytes = null;
         for (ConsumerRecord record : records) {
@@ -160,4 +135,5 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
             return null;
         }
     }
+
 }

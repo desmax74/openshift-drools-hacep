@@ -23,14 +23,16 @@ public class PrinterUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(PrinterUtil.class);
 
-    public static Printer getPrinter( EnvConfig config){
-        if(config.getPrinterType().equals(PrinterLogImpl.class.getName())){
+    private PrinterUtil() {}
+
+    public static Printer getPrinter(EnvConfig config) {
+        if (config.getPrinterType().equals(PrinterLogImpl.class.getName())) {
             return new PrinterLogImpl();
-        }else{
+        } else {
             Printer returnInstance;
             try {
                 returnInstance = (Printer) Class.forName(config.getPrinterType()).newInstance();
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 logger.error("Printer:{} not found, using PrinterLog", ex.getMessage());
                 return new PrinterLogImpl();
             }
@@ -38,7 +40,7 @@ public class PrinterUtil {
         }
     }
 
-    public static Logger getKafkaLoggerForTest(EnvConfig config){
+    public static Logger getKafkaLoggerForTest(EnvConfig config) {
         if (config.isLocal()) {
             return logger;
         }

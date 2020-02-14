@@ -25,19 +25,16 @@ import org.kie.remote.util.LocalMessageSystem;
 public class LocalConsumer implements EventConsumer {
 
     private final LocalMessageSystem queue = LocalMessageSystem.get();
-
     private final EnvConfig envConfig;
-
     private ConsumerHandler consumerHandler;
-
     private State currentState;
 
-    public LocalConsumer( EnvConfig config ) {
+    public LocalConsumer(EnvConfig config) {
         this.envConfig = config;
     }
 
     @Override
-    public void initConsumer( ConsumerHandler consumerHandler ) {
+    public void initConsumer(ConsumerHandler consumerHandler) {
         this.consumerHandler = consumerHandler;
     }
 
@@ -45,9 +42,9 @@ public class LocalConsumer implements EventConsumer {
     public void poll() {
         String topic = envConfig.getEventsTopicName();
         while (true) {
-            RemoteCommand command = ( RemoteCommand ) queue.poll(topic, envConfig.getPollTimeout());
+            RemoteCommand command = (RemoteCommand) queue.poll(topic, envConfig.getPollTimeout());
             if (command != null) {
-                consumerHandler.process( command, currentState );
+                consumerHandler.process(command, currentState);
             } else {
                 break;
             }
@@ -55,10 +52,12 @@ public class LocalConsumer implements EventConsumer {
     }
 
     @Override
-    public void stop() { }
+    public void stop() {
+        //do nothing
+    }
 
     @Override
-    public synchronized void updateStatus( State state ) {
+    public synchronized void updateStatus(State state) {
         this.currentState = state;
         if (state == State.REPLICA) {
             DroolsExecutor.setAsReplica();

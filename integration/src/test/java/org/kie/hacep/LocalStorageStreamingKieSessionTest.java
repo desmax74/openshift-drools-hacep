@@ -22,31 +22,38 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
+import org.kie.hacep.core.InfraFactory;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.sample.kjar.Result;
 import org.kie.hacep.sample.kjar.StockTickEvent;
 import org.kie.remote.RemoteStreamingEntryPoint;
 import org.kie.remote.RemoteStreamingKieSession;
+import org.kie.remote.TopicsConfig;
+import org.kie.remote.impl.consumer.Listener;
+import org.kie.remote.impl.consumer.ListenerThread;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.kie.remote.CommonConfig.getTestProperties;
-import static org.kie.remote.impl.RemoteKieSessionImpl.DEFAULT_ENTRY_POINT;
+
 
 public class LocalStorageStreamingKieSessionTest {
 
     RemoteStreamingKieSession session;
+    public static final String DEFAULT_ENTRY_POINT = "DEFAULT";
 
     @Before
     public void initTest() {
         EnvConfig config = EnvConfig.getDefaultEnvConfig().underTest(true).local(true);
         Bootstrap.startEngine(config);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
-        session = RemoteStreamingKieSession.create(getTestProperties());
+
+        ListenerThread listenerThread = InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), config.isLocal(), getTestProperties());
+        Listener listener = new Listener(getTestProperties(), listenerThread);
+        session = InfraFactory.createRemoteStreamingKieSession(getTestProperties(), listener, InfraFactory.getProducer(true));
     }
 
     @After
@@ -68,7 +75,7 @@ public class LocalStorageStreamingKieSessionTest {
         assertEquals(3, session.getObjects().get().size());
         assertEquals((Long) 3L, session.getFactCount().get());
 
-        assertEquals(11.5, session.getObjects(Result.class).get().iterator().next().getValue());
+        Assert.assertEquals(11.5, session.getObjects(Result.class).get().iterator().next().getValue());
     }
 
     @Test(timeout = 10000)
@@ -111,9 +118,9 @@ public class LocalStorageStreamingKieSessionTest {
         Collection<?> getObjects = session.getObjects().get();
         assertEquals(2, getObjects.size());
 
-        CompletableFuture<Collection<?>> getObjectByQueryIBM = session.getObjects("stockTickEventQuery", "stock", "IBM");
+        CompletableFuture<Collection> getObjectByQueryIBM = session.getObjects("stockTickEventQuery", "stock", "IBM");
         assertEquals(0, getObjectByQueryIBM.get().size());
-        CompletableFuture<Collection<?>> getObjectsByQueryRHT = session.getObjects("stockTickEventQuery", "stock", "RHT");
+        CompletableFuture<Collection> getObjectsByQueryRHT = session.getObjects("stockTickEventQuery", "stock", "RHT");
         assertEquals(2, getObjectsByQueryRHT.get().size());
 
         RemoteStreamingEntryPoint defaultEntryPoint = session.getEntryPoint(DEFAULT_ENTRY_POINT);
@@ -121,4 +128,5 @@ public class LocalStorageStreamingKieSessionTest {
 
         assertEquals(DEFAULT_ENTRY_POINT, defaultEntryPoint.getEntryPointId());
     }
+
 }

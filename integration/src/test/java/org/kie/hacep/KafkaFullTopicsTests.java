@@ -22,15 +22,15 @@ import org.kie.remote.TopicsConfig;
 public class KafkaFullTopicsTests {
 
     protected final String TEST_KAFKA_LOGGER_TOPIC = "testlogs";
-    protected KafkaUtilTest kafkaServerTest;
+    protected KafkaUtils kafkaServerTest;
     protected EnvConfig envConfig;
     protected TopicsConfig topicsConfig;
 
     @Before
     public void setUp() throws Exception {
-        envConfig = KafkaUtilTest.getEnvConfig();
+        envConfig = KafkaUtils.getEnvConfig();
         topicsConfig = TopicsConfig.getDefaultTopicsConfig();
-        kafkaServerTest = new KafkaUtilTest();
+        kafkaServerTest = new KafkaUtils();
         kafkaServerTest.startServer();
     }
 

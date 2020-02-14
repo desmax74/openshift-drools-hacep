@@ -31,6 +31,7 @@
   </properties>
 
   <modules>
+    <module>ha-core-infra</module>
     <module>kie-remote</module>
     <module>hacep</module>
     <module>springboot</module>
@@ -42,6 +43,11 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>org.kie</groupId>
+        <artifactId>ha-core-infra</artifactId>
+        <version>${version.org.kie}</version>
+      </dependency>
       <dependency>
         <groupId>org.kie</groupId>
         <artifactId>kie-remote</artifactId>

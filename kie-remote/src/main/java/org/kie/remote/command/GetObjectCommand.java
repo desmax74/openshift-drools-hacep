@@ -16,7 +16,6 @@
 package org.kie.remote.command;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.UUID;
 
 import org.kie.remote.RemoteFactHandle;
@@ -31,7 +30,7 @@ public class GetObjectCommand extends AbstractCommand implements VisitableComman
     }
 
     public GetObjectCommand(RemoteFactHandle remoteFactHandle) {
-        super( UUID.randomUUID().toString() );
+        super(UUID.randomUUID().toString());
         this.remoteFactHandle = remoteFactHandle;
     }
 
@@ -51,8 +50,6 @@ public class GetObjectCommand extends AbstractCommand implements VisitableComman
 
     @Override
     public String toString() {
-        return "GetObjectCommand{" +
-                "remoteFactHandle=" + remoteFactHandle +
-                '}';
+        return "GetObjectCommand{ remoteFactHandle=" + remoteFactHandle + '}';
     }
 }

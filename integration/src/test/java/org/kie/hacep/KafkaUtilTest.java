@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServer;
 import kafka.server.NotRunning;
@@ -42,21 +43,10 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.PartitionInfo;
-import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.common.utils.SystemTime;
 import org.apache.kafka.common.utils.Time;
 import org.kie.hacep.core.Bootstrap;
-import org.kie.hacep.sample.kjar.StockTickEvent;
-import org.kie.remote.CommonConfig;
-import org.kie.remote.RemoteStreamingKieSession;
-import org.kie.remote.RemoteKieSession;
-import org.kie.remote.TopicsConfig;
-import org.kie.remote.command.SnapshotOnDemandCommand;
-import org.kie.remote.impl.RemoteStreamingKieSessionImpl;
-import org.kie.remote.impl.RemoteKieSessionImpl;
-import org.kie.remote.impl.producer.Sender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -209,92 +199,6 @@ public class KafkaUtilTest implements AutoCloseable {
         return new KafkaProducer<>(producerProps);
     }
 
-    public KafkaConsumer getConsumer(String topic,
-                                     Properties props) {
-        KafkaConsumer consumer = new KafkaConsumer(props);
-        List<PartitionInfo> infos = consumer.partitionsFor(topic);
-        List<TopicPartition> partitions = new ArrayList();
-        if (infos != null) {
-            for (PartitionInfo partition : infos) {
-                partitions.add(new TopicPartition(partition.topic(),
-                                                  partition.partition()));
-            }
-        }
-        consumer.assign(partitions);
-        Set<TopicPartition> assignments = consumer.assignment();
-        assignments.forEach(topicPartition -> consumer.seekToBeginning(assignments));
-        return consumer;
-    }
-
-    public void insertBatchStockTicketEvent(int items,
-                                            TopicsConfig topicsConfig,
-                                            Class sessionType) {
-        insertBatchStockTicketEvent(items, topicsConfig, sessionType, Config.getProducerConfig( "InsertBatchStockTicketEvent" ));
-    }
-
-    public void insertBatchStockTicketEvent(int items,
-                                            TopicsConfig topicsConfig,
-                                            Class sessionType,
-                                            Properties props) {
-        if (sessionType.equals(RemoteKieSession.class)) {
-            RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props, topicsConfig);
-            producer.fireUntilHalt();
-            try{
-                for (int i = 0; i < items; i++) {
-                    StockTickEvent ticket = new StockTickEvent("RHT",
-                                                               ThreadLocalRandom.current().nextLong(80,
-                                                                                                    100));
-                    producer.insert(ticket);
-                }
-            }finally {
-                producer.close();
-            }
-
-        }
-        if (sessionType.equals( RemoteStreamingKieSession.class)) {
-            RemoteStreamingKieSessionImpl producer = new RemoteStreamingKieSessionImpl(props, topicsConfig);
-            producer.fireUntilHalt();
-            try {
-                for (int i = 0; i < items; i++) {
-                    StockTickEvent ticket = new StockTickEvent("RHT",
-                                                               ThreadLocalRandom.current().nextLong(80,
-                                                                                                    100));
-                    producer.insert(ticket);
-                }
-            }finally {
-                producer.close();
-            }
-        }
-    }
-
-    public static void insertSnapshotOnDemandCommand() {
-        Properties props = Config.getProducerConfig("insertSnapshotOnDemandCommand");
-
-        Sender sender = new Sender(props);
-        sender.start();
-        SnapshotOnDemandCommand command = new SnapshotOnDemandCommand();
-        sender.sendCommand(command, TopicsConfig.getDefaultTopicsConfig().getEventsTopicName());
-        sender.stop();
-    }
-
-    public static EnvConfig getEnvConfig() {
-        return EnvConfig.anEnvConfig().
-                withNamespace(CommonConfig.DEFAULT_NAMESPACE).
-                withControlTopicName(Config.DEFAULT_CONTROL_TOPIC).
-                withEventsTopicName(CommonConfig.DEFAULT_EVENTS_TOPIC).
-                withSnapshotTopicName(Config.DEFAULT_SNAPSHOT_TOPIC).
-                withKieSessionInfosTopicName(CommonConfig.DEFAULT_KIE_SESSION_INFOS_TOPIC).
-                withPrinterType(PrinterKafkaImpl.class.getName()).
-                withPollTimeUnit("millisec").
-                withPollTimeout("1000").
-                withIterationBetweenSnapshot("10").
-                skipOnDemandSnapshot("true").
-                withMaxSnapshotAgeSeconds("60000").
-                withPollSnapshotTimeUnit("sec").
-                withPollSnapshotTimeout("10").
-                withUpdatableKJar("false").
-                underTest(true);
-    }
 
     public void tearDown() {
         kafkaLogger.warn("tearDown");

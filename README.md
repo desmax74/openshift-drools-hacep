@@ -49,7 +49,7 @@ to avoid inconsistencies when processing 2 events inserted by 2 different client
 - Openshift 3.11, 4.X or Minishift, CRC
 
 - A Kafka Cluster on Openshift with Strimzi https://strimzi.io/
-(tested on Openshift 3.11, 4.x and strimzi 0.12.1)
+(tested on Openshift 3.11, 4.x and strimzi 0.12.1 and 0.16.2)
 
 ### Kafka Cluster
 It is necessary to have a Kafka cluster runing to use HA-CEP.

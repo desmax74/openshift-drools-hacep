@@ -22,33 +22,40 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
+import org.kie.hacep.core.InfraFactory;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.sample.kjar.Result;
 import org.kie.hacep.sample.kjar.StockTickEvent;
+import org.kie.remote.CommonConfig;
 import org.kie.remote.RemoteEntryPoint;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.RemoteKieSession;
+import org.kie.remote.TopicsConfig;
+import org.kie.remote.impl.consumer.Listener;
+import org.kie.remote.impl.consumer.ListenerThread;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.kie.remote.CommonConfig.getTestProperties;
-import static org.kie.remote.impl.RemoteKieSessionImpl.DEFAULT_ENTRY_POINT;
 
 public class LocalStorageKieSessionTest {
 
     RemoteKieSession session;
+    public static final String DEFAULT_ENTRY_POINT = "DEFAULT";
 
     @Before
     public void initTest() {
         EnvConfig config = EnvConfig.getDefaultEnvConfig().underTest(true).local(true);
         Bootstrap.startEngine(config);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
-        session = RemoteKieSession.create(getTestProperties());
+        ListenerThread listenerThread = InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), config.isLocal(), getTestProperties());
+        Listener listener = new Listener(getTestProperties(), listenerThread);
+        session = InfraFactory.createRemoteKieSession(CommonConfig.getTestProperties(), listener, InfraFactory.getProducer(config.isLocal())); //RemoteKieSession.create(getTestProperties());
     }
+
 
     @After
     public void endTest() throws IOException {
@@ -75,7 +82,7 @@ public class LocalStorageKieSessionTest {
 
         assertTrue(session.getObject(stockRFH).get().isProcessed());
 
-        assertEquals(11.5, session.getObject(resultRFH).get().getValue());
+        Assert.assertEquals(11.5, session.getObject(resultRFH).get().getValue());
     }
 
     @Test(timeout = 10000)
@@ -96,7 +103,7 @@ public class LocalStorageKieSessionTest {
         stock.setPrice(10.0);
         session.update(stockRFH, stock);
 
-        assertEquals(stock.getPrice(), session.getObject(stockRFH).get().getPrice(), 0.1);
+        Assert.assertEquals(stock.getPrice(), session.getObject(stockRFH).get().getPrice(), 0.1);
     }
 
     @Test(timeout = 10000)
@@ -158,16 +165,25 @@ public class LocalStorageKieSessionTest {
         Collection<?> getObjects = session.getObjects().get();
         assertEquals(2, getObjects.size());
 
-        CompletableFuture<Collection<?>> getObjectByQueryIBM = session.getObjects("stockTickEventQuery", "stock", "IBM");
+        CompletableFuture<Collection> getObjectByQueryIBM = session.getObjects("stockTickEventQuery", "stock", "IBM");
         assertEquals(0, getObjectByQueryIBM.get().size());
-        CompletableFuture<Collection<?>> getObjectsByQueryRHT = session.getObjects("stockTickEventQuery", "stock", "RHT");
+        CompletableFuture<Collection> getObjectsByQueryRHT = session.getObjects("stockTickEventQuery", "stock", "RHT");
         assertEquals(2, getObjectsByQueryRHT.get().size());
 
-        assertEquals("RHT", session.getObject(stock1FH).get().getCompany());
+        Assert.assertEquals("RHT", session.getObject(stock1FH).get().getCompany());
 
         RemoteEntryPoint defaultEntryPoint = session.getEntryPoint(DEFAULT_ENTRY_POINT);
         assertEquals((Long) 2L, defaultEntryPoint.getFactCount().get());
 
         assertEquals(DEFAULT_ENTRY_POINT, defaultEntryPoint.getEntryPointId());
     }
+
+    @Test(timeout = 10000)
+    public void getKJarNotDefinedTest() throws ExecutionException, InterruptedException {
+        CompletableFuture<String> cfGav = session.getKJarGAV();
+        String gav = cfGav.get();
+        assertNotNull(gav);
+        assertEquals("KJar GAV NotDefined", gav);
+    }
+
 }

@@ -19,6 +19,7 @@ import org.kie.api.KieServices;
 import org.kie.api.builder.KieScanner;
 import org.kie.api.runtime.KieContainer;
 import org.kie.hacep.EnvConfig;
+import org.kie.hacep.exceptions.InitializeException;
 import org.kie.hacep.util.GAVUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +28,14 @@ public class KieContainerUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(KieContainerUtils.class);
 
-    public static KieContainer getKieContainer(EnvConfig envConfig, KieServices srv){
+    private KieContainerUtils() { }
+
+    public static KieContainer getKieContainer(EnvConfig envConfig, KieServices srv) {
         KieContainer kieContainer;
-        if(srv != null) {
+        if (srv != null) {
             if (envConfig.isUpdatableKJar()) {
-                kieContainer = srv.newKieContainer(GAVUtils.getReleaseID(envConfig.getKJarGAV(), srv));
+                kieContainer = srv.newKieContainer(GAVUtils.getReleaseID(envConfig.getKJarGAV(),
+                                                                         srv));
                 KieScanner scanner = srv.newKieScanner(kieContainer);
                 scanner.scanNow();
                 if (logger.isInfoEnabled()) {
@@ -44,8 +48,8 @@ public class KieContainerUtils {
                 kieContainer = srv.newKieClasspathContainer();
             }
             return kieContainer;
-        }else{
-            throw new RuntimeException("KieServices is null");
+        } else {
+            throw new InitializeException("KieServices is null");
         }
     }
 }

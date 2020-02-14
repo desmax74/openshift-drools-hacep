@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 public interface RemoteWorkingMemory {
+
     /**
      * @return the String Id of this entry point
      */
@@ -34,18 +35,15 @@ public interface RemoteWorkingMemory {
      * <p>Instead the approach used when comparing objects with the <tt>contains(Object)</tt>
      * method is dependent on the WorkingMemory configuration, where it can be configured for <tt>Identity</tt>
      * or for <tt>Equality</tt>.</p>
-     *
      * @@return CompletableFuture of Collection<? extends Object> to read all facts from the current session as a Collection.
      */
-    CompletableFuture<Collection<? extends Object>> getObjects();
-
+    CompletableFuture<Collection> getObjects();
 
     /**
      * @param clazztype the filter to be applied to the returned collection of facts.
      * @@return CompletableFuture of Collection<? extends Object> to read all facts from the current session that are accepted by the given <code>ObjectFilter</code>.
      */
     <T> CompletableFuture<Collection<T>> getObjects(Class<T> clazztype);
-
 
     /**
      * @param namedQuery the filter to be applied to the returned collection of facts.
@@ -54,7 +52,7 @@ public interface RemoteWorkingMemory {
      * @@param params for the rule
      * @@return CompletableFuture of Collection<? extends Object> to read all facts from the current session that are accepted by the given <code>ObjectFilter</code>.
      */
-    CompletableFuture<Collection<? extends Object>> getObjects(String namedQuery, String objectName, Object... params);
+    CompletableFuture<Collection> getObjects(String namedQuery, String objectName, Object... params);
 
     /**
      * @return a completable future with Long to read the total number of facts currently in this entry point
@@ -66,5 +64,4 @@ public interface RemoteWorkingMemory {
      * @@return CompletableFuture of <? extends Object> to read related RemoteFactHandle.
      */
     <T> CompletableFuture<T> getObject(RemoteFactHandle<T> remoteFactHandle);
-
 }

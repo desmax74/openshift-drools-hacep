@@ -18,6 +18,7 @@ package org.kie.hacep;
 import java.time.Duration;
 import java.util.Optional;
 
+import org.kie.hacep.exceptions.ConfigurationException;
 import org.kie.hacep.util.PrinterLogImpl;
 import org.kie.remote.CommonConfig;
 
@@ -32,18 +33,19 @@ public final class EnvConfig {
     private int iterationBetweenSnapshot = Config.DEFAULT_ITERATION_BETWEEN_SNAPSHOT;
     private int pollTimeout = 1000;
     private int pollSnapshotTimeout = 1;
-    private int maxSnapshotRequestAttempts = 10;
+    private int maxSnapshotRequestAttempts = 30;
     private boolean skipOnDemanSnapshot;
     private long maxSnapshotAge;
     private boolean test;
     private boolean local;
-    private PollUnit pollUnit, pollUnitSnapshot;
-    private Duration pollDuration, pollSnapshotDuration;
-    private final static String sec ="sec";
-    private final static String millisec ="millisec";
+    private PollUnit pollUnit;
+    private PollUnit pollUnitSnapshot;
+    private Duration pollDuration;
+    private Duration pollSnapshotDuration;
     private boolean updatableKJar;
-    private String kjarGAV;//groupid:artifactid:version
-
+    private String kJarGAV;//groupid:artifactid:version
+    public static final String SECONDS = "sec";
+    public static final String MILLISEC = "millisec";
 
     private EnvConfig() { }
 
@@ -56,9 +58,9 @@ public final class EnvConfig {
                 withKieSessionInfosTopicName(Optional.ofNullable(System.getenv(CommonConfig.DEFAULT_KIE_SESSION_INFOS_TOPIC)).orElse(CommonConfig.DEFAULT_KIE_SESSION_INFOS_TOPIC)).
                 withPrinterType(Optional.ofNullable(System.getenv(Config.DEFAULT_PRINTER_TYPE)).orElse(PrinterLogImpl.class.getName())).
                 withPollTimeout(Optional.ofNullable(System.getenv(Config.POLL_TIMEOUT)).orElse(String.valueOf(Config.DEFAULT_POLL_TIMEOUT))).
-                withPollTimeUnit(Optional.ofNullable(System.getenv(Config.POLL_TIMEOUT_UNIT)).orElse(millisec)).
+                withPollTimeUnit(Optional.ofNullable(System.getenv(Config.POLL_TIMEOUT_UNIT)).orElse(MILLISEC)).
                 withPollSnapshotTimeout(Optional.ofNullable(System.getenv(Config.POLL_TIMEOUT_SNAPSHOT)).orElse(String.valueOf(Config.DEFAULT_POLL_SNAPSHOT_TIMEOUT))).
-                withPollSnapshotTimeUnit(Optional.ofNullable(System.getenv(Config.POLL_TIMEOUT_UNIT_SNAPSHOT)).orElse(sec)).
+                withPollSnapshotTimeUnit(Optional.ofNullable(System.getenv(Config.POLL_TIMEOUT_UNIT_SNAPSHOT)).orElse(SECONDS)).
                 skipOnDemandSnapshot(Optional.ofNullable(System.getenv(Config.SKIP_ON_DEMAND_SNAPSHOT)).orElse(Boolean.FALSE.toString())).
                 withIterationBetweenSnapshot(Optional.ofNullable(System.getenv(Config.ITERATION_BETWEEN_SNAPSHOT)).orElse(String.valueOf(Config.DEFAULT_ITERATION_BETWEEN_SNAPSHOT))).
                 withMaxSnapshotAgeSeconds(Optional.ofNullable(System.getenv(Config.MAX_SNAPSHOT_AGE)).orElse(Config.DEFAULT_MAX_SNAPSHOT_AGE_SEC)).
@@ -146,69 +148,52 @@ public final class EnvConfig {
         return this;
     }
 
-    public EnvConfig withPollTimeUnit(String pollTimeUnit){
-        switch (pollTimeUnit){
-            case millisec:
+    public EnvConfig withPollTimeUnit(String pollTimeUnit) {
+        if(pollTimeUnit == null){
+            throw new ConfigurationException("No pollTimeUnit provided");
+        }
+        switch (pollTimeUnit) {
+            case MILLISEC:
                 this.pollUnit = PollUnit.MILLISECOND;
                 this.pollDuration = Duration.ofMillis(pollTimeout);
                 break;
-            case sec:
+            case SECONDS:
                 this.pollUnit = PollUnit.SECOND;
                 this.pollDuration = Duration.ofSeconds(pollTimeout);
                 break;
             default:
-                throw new RuntimeException("No pollTimeUnit provided");
+                throw new ConfigurationException("No pollTimeUnit provided");
         }
         return this;
     }
 
-    public EnvConfig withPollSnapshotTimeUnit(String pollSnapshotTimeUnit){
-        switch (pollSnapshotTimeUnit){
-            case millisec:
+    public EnvConfig withPollSnapshotTimeUnit(String pollSnapshotTimeUnit) {
+        if(pollSnapshotTimeUnit == null){
+            throw new ConfigurationException("No pollSnapshotTimeUnit provided");
+        }
+        switch (pollSnapshotTimeUnit) {
+            case MILLISEC:
                 this.pollUnitSnapshot = PollUnit.MILLISECOND;
                 this.pollSnapshotDuration = Duration.ofMillis(pollSnapshotTimeout);
                 break;
-            case sec:
+            case SECONDS:
                 this.pollUnitSnapshot = PollUnit.SECOND;
                 this.pollSnapshotDuration = Duration.ofSeconds(pollSnapshotTimeout);
                 break;
             default:
-                throw new RuntimeException("No pollSnapshotTimeUnit provided");
+                throw new ConfigurationException("No pollSnapshotTimeUnit provided");
         }
         return this;
     }
 
-    public EnvConfig withUpdatableKJar(String updatableKJar){
+    public EnvConfig withUpdatableKJar(String updatableKJar) {
         this.updatableKJar = Boolean.valueOf(updatableKJar);
         return this;
     }
 
-    public EnvConfig withKJarGAV(String kjarGAV){
-        this.kjarGAV = kjarGAV;
+    public EnvConfig withKJarGAV(String kjarGAV) {
+        this.kJarGAV = kjarGAV;
         return this;
-    }
-
-    public EnvConfig clone() {
-        EnvConfig envConfig = new EnvConfig();
-        envConfig.eventsTopicName = this.eventsTopicName;
-        envConfig.namespace = this.namespace;
-        envConfig.controlTopicName = this.controlTopicName;
-        envConfig.snapshotTopicName = this.snapshotTopicName;
-        envConfig.kieSessionInfosTopicName = this.kieSessionInfosTopicName;
-        envConfig.printerType = this.printerType;
-        envConfig.test = this.test;
-        envConfig.local = this.local;
-        envConfig.pollTimeout = this.pollTimeout;
-        envConfig.pollSnapshotTimeout = this.pollSnapshotTimeout;
-        envConfig.iterationBetweenSnapshot = this.iterationBetweenSnapshot;
-        envConfig.skipOnDemanSnapshot = this.skipOnDemanSnapshot;
-        envConfig.maxSnapshotAge = this.maxSnapshotAge;
-        envConfig.maxSnapshotRequestAttempts = this.maxSnapshotRequestAttempts;
-        envConfig.pollUnit = this.pollUnit;
-        envConfig.pollUnitSnapshot = this.pollUnitSnapshot;
-        envConfig.updatableKJar = this.updatableKJar;
-        envConfig.kjarGAV = this.kjarGAV;
-        return envConfig;
     }
 
     public String getNamespace() {
@@ -267,43 +252,29 @@ public final class EnvConfig {
         return maxSnapshotRequestAttempts;
     }
 
-    public PollUnit getPollUnit() { return pollUnit; }
-
-    public PollUnit getPollSnapshotUnit() { return pollUnitSnapshot; }
-
-    public Duration getPollDuration(){ return pollDuration; }
-
-    public Duration getPollSnapshotDuration(){ return pollSnapshotDuration; }
-
-    public boolean isUpdatableKJar(){ return updatableKJar;}
-
-    public String getKJarGAV(){ return kjarGAV;}
-
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("EnvConfig{");
-        sb.append("namespace='").append(namespace).append('\'');
-        sb.append(", eventsTopicName='").append(eventsTopicName).append('\'');
-        sb.append(", controlTopicName='").append(controlTopicName).append('\'');
-        sb.append(", snapshotTopicName='").append(snapshotTopicName).append('\'');
-        sb.append(", kieSessionInfosTopicName='").append(kieSessionInfosTopicName).append('\'');
-        sb.append(", printerType='").append(printerType).append('\'');
-        sb.append(", pollTimeUnit='").append(pollUnit).append('\'');
-        sb.append(", pollTimeout='").append(pollTimeout).append('\'');
-        sb.append(", pollDuration='").append(pollDuration).append('\'');
-        sb.append(", pollSnapshotUnit='").append(pollUnitSnapshot).append('\'');
-        sb.append(", pollSnapshotDuration='").append(pollSnapshotDuration).append('\'');
-        sb.append(", pollSnapshotTimeout='").append(pollSnapshotTimeout).append('\'');
-        sb.append(", iterationBetweenSnapshot='").append(iterationBetweenSnapshot).append('\'');
-        sb.append(", skipOnDemanSnapshot='").append(skipOnDemanSnapshot).append('\'');
-        sb.append(", maxSnapshotAge='").append(maxSnapshotAge).append('\'');
-        sb.append(", maxSnapshotRequestAttempts='").append(maxSnapshotRequestAttempts).append('\'');
-        sb.append(", updatableKJar='").append(updatableKJar).append('\'');
-        sb.append(", kjarGAV='").append(kjarGAV).append('\'');
-        sb.append(", underTest='").append(test).append('\'');
-        sb.append('}');
-        return sb.toString();
+    public PollUnit getPollUnit() {
+        return pollUnit;
     }
+
+    public PollUnit getPollSnapshotUnit() {
+        return pollUnitSnapshot;
+    }
+
+    public Duration getPollDuration() {
+        return pollDuration;
+    }
+
+    public Duration getPollSnapshotDuration() {
+        return pollSnapshotDuration;
+    }
+
+    public boolean isUpdatableKJar() {
+        return updatableKJar;
+    }
+
+    public String getKJarGAV() {
+        return kJarGAV;
+    }
+
 }
 

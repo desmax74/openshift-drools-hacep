@@ -26,20 +26,20 @@ import org.kie.remote.TopicsConfig;
 import org.kie.remote.command.GetKJarGAVCommand;
 import org.kie.remote.command.UpdateKJarCommand;
 import org.kie.remote.impl.consumer.Listener;
+import org.kie.remote.impl.producer.Producer;
 import org.kie.remote.impl.producer.Sender;
+import org.kie.remote.util.EntryPointUtil;
 
 public class RemoteKieSessionImpl extends RemoteEntryPointImpl implements RemoteKieSession {
 
-    public static final String DEFAULT_ENTRY_POINT = "DEFAULT"; // EntryPointId.DEFAULT.getEntryPointId();
-
     private final Map<String, RemoteEntryPoint> entryPoints = new HashMap<>();
 
-    public RemoteKieSessionImpl( Properties configuration) {
-        this(configuration, TopicsConfig.getDefaultTopicsConfig());
+    public RemoteKieSessionImpl(Properties configuration, Listener listener, Producer producer) {
+        this(configuration, TopicsConfig.getDefaultTopicsConfig(), listener, producer);
     }
 
-    public RemoteKieSessionImpl(Properties configuration, TopicsConfig envConfig) {
-        super(new Sender(configuration), DEFAULT_ENTRY_POINT, envConfig, new Listener(configuration));
+    public RemoteKieSessionImpl(Properties configuration, TopicsConfig envConfig, Listener listener, Producer producer) {
+        super(new Sender(configuration, producer), EntryPointUtil.DEFAULT_ENTRY_POINT, envConfig, listener);
         sender.start();
     }
 
@@ -50,8 +50,12 @@ public class RemoteKieSessionImpl extends RemoteEntryPointImpl implements Remote
     }
 
     @Override
-    public RemoteEntryPoint getEntryPoint( String name ) {
-        return entryPoints.computeIfAbsent( name, k -> new RemoteEntryPointImpl(sender, k, topicsConfig, delegate) );
+    public RemoteEntryPoint getEntryPoint(String name) {
+        return entryPoints.computeIfAbsent(name,
+                                           k -> new RemoteEntryPointImpl(sender,
+                                                                         k,
+                                                                         topicsConfig,
+                                                                         delegate));
     }
 
     @Override
