@@ -17,5 +17,5 @@ package org.kie.remote.command;
 
 public interface VisitableCommand {
 
-  void accept(VisitorCommand visitor);
+    void accept(VisitorCommand visitor);
 }

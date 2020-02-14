@@ -22,31 +22,32 @@ import org.kie.remote.RemoteFactHandle;
 
 public class UpdateCommand extends WorkingMemoryActionCommand implements VisitableCommand, Serializable {
 
-  private Serializable object;
+    private Serializable object;
 
-  public UpdateCommand(){/*For serialization*/}
+    public UpdateCommand() {/*For serialization*/}
 
-  public UpdateCommand(RemoteFactHandle factHandle, Object obj, String entryPoint) {
-    super(factHandle, entryPoint);
-    this.object = (Serializable)obj;
-  }
+    public UpdateCommand(RemoteFactHandle factHandle, Object obj, String entryPoint) {
+        super(factHandle,
+              entryPoint);
+        this.object = (Serializable) obj;
+    }
 
-  public Object getObject() {
-    return object;
-  }
+    public Object getObject() {
+        return object;
+    }
 
-  @Override
-  public void accept(VisitorCommand visitor) {
-    visitor.visit(this);
-  }
+    @Override
+    public void accept(VisitorCommand visitor) {
+        visitor.visit(this);
+    }
 
-  @Override
-  public boolean isPermittedForReplicas() {
-    return true;
-  }
+    @Override
+    public boolean isPermittedForReplicas() {
+        return true;
+    }
 
-  @Override
-  public String toString() {
-    return "Update of " + getFactHandle() + " from entry-point " + getEntryPoint();
-  }
+    @Override
+    public String toString() {
+        return "Update of " + getFactHandle() + " from entry-point " + getEntryPoint();
+    }
 }

@@ -20,32 +20,32 @@ import java.util.UUID;
 
 public class FactCountCommand extends AbstractCommand implements VisitableCommand, Serializable {
 
-  private String entryPoint;
+    private String entryPoint;
 
-  public FactCountCommand() { /*For serialization*/}
+    public FactCountCommand() { /*For serialization*/}
 
-  public FactCountCommand(String entryPoint) {
-    super(UUID.randomUUID().toString());
-    this.entryPoint = entryPoint;
-  }
+    public FactCountCommand(String entryPoint) {
+        super(UUID.randomUUID().toString());
+        this.entryPoint = entryPoint;
+    }
 
-  @Override
-  public boolean isPermittedForReplicas() {
-    return false;
-  }
+    @Override
+    public boolean isPermittedForReplicas() {
+        return false;
+    }
 
-  public String getEntryPoint() {
-    return entryPoint;
-  }
+    public String getEntryPoint() {
+        return entryPoint;
+    }
 
-  @Override
-  public void accept(VisitorCommand visitor) {
-    visitor.visit(this);
-  }
+    @Override
+    public void accept(VisitorCommand visitor) {
+        visitor.visit(this);
+    }
 
-  @Override
-  public String toString() {
-    return "Fact count of " + getId() + " from entry-point " + getEntryPoint();
-  }
+    @Override
+    public String toString() {
+        return "Fact count of " + getId() + " from entry-point " + getEntryPoint();
+    }
 }
 

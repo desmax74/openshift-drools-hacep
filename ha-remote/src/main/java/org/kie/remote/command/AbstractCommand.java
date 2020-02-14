@@ -20,25 +20,24 @@ import java.io.Serializable;
 
 public abstract class AbstractCommand implements RemoteCommand, Serializable {
 
-  private String id;
+    private String id;
 
-  private long timestamp;
+    private long timestamp;
 
-  protected AbstractCommand() {/*For serialization*/}
+    protected AbstractCommand() {/*For serialization*/}
 
-  protected AbstractCommand(String id) {
-    this.id = id;
-    this.timestamp = System.currentTimeMillis();
-  }
+    protected AbstractCommand(String id) {
+        this.id = id;
+        this.timestamp = System.currentTimeMillis();
+    }
 
-  @Override
-  public String getId() {
-    return id;
-  }
+    @Override
+    public String getId() {
+        return id;
+    }
 
-  @Override
-  public long getTimestamp() {
-    return timestamp;
-  }
-
+    @Override
+    public long getTimestamp() {
+        return timestamp;
+    }
 }

@@ -20,31 +20,31 @@ import java.io.Serializable;
 
 public class EventInsertCommand extends WorkingMemoryActionCommand implements VisitableCommand, Serializable {
 
-  private Serializable object;
+    private Serializable object;
 
-  public EventInsertCommand() { /*For serialization*/}
+    public EventInsertCommand() { /*For serialization*/}
 
-  public EventInsertCommand(Object object, String entryPoint) {
-    super(null, entryPoint);
-    this.object = (Serializable) object;
-  }
+    public EventInsertCommand(Object object, String entryPoint) {
+        super(null, entryPoint);
+        this.object = (Serializable) object;
+    }
 
-  public Object getObject() {
-    return object;
-  }
+    public Object getObject() {
+        return object;
+    }
 
-  @Override
-  public void accept(VisitorCommand visitor) {
-    visitor.visit(this);
-  }
+    @Override
+    public void accept(VisitorCommand visitor) {
+        visitor.visit(this);
+    }
 
-  @Override
-  public boolean isPermittedForReplicas() {
-    return true;
-  }
+    @Override
+    public boolean isPermittedForReplicas() {
+        return true;
+    }
 
-  @Override
-  public String toString() {
-    return "Insert of " + getFactHandle() + " into entry-point " + getEntryPoint();
-  }
+    @Override
+    public String toString() {
+        return "Insert of " + getFactHandle() + " into entry-point " + getEntryPoint();
+    }
 }

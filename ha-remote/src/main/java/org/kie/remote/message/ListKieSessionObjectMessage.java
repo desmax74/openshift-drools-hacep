@@ -20,30 +20,31 @@ import java.util.Collection;
 
 public class ListKieSessionObjectMessage extends AbstractMessage implements Serializable, ResultMessage<Collection> {
 
-  private Collection<Object> objects;
+    private Collection<Object> objects;
 
-  public ListKieSessionObjectMessage() { }
+    public ListKieSessionObjectMessage() {
+    }
 
-  public ListKieSessionObjectMessage(String id, Collection<Object> objects) {
-    super(id);
-    this.objects = objects;
-  }
+    public ListKieSessionObjectMessage(String id, Collection<Object> objects) {
+        super(id);
+        this.objects = objects;
+    }
 
-  @Override
-  public Collection getResult() {
-    return getObjects();
-  }
+    @Override
+    public Collection getResult() {
+        return getObjects();
+    }
 
-  public Collection getObjects() {
-    return objects;
-  }
+    public Collection getObjects() {
+        return objects;
+    }
 
-  @Override
-  public String toString() {
-    return "ListKieSessionObjectMessage{" +
-            "objects=" + objects +
-            ", id='" + id + '\'' +
-            ", timestamp=" + timestamp +
-            '}';
-  }
+    @Override
+    public String toString() {
+        return "ListKieSessionObjectMessage{" +
+                "objects=" + objects +
+                ", id='" + id + '\'' +
+                ", timestamp=" + timestamp +
+                '}';
+    }
 }

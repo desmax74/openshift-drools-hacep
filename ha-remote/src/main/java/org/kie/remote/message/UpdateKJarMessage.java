@@ -17,32 +17,30 @@ package org.kie.remote.message;
 
 import java.io.Serializable;
 
-public class UpdateKJarMessage extends AbstractMessage implements Serializable,
-                                                                  ResultMessage<Boolean> {
+public class UpdateKJarMessage extends AbstractMessage implements Serializable, ResultMessage<Boolean> {
 
-  private boolean updateResult;
+    private boolean updateResult;
 
-  /* Empty constructor for serialization */
-  public UpdateKJarMessage() {
-  }
+    /* Empty constructor for serialization */
+    public UpdateKJarMessage() {
+    }
 
-  public UpdateKJarMessage(String id,
-                           boolean updateResult) {
-    super(id);
-    this.updateResult = updateResult;
-  }
+    public UpdateKJarMessage(String id, boolean updateResult) {
+        super(id);
+        this.updateResult = updateResult;
+    }
 
-  @Override
-  public Boolean getResult() {
-    return updateResult;
-  }
+    @Override
+    public Boolean getResult() {
+        return updateResult;
+    }
 
-  @Override
-  public String toString() {
-    return "UpdateKjarMessage{" +
-            "result=" + updateResult +
-            ", id='" + id + '\'' +
-            ", timestamp=" + timestamp +
-            '}';
-  }
+    @Override
+    public String toString() {
+        return "UpdateKjarMessage{" +
+                "result=" + updateResult +
+                ", id='" + id + '\'' +
+                ", timestamp=" + timestamp +
+                '}';
+    }
 }

@@ -21,8 +21,7 @@ import java.util.concurrent.CompletableFuture;
 
 public interface ListenerThread extends Runnable {
 
-  void stop();
+    void stop();
 
-  void init(Map<String, CompletableFuture<Object>> requestsStore);
-
+    void init(Map<String, CompletableFuture<Object>> requestsStore);
 }

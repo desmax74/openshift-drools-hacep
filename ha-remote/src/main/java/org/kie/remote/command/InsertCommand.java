@@ -22,26 +22,24 @@ import org.kie.remote.RemoteFactHandle;
 
 public class InsertCommand extends WorkingMemoryActionCommand implements VisitableCommand, Serializable {
 
-  public InsertCommand() {/*For serialization*/}
+    public InsertCommand() {/*For serialization*/}
 
-  public InsertCommand(RemoteFactHandle factHandle,
-                       String entryPoint) {
-    super(factHandle,
-          entryPoint);
-  }
+    public InsertCommand(RemoteFactHandle factHandle, String entryPoint) {
+        super(factHandle, entryPoint);
+    }
 
-  @Override
-  public void accept(VisitorCommand visitor) {
-    visitor.visit(this);
-  }
+    @Override
+    public void accept(VisitorCommand visitor) {
+        visitor.visit(this);
+    }
 
-  @Override
-  public boolean isPermittedForReplicas() {
-    return true;
-  }
+    @Override
+    public boolean isPermittedForReplicas() {
+        return true;
+    }
 
-  @Override
-  public String toString() {
-    return "Insert of " + getFactHandle() + " into entry-point " + getEntryPoint();
-  }
+    @Override
+    public String toString() {
+        return "Insert of " + getFactHandle() + " into entry-point " + getEntryPoint();
+    }
 }

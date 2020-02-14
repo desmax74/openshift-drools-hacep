@@ -17,6 +17,7 @@ package org.kie.remote.impl;
 
 public class EntryPointUtil {
 
-  private EntryPointUtil(){}
-  public static final String DEFAULT_ENTRY_POINT = "DEFAULT";
+    public static final String DEFAULT_ENTRY_POINT = "DEFAULT";
+
+    private EntryPointUtil() { }
 }

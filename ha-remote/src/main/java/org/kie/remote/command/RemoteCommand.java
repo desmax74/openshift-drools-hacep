@@ -22,5 +22,5 @@ import org.kie.remote.message.Message;
 
 public interface RemoteCommand extends Message, Serializable {
 
-  boolean isPermittedForReplicas();
+    boolean isPermittedForReplicas();
 }

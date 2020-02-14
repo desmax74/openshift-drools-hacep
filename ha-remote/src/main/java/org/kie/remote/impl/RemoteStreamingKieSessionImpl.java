@@ -31,54 +31,58 @@ import org.kie.remote.impl.producer.Sender;
 
 public class RemoteStreamingKieSessionImpl extends RemoteStreamingEntryPointImpl implements RemoteStreamingKieSession {
 
-  private final Map<String, RemoteStreamingEntryPoint> entryPoints = new HashMap<>();
+    private final Map<String, RemoteStreamingEntryPoint> entryPoints = new HashMap<>();
 
-  public RemoteStreamingKieSessionImpl(Properties configuration, Listener listener, Producer producer) {
-    this(configuration, TopicsConfig.getDefaultTopicsConfig(), listener, producer);
-  }
+    public RemoteStreamingKieSessionImpl(Properties configuration, Listener listener, Producer producer) {
+        this(configuration, TopicsConfig.getDefaultTopicsConfig(), listener, producer);
+    }
 
-  public RemoteStreamingKieSessionImpl(Properties configuration, TopicsConfig envConfig, Listener listener, Producer producer) {
-    super(new Sender(configuration, producer), EntryPointUtil.DEFAULT_ENTRY_POINT, envConfig, listener);
-    sender.start();
-    // a streaming session is fireUntilHalt by default
-    fireUntilHalt();
-  }
+    public RemoteStreamingKieSessionImpl(Properties configuration, TopicsConfig envConfig, Listener listener, Producer producer) {
+        super(new Sender(configuration, producer), EntryPointUtil.DEFAULT_ENTRY_POINT, envConfig, listener);
+        sender.start();
+        // a streaming session is fireUntilHalt by default
+        fireUntilHalt();
+    }
 
-  @Override
-  public void close() {
-    sender.stop();
-    delegate.stop();
-  }
+    @Override
+    public void close() {
+        sender.stop();
+        delegate.stop();
+    }
 
-  @Override
-  public RemoteStreamingEntryPoint getEntryPoint(String name) {
-    return entryPoints.computeIfAbsent(name, k -> new RemoteStreamingEntryPointImpl(sender, k, topicsConfig, delegate));
-  }
+    @Override
+    public RemoteStreamingEntryPoint getEntryPoint(String name) {
+        return entryPoints.computeIfAbsent(name,
+                                           k -> new RemoteStreamingEntryPointImpl(sender,
+                                                                                  k,
+                                                                                  topicsConfig,
+                                                                                  delegate));
+    }
 
-  @Override
-  public CompletableFuture<Long> fireAllRules() {
-    return delegate.fireAllRules();
-  }
+    @Override
+    public CompletableFuture<Long> fireAllRules() {
+        return delegate.fireAllRules();
+    }
 
-  @Override
-  public void fireUntilHalt() {
-    delegate.fireUntilHalt();
-  }
+    @Override
+    public void fireUntilHalt() {
+        delegate.fireUntilHalt();
+    }
 
-  @Override
-  public void halt() {
-    delegate.halt();
-  }
+    @Override
+    public void halt() {
+        delegate.halt();
+    }
 
-  @Override
-  public CompletableFuture<Boolean> updateKJarGAV(String kJar) {
-    UpdateKJarCommand command = new UpdateKJarCommand(kJar);
-    return executeCommand(command);
-  }
+    @Override
+    public CompletableFuture<Boolean> updateKJarGAV(String kJar) {
+        UpdateKJarCommand command = new UpdateKJarCommand(kJar);
+        return executeCommand(command);
+    }
 
-  @Override
-  public CompletableFuture<String> getKJarGAV() {
-    GetKJarGAVCommand command = new GetKJarGAVCommand(entryPoint);
-    return executeCommand(command);
-  }
+    @Override
+    public CompletableFuture<String> getKJarGAV() {
+        GetKJarGAVCommand command = new GetKJarGAVCommand(entryPoint);
+        return executeCommand(command);
+    }
 }

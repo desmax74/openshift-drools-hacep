@@ -19,32 +19,31 @@ import java.io.Serializable;
 
 public class FactCountMessage extends AbstractMessage implements Serializable, ResultMessage<Long> {
 
-  private long factCount;
+    private long factCount;
 
-  /* Empty constructor for serialization */
-  public FactCountMessage() {
-  }
 
-  public FactCountMessage(String id, long factCount) {
-    super(id);
-    this.factCount = factCount;
-  }
+    public FactCountMessage() { /* Empty constructor for serialization */}
 
-  @Override
-  public Long getResult() {
-    return getFactCount();
-  }
+    public FactCountMessage(String id, long factCount) {
+        super(id);
+        this.factCount = factCount;
+    }
 
-  public long getFactCount() {
-    return factCount;
-  }
+    @Override
+    public Long getResult() {
+        return getFactCount();
+    }
 
-  @Override
-  public String toString() {
-    return "FactCountMessage{" +
-            "factCount=" + factCount +
-            ", id='" + id + '\'' +
-            ", timestamp=" + timestamp +
-            '}';
-  }
+    public long getFactCount() {
+        return factCount;
+    }
+
+    @Override
+    public String toString() {
+        return "FactCountMessage{" +
+                "factCount=" + factCount +
+                ", id='" + id + '\'' +
+                ", timestamp=" + timestamp +
+                '}';
+    }
 }

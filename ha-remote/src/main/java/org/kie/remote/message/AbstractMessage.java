@@ -19,32 +19,32 @@ import java.io.Serializable;
 
 public abstract class AbstractMessage implements Serializable, Message {
 
-  protected String id;
-  protected long timestamp;
+    protected String id;
+    protected long timestamp;
 
-  /* Empty constructor for serialization */
-  public AbstractMessage() {
-  }
+    /* Empty constructor for serialization */
+    public AbstractMessage() {
+    }
 
-  public AbstractMessage(String id) {
-    this.id = id;
-  }
+    public AbstractMessage(String id) {
+        this.id = id;
+    }
 
-  @Override
-  public long getTimestamp() {
-    return timestamp;
-  }
+    @Override
+    public long getTimestamp() {
+        return timestamp;
+    }
 
-  public void setTimestamp(long timestamp) {
-    this.timestamp = timestamp;
-  }
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
 
-  public void setId(String id) {
-    this.id = id;
-  }
+    @Override
+    public String getId() {
+        return id;
+    }
 
-  @Override
-  public String getId() {
-    return id;
-  }
+    public void setId(String id) {
+        this.id = id;
+    }
 }

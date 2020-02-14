@@ -22,12 +22,11 @@ import org.kie.remote.message.ResultMessage;
 
 public interface Producer {
 
-  void start(Properties properties);
+    void start(Properties properties);
 
-  void stop();
+    void stop();
 
-  <T> void produceSync(String topicName, String key, ResultMessage<T> object);
+    <T> void produceSync(String topicName, String key, ResultMessage<T> object);
 
-  void produceSync(String topicName, String key, Message object);
-
+    void produceSync(String topicName, String key, Message object);
 }

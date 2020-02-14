@@ -24,25 +24,25 @@ import org.kie.remote.util.LocalMessageSystem;
 
 public class LocalProducer implements Producer {
 
-  private final LocalMessageSystem queue = LocalMessageSystem.get();
+    private final LocalMessageSystem queue = LocalMessageSystem.get();
 
-  @Override
-  public void start(Properties properties) {
-    //do nothing
-  }
+    @Override
+    public void start(Properties properties) {
+        //do nothing
+    }
 
-  @Override
-  public void stop() {
-    //do nothing
-  }
+    @Override
+    public void stop() {
+        //do nothing
+    }
 
-  @Override
-  public <T> void produceSync(String topicName, String key, ResultMessage<T> object) {
-    queue.put(topicName, object);
-  }
+    @Override
+    public <T> void produceSync(String topicName, String key, ResultMessage<T> object) {
+        queue.put(topicName, object);
+    }
 
-  @Override
-  public void produceSync(String topicName, String key, Message object) {
-    queue.put(topicName, object);
-  }
+    @Override
+    public void produceSync(String topicName, String key, Message object) {
+        queue.put(topicName, object);
+    }
 }
