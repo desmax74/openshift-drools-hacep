@@ -20,9 +20,9 @@ import java.util.concurrent.CompletableFuture;
 
 public interface RemoteStatefulSession {
 
-  CompletableFuture<Long> fireAllRules();
+    CompletableFuture<Long> fireAllRules();
 
-  void fireUntilHalt();
+    void fireUntilHalt();
 
-  void halt();
+    void halt();
 }
