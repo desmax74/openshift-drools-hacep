@@ -37,12 +37,11 @@ import org.kie.hacep.core.InfraFactory;
 import org.kie.hacep.core.infra.DefaultSessionSnapShooter;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.election.State;
-
+import org.kie.hacep.core.infra.utils.SnapshotOnDemandUtilsImpl;
 import org.kie.hacep.exceptions.InitializeException;
 import org.kie.hacep.util.ConsumerUtilsCore;
 import org.kie.hacep.util.ConsumerUtilsCoreImpl;
 import org.kie.hacep.util.PrinterUtil;
-import org.kie.hacep.core.infra.utils.SnapshotOnDemandUtilsImpl;
 import org.kie.remote.DroolsExecutor;
 import org.kie.remote.impl.producer.Producer;
 import org.kie.remote.message.ControlMessage;
@@ -141,7 +140,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
             updateOnRunningConsumer(state);
         } else if (!started && state.equals(State.REPLICA) && !envConfig.isSkipOnDemandSnapshot() && !askedSnapshotOnDemand) {
             boolean completed = askAndProcessSnapshotOnDemand(SnapshotOnDemandUtilsImpl.askASnapshotOnDemand(envConfig, snapShooter, producer));
-            if(logger.isInfoEnabled()) {
+            if (logger.isInfoEnabled()) {
                 logger.info("askAndProcessSnapshotOnDemand completed:{}", completed);
             }
         }
@@ -163,7 +162,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
         if (!completed) {
             throw new InitializeException("Can't obtain a snapshot on demand");
         }
-        return  completed;
+        return completed;
     }
 
     protected void assign() {
@@ -252,9 +251,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
                 kafkaSecondaryConsumer.commitSync();
                 if (logger.isDebugEnabled()) {
                     for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : offsetsEvents.entrySet()) {
-                        logger.debug("Consumer partition {}- lastOffset {}\n",
-                                     entry.getKey().partition(),
-                                     entry.getValue().offset());
+                        logger.debug("Consumer partition {}- lastOffset {}\n", entry.getKey().partition(), entry.getValue().offset());
                     }
                 }
             } catch (WakeupException e) {
@@ -298,8 +295,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
     }
 
     protected void setLastProcessedKey() {
-        ControlMessage lastControlMessage = consumerUtilsCore.getLastEvent(envConfig.getControlTopicName(),
-                                                                           envConfig.getPollTimeout());
+        ControlMessage lastControlMessage = consumerUtilsCore.getLastEvent(envConfig.getControlTopicName(), envConfig.getPollTimeout());
         settingsOnAEmptyControlTopic(lastControlMessage);
         processingKey = lastControlMessage.getId();
         processingKeyOffset = lastControlMessage.getOffset();
@@ -438,15 +434,13 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
 
             if (logger.isDebugEnabled()) {
                 logger.debug("processEventsAsAReplica change topic, switch to consume control, still {} events in the eventsBuffer to consume and processing item:{}.",
-                             eventsBuffer.size(),
-                             item);
+                             eventsBuffer.size(), item);
             }
             consumerHandler.process(item, currentState);
             saveOffset(record, kafkaConsumer);
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug("processEventsAsAReplica still {} events in the eventsBuffer to consume and processing item:{}.",
-                             eventsBuffer.size(), item);
+                logger.debug("processEventsAsAReplica still {} events in the eventsBuffer to consume and processing item:{}.", eventsBuffer.size(), item);
             }
             consumerHandler.process(InfraFactory.getItemToProcess(record), currentState);
             saveOffset(record, kafkaConsumer);

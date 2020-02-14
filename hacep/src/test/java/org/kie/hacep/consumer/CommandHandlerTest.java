@@ -216,61 +216,48 @@ public class CommandHandlerTest {
 
     @Test
     public void visitInsertCommand() {
-        InsertCommand command = new InsertCommand(remoteFactHandle,
-                                                  myEntryPoint);
+        InsertCommand command = new InsertCommand(remoteFactHandle, myEntryPoint);
         executeAndVerify(command,
                          commandHandler::visit,
                          () -> {
                              verify(factHandlesManagerMock,
-                                    times(1))
-                                     .registerHandle(eq(remoteFactHandle),
-                                                     any(FactHandle.class));
+                                    times(1)).registerHandle(eq(remoteFactHandle), any(FactHandle.class));
                              verify(entryPointMock,
-                                    times(1))
-                                     .insert(eq(myObject));
+                                    times(1)).insert(eq(myObject));
                          });
         logger.info("InsertCommand:{}", command.toString());
     }
 
     @Test
     public void visitEventInsertCommand() {
-        EventInsertCommand command = new EventInsertCommand(myObject,
-                                                            myEntryPoint);
+        EventInsertCommand command = new EventInsertCommand(myObject, myEntryPoint);
         executeAndVerify(command,
                          commandHandler::visit,
-                         () -> verify(entryPointMock,
-                                      times(1)).insert(eq(myObject)));
+                         () -> verify(entryPointMock, times(1)).insert(eq(myObject)));
         logger.info("EventInsertCommand:{}", command.toString());
     }
 
     @Test
     public void visitDeleteCommand() {
-        DeleteCommand command = new DeleteCommand(remoteFactHandle,
-                                                  myEntryPoint);
+        DeleteCommand command = new DeleteCommand(remoteFactHandle, myEntryPoint);
         executeAndVerify(command,
                          commandHandler::visit,
                          () -> {
-                             verify(kieSessionMock,
-                                    times(1)).getEntryPoint(eq(myEntryPoint));
-                             verify(entryPointMock,
-                                    times(1)).delete(eq(factHandleMock));
+                             verify(kieSessionMock, times(1)).getEntryPoint(eq(myEntryPoint));
+                             verify(entryPointMock, times(1)).delete(eq(factHandleMock));
                          });
         logger.info("DeleteCommand:{}", command.toString());
     }
 
     @Test
     public void visitUpdateCommand() {
-        UpdateCommand command = new UpdateCommand(remoteFactHandle,
-                                                  myObject,
-                                                  myEntryPoint);
+        UpdateCommand command = new UpdateCommand(remoteFactHandle, myObject, myEntryPoint);
         executeAndVerify(command,
                          commandHandler::visit,
                          () -> {
-                             verify(kieSessionMock,
-                                    times(1)).getEntryPoint(eq(myEntryPoint));
+                             verify(kieSessionMock, times(1)).getEntryPoint(eq(myEntryPoint));
                              verify(entryPointMock,
-                                    times(1)).update(eq(factHandleMock),
-                                                     eq(myObject));
+                                    times(1)).update(eq(factHandleMock), eq(myObject));
                          });
         logger.info("UpdateCommand:{}", command.toString());
     }
@@ -287,8 +274,7 @@ public class CommandHandlerTest {
 
     @Test
     public void visitListObjectsCommandClassType() {
-        ListObjectsCommandClassType command = new ListObjectsCommandClassType(myEntryPoint,
-                                                                              String.class);
+        ListObjectsCommandClassType command = new ListObjectsCommandClassType(myEntryPoint, String.class);
         executeAndVerifyResponseMessage(command,
                                         commandHandler::visit,
                                         ListKieSessionObjectMessage.class,
@@ -308,9 +294,7 @@ public class CommandHandlerTest {
 
     @Test
     public void visitListObjectsCommandNamedQuery() {
-        ListObjectsCommandNamedQuery command = new ListObjectsCommandNamedQuery(myEntryPoint,
-                                                                                namedQuery,
-                                                                                objectName);
+        ListObjectsCommandNamedQuery command = new ListObjectsCommandNamedQuery(myEntryPoint, namedQuery, objectName);
         executeAndVerifyResponseMessage(command,
                                         commandHandler::visit,
                                         ListKieSessionObjectMessage.class,
@@ -368,8 +352,7 @@ public class CommandHandlerTest {
                                         commandHandler::visit,
                                         UpdateKJarMessage.class,
                                         result -> Boolean.TRUE);
-        PowerMockito.verifyStatic(KieServices.class,
-                                  atLeast(1));
+        PowerMockito.verifyStatic(KieServices.class, atLeast(1));
         logger.info("UpdateKJarCommand:{}", command.toString());
     }
 

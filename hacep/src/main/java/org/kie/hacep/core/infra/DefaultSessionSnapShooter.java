@@ -58,8 +58,7 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             EventProducer<byte[]> producer = new EventProducer<>();
             producer.start(Config.getSnapshotProducerConfig());
-            marshallers.newMarshaller(kieSessionContext.getKieSession().getKieBase()).marshall(out,
-                                                                                               kieSessionContext.getKieSession());
+            marshallers.newMarshaller(kieSessionContext.getKieSession().getKieBase()).marshall(out, kieSessionContext.getKieSession());
             /* We are storing the last inserted key and offset together with the session's bytes */
             byte[] bytes = out.toByteArray();
             SnapshotMessage message = new SnapshotMessage(UUID.randomUUID().toString(),
@@ -72,8 +71,7 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
             producer.produceSync(envConfig.getSnapshotTopicName(), KEY, message);
             producer.stop();
         } catch (IOException e) {
-            logger.error(e.getMessage(),
-                         e);
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -96,8 +94,7 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
 
                     KieSessionConfiguration conf = srv.newKieSessionConfiguration();
                     conf.setOption(ClockTypeOption.get("pseudo"));
-                    kieContainer = KieContainerUtils.getKieContainer(envConfig,
-                                                                     srv);
+                    kieContainer = KieContainerUtils.getKieContainer(envConfig, srv);
                     kSession = srv.getMarshallers().newMarshaller(kieContainer.getKieBase()).unmarshall(in, conf, null);
                 } catch (IOException | ClassNotFoundException e) {
                     logger.error(e.getMessage(), e);

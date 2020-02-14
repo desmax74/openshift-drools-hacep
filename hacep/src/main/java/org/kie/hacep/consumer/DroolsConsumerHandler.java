@@ -53,19 +53,12 @@ public class DroolsConsumerHandler implements ConsumerHandler {
     private SnapshotInfos snapshotInfos;
     private boolean shutdown;
 
-    public DroolsConsumerHandler(Producer producer,
-                                 EnvConfig envConfig,
-                                 SessionSnapshooter snapShooter,
-                                 ConsumerUtilsCore consumerUtilsCore) {
+    public DroolsConsumerHandler(Producer producer, EnvConfig envConfig, SessionSnapshooter snapShooter, ConsumerUtilsCore consumerUtilsCore) {
         this.envConfig = envConfig;
         this.sessionSnapShooter = snapShooter;
         initializeKieSessionContext();
         this.producer = producer;
-        this.commandHandler = new CommandHandler(this.kieSessionContext,
-                                                 this.envConfig,
-                                                 producer,
-                                                 this.sessionSnapShooter,
-                                                 consumerUtilsCore);
+        this.commandHandler = new CommandHandler(this.kieSessionContext, this.envConfig, producer, this.sessionSnapShooter, consumerUtilsCore);
         if (this.envConfig.isUnderTest()) {
             loggerForTest = PrinterUtil.getKafkaLoggerForTest(envConfig);
         }
@@ -188,8 +181,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
                 visitable.accept(commandHandler);
             } catch (Exception e) {
                 GlobalStatus.setNodeLive(false);
-                throw new ProcessCommandException(e.getMessage(),
-                                                  e.getCause());
+                throw new ProcessCommandException(e.getMessage(), e.getCause());
             }
         }
     }

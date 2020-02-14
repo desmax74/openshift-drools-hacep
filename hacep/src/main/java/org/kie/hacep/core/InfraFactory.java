@@ -34,7 +34,6 @@ import org.kie.hacep.core.infra.consumer.DefaultKafkaConsumer;
 import org.kie.hacep.core.infra.consumer.EventConsumer;
 import org.kie.hacep.core.infra.consumer.ItemToProcess;
 import org.kie.hacep.core.infra.consumer.LocalConsumer;
-
 import org.kie.hacep.util.ConsumerUtilsCoreImpl;
 import org.kie.remote.RemoteKieSession;
 import org.kie.remote.RemoteStreamingKieSession;
@@ -55,12 +54,10 @@ import static org.kie.remote.util.ConfigurationUtil.readBoolean;
 
 public class InfraFactory {
 
-    private InfraFactory() {
-    }
+    private InfraFactory() { }
 
     public static EventConsumer getEventConsumer(EnvConfig config) {
-        return config.isLocal() ? new LocalConsumer(config) : new DefaultKafkaConsumer(config,
-                                                                                       getProducer(false));
+        return config.isLocal() ? new LocalConsumer(config) : new DefaultKafkaConsumer(config, getProducer(false));
     }
 
     public static SessionSnapshooter getSnapshooter(EnvConfig envConfig) {
@@ -68,21 +65,16 @@ public class InfraFactory {
     }
 
     public static ConsumerHandler getConsumerHandler(Producer producer, EnvConfig envConfig) {
-        return new DroolsConsumerHandler(producer,
-                                         envConfig,
-                                         getSnapshooter(envConfig),
-                                         new ConsumerUtilsCoreImpl());
+        return new DroolsConsumerHandler(producer, envConfig, getSnapshooter(envConfig), new ConsumerUtilsCoreImpl());
     }
 
-    public static KafkaConsumer getConsumer(String topic,
-                                            Properties properties) {
+    public static KafkaConsumer getConsumer(String topic, Properties properties) {
         KafkaConsumer consumer = new KafkaConsumer(properties);
         List<PartitionInfo> infos = consumer.partitionsFor(topic);
         List<TopicPartition> partitions = new ArrayList<>();
         if (infos != null) {
             for (PartitionInfo partition : infos) {
-                partitions.add(new TopicPartition(topic,
-                                                  partition.partition()));
+                partitions.add(new TopicPartition(topic, partition.partition()));
             }
         }
         consumer.assign(partitions);
@@ -97,14 +89,14 @@ public class InfraFactory {
         }
         Set<TopicPartition> assignments = consumer.assignment();
         for (TopicPartition part : assignments) {
-            consumer.seek(part,
-                          lastOffset - 1);
+            consumer.seek(part, lastOffset - 1);
         }
         return consumer;
     }
 
     public static Listener getListener(Properties props, boolean isLocal) {
-        return new Listener(props, InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), isLocal, props));
+        return new Listener(props,
+                            InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), isLocal, props));
     }
 
     public static ListenerThread getListenerThread(TopicsConfig topicsConfig, boolean isLocal, Properties configuration) {
@@ -119,7 +111,9 @@ public class InfraFactory {
         return conf;
     }
 
-    public static RemoteKieSession createRemoteKieSession(Properties configuration, Listener listener, Producer producer) {
+    public static RemoteKieSession createRemoteKieSession(Properties configuration,
+                                                          Listener listener,
+                                                          Producer producer) {
         return new RemoteKieSessionImpl(configuration, listener, producer);
     }
 
@@ -131,8 +125,7 @@ public class InfraFactory {
     }
 
     public static Producer getProducer(Properties configuration) {
-        return getProducer(readBoolean(configuration,
-                                       LOCAL_MESSAGE_SYSTEM_CONF));
+        return getProducer(readBoolean(configuration, LOCAL_MESSAGE_SYSTEM_CONF));
     }
 
     public static Producer getProducer(boolean isLocal) {

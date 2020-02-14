@@ -24,8 +24,7 @@ public class ConsumerController {
     private InfraCallback callback;
     private Thread thread;
 
-    public ConsumerController(ConsumerHandler consumerHandler,
-                              EventConsumer consumer) {
+    public ConsumerController(ConsumerHandler consumerHandler, EventConsumer consumer) {
         this.callback = new InfraCallback();
         this.consumer = consumer;
         this.callback.setConsumer(consumer);
@@ -60,8 +59,7 @@ public class ConsumerController {
                 thread.join();
             } catch (InterruptedException ex) {
                 thread.interrupt();
-                throw new ShutdownException(ex.getMessage(),
-                                            ex);
+                throw new ShutdownException(ex.getMessage(), ex);
             }
         }
     }

@@ -34,8 +34,7 @@ public class KieContainerUtils {
         KieContainer kieContainer;
         if (srv != null) {
             if (envConfig.isUpdatableKJar()) {
-                kieContainer = srv.newKieContainer(GAVUtils.getReleaseID(envConfig.getKJarGAV(),
-                                                                         srv));
+                kieContainer = srv.newKieContainer(GAVUtils.getReleaseID(envConfig.getKJarGAV(), srv));
                 KieScanner scanner = srv.newKieScanner(kieContainer);
                 scanner.scanNow();
                 if (logger.isInfoEnabled()) {
