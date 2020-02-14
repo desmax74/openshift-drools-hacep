@@ -17,9 +17,7 @@ package org.kie.hacep.exceptions;
 
 public class ShutdownException extends RuntimeException {
 
-    public ShutdownException(String msg,
-                             Throwable t) {
-        super(msg,
-              t);
+    public ShutdownException(String msg, Throwable t) {
+        super(msg, t);
     }
 }
