@@ -11,11 +11,14 @@
   <artifactId>ha-core-infra</artifactId>
 
   <dependencies>
-    <!--<dependency>
+    <dependency>
       <groupId>org.kie</groupId>
-      <artifactId>ha-core</artifactId>
-    </dependency>-->
-
+      <artifactId>openshift-kie-hacep</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>kie-remote</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-clients</artifactId>

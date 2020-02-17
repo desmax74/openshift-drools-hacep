@@ -26,6 +26,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 
+import org.kie.hacep.core.InfraFactory;
 import org.kie.hacep.exceptions.InitializeException;
 import org.kie.remote.CommonConfig;
 import org.kie.remote.TopicsConfig;
