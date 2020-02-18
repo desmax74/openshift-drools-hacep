@@ -261,7 +261,7 @@ public class CommandHandler implements VisitorCommand {
                     kieSessionContext.getKieContainer().updateToVersion(releaseId);
                     msg = new UpdateKJarMessage(command.getId(), Boolean.TRUE);
                 } catch (java.lang.UnsupportedOperationException ex) {
-                    logger.info("It isn't possible update a classpath container to a new version");
+                    logger.info("It isn't possible update a classpath container to a new version, the updatable Env Var must be set to true and the kjar to use must be present in the Maven repository");
                 }
             }
         }

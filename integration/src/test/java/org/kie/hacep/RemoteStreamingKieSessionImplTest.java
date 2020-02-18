@@ -20,6 +20,7 @@ import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
 import org.kie.hacep.core.InfraFactory;
@@ -28,6 +29,7 @@ import org.kie.hacep.sample.kjar.StockTickEvent;
 import org.kie.remote.CommonConfig;
 import org.kie.remote.RemoteStreamingKieSession;
 import org.kie.remote.impl.RemoteStreamingKieSessionImpl;
+import org.kie.remote.impl.consumer.Listener;
 import org.kie.remote.impl.producer.Producer;
 
 import static org.junit.Assert.*;
@@ -41,9 +43,10 @@ public class RemoteStreamingKieSessionImplTest extends KafkaFullTopicsTests{
         Bootstrap.startEngine(envConfig);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
         kafkaServerTest.insertBatchStockTicketEvent(7, topicsConfig, RemoteStreamingKieSession.class, InfraFactory.getListener(props, false));
-        Producer prod = InfraFactory.getProducer(false);
         RemoteStreamingKieSessionImpl client = new RemoteStreamingKieSessionImpl(Config.getProducerConfig("FactCountConsumerTest"),
-                                                                                 topicsConfig, InfraFactory.getListener(props, false), prod);
+                                                                                 topicsConfig,
+                                                                                 InfraFactory.getListener(props, false),
+                                                                                 InfraFactory.getProducer(false));
         try {
             CompletableFuture<Long> factCountFuture = client.getFactCount();
             Long factCount = factCountFuture.get(5, TimeUnit.SECONDS);

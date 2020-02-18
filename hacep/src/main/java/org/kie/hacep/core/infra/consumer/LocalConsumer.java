@@ -21,6 +21,8 @@ import org.kie.hacep.core.infra.election.State;
 import org.kie.remote.DroolsExecutor;
 import org.kie.remote.command.RemoteCommand;
 import org.kie.remote.util.LocalMessageSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LocalConsumer implements EventConsumer {
 
@@ -28,6 +30,7 @@ public class LocalConsumer implements EventConsumer {
     private final EnvConfig envConfig;
     private ConsumerHandler consumerHandler;
     private State currentState;
+    private Logger logger = LoggerFactory.getLogger(EventConsumer.class);
 
     public LocalConsumer(EnvConfig config) {
         this.envConfig = config;
@@ -53,7 +56,9 @@ public class LocalConsumer implements EventConsumer {
 
     @Override
     public void stop() {
-        //do nothing
+        if(logger.isDebugEnabled()){
+            logger.debug("Local consumer stopped");
+        }
     }
 
     @Override

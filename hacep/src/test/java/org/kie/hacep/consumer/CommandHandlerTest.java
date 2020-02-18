@@ -70,9 +70,7 @@ import org.kie.remote.message.UpdateKJarMessage;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,10 +80,8 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
-import static org.mockito.internal.verification.VerificationModeFactory.atLeast;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(KieServices.class)
+@RunWith(MockitoJUnitRunner.class)
 public class CommandHandlerTest {
 
     protected static final EnvConfig envConfig = EnvConfig.getDefaultEnvConfig();
@@ -340,8 +336,6 @@ public class CommandHandlerTest {
     @Test
     public void visitUpdateKJarCommand() {
         envConfig.withUpdatableKJar("true");
-        PowerMockito.mockStatic(KieServices.class);
-        when(KieServices.get()).thenReturn(kieServicesMock);
         when(kieSessionContextMock.getKjarGAVUsed()).thenReturn(Optional.of(kJarGAV));
         when(kieSessionContextMock.getKieContainer()).thenReturn(kieContainerMock);
         when(kieServicesMock.newReleaseId("org.kie",
@@ -352,7 +346,6 @@ public class CommandHandlerTest {
                                         commandHandler::visit,
                                         UpdateKJarMessage.class,
                                         result -> Boolean.TRUE);
-        PowerMockito.verifyStatic(KieServices.class, atLeast(1));
         logger.info("UpdateKJarCommand:{}", command.toString());
     }
 

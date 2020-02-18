@@ -58,7 +58,10 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             EventProducer<byte[]> producer = new EventProducer<>();
             producer.start(Config.getSnapshotProducerConfig());
-            marshallers.newMarshaller(kieSessionContext.getKieSession().getKieBase()).marshall(out, kieSessionContext.getKieSession());
+            marshallers.newMarshaller(kieSessionContext.
+                    getKieSession().
+                    getKieBase()).
+                    marshall(out, kieSessionContext.getKieSession());
             /* We are storing the last inserted key and offset together with the session's bytes */
             byte[] bytes = out.toByteArray();
             SnapshotMessage message = new SnapshotMessage(UUID.randomUUID().toString(),
