@@ -109,7 +109,7 @@ public class LeaderElectionImpl implements LeaderElection {
      * This pod is currently not leader. It should monitor the leader configuration and try
      * to acquire the leadership if possible.
      */
-    public void refreshStatusNotLeader() {
+    void refreshStatusNotLeader() {
         if (logger.isDebugEnabled()) {
             logger.debug("{} Pod is not leader, pulling new data from the cluster", logPrefix());
         }
@@ -186,7 +186,7 @@ public class LeaderElectionImpl implements LeaderElection {
      * This pod has acquired the leadership but it should wait for the old leader
      * to tear down resources before starting the local services.
      */
-    public void refreshStatusBecomingLeader() {
+    void refreshStatusBecomingLeader() {
         // Wait always the same amount of time before becoming the leader
         // Even if the current pod is already leader, we should let a possible old version of the pod to shut down
         long delay = this.lockConfiguration.getLeaseDurationMillis();
@@ -212,7 +212,7 @@ public class LeaderElectionImpl implements LeaderElection {
         this.serializedExecutor.execute(this::refreshStatus);
     }
 
-    public void refreshStatusLeader() {
+    void refreshStatusLeader() {
         if (logger.isDebugEnabled()) {
             logger.debug("{} Pod should be the leader, pulling new data from the cluster", logPrefix());
         }
@@ -240,7 +240,7 @@ public class LeaderElectionImpl implements LeaderElection {
         }
     }
 
-    public void rescheduleAfterDelay() {
+    void rescheduleAfterDelay() {
         this.serializedExecutor.schedule(this::refreshStatus,
                                          jitter(this.lockConfiguration.getRetryPeriodMillis(),
                                                 this.lockConfiguration.getJitterFactor()),
@@ -279,7 +279,7 @@ public class LeaderElectionImpl implements LeaderElection {
         return true;
     }
 
-    public boolean tryAcquireLeadership() {
+    boolean tryAcquireLeadership() {
         if (logger.isDebugEnabled()) {
             logger.debug("{} Trying to acquire the leadership...",
                          logPrefix());
@@ -382,7 +382,7 @@ public class LeaderElectionImpl implements LeaderElection {
         }
     }
 
-    public void updateLatestLeaderInfo(ConfigMap configMap,
+    void updateLatestLeaderInfo(ConfigMap configMap,
                                        Set<String> members) {
         if (logger.isDebugEnabled()) {
             logger.debug("{} Updating internal status about the current leader", logPrefix());
@@ -397,7 +397,7 @@ public class LeaderElectionImpl implements LeaderElection {
         }
     }
 
-    public ConfigMap pullConfigMap() {
+    ConfigMap pullConfigMap() {
         return kubernetesClient.configMaps()
                 .inNamespace(this.lockConfiguration.getKubernetesResourcesNamespaceOrDefault(kubernetesClient))
                 .withName(this.lockConfiguration.getConfigMapName())
