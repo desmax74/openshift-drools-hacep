@@ -24,9 +24,9 @@ public class EventInsertCommand extends WorkingMemoryActionCommand implements Vi
 
     public EventInsertCommand() { /*For serialization*/}
 
-    public EventInsertCommand(Object object, String entryPoint) {
+    public EventInsertCommand(Serializable object, String entryPoint) {
         super(null, entryPoint);
-        this.object = (Serializable) object;
+        this.object = object;
     }
 
     public Object getObject() {

@@ -16,7 +16,6 @@
 package org.kie.hacep;
 
 import org.junit.Test;
-import org.kie.hacep.exceptions.ConfigurationException;
 
 import static org.junit.Assert.*;
 
@@ -35,12 +34,12 @@ public class EnvConfigTest {
         assertTrue(1 == config.getPollSnapshotTimeout());
     }
 
-    @Test(expected = ConfigurationException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void pollTimeUnitExceptionTest() {
         EnvConfig.anEnvConfig().withPollTimeUnit(null);
     }
 
-    @Test(expected = ConfigurationException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void pollSnapshotTimeUnitExceptionTest() {
         EnvConfig.anEnvConfig().withPollSnapshotTimeUnit(null);
     }

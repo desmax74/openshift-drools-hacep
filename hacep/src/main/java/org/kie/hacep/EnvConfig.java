@@ -18,7 +18,6 @@ package org.kie.hacep;
 import java.time.Duration;
 import java.util.Optional;
 
-import org.kie.hacep.exceptions.ConfigurationException;
 import org.kie.hacep.util.PrinterLogImpl;
 import org.kie.remote.CommonConfig;
 
@@ -150,7 +149,7 @@ public final class EnvConfig {
 
     public EnvConfig withPollTimeUnit(String pollTimeUnit) {
         if(pollTimeUnit == null){
-            throw new ConfigurationException("No pollTimeUnit provided");
+            throw new IllegalArgumentException("No pollTimeUnit provided");
         }
         switch (pollTimeUnit) {
             case MILLISEC:
@@ -162,14 +161,14 @@ public final class EnvConfig {
                 this.pollDuration = Duration.ofSeconds(pollTimeout);
                 break;
             default:
-                throw new ConfigurationException("No pollTimeUnit provided");
+                throw new IllegalArgumentException("No pollTimeUnit provided");
         }
         return this;
     }
 
     public EnvConfig withPollSnapshotTimeUnit(String pollSnapshotTimeUnit) {
         if(pollSnapshotTimeUnit == null){
-            throw new ConfigurationException("No pollSnapshotTimeUnit provided");
+            throw new IllegalArgumentException("No pollSnapshotTimeUnit provided");
         }
         switch (pollSnapshotTimeUnit) {
             case MILLISEC:
@@ -181,7 +180,7 @@ public final class EnvConfig {
                 this.pollSnapshotDuration = Duration.ofSeconds(pollSnapshotTimeout);
                 break;
             default:
-                throw new ConfigurationException("No pollSnapshotTimeUnit provided");
+                throw new IllegalArgumentException("No pollSnapshotTimeUnit provided");
         }
         return this;
     }

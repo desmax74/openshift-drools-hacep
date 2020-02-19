@@ -74,7 +74,7 @@ public class FactHandlesManager implements Serializable {
     }
 
     /*public for test*/
-    public InternalFactHandle getFactHandleById(RemoteFactHandle remoteFH) {
+    InternalFactHandle getFactHandleById(RemoteFactHandle remoteFH) {
         long id = fhIdMap.get(remoteFH);
         for (FactHandle fh : kieSession.getFactHandles(new ClassObjectFilter(remoteFH.getObject().getClass()))) {
             InternalFactHandle ifh = (InternalFactHandle) fh;

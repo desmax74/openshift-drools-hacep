@@ -32,4 +32,42 @@ public class BidirectionalMapTest {
         map.put("one", 2);
         assertNotNull(map.remove("one"));
     }
+
+    @Test
+    public void bidirectionalMapPutTest(){
+        BidirectionalMap map = new BidirectionalMap();
+        Object previousValue = map.put("one", 1);
+        assertNull(previousValue);
+    }
+
+    @Test
+    public void bidirectionalMapKeyNotPresentTest(){
+        BidirectionalMap map = new BidirectionalMap();
+        Object res = map.getKey(1);
+        assertNull(res);
+    }
+
+    @Test
+    public void bidirectionalMapRemoveValueTest(){
+        BidirectionalMap map = new BidirectionalMap();
+        map.put("one", 1);
+        Object res = map.getKey(1);
+        assertNotNull(res);
+        Object result = map.removeValue(1);
+        assertNotNull(result);
+        Object resultSecond = map.removeValue(2);
+        assertNull(resultSecond);
+    }
+
+    @Test
+    public void bidirectionalMapRemoveTest(){
+        BidirectionalMap map = new BidirectionalMap();
+        map.put("one", 1);
+        Object res = map.getKey(1);
+        assertNotNull(res);
+        Object result = map.remove("one");
+        assertNotNull(result);
+        Object resultSecond = map.remove("two");
+        assertNull(resultSecond);
+    }
 }

@@ -30,7 +30,6 @@ import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.kie.hacep.core.GlobalStatus;
-import org.kie.hacep.exceptions.UnsupportedStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +97,7 @@ public class LeaderElectionImpl implements LeaderElection {
                 refreshStatusLeader();
                 break;
             default:
-                throw new UnsupportedStateException("Unsupported state " + currentState);
+                throw new IllegalStateException("Unsupported state " + currentState);
         }
 
         for (LeadershipCallback callback : callbacks) {
