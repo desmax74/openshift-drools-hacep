@@ -18,7 +18,6 @@ package org.kie.remote;
 
 import java.util.Properties;
 
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
@@ -34,12 +33,12 @@ public class CommonConfigTest {
                                                    CommonConfig.VALUE_SERIALIZER_KEY,
                                                    CommonConfig.KEY_DESERIALIZER_KEY,
                                                    CommonConfig.VALUE_DESERIALIZER_KEY,
-                                                   ConsumerConfig.GROUP_ID_CONFIG);
+                                                   CommonConfig.GROUP_ID_CONFIG);
     }
 
     @Test
     public void testProducerConfig() {
-        final Properties producerConfig = CommonConfig.getProducerConfig("test");
+        final Properties producerConfig = CommonConfig.getProducerConfig();
         Assertions.assertThat(producerConfig).isNotNull();
         Assertions.assertThat(producerConfig.getProperty(TEST_PROPERTY)).isEqualTo(TEST_PROPERTY_VALUE);
     }

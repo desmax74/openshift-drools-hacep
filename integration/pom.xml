@@ -22,6 +22,17 @@
       <artifactId>openshift-kie-hacep</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>ha-core-infra</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- @TODO remove when InfraFactory will be only in hte ha-core-infra-->
+    <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka-clients</artifactId>
+      <scope>test</scope>
+    </dependency>
     <!-- log -->
     <dependency>
       <groupId>com.github.danielwegener</groupId>

@@ -8,20 +8,26 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.junit.Assert;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
+import org.kie.hacep.core.InfraFactory;
 import org.kie.hacep.core.infra.election.State;
-import org.kie.remote.message.ControlMessage;
 import org.kie.hacep.sample.kjar.StockTickEvent;
 import org.kie.remote.RemoteFactHandle;
 import org.kie.remote.RemoteKieSession;
+import org.kie.remote.TopicsConfig;
 import org.kie.remote.command.FireUntilHaltCommand;
 import org.kie.remote.command.InsertCommand;
 import org.kie.remote.command.RemoteCommand;
+import org.kie.remote.impl.consumer.Listener;
+import org.kie.remote.impl.consumer.ListenerThread;
+import org.kie.remote.message.ControlMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.*;
+import static org.kie.remote.CommonConfig.getTestProperties;
 import static org.kie.remote.util.SerializationUtil.deserialize;
 
 public class PodAsReplicaTest extends KafkaFullTopicsTests {
@@ -37,8 +43,10 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
         KafkaConsumer controlConsumer = kafkaServerTest.getConsumer(envConfig.getControlTopicName(),
                                                                     Config.getConsumerConfig("controlConsumerProcessOneSentMessageAsLeaderTest"));
 
-        KafkaConsumer<byte[], java.lang.String> kafkaLogConsumer = kafkaServerTest.getStringConsumer(TEST_KAFKA_LOGGER_TOPIC);
-        kafkaServerTest.insertBatchStockTicketEvent(1, topicsConfig, RemoteKieSession.class);
+        KafkaConsumer<byte[], String> kafkaLogConsumer = kafkaServerTest.getStringConsumer(TEST_KAFKA_LOGGER_TOPIC);
+        ListenerThread listenerThread = InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), envConfig.isLocal(), getTestProperties());
+        Listener listener = new Listener(getTestProperties(), listenerThread);
+        kafkaServerTest.insertBatchStockTicketEvent(1, topicsConfig, RemoteKieSession.class, listener);
 
         try {
             //EVENTS TOPIC
@@ -52,7 +60,7 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
                 eventsRecords.forEach(o -> {
                     ConsumerRecord<String, byte[]> eventsRecord = (ConsumerRecord<String, byte[]>) o;
                     assertNotNull(eventsRecord);
-                    assertEquals(eventsRecord.topic(), envConfig.getEventsTopicName());
+                    Assert.assertEquals(eventsRecord.topic(), envConfig.getEventsTopicName());
                     RemoteCommand remoteCommand = deserialize(eventsRecord.value());
                     assertEquals(eventsRecord.offset(), index.get());
                     assertNotNull(remoteCommand.getId());
@@ -64,12 +72,12 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
                     if (index.get() == 1) {
                         assertTrue(remoteCommand instanceof InsertCommand);
                         InsertCommand insertCommand = (InsertCommand) remoteCommand;
-                        assertEquals(insertCommand.getEntryPoint(), "DEFAULT");
+                        assertEquals("DEFAULT", insertCommand.getEntryPoint());
                         assertNotNull(insertCommand.getId());
                         assertNotNull(insertCommand.getFactHandle());
                         RemoteFactHandle remoteFactHandle = insertCommand.getFactHandle();
                         StockTickEvent eventsTicket = (StockTickEvent) remoteFactHandle.getObject();
-                        assertEquals(eventsTicket.getCompany(), "RHT");
+                        Assert.assertEquals("RHT", eventsTicket.getCompany());
                     }
 
                     index.incrementAndGet();
@@ -95,7 +103,7 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
                     ConsumerRecord<String, byte[]> control = (ConsumerRecord<String, byte[]>)o;
                     // FireUntilHalt command has no side effects
                     logger.warn("Control message found:{}", control);
-                    assertEquals(control.topic(), envConfig.getControlTopicName());
+                    Assert.assertEquals(control.topic(), envConfig.getControlTopicName());
                     ControlMessage controlMessage = deserialize(control.value());
                     assertEquals(control.offset(), index.get());
                     if(index.get()== 0) {
@@ -124,7 +132,7 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
             logger.warn("Switch as a replica");
             Bootstrap.getConsumerController().getCallback().updateStatus(State.REPLICA);
             ConsumerRecords<byte[], String> recordsLog = kafkaLogConsumer.poll(Duration.ofSeconds(5));
-            java.util.List<java.lang.String> kafkaLoggerMsgs = new ArrayList<>();
+            java.util.List<String> kafkaLoggerMsgs = new ArrayList<>();
             recordsLog.forEach(stringConsumerRecord -> {
                 assertNotNull(stringConsumerRecord);
                 kafkaLoggerMsgs.add(stringConsumerRecord.value());
@@ -160,11 +168,11 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
             kafkaLogConsumer.close();
         }
     }
-    
+
     private void checkInsertSideEffects(ConsumerRecord<String, byte[]> eventsRecord, ConsumerRecord<String, byte[]> controlRecord) {
-        assertEquals(controlRecord.topic(), envConfig.getControlTopicName());
+        Assert.assertEquals(controlRecord.topic(), envConfig.getControlTopicName());
         ControlMessage controlMessage = deserialize(controlRecord.value());
-        assertEquals(controlRecord.offset(), 1);
+        assertEquals(1, controlRecord.offset());
         assertTrue(!controlMessage.getSideEffects().isEmpty());
         assertTrue(controlMessage.getSideEffects().size() == 1);
         //Same msg content on Events topic and control topics

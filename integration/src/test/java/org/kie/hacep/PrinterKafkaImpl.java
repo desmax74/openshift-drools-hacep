@@ -32,9 +32,7 @@ public class PrinterKafkaImpl implements Printer {
 
     private Logger kafkaLogger = LoggerFactory.getLogger("org.hacep");
 
-    @Override
-    public void prettyPrinter(String caller, ConsumerRecord consumerRecord,
-                              boolean processed) {
+    public void prettyPrinter(String caller, ConsumerRecord consumerRecord, boolean processed) {
         if (consumerRecord != null && kafkaLogger.isWarnEnabled()) {
             kafkaLogger.warn("Caller:{} - Processed:{} - Topic: {} - Partition: {} - Offset: {} - Value: {}\n",
                              caller,
@@ -46,17 +44,8 @@ public class PrinterKafkaImpl implements Printer {
         }
     }
 
-    public Map<TopicPartition, Long> getOffsets(String topic) {
-        KafkaConsumer consumer = new KafkaConsumer(Config.getConsumerConfig("OffsetConsumer"));
-        consumer.subscribe(Arrays.asList(topic));
-        List<org.apache.kafka.common.PartitionInfo> infos = consumer.partitionsFor(topic);
-        List<org.apache.kafka.common.TopicPartition> tps = new ArrayList<>();
-        for (PartitionInfo info : infos) {
-            tps.add(new TopicPartition(topic,
-                                       info.partition()));
-        }
-        Map<org.apache.kafka.common.TopicPartition,java.lang.Long> offsets = consumer.endOffsets(tps);
-        consumer.close();
-        return offsets;
+    @Override
+    public boolean prettyPrinter(String caller, String topic, int partition, long offset, String value, boolean processed) {
+        return false;
     }
 }

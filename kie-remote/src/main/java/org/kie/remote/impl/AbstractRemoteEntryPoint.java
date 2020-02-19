@@ -37,7 +37,7 @@ public abstract class AbstractRemoteEntryPoint implements RemoteWorkingMemory {
     protected final String entryPoint;
     protected TopicsConfig topicsConfig;
 
-    public AbstractRemoteEntryPoint( Sender sender, String entryPoint, TopicsConfig topicsConfig) {
+    public AbstractRemoteEntryPoint(Sender sender, String entryPoint, TopicsConfig topicsConfig) {
         this.sender = sender;
         this.entryPoint = entryPoint;
         this.topicsConfig = topicsConfig;
@@ -49,27 +49,27 @@ public abstract class AbstractRemoteEntryPoint implements RemoteWorkingMemory {
     }
 
     @Override
-    public CompletableFuture<Collection<? extends Object>> getObjects() {
+    public CompletableFuture<Collection> getObjects() {
         ListObjectsCommand command = new ListObjectsCommand(entryPoint);
-        return executeCommand( command );
+        return executeCommand(command);
     }
 
     @Override
     public <T> CompletableFuture<Collection<T>> getObjects(Class<T> clazztype) {
         ListObjectsCommand command = new ListObjectsCommandClassType(entryPoint, clazztype);
-        return executeCommand( command );
+        return executeCommand(command);
     }
 
     @Override
-    public CompletableFuture<Collection<? extends Object>> getObjects(String namedQuery, String objectName, Object... params) {
+    public CompletableFuture<Collection> getObjects(String namedQuery, String objectName, Object... params) {
         ListObjectsCommand command = new ListObjectsCommandNamedQuery(entryPoint, namedQuery, objectName, params);
-        return executeCommand( command );
+        return executeCommand(command);
     }
 
     @Override
     public CompletableFuture<Long> getFactCount() {
-        FactCountCommand command = new FactCountCommand(entryPoint );
-        return executeCommand( command );
+        FactCountCommand command = new FactCountCommand(entryPoint);
+        return executeCommand(command);
     }
 
     @Override
@@ -78,12 +78,10 @@ public abstract class AbstractRemoteEntryPoint implements RemoteWorkingMemory {
         return executeCommand(command);
     }
 
-
-
-    protected <T> CompletableFuture<T> executeCommand(AbstractCommand command ) {
+    protected <T> CompletableFuture<T> executeCommand(AbstractCommand command) {
         CompletableFuture callback = new CompletableFuture<>();
-        getRequestsStore().put( command.getId(), callback );
-        sender.sendCommand( command, topicsConfig.getEventsTopicName() );
+        getRequestsStore().put(command.getId(), callback);
+        sender.sendCommand(command, topicsConfig.getEventsTopicName());
         return callback;
     }
 

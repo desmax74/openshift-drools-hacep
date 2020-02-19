@@ -15,16 +15,17 @@
  */
 package org.kie.remote;
 
+import java.io.Serializable;
+
 public interface RemoteStreamingEntryPoint extends RemoteWorkingMemory {
 
     /**
      * Inserts a new fact into this entry point
      *
-     * @param object
-     *        the fact to be inserted
+     * @param object the fact to be inserted
      *
      * @return the fact handle created for the given fact
      */
-    void insert(Object object);
+    void insert(Serializable object);
 }
 

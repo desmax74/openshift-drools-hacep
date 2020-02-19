@@ -18,14 +18,13 @@ package org.kie.remote.command;
 
 import java.io.Serializable;
 
-public class EventInsertCommand extends WorkingMemoryActionCommand implements VisitableCommand,
-                                                                         Serializable {
+public class EventInsertCommand extends WorkingMemoryActionCommand implements VisitableCommand, Serializable {
 
-    private Object object;
+    private Serializable object;
 
-    public EventInsertCommand(){}
+    public EventInsertCommand() { /*For serialization*/}
 
-    public EventInsertCommand( Object object, String entryPoint ) {
+    public EventInsertCommand(Serializable object, String entryPoint) {
         super(null, entryPoint);
         this.object = object;
     }
@@ -35,10 +34,14 @@ public class EventInsertCommand extends WorkingMemoryActionCommand implements Vi
     }
 
     @Override
-    public void accept(VisitorCommand visitor) { visitor.visit(this); }
+    public void accept(VisitorCommand visitor) {
+        visitor.visit(this);
+    }
 
     @Override
-    public boolean isPermittedForReplicas() { return true; }
+    public boolean isPermittedForReplicas() {
+        return true;
+    }
 
     @Override
     public String toString() {

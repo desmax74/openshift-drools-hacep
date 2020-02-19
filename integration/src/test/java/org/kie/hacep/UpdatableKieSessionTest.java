@@ -18,6 +18,7 @@ package org.kie.hacep;
 import java.io.ByteArrayInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -26,7 +27,6 @@ import org.apache.maven.project.MavenProject;
 import org.appformer.maven.integration.MavenRepository;
 import org.appformer.maven.integration.embedder.MavenProjectLoader;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.KieServices;
@@ -34,28 +34,33 @@ import org.kie.api.builder.KieFileSystem;
 import org.kie.api.builder.ReleaseId;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
+import org.kie.hacep.consumer.FactHandlesManager;
 import org.kie.hacep.consumer.KieContainerUtils;
 import org.kie.hacep.core.KieSessionContext;
-
+import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.util.GAVUtils;
 import org.kie.scanner.KieMavenRepository;
 
+import static org.junit.Assert.*;
+
 public class UpdatableKieSessionTest {
 
-    private KieSessionContext ksCtx ;
-    private KieSession kieSession;
-    private KieContainer kieContainer;
     private final String gav = "org.kie:sample-hacep-project-kjar:800.Final";
     private final String updatedGav = "org.kie:sample-hacep-project-kjar:900.Final";
+    private KieSessionContext ksCtx;
+    private KieSession kieSession;
+    private KieContainer kieContainer;
     private KieServices ks;
 
     @Before
-    public void init() throws Exception{
+    public void init() throws Exception {
         ks = KieServices.get();
         String drl1 = new String(Files.readAllBytes(Paths.get("target/test-classes/drl1.drl")));
         String drl2 = new String(Files.readAllBytes(Paths.get("target/test-classes/drl2.drl")));
-        createAndDeployKJar(GAVUtils.getReleaseID(gav, KieServices.get()), Collections.singletonMap("src/main/resources/org/pkg1/r0.drl", drl1));
-        createAndDeployKJar(GAVUtils.getReleaseID(updatedGav, KieServices.get()), Collections.singletonMap("src/main/resources/org/pkg1/r0.drl", drl2));
+        createAndDeployKJar(GAVUtils.getReleaseID(gav, KieServices.get()),
+                            Collections.singletonMap("src/main/resources/org/pkg1/r0.drl", drl1));
+        createAndDeployKJar(GAVUtils.getReleaseID(updatedGav, KieServices.get()),
+                            Collections.singletonMap("src/main/resources/org/pkg1/r0.drl", drl2));
         ksCtx = new KieSessionContext();
     }
 
@@ -80,32 +85,72 @@ public class UpdatableKieSessionTest {
     public void testEmbeddedKJar() {
         initSessionContextFromEmbeddKjar();
         Optional<String> gavUSed = ksCtx.getKjarGAVUsed();
-        Assert.assertFalse(gavUSed.isPresent());
+        assertFalse(gavUSed.isPresent());
     }
 
     @Test
     public void testWithSpecificKJar() {
-        initSessionContextFromSpecificKjar();;
+        initSessionContextFromSpecificKjar();
         Optional<String> gavUSed = ksCtx.getKjarGAVUsed();
-        Assert.assertTrue(gavUSed.isPresent());
-        Assert.assertEquals(gavUSed.get(), gav);
+        assertTrue(gavUSed.isPresent());
+        assertEquals(gavUSed.get(), gav);
     }
 
     @Test
     public void testUpdateWithSpecificKJar() {
-        initSessionContextFromSpecificKjar();;
+        initSessionContextFromSpecificKjar();
         Optional<String> gavUSed = ksCtx.getKjarGAVUsed();
-        Assert.assertTrue(gavUSed.isPresent());
-        Assert.assertEquals(gavUSed.get(), gav);
-        ReleaseId releaseId=  GAVUtils.getReleaseID(updatedGav, ks);
+        assertTrue(gavUSed.isPresent());
+        assertEquals(gavUSed.get(), gav);
+        ReleaseId releaseId = GAVUtils.getReleaseID(updatedGav,
+                                                    ks);
         ksCtx.getKieContainer().updateToVersion(releaseId);
         gavUSed = ksCtx.getKjarGAVUsed();
-        Assert.assertTrue(gavUSed.isPresent());
-        Assert.assertEquals(updatedGav, gavUSed.get());
+        assertTrue(gavUSed.isPresent());
+        assertEquals(updatedGav, gavUSed.get());
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void setClockWithoutPseudoClockTest() {
+        initSessionContextFromSpecificKjar();
+        ksCtx.setClockAt(1000l);
+    }
 
-    public void createAndDeployKJar(ReleaseId releaseId, Map<String, String> files) {
+    @Test
+    public void initFromASnapshotTest() {
+        EnvConfig envConfig = EnvConfig.getDefaultEnvConfig();
+        envConfig.withUpdatableKJar("true");
+        envConfig.withKJarGAV(gav);
+        envConfig.skipOnDemandSnapshot("true");
+        KieServices ks = KieServices.get();
+        assertNotNull(ks);
+        KieContainer kieContainer = KieContainerUtils.getKieContainer(envConfig,
+                                                                      ks);
+        assertNotNull(kieContainer);
+        KieSession kieSession = kieContainer.newKieSession();
+        assertNotNull(kieSession);
+        FactHandlesManager fhManager = new FactHandlesManager(kieSession);
+        assertNotNull(fhManager);
+
+        String keyDuringSnapshot = "111";
+        long offsetDuringSnapshot = 10l;
+        LocalDateTime time = LocalDateTime.now();
+        String kjarGAV = "org.kie:fake:1.0.0.Snapshot";
+        SnapshotInfos infos = new SnapshotInfos(kieSession,
+                                                kieContainer,
+                                                fhManager,
+                                                keyDuringSnapshot,
+                                                offsetDuringSnapshot,
+                                                time,
+                                                kjarGAV);
+        ksCtx.initFromSnapshot(infos);
+
+        assertNotNull(ksCtx.getKieContainer());
+        assertNotNull(ksCtx.getKieSession());
+    }
+
+    public void createAndDeployKJar(ReleaseId releaseId,
+                                    Map<String, String> files) {
         KieFileSystem kfs = ks.newKieFileSystem().generateAndWritePomXML(releaseId);
 
         for (Map.Entry<String, String> file : files.entrySet()) {
@@ -118,9 +163,9 @@ public class UpdatableKieSessionTest {
     }
 
     public MavenRepository getRepository(KieServices srv) {
-            ReleaseId initReleaseId = GAVUtils.getReleaseID("org.kie.server.initial:init-maven-repo:42", srv);
-            KieFileSystem kfs = ks.newKieFileSystem().generateAndWritePomXML(initReleaseId);
-            MavenProject minimalMavenProject = MavenProjectLoader.parseMavenPom(new ByteArrayInputStream(kfs.read("pom.xml")) );
-            return KieMavenRepository.getKieMavenRepository(minimalMavenProject);
+        ReleaseId initReleaseId = GAVUtils.getReleaseID("org.kie.server.initial:init-maven-repo:42", srv);
+        KieFileSystem kfs = ks.newKieFileSystem().generateAndWritePomXML(initReleaseId);
+        MavenProject minimalMavenProject = MavenProjectLoader.parseMavenPom(new ByteArrayInputStream(kfs.read("pom.xml")));
+        return KieMavenRepository.getKieMavenRepository(minimalMavenProject);
     }
 }

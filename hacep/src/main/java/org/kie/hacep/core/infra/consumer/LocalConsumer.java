@@ -21,23 +21,23 @@ import org.kie.hacep.core.infra.election.State;
 import org.kie.remote.DroolsExecutor;
 import org.kie.remote.command.RemoteCommand;
 import org.kie.remote.util.LocalMessageSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LocalConsumer implements EventConsumer {
 
     private final LocalMessageSystem queue = LocalMessageSystem.get();
-
     private final EnvConfig envConfig;
-
     private ConsumerHandler consumerHandler;
-
     private State currentState;
+    private Logger logger = LoggerFactory.getLogger(EventConsumer.class);
 
-    public LocalConsumer( EnvConfig config ) {
+    public LocalConsumer(EnvConfig config) {
         this.envConfig = config;
     }
 
     @Override
-    public void initConsumer( ConsumerHandler consumerHandler ) {
+    public void initConsumer(ConsumerHandler consumerHandler) {
         this.consumerHandler = consumerHandler;
     }
 
@@ -45,9 +45,9 @@ public class LocalConsumer implements EventConsumer {
     public void poll() {
         String topic = envConfig.getEventsTopicName();
         while (true) {
-            RemoteCommand command = ( RemoteCommand ) queue.poll(topic, envConfig.getPollTimeout());
+            RemoteCommand command = (RemoteCommand) queue.poll(topic, envConfig.getPollTimeout());
             if (command != null) {
-                consumerHandler.process( command, currentState );
+                consumerHandler.process(command, currentState);
             } else {
                 break;
             }
@@ -55,10 +55,14 @@ public class LocalConsumer implements EventConsumer {
     }
 
     @Override
-    public void stop() { }
+    public void stop() {
+        if(logger.isDebugEnabled()){
+            logger.debug("Local consumer stopped");
+        }
+    }
 
     @Override
-    public synchronized void updateStatus( State state ) {
+    public synchronized void updateStatus(State state) {
         this.currentState = state;
         if (state == State.REPLICA) {
             DroolsExecutor.setAsReplica();

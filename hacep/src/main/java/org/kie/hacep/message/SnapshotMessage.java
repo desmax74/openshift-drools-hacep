@@ -18,7 +18,6 @@ package org.kie.hacep.message;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Set;
 
 import org.kie.hacep.consumer.FactHandlesManager;
@@ -35,8 +34,7 @@ public class SnapshotMessage extends AbstractMessage implements Serializable {
     private String kjarGAV;
 
     /* Empty constructor for serialization */
-    public SnapshotMessage() {
-    }
+    public SnapshotMessage() { }
 
     public SnapshotMessage(String id,
                            String kjarGAV,
@@ -58,10 +56,6 @@ public class SnapshotMessage extends AbstractMessage implements Serializable {
         return serializedSession;
     }
 
-    public void setSerializedSession(byte[] serializedSession) {
-        this.serializedSession = serializedSession;
-    }
-
     public FactHandlesManager getFhManager() {
         return fhManager;
     }
@@ -74,37 +68,16 @@ public class SnapshotMessage extends AbstractMessage implements Serializable {
         return lastInsertedEventkey;
     }
 
-    public void setLastInsertedEventkey(String lastInsertedEventkey) {
-        this.lastInsertedEventkey = lastInsertedEventkey;
-    }
-
     public long getLastInsertedEventOffset() {
         return lastInsertedEventOffset;
-    }
-
-    public void setLastInsertedEventOffset(long lastInsertedEventOffset) {
-        this.lastInsertedEventOffset = lastInsertedEventOffset;
     }
 
     public LocalDateTime getTime() {
         return time;
     }
 
-    public String getKjarGAV(){
+    public String getKjarGAV() {
         return kjarGAV;
     }
 
-    @Override
-    public String toString() {
-        return "SnapshotMessage{" +
-                "serializedSession=" + Arrays.toString(serializedSession) +
-                ", fhManager=" + fhManager +
-                ", lastInsertedEventkey='" + lastInsertedEventkey + '\'' +
-                ", lastInsertedEventOffset=" + lastInsertedEventOffset +
-                ", time=" + time +
-                ", id='" + id + '\'' +
-                ", kjarGAV='" + kjarGAV + '\'' +
-                ", timestamp=" + timestamp +
-                '}';
-    }
 }

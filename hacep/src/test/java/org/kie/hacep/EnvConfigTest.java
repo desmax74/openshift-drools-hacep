@@ -15,18 +15,39 @@
  */
 package org.kie.hacep;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class EnvConfigTest {
 
     @Test
-    public void defaultConfigEnvTest(){
+    public void defaultConfigEnvTest() {
         EnvConfig config = EnvConfig.getDefaultEnvConfig();
-        assertEquals( "default", config.getNamespace());
-        assertEquals( "control", config.getControlTopicName());
-        assertEquals( "events", config.getEventsTopicName());
-        assertEquals( "kiesessioninfos", config.getKieSessionInfosTopicName());
-        assertEquals( "snapshot", config.getSnapshotTopicName());
+        assertEquals("default", config.getNamespace());
+        assertEquals("control", config.getControlTopicName());
+        assertEquals("events", config.getEventsTopicName());
+        assertEquals("kiesessioninfos", config.getKieSessionInfosTopicName());
+        assertEquals("snapshot", config.getSnapshotTopicName());
+        assertEquals(PollUnit.MILLISECOND, config.getPollUnit());
+        assertEquals(PollUnit.SECOND, config.getPollSnapshotUnit());
+        assertTrue(1 == config.getPollSnapshotTimeout());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void pollTimeUnitExceptionTest() {
+        EnvConfig.anEnvConfig().withPollTimeUnit(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void pollSnapshotTimeUnitExceptionTest() {
+        EnvConfig.anEnvConfig().withPollSnapshotTimeUnit(null);
+    }
+
+    @Test
+    public void pollSnapshotTimeUnitMillisTest() {
+        EnvConfig config = EnvConfig.anEnvConfig().withPollSnapshotTimeUnit(EnvConfig.MILLISEC);
+        assertEquals(PollUnit.MILLISECOND,
+                     config.getPollSnapshotUnit());
     }
 }

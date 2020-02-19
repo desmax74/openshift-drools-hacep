@@ -35,24 +35,27 @@ import org.kie.api.runtime.KieSessionConfiguration;
 import org.kie.api.runtime.conf.ClockTypeOption;
 import org.kie.hacep.Config;
 import org.kie.hacep.EnvConfig;
-
 import org.kie.hacep.consumer.KieContainerUtils;
 import org.kie.hacep.core.GlobalStatus;
 import org.kie.hacep.core.infra.SessionSnapshooter;
 import org.kie.hacep.core.infra.SnapshotInfos;
+import org.kie.hacep.exceptions.SnapshotOnDemandException;
 import org.kie.hacep.message.SnapshotMessage;
 import org.kie.remote.TopicsConfig;
 import org.kie.remote.command.SnapshotOnDemandCommand;
+import org.kie.remote.impl.producer.Producer;
 import org.kie.remote.impl.producer.Sender;
 import org.kie.remote.util.SerializationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SnapshotOnDemandUtils {
+public class SnapshotOnDemandUtilsImpl {
 
-    private final static Logger logger = LoggerFactory.getLogger(SnapshotOnDemandUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(SnapshotOnDemandUtilsImpl.class);
 
-    public static SnapshotInfos askASnapshotOnDemand(EnvConfig config, SessionSnapshooter snapshooter) {
+    private SnapshotOnDemandUtilsImpl() { }
+
+    public static SnapshotInfos askASnapshotOnDemand(EnvConfig config, SessionSnapshooter snapshooter, Producer producer) {
         LocalDateTime infosTime = snapshooter.getLastSnapshotTime();
         LocalDateTime limitAge = LocalDateTime.now().minusSeconds(config.getMaxSnapshotAge());
         if (infosTime != null && limitAge.isBefore(infosTime)) { //included in the max age
@@ -64,12 +67,12 @@ public class SnapshotOnDemandUtils {
             if (logger.isInfoEnabled()) {
                 logger.info("Build NewSnapshotOnDemand ");
             }
-            return buildNewSnapshotOnDemand(config, limitAge);
+            return buildNewSnapshotOnDemand(config, limitAge, producer);
         }
     }
 
-    private static SnapshotInfos buildNewSnapshotOnDemand(EnvConfig envConfig, LocalDateTime limitAge) {
-        SnapshotMessage snapshotMsg = askAndReadSnapshotOnDemand(envConfig, limitAge);
+    private static SnapshotInfos buildNewSnapshotOnDemand(EnvConfig envConfig, LocalDateTime limitAge, Producer producer) {
+        SnapshotMessage snapshotMsg = askAndReadSnapshotOnDemand(envConfig, limitAge, producer);
         KieSession kSession = null;
         KieContainer kieContainer = null;
         try (ByteArrayInputStream in = new ByteArrayInputStream(snapshotMsg.getSerializedSession())) {
@@ -77,9 +80,9 @@ public class SnapshotOnDemandUtils {
             kieContainer = KieContainerUtils.getKieContainer(envConfig, ks);
             KieSessionConfiguration conf = ks.newKieSessionConfiguration();
             conf.setOption(ClockTypeOption.get("pseudo"));
-            kSession = ks.getMarshallers().newMarshaller(kieContainer.getKieBase()).unmarshall(in, conf,null);
+            kSession = ks.getMarshallers().newMarshaller(kieContainer.getKieBase()).unmarshall(in, conf, null);
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new SnapshotOnDemandException(e.getMessage(), e);
         }
         return new SnapshotInfos(kSession,
                                  kieContainer,
@@ -90,18 +93,19 @@ public class SnapshotOnDemandUtils {
                                  snapshotMsg.getKjarGAV());
     }
 
-    private static SnapshotMessage askAndReadSnapshotOnDemand(EnvConfig envConfig, LocalDateTime limitAge) {
+    private static SnapshotMessage askAndReadSnapshotOnDemand(EnvConfig envConfig,
+                                                              LocalDateTime limitAge,
+                                                              Producer producer) {
         Properties props = Config.getProducerConfig("SnapshotOnDemandUtils.askASnapshotOnDemand");
-        Sender sender = new Sender(props);
+        Sender sender = new Sender(props, producer);
         sender.start();
-        sender.sendCommand(new SnapshotOnDemandCommand(),
-                           TopicsConfig.getDefaultTopicsConfig().getEventsTopicName());
+        sender.sendCommand(new SnapshotOnDemandCommand(), TopicsConfig.getDefaultTopicsConfig().getEventsTopicName());
         sender.stop();
         KafkaConsumer consumer = getConfiguredSnapshotConsumer(envConfig);
         boolean snapshotReady = false;
         SnapshotMessage msg = null;
         try {
-            GlobalStatus.canBecomeLeader = false;
+            GlobalStatus.setCanBecomeLeader(false);
             int counter = 0;
             while (!snapshotReady) {
                 ConsumerRecords<String, byte[]> records = consumer.poll(envConfig.getPollSnapshotDuration());
@@ -113,12 +117,11 @@ public class SnapshotOnDemandUtils {
                 if (snapshotMsg != null && limitAge.isBefore(snapshotMsg.getTime())) {
                     snapshotReady = true;
                     msg = snapshotMsg;
-                }
-                else {
+                } else {
                     // use a counter to avoid infinite attempts
                     counter += 1;
-                    if(counter > envConfig.getMaxSnapshotRequestAttempts()) {
-                        GlobalStatus.nodeLive = false;
+                    if (counter > envConfig.getMaxSnapshotRequestAttempts()) {
+                        GlobalStatus.setNodeLive(false);
                         String errorMessage = "Impossible to retrieve a snapshot and start after " + counter + " attempts";
                         logger.error(errorMessage);
                         throw new IllegalStateException(errorMessage);
@@ -127,23 +130,20 @@ public class SnapshotOnDemandUtils {
             }
         } finally {
             consumer.close();
-            GlobalStatus.canBecomeLeader = true;
+            GlobalStatus.setCanBecomeLeader(true);
         }
         return msg;
     }
 
-    private static KafkaConsumer getConfiguredSnapshotConsumer(EnvConfig envConfig) {
+    public static KafkaConsumer getConfiguredSnapshotConsumer(EnvConfig envConfig) {
         KafkaConsumer<String, byte[]> consumer = new KafkaConsumer(Config.getSnapshotConsumerConfig());
         List<PartitionInfo> partitionsInfo = consumer.partitionsFor(envConfig.getSnapshotTopicName());
-        List<TopicPartition> partitions = null;
         Collection<TopicPartition> partitionCollection = new ArrayList<>();
 
         if (partitionsInfo != null) {
             for (PartitionInfo partition : partitionsInfo) {
                 TopicPartition topicPartition = new TopicPartition(partition.topic(), partition.partition());
-                if (partitions == null || partitions.contains(topicPartition)) {
-                    partitionCollection.add(topicPartition);
-                }
+                partitionCollection.add(topicPartition);
             }
             if (!partitionCollection.isEmpty()) {
                 consumer.assign(partitionCollection);

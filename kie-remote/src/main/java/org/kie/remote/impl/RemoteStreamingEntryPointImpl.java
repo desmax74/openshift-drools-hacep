@@ -15,6 +15,7 @@
  */
 package org.kie.remote.impl;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -39,7 +40,7 @@ public class RemoteStreamingEntryPointImpl extends AbstractRemoteEntryPoint impl
     }
 
     @Override
-    public void insert(Object object) {
+    public void insert(Serializable object) {
         EventInsertCommand command = new EventInsertCommand(object, entryPoint);
         sender.sendCommand(command, topicsConfig.getEventsTopicName());
     }

@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -40,7 +39,7 @@ import static org.kie.remote.util.SerializationUtil.deserialize;
 
 public class SnapshotOnDemandTest {
 
-    private KafkaUtilTest kafkaServerTest;
+    private KafkaUtils kafkaServerTest;
     private EnvConfig config;
     private Logger logger = LoggerFactory.getLogger(SnapshotOnDemandTest.class);
 
@@ -63,7 +62,7 @@ public class SnapshotOnDemandTest {
     @Before
     public void setUp() throws Exception {
         config = getEnvConfig();
-        kafkaServerTest = new KafkaUtilTest();
+        kafkaServerTest = new KafkaUtils();
         kafkaServerTest.startServer();
     }
 
@@ -95,7 +94,7 @@ public class SnapshotOnDemandTest {
             ConsumerRecords snapshotRecords = snapshotConsumer.poll(Duration.ofSeconds(2));
             assertEquals(0, snapshotRecords.count());
 
-            KafkaUtilTest.insertSnapshotOnDemandCommand();
+            KafkaUtils.insertSnapshotOnDemandCommand();
 
             List<SnapshotMessage> messages = new ArrayList<>();
             final AtomicInteger attempts = new AtomicInteger(0);
