@@ -29,8 +29,8 @@ import static org.kie.remote.util.SerializationUtil.serialize;
 
 public class EventProducer<T> implements Producer {
 
-    protected org.apache.kafka.clients.producer.Producer<String, T> producer;
     private Logger logger = LoggerFactory.getLogger(EventProducer.class);
+    protected org.apache.kafka.clients.producer.Producer<String, T> producer;
 
     @Override
     public void start(Properties properties) {

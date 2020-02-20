@@ -203,12 +203,12 @@ public class KafkaUtils implements AutoCloseable {
     }
 
     public void insertBatchStockTicketEvent(int items, TopicsConfig topicsConfig, Class sessionType, Listener listener) {
-        insertBatchStockTicketEvent(items, topicsConfig, sessionType, Config.getProducerConfig( "InsertBatchStockTicketEvent" ), listener);
+        insertBatchStockTicketEvent(items, topicsConfig, sessionType, Config.getProducerConfig("InsertBatchStockTicketEvent" ), listener);
     }
 
     public void insertBatchStockTicketEvent(int items, TopicsConfig topicsConfig, Class sessionType, Properties props, Listener listener) {
         if (sessionType.equals(RemoteKieSession.class)) {
-            RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props, topicsConfig, listener,  InfraFactory.getProducer(false));
+            RemoteKieSessionImpl producer = new RemoteKieSessionImpl(props, topicsConfig, listener, InfraFactory.getProducer(false));
             producer.fireUntilHalt();
             try{
                 for (int i = 0; i < items; i++) {

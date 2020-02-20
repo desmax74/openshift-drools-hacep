@@ -97,11 +97,9 @@ public class SnapshotOnDemandUtilsImpl {
                                                               LocalDateTime limitAge,
                                                               Producer producer) {
         Properties props = Config.getProducerConfig("SnapshotOnDemandUtils.askASnapshotOnDemand");
-        Sender sender = new Sender(props,
-                                   producer);
+        Sender sender = new Sender(props, producer);
         sender.start();
-        sender.sendCommand(new SnapshotOnDemandCommand(),
-                           TopicsConfig.getDefaultTopicsConfig().getEventsTopicName());
+        sender.sendCommand(new SnapshotOnDemandCommand(), TopicsConfig.getDefaultTopicsConfig().getEventsTopicName());
         sender.stop();
         KafkaConsumer consumer = getConfiguredSnapshotConsumer(envConfig);
         boolean snapshotReady = false;
@@ -144,8 +142,7 @@ public class SnapshotOnDemandUtilsImpl {
 
         if (partitionsInfo != null) {
             for (PartitionInfo partition : partitionsInfo) {
-                TopicPartition topicPartition = new TopicPartition(partition.topic(),
-                                                                   partition.partition());
+                TopicPartition topicPartition = new TopicPartition(partition.topic(), partition.partition());
                 partitionCollection.add(topicPartition);
             }
             if (!partitionCollection.isEmpty()) {

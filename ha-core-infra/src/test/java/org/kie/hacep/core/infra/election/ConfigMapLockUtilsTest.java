@@ -38,7 +38,7 @@ public class ConfigMapLockUtilsTest {
         String leader = "leader-x13X";
         Date timestamp = Calendar.getInstance().getTime();
         Set<String> members = new HashSet<>(Arrays.asList("Qui", "Quo", "Qua"));
-        LeaderInfo info = new LeaderInfo(groupName, leader, timestamp,members);
+        LeaderInfo info = new LeaderInfo(groupName, leader, timestamp, members);
         logger.info("leaderInfo:{}", info.toString());
         assertFalse(info.hasEmptyLeader());
         assertFalse(info.isValidLeader(null));
@@ -47,9 +47,9 @@ public class ConfigMapLockUtilsTest {
         assertEquals(leader,info.getLeader());
         assertEquals(timestamp,info.getLocalTimestamp());
         assertEquals(members,info.getMembers());
-        ConfigMap configMap = ConfigMapLockUtils.createNewConfigMap("my-map",info);
+        ConfigMap configMap = ConfigMapLockUtils.createNewConfigMap("my-map", info);
         assertNotNull(configMap);
-        LeaderInfo leaderInfo = ConfigMapLockUtils.getLeaderInfo(configMap, members,groupName);
+        LeaderInfo leaderInfo = ConfigMapLockUtils.getLeaderInfo(configMap, members, groupName);
         logger.info("leaderInfo:{}", leaderInfo.toString());
         assertNotNull(leaderInfo);
         ConfigMap newConfigMap = ConfigMapLockUtils.getConfigMapWithNewLeader(configMap, leaderInfo);
