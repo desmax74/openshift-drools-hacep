@@ -57,7 +57,7 @@ public class InfraFactory {
     private InfraFactory(){}
 
     public static EventConsumer getEventConsumer(EnvConfig config) {
-        return config.isLocal() ? new LocalConsumer(config) : new DefaultKafkaConsumer(config,getProducer(false));
+        return config.isLocal() ? new LocalConsumer(config) : new DefaultKafkaConsumer(config, getProducer(false));
     }
 
     public static SessionSnapshooter getSnapshooter(EnvConfig envConfig) {
@@ -67,6 +67,7 @@ public class InfraFactory {
     public static ConsumerHandler getConsumerHandler(Producer producer, EnvConfig envConfig) {
         return new DroolsConsumerHandler(producer, envConfig, getSnapshooter(envConfig), new ConsumerUtilsCoreImpl());
     }
+
 
     public static KafkaConsumer getConsumer(String topic, Properties properties) {
         KafkaConsumer consumer = new KafkaConsumer(properties);
@@ -98,7 +99,9 @@ public class InfraFactory {
         return new Listener(props, InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), isLocal, props));
     }
 
-    public static ListenerThread getListenerThread(TopicsConfig topicsConfig, boolean isLocal, Properties configuration) {
+    public static ListenerThread getListenerThread(TopicsConfig topicsConfig,
+                                                   boolean isLocal,
+                                                   Properties configuration) {
         return isLocal ?
                 new LocalListenerThread(topicsConfig) :
                 new KafkaListenerThread(getMergedConf(configuration), topicsConfig);
@@ -138,4 +141,5 @@ public class InfraFactory {
     public static ItemToProcess getItemToProcess(ConsumerRecord record) {
         return new ItemToProcess(record.key().toString(), record.offset(), record.value());
     }
+
 }

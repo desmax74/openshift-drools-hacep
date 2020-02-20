@@ -26,32 +26,32 @@ import org.slf4j.LoggerFactory;
 
 public class CoreKube {
 
-  private static final Logger logger = LoggerFactory.getLogger(CoreKube.class);
-  private KubernetesClient kubernetesClient;
-  private KubernetesLockConfiguration configuration;
-  private LeaderElection leadership;
+    private static final Logger logger = LoggerFactory.getLogger(CoreKube.class);
+    private KubernetesClient kubernetesClient;
+    private KubernetesLockConfiguration configuration;
+    private LeaderElection leadership;
 
-  public CoreKube(String namespace, State initialState) {
-    kubernetesClient = new DefaultKubernetesClient();
-    configuration = createKubeConfiguration(namespace);
-    leadership = new LeaderElectionImpl(kubernetesClient, configuration, initialState);
-  }
-
-  private KubernetesLockConfiguration createKubeConfiguration(String namespace) {
-    String podName = System.getenv("POD_NAME");
-    if (podName == null) {
-      podName = System.getenv("HOSTNAME");
+    public CoreKube(String namespace, State initialState) {
+        kubernetesClient = new DefaultKubernetesClient();
+        configuration = createKubeConfiguration(namespace);
+        leadership = new LeaderElectionImpl(kubernetesClient, configuration, initialState);
     }
-    if (logger.isInfoEnabled()) {
-      logger.info("PodName: {}", podName);
-    }
-    KubernetesLockConfiguration newConfiguration = new KubernetesLockConfiguration(namespace);
-    newConfiguration.setPodName(podName);
-    return newConfiguration;
-  }
 
-  public LeaderElection getLeaderElection() {
-    return leadership;
-  }
+    private KubernetesLockConfiguration createKubeConfiguration(String namespace) {
+        String podName = System.getenv("POD_NAME");
+        if (podName == null) {
+            podName = System.getenv("HOSTNAME");
+        }
+        if (logger.isInfoEnabled()) {
+            logger.info("PodName: {}", podName);
+        }
+        KubernetesLockConfiguration newConfiguration = new KubernetesLockConfiguration(namespace);
+        newConfiguration.setPodName(podName);
+        return newConfiguration;
+    }
+
+    public LeaderElection getLeaderElection() {
+        return leadership;
+    }
 }
 
