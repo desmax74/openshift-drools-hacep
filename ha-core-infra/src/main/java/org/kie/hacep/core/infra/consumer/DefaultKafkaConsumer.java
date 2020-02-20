@@ -434,8 +434,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
 
             if (logger.isDebugEnabled()) {
                 logger.debug("processEventsAsAReplica change topic, switch to consume control, still {} events in the eventsBuffer to consume and processing item:{}.",
-                             eventsBuffer.size(),
-                             item);
+                             eventsBuffer.size(), item);
             }
             consumerHandler.process(item, currentState);
             saveOffset(record, kafkaConsumer);

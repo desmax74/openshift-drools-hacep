@@ -26,17 +26,17 @@ public class GavUtilsTest {
     @Test
     public void getSplittedGavTest() {
         String[] parts = GAVUtils.getSplittedGav("org.kie:fake:1.0.0.Snapshot");
-        assertEquals("org.kie",parts[0]);
-        assertEquals("fake",parts[1]);
-        assertEquals("1.0.0.Snapshot",parts[2]);
+        assertEquals("org.kie", parts[0]);
+        assertEquals("fake", parts[1]);
+        assertEquals("1.0.0.Snapshot", parts[2]);
     }
 
     @Test
     public void getReleaseIdTest() {
         KieServices sv = KieServices.get();
         ReleaseId releaseID = GAVUtils.getReleaseID("org.kie:fake:1.0.0.Snapshot", sv);
-        assertEquals("org.kie",releaseID.getGroupId());
-        assertEquals("fake",releaseID.getArtifactId());
-        assertEquals("1.0.0.Snapshot",releaseID.getVersion());
+        assertEquals("org.kie", releaseID.getGroupId());
+        assertEquals("fake", releaseID.getArtifactId());
+        assertEquals("1.0.0.Snapshot", releaseID.getVersion());
     }
 }

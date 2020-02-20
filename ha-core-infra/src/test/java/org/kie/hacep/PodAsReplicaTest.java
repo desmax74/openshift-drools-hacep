@@ -168,7 +168,7 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
             kafkaLogConsumer.close();
         }
     }
-    
+
     private void checkInsertSideEffects(ConsumerRecord<String, byte[]> eventsRecord, ConsumerRecord<String, byte[]> controlRecord) {
         Assert.assertEquals(controlRecord.topic(), envConfig.getControlTopicName());
         ControlMessage controlMessage = deserialize(controlRecord.value());

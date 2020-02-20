@@ -28,7 +28,7 @@ import org.kie.api.runtime.rule.QueryResultsRow;
 
 public class ObjectFilterHelper {
 
-  private ObjectFilterHelper() { }
+  private ObjectFilterHelper() {}
 
   public static Collection getObjectsFilterByNamedQuery(String namedQuery, String objectName, Object[] params, KieSession kieSession) {
     QueryResults results = kieSession.getQueryResults(namedQuery, params);

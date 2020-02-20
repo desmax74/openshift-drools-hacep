@@ -38,7 +38,7 @@ public class Bootstrap {
     private static ConsumerController consumerController;
     private static CoreKube coreKube;
 
-    private Bootstrap() { }
+    private Bootstrap() {}
 
     public static void startEngine(EnvConfig envConfig) {
         //order matter

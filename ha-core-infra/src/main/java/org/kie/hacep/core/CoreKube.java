@@ -27,11 +27,11 @@ import org.slf4j.LoggerFactory;
 public class CoreKube {
 
     private static final Logger logger = LoggerFactory.getLogger(CoreKube.class);
-    private KubernetesClient kubernetesClient;
+    private KubernetesClient kubernetesClient ;
     private KubernetesLockConfiguration configuration;
     private LeaderElection leadership;
 
-    public CoreKube(String namespace, State initialState) {
+    public CoreKube(String namespace, State initialState){
         kubernetesClient = new DefaultKubernetesClient();
         configuration = createKubeConfiguration(namespace);
         leadership = new LeaderElectionImpl(kubernetesClient, configuration, initialState);

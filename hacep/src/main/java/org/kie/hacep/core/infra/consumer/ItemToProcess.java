@@ -45,11 +45,11 @@ public class ItemToProcess implements Serializable {
 
     @Override
     public String toString() {
-      final StringBuilder sb = new StringBuilder("ItemToProcess{");
-      sb.append("key='").append(key).append('\'');
-      sb.append(", object=").append(object);
-      sb.append(", offset=").append(offset);
-      sb.append('}');
-      return sb.toString();
+        final StringBuilder sb = new StringBuilder("ItemToProcess{");
+        sb.append("key='").append(key).append('\'');
+        sb.append(", object=").append(object);
+        sb.append(", offset=").append(offset);
+        sb.append('}');
+        return sb.toString();
     }
 }
