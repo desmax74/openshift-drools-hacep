@@ -32,12 +32,8 @@ public class LocalMessageSystem {
 
     private LocalMessageSystem() { }
 
-    public static LocalMessageSystem get() {
-        return LazyHolder.get();
-    }
-
     private BlockingQueue<Object> queueForTopic(String topic) {
-        return queues.computeIfAbsent(topic, k -> new LinkedBlockingQueue<>());
+        return queues.computeIfAbsent( topic, k -> new LinkedBlockingQueue<>( );
     }
 
     public void put(String topic, Object message) {
@@ -52,6 +48,10 @@ public class LocalMessageSystem {
 
     public Object poll(String topic) {
         return queueForTopic(topic).poll();
+    }
+
+    public static LocalMessageSystem get() {
+        return LazyHolder.get();
     }
 
     public Object poll(String topic, int durationMillis) {

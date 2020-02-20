@@ -18,7 +18,8 @@ package org.kie.remote.message;
 import java.io.Serializable;
 import java.util.Collection;
 
-public class ListKieSessionObjectMessage extends AbstractMessage implements Serializable, ResultMessage<Collection> {
+public class ListKieSessionObjectMessage extends AbstractMessage implements Serializable,
+                                                                            ResultMessage<Collection> {
 
     private Collection<Object> objects;
 

@@ -25,25 +25,25 @@ import java.io.ObjectOutputStream;
 
 public class SerializationUtil {
 
-  private SerializationUtil(){}
+    private SerializationUtil() {}
 
-  public static byte[] serialize(Object obj) {
-    try (ByteArrayOutputStream b = new ByteArrayOutputStream()) {
-      try (ObjectOutputStream o = new ObjectOutputStream(b)) {
-        o.writeObject(obj);
-      }
-      return b.toByteArray();
-    } catch (IOException io) {
-      throw new SerializationException(io.getMessage(), io);
+    public static byte[] serialize(Object obj) {
+        try (ByteArrayOutputStream b = new ByteArrayOutputStream()) {
+            try (ObjectOutputStream o = new ObjectOutputStream(b)) {
+                o.writeObject(obj);
+            }
+            return b.toByteArray();
+        } catch (IOException io) {
+            throw new SerializationException(io.getMessage(), io);
+        }
     }
-  }
 
-  public static <T> T deserialize(byte[] bytez) {
-    try {
-      ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(bytez));
-      return (T) in.readObject();
-    } catch (IOException | ClassNotFoundException e) {
-      throw new SerializationException(e.getMessage(), e);
+    public static <T> T deserialize(byte[] bytez) {
+        try {
+            ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(bytez));
+            return (T) in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new SerializationException(e.getMessage(), e);
+        }
     }
-  }
 }
