@@ -28,7 +28,6 @@ import org.kie.remote.command.UpdateKJarCommand;
 import org.kie.remote.impl.consumer.Listener;
 import org.kie.remote.impl.producer.Producer;
 import org.kie.remote.impl.producer.Sender;
-import org.kie.remote.util.EntryPointUtil;
 
 public class RemoteStreamingKieSessionImpl extends RemoteStreamingEntryPointImpl implements RemoteStreamingKieSession {
 

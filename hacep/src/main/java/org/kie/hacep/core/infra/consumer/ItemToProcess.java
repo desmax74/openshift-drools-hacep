@@ -17,8 +17,6 @@ package org.kie.hacep.core.infra.consumer;
 
 import java.io.Serializable;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-
 public class ItemToProcess implements Serializable {
 
     private String key;
@@ -45,17 +43,13 @@ public class ItemToProcess implements Serializable {
         return offset;
     }
 
-    public static ItemToProcess getItemToProcess(ConsumerRecord record){
-        return new ItemToProcess(record.key().toString(), record.offset(), record.value());
-    }
-
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ItemToProcess{");
-        sb.append("key='").append(key).append('\'');
-        sb.append(", object=").append(object);
-        sb.append(", offset=").append(offset);
-        sb.append('}');
-        return sb.toString();
+      final StringBuilder sb = new StringBuilder("ItemToProcess{");
+      sb.append("key='").append(key).append('\'');
+      sb.append(", object=").append(object);
+      sb.append(", offset=").append(offset);
+      sb.append('}');
+      return sb.toString();
     }
 }

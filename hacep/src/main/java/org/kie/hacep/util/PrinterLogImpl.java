@@ -31,4 +31,3 @@ public class PrinterLogImpl implements Printer {
         return false;
     }
 }
-

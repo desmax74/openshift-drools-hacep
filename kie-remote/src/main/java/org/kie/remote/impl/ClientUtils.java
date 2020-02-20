@@ -19,26 +19,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ClientUtils {
 
     public static final String CONSUMER_CONF = "consumer.properties";
     public static final String PRODUCER_CONF = "producer.properties";
     public static final String CONF = "configuration.properties";
+    private static Logger logger = LoggerFactory.getLogger(ClientUtils.class);
+
+    private ClientUtils() { }
 
     public static Properties getConfiguration(String filename) {
         Properties props = new Properties();
-        InputStream in = null;
-        try {
-            in = ClientUtils.class.getClassLoader().getResourceAsStream(filename);
-        } catch (Exception e) {
-        } finally {
-            try {
-                props.load(in);
-                in.close();
-            } catch (IOException ioe) {
-            }
+        try (InputStream in = ClientUtils.class.getClassLoader().getResourceAsStream(filename)) {
+            props.load(in);
+        } catch (IOException e) {
+            logger.error(e.getMessage(),
+                         e);
         }
-
         return props;
     }
 }

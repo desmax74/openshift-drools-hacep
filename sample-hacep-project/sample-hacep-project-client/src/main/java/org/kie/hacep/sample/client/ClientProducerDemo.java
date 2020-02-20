@@ -20,9 +20,9 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.kie.hacep.core.InfraFactory;
 import org.kie.hacep.sample.kjar.StockTickEvent;
 import org.kie.remote.CommonConfig;
-import org.kie.remote.InfraFactory;
 import org.kie.remote.RemoteStreamingKieSession;
 import org.kie.remote.TopicsConfig;
 import org.kie.remote.impl.producer.Producer;

@@ -22,6 +22,8 @@ public class GetKJarGAVCommand extends AbstractCommand implements VisitableComma
 
     private String entryPoint;
 
+    public GetKJarGAVCommand() { /*For serialization */}
+
     public GetKJarGAVCommand(String entryPoint){
         super(UUID.randomUUID().toString());
         this.entryPoint = entryPoint;
