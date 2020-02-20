@@ -383,7 +383,7 @@ public class LeaderElectionImpl implements LeaderElection {
     }
 
     void updateLatestLeaderInfo(ConfigMap configMap,
-                                Set<String> members) {
+                                       Set<String> members) {
         if (logger.isDebugEnabled()) {
             logger.debug("{} Updating internal status about the current leader", logPrefix());
         }
