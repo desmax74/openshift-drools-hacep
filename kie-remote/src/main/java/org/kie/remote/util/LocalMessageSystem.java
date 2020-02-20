@@ -33,7 +33,7 @@ public class LocalMessageSystem {
     private LocalMessageSystem() { }
 
     private BlockingQueue<Object> queueForTopic(String topic) {
-        return queues.computeIfAbsent( topic, k -> new LinkedBlockingQueue<>( );
+        return queues.computeIfAbsent( topic, k -> new LinkedBlockingQueue<>() );
     }
 
     public void put(String topic, Object message) {
