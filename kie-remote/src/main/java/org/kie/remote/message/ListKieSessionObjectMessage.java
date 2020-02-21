@@ -21,12 +21,12 @@ import java.util.Collection;
 public class ListKieSessionObjectMessage extends AbstractMessage implements Serializable,
                                                                             ResultMessage<Collection> {
 
-    private Collection<Object> objects;
+    private Collection<Serializable> objects;
 
     public ListKieSessionObjectMessage() {
     }
 
-    public ListKieSessionObjectMessage(String id, Collection<Object> objects) {
+    public ListKieSessionObjectMessage(String id, Collection<Serializable> objects) {
         super(id);
         this.objects = objects;
     }
