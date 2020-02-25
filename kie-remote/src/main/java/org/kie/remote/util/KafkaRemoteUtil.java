@@ -21,6 +21,8 @@ import org.kie.remote.impl.producer.Producer;
 
 public class KafkaRemoteUtil {
 
+    private KafkaRemoteUtil(){}
+
     public static Listener getListener(Properties props, boolean isLocal){
         return new Listener(props, getListenerThread(TopicsConfig.getDefaultTopicsConfig(), isLocal, props));
     }
