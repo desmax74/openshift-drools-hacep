@@ -81,7 +81,7 @@ public class SnapshotOnDemandUtilsImpl {
             conf.setOption(ClockTypeOption.get("pseudo"));
             kSession = ks.getMarshallers().newMarshaller(kieContainer.getKieBase()).unmarshall(in, conf, null);
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new IllegalStateException(e.getMessage(), e);
         }
         return new SnapshotInfos(kSession,
                                  kieContainer,

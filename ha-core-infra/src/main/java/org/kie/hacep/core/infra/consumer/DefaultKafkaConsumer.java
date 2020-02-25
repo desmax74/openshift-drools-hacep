@@ -159,7 +159,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
             logger.info("askAndProcessSnapshotOnDemand:{}", completed);
         }
         if (!completed) {
-            throw new RuntimeException("Can't obtain a snapshot on demand");
+            throw new IllegalStateException("Can't obtain a snapshot on demand");
         }
         return completed;
     }
@@ -198,7 +198,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
 
         if (snapshotInfos != null) {
             if (partitionCollection.size() > 1) {
-                throw new RuntimeException("The system must run with only one partition per topic");
+                throw new IllegalStateException("The system must run with only one partition per topic");
             }
             kafkaConsumer.assignment().forEach(topicPartition -> kafkaConsumer.seek(partitionCollection.iterator().next(),
                                                                                     snapshotInfos.getOffsetDuringSnapshot()));

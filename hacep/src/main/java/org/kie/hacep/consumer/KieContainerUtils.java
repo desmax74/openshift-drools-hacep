@@ -47,7 +47,7 @@ public class KieContainerUtils {
             }
             return kieContainer;
         } else {
-            throw new RuntimeException("KieServices is null");
+            throw new IllegalStateException("KieServices is null");
         }
     }
 }

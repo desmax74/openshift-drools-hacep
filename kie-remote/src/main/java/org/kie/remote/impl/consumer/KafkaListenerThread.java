@@ -54,7 +54,7 @@ public class KafkaListenerThread implements ListenerThread {
     @Override
     public void run() {
         if (requestsStore == null) {
-            throw new RuntimeException("Request store not initialized, init method must be called before run the thread");
+            throw new IllegalStateException("Request store not initialized, init method must be called before run the thread");
         }
         try {
             while (running) {

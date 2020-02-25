@@ -34,7 +34,7 @@ public class LocalMessageSystem {
 
     public void put(String topic, Object message) {
         if (!queueForTopic(topic).offer(message)) {
-            throw new RuntimeException("msg :"+message +" not added in the topic:" +topic);
+            throw new IllegalStateException("msg :"+message +" not added in the topic:" +topic);
         }
     }
 
@@ -55,7 +55,7 @@ public class LocalMessageSystem {
             return queueForTopic(topic).poll(durationMillis, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException(e.getMessage(), e);
+            throw new IllegalStateException(e.getMessage(), e);
         }
     }
 

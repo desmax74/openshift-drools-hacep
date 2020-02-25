@@ -88,7 +88,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
             this.kieSessionContext = new KieSessionContext();
             this.kieSessionContext.init(kieContainer, kieContainer.newKieSession());
         } else {
-            throw new RuntimeException("KieService is null");
+            throw new IllegalStateException("KieService is null");
         }
     }
 
@@ -100,7 +100,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
             this.kieSessionContext = new KieSessionContext();
             this.kieSessionContext.initFromSnapshot(this.snapshotInfos);
         } else {
-            throw new RuntimeException("The Serialized Session isn't present");
+            throw new IllegalStateException("The Serialized Session isn't present");
         }
     }
 
@@ -170,8 +170,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
         }
     }
 
-    private void processCommand(RemoteCommand command,
-                                State state) {
+    private void processCommand(RemoteCommand command, State state) {
         boolean execute = state.equals(State.LEADER) || command.isPermittedForReplicas();
         if (execute) {
             VisitableCommand visitable = (VisitableCommand) command;
@@ -179,7 +178,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
                 visitable.accept(commandHandler);
             } catch (Exception e) {
                 GlobalStatus.setNodeLive(false);
-                throw new RuntimeException(e.getMessage(), e.getCause());
+                throw new IllegalStateException(e.getMessage(), e.getCause());
             }
         }
     }

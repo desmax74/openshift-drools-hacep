@@ -58,7 +58,7 @@ public class ConsumerController {
                 thread.join();
             } catch (InterruptedException ex) {
                 thread.interrupt();
-                throw new RuntimeException(ex.getMessage(), ex);
+                throw new IllegalStateException(ex.getMessage(), ex);
             }
         }
     }
