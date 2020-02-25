@@ -64,13 +64,21 @@ public class JdkHttpServer {
     }
 
     private static void initResponse(HttpExchange httpExchange, boolean isOk) throws IOException {
-        int returnCode = isOk ? 200 : 503;
+        int returnCode = status();
         int returnLength = isOk ? OK.length() : KO.length();
         byte[] returnBytes = isOk ? OK.getBytes() : KO.getBytes();
         httpExchange.sendResponseHeaders(returnCode, returnLength);
         OutputStream os = httpExchange.getResponseBody();
         os.write(returnBytes);
         os.close();
+    }
+
+    private static int status(){
+        if(GlobalStatus.isNodeLive()) {
+            return 200 ;
+        } else {
+            return 503 ;
+        }
     }
 
     private static class EnvHandler implements HttpHandler {
