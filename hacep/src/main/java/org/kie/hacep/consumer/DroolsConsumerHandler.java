@@ -88,7 +88,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
             this.kieSessionContext = new KieSessionContext();
             this.kieSessionContext.init(kieContainer, kieContainer.newKieSession());
         } else {
-            throw new InitializeException("KieService is null");
+            throw new RuntimeException("KieService is null");
         }
     }
 
@@ -100,7 +100,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
             this.kieSessionContext = new KieSessionContext();
             this.kieSessionContext.initFromSnapshot(this.snapshotInfos);
         } else {
-            throw new InitializeException("The Serialized Session isn't present");
+            throw new RuntimeException("The Serialized Session isn't present");
         }
     }
 
