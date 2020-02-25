@@ -66,8 +66,7 @@ public class UpdatableKieSessionTest {
 
     private void initSessionContextFromEmbeddKjar() {
         EnvConfig envConfig = EnvConfig.getDefaultEnvConfig();
-        kieContainer = KieContainerUtils.getKieContainer(envConfig,
-                                                        ks);
+        kieContainer = KieContainerUtils.getKieContainer(envConfig, ks);
         kieSession = kieContainer.newKieSession();
         ksCtx.init(kieContainer, kieSession);
     }

@@ -55,8 +55,6 @@ public class Config {
     private static final String CONSUMER_CONF = "consumer.properties";
     private static final String PRODUCER_CONF = "producer.properties";
     private static final String CONF = "infra.properties";
-    private static final String SNAPSHOT_CONSUMER_CONF = "snapshot_consumer.properties";
-    private static final String SNAPSHOT_PRODUCER_CONF = "snapshot_producer.properties";
     private static Properties consumerConf;
     private static Properties producerConf;
     private static Properties snapshotConsumerConf;
@@ -94,7 +92,7 @@ public class Config {
 
     public static Properties getSnapshotConsumerConfig() {
         if (snapshotConsumerConf == null) {
-            snapshotConsumerConf = getDefaultConfigFromProps(SNAPSHOT_CONSUMER_CONF);
+            snapshotConsumerConf = getDefaultConfigFromProps(CONSUMER_CONF);
         }
         logConfig("SnapshotConsumer", snapshotConsumerConf);
         return snapshotConsumerConf;
@@ -102,7 +100,7 @@ public class Config {
 
     public static Properties getSnapshotProducerConfig() {
         if (snapshotProducerConf == null) {
-            snapshotProducerConf = getDefaultConfigFromProps(SNAPSHOT_PRODUCER_CONF);
+            snapshotProducerConf = getDefaultConfigFromProps(PRODUCER_CONF);
         }
         logConfig("SnapshotProducer", snapshotProducerConf);
         return snapshotProducerConf;

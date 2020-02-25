@@ -40,7 +40,6 @@ import org.kie.hacep.core.GlobalStatus;
 import org.kie.hacep.core.infra.SessionSnapshooter;
 import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.message.SnapshotMessage;
-import org.kie.hacep.exceptions.SnapshotOnDemandException;
 import org.kie.remote.TopicsConfig;
 import org.kie.remote.command.SnapshotOnDemandCommand;
 import org.kie.remote.impl.producer.Producer;
@@ -82,7 +81,7 @@ public class SnapshotOnDemandUtilsImpl {
             conf.setOption(ClockTypeOption.get("pseudo"));
             kSession = ks.getMarshallers().newMarshaller(kieContainer.getKieBase()).unmarshall(in, conf, null);
         } catch (IOException | ClassNotFoundException e) {
-            throw new SnapshotOnDemandException(e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
         return new SnapshotInfos(kSession,
                                  kieContainer,

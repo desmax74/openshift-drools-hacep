@@ -38,6 +38,7 @@ import org.kie.hacep.core.infra.message.SnapshotMessage;
 import org.kie.hacep.core.infra.utils.SnapshotOnDemandUtilsImpl;
 import org.kie.hacep.exceptions.InitializeException;
 import org.kie.remote.impl.producer.EventProducer;
+import org.kie.remote.impl.producer.Producer;
 import org.kie.remote.util.SerializationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +57,7 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
     public void serialize(KieSessionContext kieSessionContext, String lastInsertedEventkey, long lastInsertedEventOffset) {
         KieMarshallers marshallers = KieServices.get().getMarshallers();
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            EventProducer<byte[]> producer = new EventProducer<>();
+            Producer producer = new EventProducer<>();
             producer.start(Config.getSnapshotProducerConfig());
             marshallers.newMarshaller(kieSessionContext.
                     getKieSession().
