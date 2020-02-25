@@ -26,7 +26,7 @@ import org.kie.remote.RemoteStreamingKieSession;
 import org.kie.remote.TopicsConfig;
 import org.kie.remote.impl.RemoteStreamingKieSessionImpl;
 import org.kie.remote.impl.producer.Producer;
-import org.kie.remote.util.KafkaUtil;
+import org.kie.remote.util.KafkaRemoteUtil;
 
 public class ClientProducerDemo {
 
@@ -41,8 +41,8 @@ public class ClientProducerDemo {
     private static void insertBatchEvent(int items) throws IOException {
         TopicsConfig envConfig = TopicsConfig.getDefaultTopicsConfig();
         Properties props = getProperties();
-        Producer prod = KafkaUtil.getProducer(false);
-        try (RemoteStreamingKieSession producer = new RemoteStreamingKieSessionImpl(props, envConfig, KafkaUtil.getListener(props, false), prod)){
+        Producer prod = KafkaRemoteUtil.getProducer(false);
+        try (RemoteStreamingKieSession producer = new RemoteStreamingKieSessionImpl(props, envConfig, KafkaRemoteUtil.getListener(props, false), prod)){
             for (int i = 0; i < items; i++) {
                 StockTickEvent eventA = new StockTickEvent("RHT",
                                                            ThreadLocalRandom.current().nextLong(80, 100));

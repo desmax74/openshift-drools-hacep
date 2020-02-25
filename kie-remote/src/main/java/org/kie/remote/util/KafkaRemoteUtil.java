@@ -19,7 +19,7 @@ import org.kie.remote.impl.producer.EventProducer;
 import org.kie.remote.impl.producer.LocalProducer;
 import org.kie.remote.impl.producer.Producer;
 
-public class KafkaUtil {
+public class KafkaRemoteUtil {
 
     public static Listener getListener(Properties props, boolean isLocal){
         return new Listener(props, getListenerThread(TopicsConfig.getDefaultTopicsConfig(), isLocal, props));

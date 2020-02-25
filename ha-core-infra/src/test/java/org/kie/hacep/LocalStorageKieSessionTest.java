@@ -37,6 +37,7 @@ import org.kie.remote.RemoteKieSession;
 import org.kie.remote.TopicsConfig;
 import org.kie.remote.impl.consumer.Listener;
 import org.kie.remote.impl.consumer.ListenerThread;
+import org.kie.remote.util.KafkaRemoteUtil;
 
 import static org.junit.Assert.*;
 import static org.kie.remote.CommonConfig.getTestProperties;
@@ -51,7 +52,7 @@ public class LocalStorageKieSessionTest {
         EnvConfig config = EnvConfig.getDefaultEnvConfig().underTest(true).local(true);
         Bootstrap.startEngine(config);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
-        ListenerThread listenerThread = InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), config.isLocal(), getTestProperties());
+        ListenerThread listenerThread = KafkaRemoteUtil.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), config.isLocal(), getTestProperties());
         Listener listener = new Listener(getTestProperties(), listenerThread);
         session = InfraFactory.createRemoteKieSession(CommonConfig.getTestProperties(), listener, InfraFactory.getProducer(config.isLocal())); //RemoteKieSession.create(getTestProperties());
     }

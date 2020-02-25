@@ -25,6 +25,7 @@ import org.kie.hacep.core.InfraFactory;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.remote.RemoteKieSession;
 import org.kie.remote.impl.RemoteKieSessionImpl;
+import org.kie.remote.util.KafkaRemoteUtil;
 
 import static org.junit.Assert.*;
 import static org.kie.remote.CommonConfig.getTestProperties;
@@ -37,8 +38,8 @@ public class RemoteKieSessionImplTest extends KafkaFullTopicsTests{
         Properties props = getTestProperties();
         Bootstrap.startEngine(envConfig);
         Bootstrap.getConsumerController().getCallback().updateStatus(State.LEADER);
-        kafkaServerTest.insertBatchStockTicketEvent(7, topicsConfig, RemoteKieSession.class, InfraFactory.getListener(props, false));
-        RemoteKieSessionImpl client = new RemoteKieSessionImpl(Config.getProducerConfig("getFactCountTest"), InfraFactory.getListener(props, false) , InfraFactory.getProducer(false));
+        kafkaServerTest.insertBatchStockTicketEvent(7, topicsConfig, RemoteKieSession.class, KafkaRemoteUtil.getListener(props, false));
+        RemoteKieSessionImpl client = new RemoteKieSessionImpl(Config.getProducerConfig("getFactCountTest"), KafkaRemoteUtil.getListener(props, false) , InfraFactory.getProducer(false));
         try {
             client.fireUntilHalt();
             CompletableFuture<Long> factCountFuture = client.getFactCount();

@@ -95,36 +95,11 @@ public class InfraFactory {
         return consumer;
     }
 
-    public static Listener getListener(Properties props, boolean isLocal){
-        return new Listener(props, InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), isLocal, props));
-    }
-
-    public static ListenerThread getListenerThread(TopicsConfig topicsConfig,
-                                                   boolean isLocal,
-                                                   Properties configuration) {
-        return isLocal ?
-                new LocalListenerThread(topicsConfig) :
-                new KafkaListenerThread(getMergedConf(configuration), topicsConfig);
-    }
-
-    public static Properties getMergedConf(Properties configuration) {
-        Properties conf = ClientUtils.getConfiguration(ClientUtils.CONSUMER_CONF);
-        conf.putAll(configuration);
-        return conf;
-    }
-
 
     public static RemoteKieSession createRemoteKieSession(Properties configuration, Listener listener, Producer producer) {
         return new RemoteKieSessionImpl(configuration, listener, producer);
     }
 
-    public static RemoteKieSession createRemoteKieSession(Properties configuration, TopicsConfig envConfig, Listener listener, Producer producer) {
-        return new RemoteKieSessionImpl(configuration, envConfig, listener, producer);
-    }
-
-    public static Producer getProducer(Properties configuration) {
-        return getProducer(readBoolean(configuration, LOCAL_MESSAGE_SYSTEM_CONF));
-    }
 
     public static Producer getProducer(boolean isLocal) {
         return isLocal ? new LocalProducer() : new EventProducer();
@@ -134,9 +109,6 @@ public class InfraFactory {
         return new RemoteStreamingKieSessionImpl(configuration, listener, producer);
     }
 
-    public static RemoteStreamingKieSession createRemoteStreamingKieSession(Properties configuration, TopicsConfig envConfig, Listener listener, Producer producer) {
-        return new RemoteStreamingKieSessionImpl(configuration, envConfig, listener, producer);
-    }
 
     public static ItemToProcess getItemToProcess(ConsumerRecord record) {
         return new ItemToProcess(record.key().toString(), record.offset(), record.value());

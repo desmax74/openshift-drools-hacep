@@ -23,10 +23,10 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
-import org.kie.hacep.core.InfraFactory;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.core.infra.message.SnapshotMessage;
 import org.kie.remote.RemoteKieSession;
+import org.kie.remote.util.KafkaRemoteUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +51,7 @@ public class PodAsLeaderSnapshotTest extends KafkaFullTopicsTests{
 
         kafkaServerTest.insertBatchStockTicketEvent(10,
                                                     topicsConfig,
-                                                    RemoteKieSession.class, InfraFactory.getListener(getTestProperties(), false));
+                                                    RemoteKieSession.class, KafkaRemoteUtil.getListener(getTestProperties(), false));
         try {
 
             final AtomicInteger attempts = new AtomicInteger(0);

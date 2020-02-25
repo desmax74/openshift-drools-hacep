@@ -39,7 +39,6 @@ import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.core.infra.utils.ConsumerUtilsCoreImpl;
 import org.kie.hacep.core.infra.utils.SnapshotOnDemandUtilsImpl;
-import org.kie.hacep.exceptions.InitializeException;
 import org.kie.hacep.util.ConsumerUtilsCore;
 import org.kie.hacep.util.PrinterUtil;
 import org.kie.remote.DroolsExecutor;
@@ -160,7 +159,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
             logger.info("askAndProcessSnapshotOnDemand:{}", completed);
         }
         if (!completed) {
-            throw new InitializeException("Can't obtain a snapshot on demand");
+            throw new RuntimeException("Can't obtain a snapshot on demand");
         }
         return completed;
     }
@@ -199,7 +198,7 @@ public class DefaultKafkaConsumer<T> implements EventConsumer {
 
         if (snapshotInfos != null) {
             if (partitionCollection.size() > 1) {
-                throw new InitializeException("The system must run with only one partition per topic");
+                throw new RuntimeException("The system must run with only one partition per topic");
             }
             kafkaConsumer.assignment().forEach(topicPartition -> kafkaConsumer.seek(partitionCollection.iterator().next(),
                                                                                     snapshotInfos.getOffsetDuringSnapshot()));

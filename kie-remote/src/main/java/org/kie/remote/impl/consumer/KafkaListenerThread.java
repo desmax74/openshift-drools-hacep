@@ -28,7 +28,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.kie.remote.CommonConfig;
 import org.kie.remote.TopicsConfig;
 import org.kie.remote.message.ResultMessage;
-import org.kie.remote.util.KafkaUtil;
+import org.kie.remote.util.KafkaRemoteUtil;
 import org.kie.remote.util.SerializationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +44,7 @@ public class KafkaListenerThread implements ListenerThread {
 
     public KafkaListenerThread(Properties configuration, TopicsConfig config) {
         this.topicsConfig = config;
-        consumer = KafkaUtil.getConsumer(topicsConfig.getKieSessionInfosTopicName(), configuration);
+        consumer = KafkaRemoteUtil.getConsumer(topicsConfig.getKieSessionInfosTopicName(), configuration);
     }
 
     public void init(Map<String, CompletableFuture<Object>> requestsStore) {

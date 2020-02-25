@@ -11,7 +11,6 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
-import org.kie.hacep.core.InfraFactory;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.hacep.sample.kjar.StockTickEvent;
 import org.kie.remote.RemoteFactHandle;
@@ -23,6 +22,7 @@ import org.kie.remote.command.RemoteCommand;
 import org.kie.remote.impl.consumer.Listener;
 import org.kie.remote.impl.consumer.ListenerThread;
 import org.kie.remote.message.ControlMessage;
+import org.kie.remote.util.KafkaRemoteUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ public class PodAsReplicaTest extends KafkaFullTopicsTests {
                                                                     Config.getConsumerConfig("controlConsumerProcessOneSentMessageAsLeaderTest"));
 
         KafkaConsumer<byte[], String> kafkaLogConsumer = kafkaServerTest.getStringConsumer(TEST_KAFKA_LOGGER_TOPIC);
-        ListenerThread listenerThread = InfraFactory.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), envConfig.isLocal(), getTestProperties());
+        ListenerThread listenerThread = KafkaRemoteUtil.getListenerThread(TopicsConfig.getDefaultTopicsConfig(), envConfig.isLocal(), getTestProperties());
         Listener listener = new Listener(getTestProperties(), listenerThread);
         kafkaServerTest.insertBatchStockTicketEvent(1, topicsConfig, RemoteKieSession.class, listener);
 

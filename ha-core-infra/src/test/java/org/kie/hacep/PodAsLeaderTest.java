@@ -28,22 +28,18 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kie.hacep.core.Bootstrap;
-import org.kie.hacep.core.InfraFactory;
 import org.kie.hacep.core.infra.election.State;
 import org.kie.remote.RemoteKieSession;
-import org.kie.remote.TopicsConfig;
 import org.kie.remote.command.FireUntilHaltCommand;
 import org.kie.remote.command.InsertCommand;
 import org.kie.remote.command.RemoteCommand;
-import org.kie.remote.impl.consumer.Listener;
-import org.kie.remote.impl.consumer.ListenerThread;
 import org.kie.remote.message.ControlMessage;
+import org.kie.remote.util.KafkaRemoteUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.*;
 import static org.kie.remote.CommonConfig.SKIP_LISTENER_AUTOSTART;
-import static org.kie.remote.CommonConfig.getTestProperties;
 import static org.kie.remote.util.SerializationUtil.deserialize;
 
 public class PodAsLeaderTest extends KafkaFullTopicsTests {
@@ -63,7 +59,7 @@ public class PodAsLeaderTest extends KafkaFullTopicsTests {
         props.put(SKIP_LISTENER_AUTOSTART, true);
 
         logger.warn("Insert Stock Ticket event");
-        kafkaServerTest.insertBatchStockTicketEvent(1, topicsConfig, RemoteKieSession.class, props, InfraFactory.getListener(props, false));
+        kafkaServerTest.insertBatchStockTicketEvent(1, topicsConfig, RemoteKieSession.class, props, KafkaRemoteUtil.getListener(props, false));
         try {
             //EVENTS TOPIC
             logger.warn("Checks on Events topic");
