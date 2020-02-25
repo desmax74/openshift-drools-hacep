@@ -34,7 +34,7 @@ public class SerializationUtil {
             }
             return b.toByteArray();
         } catch (IOException io) {
-            throw new RuntimeException(io.getMessage(), io);
+            throw new IllegalArgumentException(io.getMessage(), io);
         }
     }
 
@@ -43,7 +43,7 @@ public class SerializationUtil {
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(bytez));
             return (T) in.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
 }
