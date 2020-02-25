@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.kie.hacep.core.GlobalStatus;
 import org.kie.remote.message.Message;
 import org.kie.remote.message.ResultMessage;
 import org.slf4j.Logger;
@@ -60,6 +61,8 @@ public class EventProducer<T> implements Producer {
             producer.send(getFreshProducerRecord(topicName, key, object)).get();
         } catch (InterruptedException | ExecutionException e) {
             logger.error("Error in produceSync!", e);
+            GlobalStatus.setNodeLive(false);
+            Thread.currentThread().interrupt();
         }
     }
 
