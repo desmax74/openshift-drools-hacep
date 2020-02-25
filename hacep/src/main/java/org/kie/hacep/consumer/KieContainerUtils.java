@@ -19,7 +19,6 @@ import org.kie.api.KieServices;
 import org.kie.api.builder.KieScanner;
 import org.kie.api.runtime.KieContainer;
 import org.kie.hacep.EnvConfig;
-import org.kie.hacep.exceptions.InitializeException;
 import org.kie.hacep.util.GAVUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +47,7 @@ public class KieContainerUtils {
             }
             return kieContainer;
         } else {
-            throw new InitializeException("KieServices is null");
+            throw new RuntimeException("KieServices is null");
         }
     }
 }
