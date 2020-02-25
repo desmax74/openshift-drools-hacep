@@ -45,7 +45,7 @@ public class CoreKubeTest {
         election.stop();
     }
 
-    @Test
+    @Test(expected = KubernetesClientException.class)
     public void pullClusterMembersTest() {
         CoreKube kube = new CoreKube("default", null);
         LeaderElection election =kube.getLeaderElection();
@@ -56,7 +56,7 @@ public class CoreKubeTest {
         election.stop();
     }
 
-    @Test
+    @Test(expected = KubernetesClientException.class)
     public void pullConfigMapTest() {
         CoreKube kube = new CoreKube("default", null);
         LeaderElection election =kube.getLeaderElection();
