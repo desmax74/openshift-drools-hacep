@@ -115,7 +115,7 @@ public class DefaultSessionSnapShooter implements SessionSnapshooter {
                                          snapshotMsg.getKjarGAV());
             }
         } else {
-            throw new InitializeException("KieServices is null");
+            throw new RuntimeException("KieServices is null");
         }
         return null;
     }

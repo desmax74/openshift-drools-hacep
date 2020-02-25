@@ -16,7 +16,6 @@
 package org.kie.hacep.core.infra.consumer;
 
 import org.kie.hacep.core.infra.election.LeadershipCallback;
-import org.kie.hacep.exceptions.ShutdownException;
 
 public class ConsumerController {
 
@@ -59,7 +58,7 @@ public class ConsumerController {
                 thread.join();
             } catch (InterruptedException ex) {
                 thread.interrupt();
-                throw new ShutdownException(ex.getMessage(), ex);
+                throw new RuntimeException(ex.getMessage(), ex);
             }
         }
     }

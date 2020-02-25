@@ -23,7 +23,6 @@ import org.kie.hacep.EnvConfig;
 import org.kie.hacep.core.infra.consumer.ConsumerController;
 import org.kie.hacep.core.infra.consumer.ConsumerHandler;
 import org.kie.hacep.core.infra.election.LeaderElection;
-import org.kie.hacep.exceptions.ShutdownException;
 import org.kie.remote.impl.producer.Producer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +62,7 @@ public class Bootstrap {
                 leadership.stop();
             } catch (Exception e) {
                 GlobalStatus.setNodeLive(false);
-                throw new ShutdownException(e.getMessage(), e);
+                throw new RuntimeException(e.getMessage(), e);
             }
             logger.info("Stop leaderElection");
         }

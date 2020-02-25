@@ -27,8 +27,6 @@ import org.kie.hacep.core.infra.SnapshotInfos;
 import org.kie.hacep.core.infra.consumer.ConsumerHandler;
 import org.kie.hacep.core.infra.consumer.ItemToProcess;
 import org.kie.hacep.core.infra.election.State;
-import org.kie.hacep.exceptions.InitializeException;
-import org.kie.hacep.exceptions.ProcessCommandException;
 import org.kie.hacep.util.ConsumerUtilsCore;
 import org.kie.hacep.util.PrinterUtil;
 import org.kie.remote.DroolsExecutor;
@@ -181,7 +179,7 @@ public class DroolsConsumerHandler implements ConsumerHandler {
                 visitable.accept(commandHandler);
             } catch (Exception e) {
                 GlobalStatus.setNodeLive(false);
-                throw new ProcessCommandException(e.getMessage(), e.getCause());
+                throw new RuntimeException(e.getMessage(), e.getCause());
             }
         }
     }
