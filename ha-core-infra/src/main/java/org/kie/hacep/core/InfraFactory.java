@@ -37,45 +37,44 @@ import org.kie.hacep.core.infra.consumer.LocalConsumer;
 import org.kie.hacep.core.infra.utils.ConsumerUtilsCoreImpl;
 import org.kie.remote.RemoteKieSession;
 import org.kie.remote.RemoteStreamingKieSession;
-import org.kie.remote.TopicsConfig;
-import org.kie.remote.impl.ClientUtils;
 import org.kie.remote.impl.RemoteKieSessionImpl;
 import org.kie.remote.impl.RemoteStreamingKieSessionImpl;
-import org.kie.remote.impl.consumer.KafkaListenerThread;
 import org.kie.remote.impl.consumer.Listener;
-import org.kie.remote.impl.consumer.ListenerThread;
-import org.kie.remote.impl.consumer.LocalListenerThread;
 import org.kie.remote.impl.producer.EventProducer;
 import org.kie.remote.impl.producer.LocalProducer;
 import org.kie.remote.impl.producer.Producer;
 
-import static org.kie.remote.CommonConfig.LOCAL_MESSAGE_SYSTEM_CONF;
-import static org.kie.remote.util.ConfigurationUtil.readBoolean;
-
 public class InfraFactory {
 
-    private InfraFactory(){}
+    private InfraFactory() {
+    }
 
     public static EventConsumer getEventConsumer(EnvConfig config) {
-        return config.isLocal() ? new LocalConsumer(config) : new DefaultKafkaConsumer(config, getProducer(false));
+        return config.isLocal() ? new LocalConsumer(config) : new DefaultKafkaConsumer(config,
+                                                                                       getProducer(false));
     }
 
     public static SessionSnapshooter getSnapshooter(EnvConfig envConfig) {
         return new DefaultSessionSnapShooter(envConfig);
     }
 
-    public static ConsumerHandler getConsumerHandler(Producer producer, EnvConfig envConfig) {
-        return new DroolsConsumerHandler(producer, envConfig, getSnapshooter(envConfig), new ConsumerUtilsCoreImpl());
+    public static ConsumerHandler getConsumerHandler(Producer producer,
+                                                     EnvConfig envConfig) {
+        return new DroolsConsumerHandler(producer,
+                                         envConfig,
+                                         getSnapshooter(envConfig),
+                                         new ConsumerUtilsCoreImpl());
     }
 
-
-    public static KafkaConsumer getConsumer(String topic, Properties properties) {
+    public static KafkaConsumer getConsumer(String topic,
+                                            Properties properties) {
         KafkaConsumer consumer = new KafkaConsumer(properties);
         List<PartitionInfo> infos = consumer.partitionsFor(topic);
         List<TopicPartition> partitions = new ArrayList<>();
         if (infos != null) {
             for (PartitionInfo partition : infos) {
-                partitions.add(new TopicPartition(topic, partition.partition()));
+                partitions.add(new TopicPartition(topic,
+                                                  partition.partition()));
             }
         }
         consumer.assign(partitions);
@@ -90,28 +89,35 @@ public class InfraFactory {
         }
         Set<TopicPartition> assignments = consumer.assignment();
         for (TopicPartition part : assignments) {
-            consumer.seek(part, lastOffset - 1);
+            consumer.seek(part,
+                          lastOffset - 1);
         }
         return consumer;
     }
 
-
-    public static RemoteKieSession createRemoteKieSession(Properties configuration, Listener listener, Producer producer) {
-        return new RemoteKieSessionImpl(configuration, listener, producer);
+    public static RemoteKieSession createRemoteKieSession(Properties configuration,
+                                                          Listener listener,
+                                                          Producer producer) {
+        return new RemoteKieSessionImpl(configuration,
+                                        listener,
+                                        producer);
     }
-
 
     public static Producer getProducer(boolean isLocal) {
         return isLocal ? new LocalProducer() : new EventProducer();
     }
 
-    public static RemoteStreamingKieSession createRemoteStreamingKieSession(Properties configuration, Listener listener, Producer producer) {
-        return new RemoteStreamingKieSessionImpl(configuration, listener, producer);
+    public static RemoteStreamingKieSession createRemoteStreamingKieSession(Properties configuration,
+                                                                            Listener listener,
+                                                                            Producer producer) {
+        return new RemoteStreamingKieSessionImpl(configuration,
+                                                 listener,
+                                                 producer);
     }
-
 
     public static ItemToProcess getItemToProcess(ConsumerRecord record) {
-        return new ItemToProcess(record.key().toString(), record.offset(), record.value());
+        return new ItemToProcess(record.key().toString(),
+                                 record.offset(),
+                                 record.value());
     }
-
 }
