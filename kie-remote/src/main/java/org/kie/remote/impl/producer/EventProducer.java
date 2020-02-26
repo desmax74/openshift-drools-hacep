@@ -61,6 +61,7 @@ public class EventProducer<T> implements Producer {
         } catch (InterruptedException | ExecutionException e) {
             logger.error("Error in produceSync!", e);
             Thread.currentThread().interrupt();
+            throw new IllegalStateException(e);
         }
     }
 
