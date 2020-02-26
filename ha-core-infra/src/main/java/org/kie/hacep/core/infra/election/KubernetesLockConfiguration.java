@@ -24,7 +24,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
  * from org.apache.camel.component.kubernetes.cluster.lock
  * Configuration for Kubernetes Lock.
  */
-public class KubernetesLockConfiguration implements Cloneable {
+public class KubernetesLockConfiguration {
 
   public static final String DEFAULT_CONFIGMAP_NAME = "leaders";
 
