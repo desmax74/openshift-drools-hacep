@@ -59,7 +59,6 @@ public class EventProducer<T> implements Producer {
        try {
             producer.send(getFreshProducerRecord(topicName, key, object)).get();
         } catch (InterruptedException | ExecutionException e) {
-            logger.error("Error in produceSync!", e);
             Thread.currentThread().interrupt();
             throw new IllegalStateException(e);
         }
