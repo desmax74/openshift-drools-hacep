@@ -111,7 +111,6 @@ public class Config {
         try (InputStream in = Config.class.getClassLoader().getResourceAsStream(fileName)) {
             config.load(in);
         } catch (Exception ex) {
-            logger.error(ex.getMessage(), ex);
             throw new IllegalArgumentException(ex);
         }
         config.put(BOOTSTRAP_SERVERS_KEY, config.getOrDefault(BOOTSTRAP_SERVERS_KEY, getBootStrapServers()));
