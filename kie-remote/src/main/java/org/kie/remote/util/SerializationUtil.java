@@ -23,12 +23,9 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class SerializationUtil {
 
-    private static Logger logger = LoggerFactory.getLogger(SerializationUtil.class);
+    private SerializationUtil() {}
 
     public static byte[] serialize(Object obj) {
         try (ByteArrayOutputStream b = new ByteArrayOutputStream()) {
@@ -37,8 +34,7 @@ public class SerializationUtil {
             }
             return b.toByteArray();
         } catch (IOException io) {
-            logger.error(io.getMessage(), io);
-            throw new RuntimeException( io );
+            throw new IllegalArgumentException(io.getMessage(), io);
         }
     }
 
@@ -47,8 +43,7 @@ public class SerializationUtil {
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(bytez));
             return (T) in.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            logger.error(e.getMessage(), e);
-            throw new RuntimeException( e );
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
 }

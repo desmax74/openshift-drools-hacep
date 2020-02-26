@@ -15,19 +15,17 @@
  */
 package org.kie.hacep;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
 
-import org.kie.remote.CommonConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Config {
 
     public static final String BOOTSTRAP_SERVERS_KEY = "bootstrap.servers";
-    public static final String DEFAULT_KAFKA_PORT ="9092";
+    public static final String DEFAULT_KAFKA_PORT = "9092";
     public static final String NAMESPACE = "namespace";
     public static final String DEFAULT_CONTROL_TOPIC = "control";
     public static final String DEFAULT_SNAPSHOT_TOPIC = "snapshot";
@@ -36,7 +34,6 @@ public class Config {
     public static final String DEFAULT_PRINTER_TYPE = "printer.type";
     public static final String MAX_SNAPSHOT_AGE = "max.snapshot.age";
     public static final String DEFAULT_MAX_SNAPSHOT_AGE_SEC = "600";
-
     public static final String MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST = "MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST";
     public static final String BROKER_URL = System.getenv(MY_CLUSTER_KAFKA_BOOTSTRAP_SERVICE_HOST);
     public static final int DEFAULT_POLL_TIMEOUT = 1000;
@@ -53,18 +50,21 @@ public class Config {
     public static final String MAX_SNAPSHOT_REQUEST_ATTEMPTS = "max.snapshot.request.attempts";
     public static final String UPDATABLE_KJAR = "UPDATABLEKJAR";
     public static final String KJAR_GAV = "KJARGAV";
-    public static final String DEFAULT_MAX_SNAPSHOT_REQUEST_ATTEMPTS = "10";
+    public static final String DEFAULT_MAX_SNAPSHOT_REQUEST_ATTEMPTS = "30";
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
-    private static Properties consumerConf, producerConf, snapshotConsumerConf, snapshotProducerConf;
     private static final String CONSUMER_CONF = "consumer.properties";
     private static final String PRODUCER_CONF = "producer.properties";
     private static final String CONF = "infra.properties";
-    private static final String SNAPSHOT_CONSUMER_CONF = "snapshot_consumer.properties";
-    private static final String SNAPSHOT_PRODUCER_CONF = "snapshot_producer.properties";
+    private static Properties consumerConf;
+    private static Properties producerConf;
+    private static Properties snapshotConsumerConf;
+    private static Properties snapshotProducerConf;
+
+    private Config() { }
 
     public static String getBootStrapServers() {
         StringBuilder sb = new StringBuilder();
-        sb.append(Config.BROKER_URL).append(":").append(DEFAULT_KAFKA_PORT);
+        sb.append(BROKER_URL).append(":").append(DEFAULT_KAFKA_PORT);
         //append("my-cluster-kafka-bootstrap.my-kafka-project.svc:9092");//plain
         //.append(",").append("my-cluster-kafka-brokers.my-kafka-project.svc").append(":9093");//tls
         return sb.toString();
@@ -75,60 +75,50 @@ public class Config {
     }
 
     public static Properties getConsumerConfig(String caller) {
-        if(consumerConf == null){
+        if (consumerConf == null) {
             consumerConf = getDefaultConfigFromProps(CONSUMER_CONF);
         }
-        logConfig(caller,consumerConf);
+        logConfig(caller, consumerConf);
         return consumerConf;
     }
 
     public static Properties getProducerConfig(String caller) {
-        if(producerConf == null){
+        if (producerConf == null) {
             producerConf = getDefaultConfigFromProps(PRODUCER_CONF);
         }
-        logConfig(caller,producerConf);
+        logConfig(caller, producerConf);
         return producerConf;
     }
 
     public static Properties getSnapshotConsumerConfig() {
-        if(snapshotConsumerConf == null){
-            snapshotConsumerConf = getDefaultConfigFromProps(SNAPSHOT_CONSUMER_CONF);
+        if (snapshotConsumerConf == null) {
+            snapshotConsumerConf = getDefaultConfigFromProps(CONSUMER_CONF);
         }
-        logConfig("SnapshotConsumer",snapshotConsumerConf);
+        logConfig("SnapshotConsumer", snapshotConsumerConf);
         return snapshotConsumerConf;
     }
 
     public static Properties getSnapshotProducerConfig() {
-        if(snapshotProducerConf == null){
-            snapshotProducerConf = getDefaultConfigFromProps(SNAPSHOT_PRODUCER_CONF);
+        if (snapshotProducerConf == null) {
+            snapshotProducerConf = getDefaultConfigFromProps(PRODUCER_CONF);
         }
-        logConfig("SnapshotProducer",snapshotProducerConf);
+        logConfig("SnapshotProducer", snapshotProducerConf);
         return snapshotProducerConf;
     }
 
     public static Properties getDefaultConfigFromProps(String fileName) {
-            Properties config = new Properties();
-            InputStream in = null;
-            try {
-                in = Config.class.getClassLoader().getResourceAsStream(fileName);
-            } catch (Exception e) {
-            } finally {
-                try {
-                    config.load(in);
-                    in.close();
-                } catch (IOException ioe) {
-                    logger.error(ioe.getMessage(),
-                                 ioe);
-                }
-            }
-
-        if(config.get(BOOTSTRAP_SERVERS_KEY)== null){
-            config.put(BOOTSTRAP_SERVERS_KEY, getBootStrapServers());
+        Properties config = new Properties();
+        try (InputStream in = Config.class.getClassLoader().getResourceAsStream(fileName)) {
+            config.load(in);
+        } catch (Exception ex) {
+            throw new IllegalArgumentException(ex);
         }
+        config.put(BOOTSTRAP_SERVERS_KEY, config.getOrDefault(BOOTSTRAP_SERVERS_KEY, getBootStrapServers()));
         return config;
     }
 
-    private static void logConfig(String subject,Properties producerProperties) {
+    private static void logConfig(String subject,
+                                  Properties producerProperties) {
         if (logger.isDebugEnabled()) {
             StringBuilder sb = new StringBuilder();
             sb.append("\n");

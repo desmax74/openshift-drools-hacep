@@ -8,7 +8,7 @@
     <version>7.34.0-SNAPSHOT</version>
   </parent>
   <groupId>org.kie</groupId>
-  <artifactId>openshift-kie-hacep</artifactId>
+  <artifactId>hacep</artifactId>
 
   <dependencies>
     <dependency>
@@ -27,54 +27,11 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.kafka</groupId>
-      <artifactId>kafka-clients</artifactId>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>runtime</scope>
     </dependency>
 
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.spec.javax.ws.rs</groupId>
-      <artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.spec.javax.servlet</groupId>
-      <artifactId>jboss-servlet-api_4.0_spec</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.fabric8</groupId>
-      <artifactId>kubernetes-client</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>validation-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.kafka</groupId>
-      <artifactId>kafka_2.12</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
 </project>

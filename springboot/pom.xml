@@ -26,13 +26,17 @@
   <dependencies>
     <dependency>
       <groupId>org.kie</groupId>
-      <artifactId>openshift-kie-hacep</artifactId>
+      <artifactId>hacep</artifactId>
       <exclusions>
         <exclusion>
           <groupId>javax.validation</groupId>
           <artifactId>validation-api</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>ha-core-infra</artifactId>
     </dependency>
     <dependency>
       <groupId>org.kie</groupId>

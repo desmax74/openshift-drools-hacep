@@ -20,6 +20,8 @@ import java.util.Properties;
 
 public class ConfigurationUtil {
 
+    private ConfigurationUtil(){}
+
     public static boolean readBoolean( Properties configuration, String propName ) {
         Object value = (Object) configuration.get( propName );
         if (value instanceof Boolean) {

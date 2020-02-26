@@ -21,7 +21,11 @@ import java.util.UUID;
 public class UpdateKJarCommand extends AbstractCommand implements VisitableCommand, RemoteCommand, Serializable {
 
     private String kJarGAV;
-    private String groupID, artifactID, version;
+    private String groupID;
+    private String artifactID;
+    private String version;
+
+    public UpdateKJarCommand() {/*For serialization*/}
 
     public UpdateKJarCommand(String kjarGAV){
         super(UUID.randomUUID().toString());

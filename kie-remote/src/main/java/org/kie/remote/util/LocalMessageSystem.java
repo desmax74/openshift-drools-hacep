@@ -33,7 +33,9 @@ public class LocalMessageSystem {
     }
 
     public void put(String topic, Object message) {
-        queueForTopic(topic).offer( message );
+        if (!queueForTopic(topic).offer(message)) {
+            throw new IllegalStateException("msg :"+message +" not added in the topic:" +topic);
+        }
     }
 
     public Object peek(String topic) {
@@ -44,19 +46,21 @@ public class LocalMessageSystem {
         return queueForTopic(topic).poll();
     }
 
-    public Object poll(String topic, int durationMillis) {
-        try {
-            return queueForTopic(topic).poll(durationMillis, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            throw new RuntimeException( e );
-        }
-    }
-
     public static LocalMessageSystem get() {
         return LazyHolder.get();
     }
 
+    public Object poll(String topic, int durationMillis) {
+        try {
+            return queueForTopic(topic).poll(durationMillis, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(e.getMessage(), e);
+        }
+    }
+
     private static class LazyHolder {
+
         private static final LocalMessageSystem INSTANCE = new LocalMessageSystem();
 
         public static LocalMessageSystem get() {

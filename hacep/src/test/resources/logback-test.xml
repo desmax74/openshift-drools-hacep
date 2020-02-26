@@ -13,23 +13,8 @@
     </encoder>
   </appender>
 
-  <appender name="KafkaAppender" class="com.github.danielwegener.logback.kafka.KafkaAppender">
-    <encoder>
-      <pattern>%msg</pattern>
-    </encoder>
 
-    <topic>testlogs</topic>
-    <keyingStrategy class="com.github.danielwegener.logback.kafka.keying.HostNameKeyingStrategy" />
-    <deliveryStrategy class="com.github.danielwegener.logback.kafka.delivery.AsynchronousDeliveryStrategy" />
-
-    <producerConfig>bootstrap.servers=localhost:9092</producerConfig>
-  </appender>
-
-  <logger name="org.hacep" level="warn" additivity="false">
-    <appender-ref ref="KafkaAppender"/>
-  </logger>
-
-  <logger name="org.kie.hacep.util.PrinterLogImpl" level="info" additivity="false">
+  <logger name="org.hacep" level="info" additivity="false">
     <appender-ref ref="STDOUT"/>
   </logger>
 

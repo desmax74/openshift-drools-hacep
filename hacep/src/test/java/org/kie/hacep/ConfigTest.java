@@ -24,10 +24,10 @@ import static org.junit.Assert.*;
 public class ConfigTest {
 
     @Test
-    public void defaultConfigTest(){
+    public void defaultConfigTest() {
         Properties defaultConfig = Config.getDefaultConfig();
         assertTrue(2 == defaultConfig.size());
-        assertTrue(defaultConfig.keySet().contains(Config.BOOTSTRAP_SERVERS_KEY));
-        assertTrue(defaultConfig.keySet().contains(Config.ITERATION_BETWEEN_SNAPSHOT));
+        assertTrue(defaultConfig.containsKey(Config.BOOTSTRAP_SERVERS_KEY));
+        assertTrue(defaultConfig.containsKey(Config.ITERATION_BETWEEN_SNAPSHOT));
     }
 }

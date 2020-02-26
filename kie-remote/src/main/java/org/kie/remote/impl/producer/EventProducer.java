@@ -22,14 +22,11 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.kie.remote.message.Message;
 import org.kie.remote.message.ResultMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.kie.remote.util.SerializationUtil.serialize;
 
 public class EventProducer<T> implements Producer {
 
-    private Logger logger = LoggerFactory.getLogger(EventProducer.class);
     protected org.apache.kafka.clients.producer.Producer<String, T> producer;
 
     @Override
@@ -56,10 +53,11 @@ public class EventProducer<T> implements Producer {
     }
 
     protected void internalProduceSync(String topicName, String key, Object object) {
-        try {
+       try {
             producer.send(getFreshProducerRecord(topicName, key, object)).get();
         } catch (InterruptedException | ExecutionException e) {
-            logger.error("Error in produceSync!", e);
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(e);
         }
     }
 
