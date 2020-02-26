@@ -165,15 +165,7 @@ public class KubernetesLockConfiguration {
   public void setRetryPeriodMillis(long retryPeriodMillis) {
     this.retryPeriodMillis = retryPeriodMillis;
   }
-
-  public KubernetesLockConfiguration copy() {
-    try {
-      return (KubernetesLockConfiguration) this.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new IllegalStateException("Cannot clone", e);
-    }
-  }
-
+  
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder("KubernetesLockConfiguration{");

@@ -65,8 +65,6 @@ public class KubernetesLockConfigurationTest {
         configuration.setJitterFactor(2.4);
         assertTrue(2.4 == configuration.getJitterFactor());
 
-        assertNotNull(configuration.copy());
-
         assertNotNull(configuration.toString());
     }
 }
