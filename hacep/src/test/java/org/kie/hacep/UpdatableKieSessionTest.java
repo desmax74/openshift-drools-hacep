@@ -55,8 +55,8 @@ public class UpdatableKieSessionTest {
     @Before
     public void init() throws Exception {
         ks = KieServices.get();
-        String drl1 = new String(Files.readAllBytes(Paths.get("target/test-classes/drl1.drl")));
-        String drl2 = new String(Files.readAllBytes(Paths.get("target/test-classes/drl2.drl")));
+        String drl1 = new String(Files.readAllBytes(Paths.get("target/test-classes/org/pkg1/drl1.drl")));
+        String drl2 = new String(Files.readAllBytes(Paths.get("target/test-classes/org/pkg1/drl2.drl")));
         createAndDeployKJar(GAVUtils.getReleaseID(gav, KieServices.get()),
                             Collections.singletonMap("src/main/resources/org/pkg1/r0.drl", drl1));
         createAndDeployKJar(GAVUtils.getReleaseID(updatedGav, KieServices.get()),
