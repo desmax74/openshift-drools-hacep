@@ -96,11 +96,6 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <dependency>
-        <groupId>org.drools</groupId>
-        <artifactId>drools-model-compiler</artifactId>
-        <version>${version.org.kie}</version>
-      </dependency>
       <!-- kafka -->
       <dependency>
         <groupId>org.apache.kafka</groupId>
