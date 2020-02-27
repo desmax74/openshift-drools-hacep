@@ -11,10 +11,6 @@
 
     <artifactId>sample-hacep-project-kjar</artifactId>
 
-    <properties>
-      <generateModel>NO</generateModel>
-    </properties>
-
     <packaging>kjar</packaging>
 
     <dependencies>
@@ -25,6 +21,10 @@
         <dependency>
             <groupId>org.kie</groupId>
             <artifactId>kie-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-model-compiler</artifactId>
         </dependency>
     </dependencies>
 

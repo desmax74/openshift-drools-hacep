@@ -96,7 +96,6 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-
       <!-- kafka -->
       <dependency>
         <groupId>org.apache.kafka</groupId>
