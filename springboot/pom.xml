@@ -26,8 +26,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.kie</groupId>
-      <artifactId>hacep</artifactId>
+      <groupId>org.drools</groupId>
+      <artifactId>ha-core</artifactId>
       <exclusions>
         <exclusion>
           <groupId>javax.validation</groupId>
@@ -36,7 +36,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.kie</groupId>
+      <groupId>org.drools</groupId>
       <artifactId>ha-core-infra</artifactId>
     </dependency>
     <dependency>
