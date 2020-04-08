@@ -8,6 +8,12 @@
   <variable name="KIE_SCANNER_LOG_LEVEL" value="${KIE_SCANNER_LOG_LEVEL:-INFO}" />
   <variable name="KAFKA_LOG_LEVEL" value="${KAFKA_LOG_LEVEL:-WARN}" />
 
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%-4relative [%thread] %-5level %logger{35} - %msg %n</pattern>
+    </encoder>
+  </appender>
+
   <root level="${ROOT_LOG_LEVEL}">
     <appender-ref ref="CONSOLE" />
   </root>
